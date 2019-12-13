@@ -5,6 +5,7 @@ module.exports = {
     github: 'https://github.com/rpsychologist/cohend',
     url: 'https://rpsychologist.com/d3/cohend/'
   },
+  pathPrefix: `/d3/cohend`,
   plugins: [
     `gatsby-plugin-material-ui`,
     `gatsby-transformer-remark`,
@@ -43,9 +44,9 @@ module.exports = {
     {
     resolve: `gatsby-plugin-manifest`,
     options: {
-      name: "Cohen's d",
+      name: "Interpreting Cohen's d",
       short_name: "Cohend",
-      start_url: "/",
+      start_url: "https://rpsychologist.com/d3/cohend/",
       background_color: "#ffffff",
       theme_color: "#ffffff",
       display: "standalone",

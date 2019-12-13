@@ -12,6 +12,7 @@
 # production
 /build
 /public
+Makefile
 
 # misc
 .DS_Store
