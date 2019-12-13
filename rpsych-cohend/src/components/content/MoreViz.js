@@ -52,7 +52,6 @@ const MoreViz = () => {
       }
     `
   );
-  console.log(data);
   return (
     <div className={classes.root}>
       <Typography variant="h2" align="center" color="textPrimary" gutterBottom>
