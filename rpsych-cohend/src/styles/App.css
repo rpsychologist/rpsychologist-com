@@ -1,0 +1,56 @@
+a {
+  text-decoration: none;
+  color: #428bca;
+}
+a:hover {
+  text-decoration: underline;
+}
+footer a {
+  text-decoration: none;
+  color: white;
+}
+.gatsby-highlight {
+  background-color: #fdf6e3;
+  border-radius: 0;
+  margin: 0 -24px 0 -24px;
+  padding: 0 1em;
+  overflow: auto;
+}
+
+/* VIZ */
+path#dist1 {
+  fill: #30394F;
+  stroke: #30394F;
+  stroke-width: 0px;
+}
+path#dist2{
+  fill: #6ACEEB;
+  stroke: #6ACEEB;
+  stroke-width: 0px;
+
+}
+path.poly {
+  stroke: #0E6569;
+  fill: #0E6569;
+}
+line#mu_connect {
+  fill: none;
+  stroke: black;
+  stroke-width: 2px;
+}
+line#mu0 {
+  fill: none;
+  stroke: white;
+  stroke-dasharray: 2,2;
+}
+line#mu1 {
+  fill: none;
+  stroke: white;
+  stroke-dasharray: 2,2;
+}
+path.arc1 {
+  fill: #fff;
+}
+path.arc0 {
+  fill: #2e8ece
+} 
