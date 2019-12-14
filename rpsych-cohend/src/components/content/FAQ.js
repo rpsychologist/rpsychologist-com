@@ -51,8 +51,8 @@ const FaqPage = () => {
         <ExpansionPanel>
           <ExpansionPanelSummary
             expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1a-content"
-            id="panel1a-header"
+            aria-controls={`FAQ-${node.frontmatter.id}`}
+            id={`FAQ-${node.frontmatter.id}`}
           >
             <Typography className={classes.heading}>
               {node.frontmatter.title}

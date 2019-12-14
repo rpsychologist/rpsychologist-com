@@ -32,7 +32,8 @@ const SettingsInput = ({
     const name = e.target.name;
 
     setInput(value);
-    if ((value > max) | (value < min)) {
+    const checkInput = (name === "M0" | name === "M1");
+    if ((value > max & checkInput) | (value < min & checkInput)) {
     } else {
       handleChange({
         name: e.target.name,
@@ -49,7 +50,7 @@ const SettingsInput = ({
     >
       <div>
         <TextField
-          id="filled-number"
+          id={`input-${name}`}
           label={label}
           name={name}
           type={type}
