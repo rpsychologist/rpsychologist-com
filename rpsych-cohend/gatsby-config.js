@@ -1,6 +1,9 @@
 module.exports = {
   siteMetadata: {
     title: `Understanding Cohen's d`,
+    description: `A tool to understand Cohen's d standardized effect size`,
+    author: `Kristoffer Magnusson`,
+    twitter: `@krstoffr`,
     version: '2.0.0 (beta)',
     github: 'https://github.com/rpsychologist/cohend',
     url: 'https://rpsychologist.com/d3/cohend/'
@@ -12,6 +15,7 @@ module.exports = {
     `gatsby-transformer-yaml`,
     `gatsby-transformer-sharp`,
     `gatsby-plugin-sharp`,
+    `gatsby-plugin-react-helmet`,
     {
       resolve: `gatsby-plugin-google-analytics`,
       options: {

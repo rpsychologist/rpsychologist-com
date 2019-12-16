@@ -16,6 +16,7 @@ import Posters from "./components/content/Posters";
 import Contribute from "./components/content/Contribute";
 import Button from "@material-ui/core/Button";
 import Content from "./Viz";
+import SEO from "./components/SEO";
 import { normal } from "jstat";
 
 const useStyles = makeStyles(theme => ({
@@ -67,7 +68,7 @@ if (typeof localStorage !== `undefined`) {
 } else {
   initialState = {
     muZeroLabel: "Control",
-    muOneLabel: "Treatment",
+    muOneLabel: "Treatment"
   };
 }
 
@@ -177,17 +178,27 @@ const App = () => {
 
   return (
     <div className={classes.root}>
+      <SEO
+        keywords={[
+          `Cohen's d`,
+          `Effect size`,
+          `Interactive`,
+          `Visualization`,
+          `Teaching`,
+          `Science`,
+          `Psychology`
+        ]}
+      />
       <CssBaseline />
       <ThemeProvider theme={theme}>
         <VizDispatch.Provider value={dispatch}>
           <HeaderAppBar />
-          {/* <Container> */}
-            <SettingsDrawer
-              handleDrawer={toggleDrawer}
-              open={openSettings}
-              vizState={state}
-            >
-              <Container> 
+          <SettingsDrawer
+            handleDrawer={toggleDrawer}
+            open={openSettings}
+            vizState={state}
+          >
+            <Container>
               <Typography
                 variant="h2"
                 component="h1"
@@ -219,42 +230,41 @@ const App = () => {
                   </a>
                 </p>
               </Typography>
-              </Container>
-              <Container className={classes.textContent}>
-                <IntroText />
-              </Container>
-              <Content
-                openSettings={openSettings}
-                vizState={state}
-                toggleDrawer={toggleDrawer}
-              />
-              <Container className={classes.textContent}>
-                <Typography
-                  variant="h4"
-                  component="h2"
-                  align="center"
-                  gutterBottom
-                >
-                  A Common Language Explanation
-                </Typography>
-                <CommonLanguage vizState={state} />
-                <Typography
-                  variant="h4"
-                  component="h2"
-                  align="center"
-                  gutterBottom
-                >
-                  FAQ
-                </Typography>
-                <Faq />
-                <Contribute />
-                <Posters />
-              </Container>
-              <Container maxWidth="lg">
-                <MoreViz />
-              </Container>
-            </SettingsDrawer>
-          {/* </Container> */}
+            </Container>
+            <Container className={classes.textContent}>
+              <IntroText />
+            </Container>
+            <Content
+              openSettings={openSettings}
+              vizState={state}
+              toggleDrawer={toggleDrawer}
+            />
+            <Container className={classes.textContent}>
+              <Typography
+                variant="h4"
+                component="h2"
+                align="center"
+                gutterBottom
+              >
+                A Common Language Explanation
+              </Typography>
+              <CommonLanguage vizState={state} />
+              <Typography
+                variant="h4"
+                component="h2"
+                align="center"
+                gutterBottom
+              >
+                FAQ
+              </Typography>
+              <Faq />
+              <Contribute />
+              <Posters />
+            </Container>
+            <Container maxWidth="lg">
+              <MoreViz />
+            </Container>
+          </SettingsDrawer>
         </VizDispatch.Provider>
 
         <footer className={classes.footer}>
