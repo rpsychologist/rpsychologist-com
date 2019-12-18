@@ -1,5 +1,4 @@
 import React, { useReducer, useState, useEffect, createContext } from "react";
-import { useStaticQuery, graphql } from "gatsby";
 import Typography from "@material-ui/core/Typography";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { makeStyles, useTheme, ThemeProvider } from "@material-ui/core/styles";
@@ -17,6 +16,7 @@ import Contribute from "./components/content/Contribute";
 import Button from "@material-ui/core/Button";
 import Content from "./Viz";
 import SEO from "./components/SEO";
+import Footer from "./components/content/Footer"
 import { normal } from "jstat";
 
 const useStyles = makeStyles(theme => ({
@@ -24,14 +24,6 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     flexDirection: "column",
     minHeight: "100vh"
-  },
-  footer: {
-    marginTop: "auto",
-    display: "flex",
-    flexDirection: "column",
-    backgroundColor: "#2b3038",
-    color: "white",
-    padding: theme.spacing(6)
   },
   textContent: {
     maxWidth: 700
@@ -150,19 +142,6 @@ const App = () => {
   const [openSettings, setOpenSettings] = useState(false);
   const [state, dispatch] = useReducer(vizReducer, initialState);
 
-  const data = useStaticQuery(
-    graphql`
-      query {
-        site {
-          siteMetadata {
-            version
-            github
-          }
-        }
-      }
-    `
-  );
-
   useEffect(() => dispatch({ name: "cohend", value: initialState.cohend }), []);
 
   const toggleDrawer = (side, open) => event => {
@@ -266,19 +245,7 @@ const App = () => {
             </Container>
           </SettingsDrawer>
         </VizDispatch.Provider>
-
-        <footer className={classes.footer}>
-          <Container maxWidth="sm">
-            <Typography variant="h6" align="center" gutterBottom>
-              Footer
-            </Typography>
-            <Typography variant="subtitle1" align="center" component="p">
-              Version {data.site.siteMetadata.version}. License MIT (
-              <a href={data.site.siteMetadata.github}>source code</a>).
-              Visualization is CC0.
-            </Typography>
-          </Container>
-        </footer>
+        <Footer/>
       </ThemeProvider>
     </div>
   );
