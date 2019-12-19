@@ -41,7 +41,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
             <Grid item xs={3}>
               <Paper className={classes.paper}>
                 <ResponsiveChart chart={DonutChart} data={vizState.U3} formatType={".3p"} />
-                <Typography align="center" variant="body1">U3</Typography>
+                <Typography align="center" variant="body1">Cohen's U<sub>3</sub></Typography>
               </Paper>
             </Grid>
             <Grid item xs={3}>

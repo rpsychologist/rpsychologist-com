@@ -7,7 +7,9 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import TwitterIcon from "@material-ui/icons/Twitter";
 import LinkedInIcon from "@material-ui/icons/LinkedIn";
+import FavoriteIcon from '@material-ui/icons/Favorite';
 import GitHubIcon from "@material-ui/icons/GitHub";
+import HomeIcon from '@material-ui/icons/Home';
 import { useStaticQuery, graphql } from "gatsby";
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
@@ -26,22 +28,20 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(6)
   },
   logoContainer: {
-    flexGrow: 1
+
+    paddingTop: theme.spacing(3)
+  },
+  licenses: {
+    paddingTop: theme.spacing(3)
   },
   logo: {
-    filter: "brightness(100)",
+    filter: "invert(100%)",
     maxWidth: 200,
-    transition: "0.5s",
-    "&:hover": {
-      filter:
-        "drop-shadow( 0px 0px 6px rgba(106, 206, 235, .9)) brightness(100)"
-    }
+  },
+  icon: {
+    color: "rgba(255, 255, 255, 0.9)",
   }
 }));
-
-function ListItemLink(props) {
-  return <ListItem button component="a" {...props} />;
-}
 
 const Footer = () => {
   const classes = useStyles();
@@ -57,65 +57,97 @@ const Footer = () => {
       }
     `
   );
+  var d = new Date();
+  const currentDate = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
   return (
     <footer className={classes.footer}>
       <Container maxWidth="sm">
-        {/* <Typography variant="h6" align="center" gutterBottom>
-          Footer
-        </Typography> */}
         <Grid
           container
           className={classes.root}
           justify="center"
-          alignItems="center"
-          spacing={6}
+          spacing={8}
         >
-          <Grid xs={6} key="1" className={classes.logoContainer} item>
-          <Typography variant="h6" align="left" gutterBottom>
+          <Grid  sm={6} key="1" item>
+            <Grid xs={12} >
+            <Typography variant="h6" align="left" gutterBottom>
               About
             </Typography>
-            <img src={logo} alt="RPsychologist logo" className={classes.logo} />
+            </Grid>
+            <Grid xs={12} className={classes.logoContainer}>
+              <img src={logo} alt="RPsychologist logo" className={classes.logo} />
             <Typography variant="body2" align="left" gutterBottom>
-              Created by Kristoffer Magnusson
+              Created by <a href="https://rpsychologist.com/about">Kristoffer Magnusson</a>
             </Typography>
+            </Grid>
           </Grid>
-          <Grid xs={6} key="2" item>
+          <Grid sm={6} key="2" item>
             <Typography variant="h6" align="left" gutterBottom>
               Connect
             </Typography>
-            <List component="nav" aria-label="secondary mailbox folders">
-              <ListItem button>
+            <List component="nav" aria-label="connect">
+              <ListItem button component="a" href="https://www.twitter.com/krstoffr">
                 <ListItemIcon>
-                  <TwitterIcon />
+                  <TwitterIcon className={classes.icon}/>
                 </ListItemIcon>
                 <ListItemText primary="Twitter" />
               </ListItem>
-              <ListItem button>
+              <ListItem button component="a" href="https://www.github.com/rpsychologist">
                 <ListItemIcon>
-                  <GitHubIcon />
+                  <GitHubIcon className={classes.icon}/>
                 </ListItemIcon>
                 <ListItemText primary="GitHub" />
               </ListItem>
-              <ListItem button>
+              <ListItem button component="a" href="https://www.linkedin.com/in/kristofferm">
                 <ListItemIcon>
-                  <LinkedInIcon />
+                  <LinkedInIcon className={classes.icon}/>
                 </ListItemIcon>
                 <ListItemText primary="LinkedIn" />
               </ListItem>
-              <ListItem button>
+              <ListItem button component="a" href="https://www.rpsychologist.com">
+              <ListItemIcon>
+                  <HomeIcon className={classes.icon}/>
+                </ListItemIcon>
                 <ListItemText primary="Blog" />
               </ListItem>
             </List>
+
+            <Typography variant="h6" align="left" gutterBottom>
+              Donate
+            </Typography>
+            <List component="nav" aria-label="donate">
+              <ListItem button component="a" href="https://www.buymeacoffee.com/krstoffr">
+                <ListItemIcon>
+                  <FavoriteIcon className={classes.icon}/>
+                </ListItemIcon>
+                <ListItemText primary="Buy Me a Coffe" />
+              </ListItem>
+              <ListItem button component="a" href="https://www.paypal.me/krstoffr">
+                <ListItemIcon>
+                  <FavoriteIcon className={classes.icon}/>
+                </ListItemIcon>
+                <ListItemText primary="PayPal" />
+              </ListItem>
+              <ListItem button component="a" href="https://www.patreon.com/krstoffr">
+                <ListItemIcon>
+                  <FavoriteIcon className={classes.icon} />
+                </ListItemIcon>
+                <ListItemText primary="Patreon" />
+              </ListItem>
+            </List>
           </Grid>
-        </Grid>
+          <Grid xs={12} className={classes.licenses}>
+            
         <Typography variant="h6" align="center" gutterBottom>
           License
         </Typography>
         <Typography variant="subtitle1" align="center" component="p">
-          Version {data.site.siteMetadata.version}. License MIT (
+          Version {data.site.siteMetadata.version}, last updated {currentDate}. License MIT (
           <a href={data.site.siteMetadata.github}>source code</a>).
           Visualization is CC0.
         </Typography>
+          </Grid>
+        </Grid>
       </Container>
     </footer>
   );

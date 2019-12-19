@@ -30,8 +30,8 @@ const CommonLanguage = ({ vizState }) => {
     <div>
       <Typography variant="body1" gutterBottom>
         <p>
-          With a Cohen's <em>d</em> of {cohend}, {U3}% of the {muOneLabel} group
-          will be above the mean of the {muZeroLabel} group (Cohen's U
+          With a Cohen's <em>d</em> of {cohend}, {U3}% of the "{muOneLabel}" group
+          will be above the mean of the "{muZeroLabel}" group (Cohen's U
           <sub>3</sub>), {propOverlap}% of the two groups will overlap, and
           there is a {CL}% chance that a person picked at random from the
           treatment group will have a higher score than a person picked at

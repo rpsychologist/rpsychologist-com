@@ -118,7 +118,7 @@ const VizSettings = props => {
           Slider
         </Typography>
         <SettingsInput
-          label="Slider Max"
+          label="Slider max"
           type="number"
           name="sliderMax"
           value={sliderMax}
@@ -127,7 +127,7 @@ const VizSettings = props => {
           handleSubmit={handleSubmit}
         />
         <SettingsInput
-          label="Slider Step"
+          label="Slider step size"
           type="number"
           name="sliderStep"
           value={sliderStep}

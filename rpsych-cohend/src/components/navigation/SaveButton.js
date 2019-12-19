@@ -7,6 +7,9 @@ import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
 import CheckIcon from '@material-ui/icons/Check';
 import SaveIcon from '@material-ui/icons/Save';
+import Tooltip from '@material-ui/core/Tooltip';
+
+
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -79,6 +82,7 @@ export default function SaveButton({data}) {
   return (
     <div className={classes.root}>
       <div className={classes.wrapper}>
+      <Tooltip title="Save settings in browser" aria-label="save">
         <Fab
           aria-label="save"
           color="primary"
@@ -87,7 +91,9 @@ export default function SaveButton({data}) {
         >
           {success ? <CheckIcon /> : <SaveIcon />}
         </Fab>
+        </Tooltip>
         {loading && <CircularProgress size={68} className={classes.fabProgress} />}
+
       </div>
       <div className={classes.wrapper}>
         <Button
