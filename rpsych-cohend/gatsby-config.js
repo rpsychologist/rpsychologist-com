@@ -5,6 +5,7 @@ module.exports = {
     author: `Kristoffer Magnusson`,
     twitter: `@krstoffr`,
     version: '2.0.0 (beta)',
+    lastUpdated: `2019-12-19`,
     github: 'https://github.com/rpsychologist/cohend',
     url: 'https://rpsychologist.com/d3/cohend/'
   },

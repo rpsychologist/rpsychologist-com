@@ -52,13 +52,12 @@ const Footer = () => {
           siteMetadata {
             version
             github
+            lastUpdated
           }
         }
       }
     `
   );
-  var d = new Date();
-  const currentDate = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
   return (
     <footer className={classes.footer}>
       <Container maxWidth="sm">
@@ -142,7 +141,7 @@ const Footer = () => {
           License
         </Typography>
         <Typography variant="subtitle1" align="center" component="p">
-          Version {data.site.siteMetadata.version}, last updated {currentDate}. License MIT (
+          Version {data.site.siteMetadata.version}, last updated {data.site.siteMetadata.lastUpdated}. License MIT (
           <a href={data.site.siteMetadata.github}>source code</a>).
           Visualization is CC0.
         </Typography>
