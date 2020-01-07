@@ -20,7 +20,7 @@ You can change the following settings by clicking on the settings icon to the ri
     + Distribution 2
 * **Slider settings**
     + Slider Max
-    + Sliper Step: Controlls the stepsize of the slider
+    + Slider Step: Controls the step size of the slider
 
 ### Save settings
 The settings can be saved in your browser's `localStorage` and will thus persist across visits.
