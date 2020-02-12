@@ -43,7 +43,7 @@ const Contribute = () => {
       <Typography variant="body1" align="left">
         <p>
           There are many ways to contribute to free and open software. If you
-          like my work and want to support it you can: Buy me a coffe, Paypal,
+          like my work and want to support it you can: 
           Patreon
         </p>
         <Grid
@@ -60,22 +60,13 @@ const Contribute = () => {
               href="https://www.buymeacoffee.com/krstoffr"
               size="large"
             >
-              Buy Me a Coffe
+              Buy Me a Coffee
             </CoffeButton>
           </Grid>
           <Grid item xs={12}>
             <PayPalButton color="primary" href="https://www.paypal.me/krstoffr">
               (or use PayPal)
             </PayPalButton>
-          </Grid>
-          <Grid item xs={12}>
-            <PatreonButton
-              variant="contained"
-              color="primary"
-              href="https://www.patreon.com/krstoffr"
-            >
-              Become a Patreon
-            </PatreonButton>
           </Grid>
         </Grid>
         <p>

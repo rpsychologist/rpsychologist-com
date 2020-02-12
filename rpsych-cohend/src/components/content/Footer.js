@@ -127,12 +127,6 @@ const Footer = () => {
                 </ListItemIcon>
                 <ListItemText primary="PayPal" />
               </ListItem>
-              <ListItem button component="a" href="https://www.patreon.com/krstoffr">
-                <ListItemIcon>
-                  <FavoriteIcon className={classes.icon} />
-                </ListItemIcon>
-                <ListItemText primary="Patreon" />
-              </ListItem>
             </List>
           </Grid>
           <Grid xs={12} className={classes.licenses}>
