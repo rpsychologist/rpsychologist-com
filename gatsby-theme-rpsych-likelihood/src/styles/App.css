@@ -1,0 +1,106 @@
+a {
+  text-decoration: none;
+  color: #428bca;
+}
+a:hover {
+  text-decoration: underline;
+}
+footer a {
+  text-decoration: none;
+  color: white;
+}
+.gatsby-highlight {
+  background-color: #fdf6e3;
+  border-radius: 0;
+  margin: 0 -24px 0 -24px;
+  padding: 0 1em;
+  overflow: auto;
+}
+
+/* VIZ */
+path#dist1 {
+  fill: none;
+  stroke:#2f3640;
+  stroke-width: 4px;
+}
+.sampleCircles {
+  fill:#00b894;
+}
+path#dist2 {
+  fill: none;
+  stroke:#2f3640;
+  stroke-width: 4px;
+}
+path#logLikReferenceCurve {
+  fill: none;
+  stroke: #30394F;
+  opacity: 0.5;
+  stroke-width: 2px;
+  stroke-dasharray: 10 5;
+}
+path#logLikNCurve {
+  fill: none;
+  stroke: #30394F;
+  stroke-width: 4px;
+}
+line.logLikLines {
+  stroke-dasharray: 5 2;
+  stroke: black;
+  stroke-opacity: 0.2;
+}
+line.LRT, line.wald, line.score {
+  stroke: rgb(0, 0, 0);
+  stroke-opacity: 0.1;
+  stroke-width: 1.5px;
+  stroke-dasharray: 2 2;
+  transition: stroke-opacity 0.5s, stroke 0.5s, stroke-width 0.5s, stroke-dasharray 0.5s;
+}
+
+line.LRT.highlight,
+line.wald.highlight,
+line.score.highlight  {
+  stroke-dasharray: none;
+  stroke: #0984e3;
+  stroke-opacity: 1;
+  stroke-width: 2px;
+  z-index: -9999;
+}
+.testPointMuNull, .testPointMu {
+  fill: #0984e3;
+}
+
+.vizTooltip {
+  width: 100%;
+  display: -webkit-inline-box;
+  -webkit-box-pack: center;
+  -webkit-box-align: center;
+}
+.vizTooltip p {
+  text-align: center;
+  color: white;
+  z-index: -1;
+}
+
+.polygonTip1 {
+  fill:#00b894;
+  stroke: #00b894;
+  stroke-width: 2px;
+}
+
+.polygonTip {
+  fill:#d63031;
+  stroke: #d63031;
+  stroke-width: 2px;
+}
+
+.xAxis, .yAxis {
+  opacity: 0.33;
+}
+line.deriv {
+  stroke: #d63031;
+  stroke-width: 2px;
+}
+circle.logLikX {
+  fill: #d63031;
+}
+
