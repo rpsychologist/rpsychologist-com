@@ -329,7 +329,6 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
       <Container maxWidth="lg">
         <Grid
           container
-          alignItems="top"
           direction="row"
           justify="center"
           spacing={3}

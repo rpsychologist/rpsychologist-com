@@ -52,7 +52,7 @@ const CalcLogLik = ({ sample, mu, sigma, highlight, setHighlight }) => {
         {ll.map((y, i) => {
           y = format(".1f")(y);
           return (
-            <span>
+            <span key={i}>
               <span
                 className={clsx(
                   classes.logLikSpan,

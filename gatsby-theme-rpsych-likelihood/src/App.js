@@ -201,17 +201,15 @@ const App = () => {
                 An Interactive Visualization
               </Typography>
               <Typography align="center">
-                <p>
-                  Created by{" "}
-                  <a href="https://rpsychologist.com/">Kristoffer Magnusson</a>
+                Created by{" "}
+                <a href="https://rpsychologist.com/">Kristoffer Magnusson</a>
                   <br />
                   <a href="https://twitter.com/krstoffr">
-                    <Button className={classes.twitter}>
-                      <TwitterIcon />
-                      krstoffr
-                    </Button>
-                  </a>
-                </p>
+                  <Button className={classes.twitter}>
+                    <TwitterIcon />
+                    krstoffr
+                  </Button>
+                </a>
               </Typography>
             </Container>
             <Container className={classes.textContent}>

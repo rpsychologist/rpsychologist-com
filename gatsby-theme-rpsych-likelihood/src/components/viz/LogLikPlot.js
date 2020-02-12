@@ -103,7 +103,7 @@ const OverlapChart = props => {
       <g>
         <path
           d={path}
-          class="polygonTip"
+          className="polygonTip"
           transform={`translate(${x + margin.left}, ${y + margin.top - 5})`}
         />
         <foreignObject
@@ -112,7 +112,7 @@ const OverlapChart = props => {
           width={width}
           height={50}
         >
-          <div class="vizTooltip">
+          <div className="vizTooltip">
             <p>
               <span dangerouslySetInnerHTML={{ __html: eqLogLik }} />
               {format(".2f")(deriv)}
@@ -202,16 +202,16 @@ const OverlapChart = props => {
   return (
     <svg width={props.width} height={props.width * 0.5}>
       <g ref={vizRef}>
-        <g class="viz">
+        <g className="viz">
           <path d={linex(data1.data)} id="dist2" />
           <circle
             cx={xScale(props.theta)}
             cy={yScale(llTheta)}
             r="5"
-            class="logLikX"
+            className="logLikX"
           />
           <line
-            class="deriv"
+            className="deriv"
             x1={xScale(props.theta - delta)}
             x2={xScale(props.theta + delta)}
             y1={yScale(llTheta - delta * deriv)}

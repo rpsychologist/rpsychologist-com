@@ -159,25 +159,25 @@ const OverlapChart = props => {
   return (
     <svg width={props.width} height={props.width * 0.5}>
       <g id="outer" ref={vizRef}>
-        <g class="viz" clip-path="url(#clip)">
+        <g className="viz" clipPath="url(#clip)">
           <path d={linex(data1.data)} id="logLikReferenceCurve" />
           <path d={linex(data2.data)} id="logLikNCurve" />
           <line
-            class={clsx("LRT", test == "LRT" && "highlight")}
+            className={clsx("LRT", test == "LRT" && "highlight")}
             x1={xScale(xMin)}
             x2={xScale(xMax)}
             y1={yScale(llThetaMLE)}
             y2={yScale(llThetaMLE)}
           />
           <line
-            class={clsx("LRT", test == "LRT" && "highlight")}
+            className={clsx("LRT", test == "LRT" && "highlight")}
             x1={xScale(xMin)}
             x2={xScale(xMax)}
             y1={yScale(llThetaNull)}
             y2={yScale(llThetaNull)}
           />
           <line
-            class={clsx("wald", test == "wald" && "highlight")}
+            className={clsx("wald", test == "wald" && "highlight")}
             x1={xScale(props.muHat)}
             x2={xScale(props.muHat)}
             y1={yScale(yMin)}
@@ -189,24 +189,24 @@ const OverlapChart = props => {
             cy={yScale(llThetaNull)}
             r="5"
             fill="red"
-            class="testPointMuNull"
+            className="testPointMuNull"
           />
           <circle
             cx={xScale(props.muHat)}
             cy={yScale(llTheta)}
             r="5"
-            class="testPointMu"
+            className="testPointMu"
           />
         </g>
         <line
-          class={clsx("wald", test == "wald" && "highlight")}
+          className={clsx("wald", test == "wald" && "highlight")}
           x1={xScale(props.muNull)}
           x2={xScale(props.muNull)}
           y1={yScale(yMin)}
           y2={yScale(yMax)}
         />
         <line
-          class={clsx("score", test == "score" && "highlight")}
+          className={clsx("score", test == "score" && "highlight")}
           x1={xScale(props.muNull - delta)}
           x2={xScale(props.muNull + delta)}
           y1={yScale(llThetaNull - delta * deriv)}

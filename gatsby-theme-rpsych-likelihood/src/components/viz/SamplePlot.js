@@ -111,7 +111,7 @@ const SampleChart = props => {
       <g>
         <path
           d={path}
-          class="polygonTip1"
+          className="polygonTip1"
           transform={`translate(${x + margin.left}, ${y + margin.top })`}
         />
         <foreignObject
@@ -120,7 +120,7 @@ const SampleChart = props => {
           width={width}
           height={50}
         >
-          <div class="vizTooltip">
+          <div className="vizTooltip">
             <p>
               <span dangerouslySetInnerHTML={{ __html: eqLogLik }} />
               log({format(".2n")(L)})

@@ -194,51 +194,58 @@ export default function TabsWrappedLabel({
       </TestTabs>
       <TabPanel value={value} index="LRT" className={classes.panel}>
         <Typography variant="body1">
-          <p>
-            The likelihood ratio test compares the likelihood ratios of two
-            models. In this example it's the likelihood evaluated at the MLE and
-            at the null. This is illustrated in the plot by the vertical
-            distance between the two horizontal lines. If we multiply the
-            difference in log-likelihood by -2 we get the statistic,
-          </p>
-          <p dangerouslySetInnerHTML={{ __html: eqLogLik }} />
-          <p>
-            Asymptotically LR follow a
-            <span dangerouslySetInnerHTML={{ __html: eqChisq }} /> distribution
-            with 1 degrees of freedom, which gives <em>p</em> = {pvalLRT}.
-          </p>
-          <p>
-            Note: The figure is simplified and do not account for the fact that
-            each likelihood is based on different variance estimates.
-          </p>
+          The likelihood ratio test compares the likelihood ratios of two
+          models. In this example it's the likelihood evaluated at the MLE and
+          at the null. This is illustrated in the plot by the vertical
+          distance between the two horizontal lines. If we multiply the
+          difference in log-likelihood by -2 we get the statistic,
+        </Typography>
+        <Typography
+          variant="body1"
+          dangerouslySetInnerHTML={{ __html: eqLogLik }}
+        />
+        <Typography variant="body1">
+          Asymptotically LR follow a
+          <span dangerouslySetInnerHTML={{ __html: eqChisq }} /> distribution
+          with 1 degrees of freedom, which gives <em>p</em> = {pvalLRT}.
+        </Typography>
+        <Typography variant="body1">
+          Note: The figure is simplified and do not account for the fact that
+          each likelihood is based on different variance estimates.
         </Typography>
       </TabPanel>
       <TabPanel value={value} index="wald" className={classes.panel}>
-        <p>
+        <Typography variant="body1">
           The Wald test is based on the difference between the maximum
           likelihood estimate of the mean and μ0 divided by the standard error
           of the MLE, <span dangerouslySetInnerHTML={{ __html: eqSE }} />
-        </p>
-        <p dangerouslySetInnerHTML={{ __html: eqWald }} />
-        <p>
+        </Typography>
+        <Typography
+          variant="body1"
+          dangerouslySetInnerHTML={{ __html: eqWald }}
+        />
+        <Typography variant="body1">
           Asymptotically <em>Z</em> follow a standard normal distribution,
           giving <em>p</em> = {format(".2f")(pvalZ)}.
-        </p>
+        </Typography>
       </TabPanel>
       <TabPanel value={value} index="score" className={classes.panel}>
-        <p>
+        <Typography variant="body1">
           The Score test (also known as the Lagrange multiplier test) is
           slightly different in the sense that we only evaluated it at the null.
           It involves both the first and second derivative evaluated at the
           null.
-        </p>
-        <p dangerouslySetInnerHTML={{ __html: eqScore }} />
-        <p>
+        </Typography>
+        <Typography
+          variant="body1"
+          dangerouslySetInnerHTML={{ __html: eqScore }}
+        />
+        <Typography variant="body1">
           Asymptotically <em>S</em> follow a{" "}
           <span dangerouslySetInnerHTML={{ __html: eqChisq }} /> distribution
           with 1 degrees of freedom, which gives <em>p</em> ={" "}
           {format(".2f")(pvalScore)}.
-        </p>
+        </Typography>
       </TabPanel>
     </div>
   );
