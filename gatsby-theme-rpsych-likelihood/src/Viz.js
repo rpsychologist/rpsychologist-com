@@ -340,7 +340,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
             <Slider
               name="n"
               label="Sample Size (n)"
-              value={10}
+              value={vizState.n}
               max={100}
               step={1}
               openSettings={openSettings}
@@ -349,7 +349,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
             <Slider
               name="muNull"
               label="Null (μ0)"
-              value={80}
+              value={vizState.muNull}
               min={70}
               max={160}
               step={1}
