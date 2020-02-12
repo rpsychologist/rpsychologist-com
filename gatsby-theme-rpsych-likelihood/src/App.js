@@ -1,7 +1,7 @@
 import React, { useReducer, useState, useEffect, createContext } from "react";
 import Typography from "@material-ui/core/Typography";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import { makeStyles, useTheme, ThemeProvider } from "@material-ui/core/styles";
+import { makeStyles, ThemeProvider } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import HeaderAppBar from "./components/navigation/HeaderAppBar";
 import SettingsDrawer from "./components/navigation/SettingsDrawer";
@@ -16,8 +16,6 @@ import Button from "@material-ui/core/Button";
 import Content from "./Viz";
 import SEO from "./components/SEO";
 import Footer from "./components/content/Footer";
-import Term from "./components/content/Term"
-import { normal } from "jstat";
 import { randomNormal } from "d3-random";
 import { calcMean, calcSS } from "./components/utils";
 

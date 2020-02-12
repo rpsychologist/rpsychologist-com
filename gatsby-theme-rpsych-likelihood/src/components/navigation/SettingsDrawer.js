@@ -53,7 +53,6 @@ const useStyles = makeStyles(theme => ({
 export default function PersistentDrawerRight({
   handleDrawer,
   open,
-  vizState,
   children
 }) {
   const classes = useStyles();

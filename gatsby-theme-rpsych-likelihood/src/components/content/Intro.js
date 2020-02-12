@@ -13,7 +13,7 @@ const Intro = () => {
       </Typography>
       <Typography variant="body1" paragraph>
         We will use a simple model with only two unknown parameters: the mean
-        and variance. Our primary focus will be on the mean and we'll treat
+        and variance. Our primary focus will be on the mean and {"we'll"} treat
         the variance as a nuisance parameter.
       </Typography>
     </div>

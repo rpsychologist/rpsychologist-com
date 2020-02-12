@@ -1,14 +1,9 @@
-import React, { useEffect, useContext, useState, useMemo } from "react";
+import React, { useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { debounce, throttle } from "lodash";
 import Grid from "@material-ui/core/Grid";
 import Slider from "@material-ui/core/Slider";
 import Input from "@material-ui/core/Input";
-import VolumeUp from "@material-ui/icons/VolumeUp";
-import IconButton from "@material-ui/core/IconButton";
-import SettingsIcon from "@material-ui/icons/Settings";
 import ButtonMLE from "./ButtonMLE";
-import clsx from "clsx";
 import { VizDispatch } from "../../App";
 
 const useStyles = makeStyles({
@@ -31,8 +26,6 @@ const InputSlider = ({
   name,
   thetaHat,
   label,
-  handleDrawer,
-  openSettings,
   value,
   max,
   min,

@@ -2,11 +2,9 @@ import React from "react";
 import Typography from "@material-ui/core/Typography";
 import { withStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
 import Grid from "@material-ui/core/Grid";
 
-const CoffeButton = withStyles(theme => ({
+const CoffeButton = withStyles(() => ({
   root: {
     textTransform: "none",
     fontWeight: "700",
@@ -17,20 +15,11 @@ const CoffeButton = withStyles(theme => ({
     }
   }
 }))(Button);
-const PayPalButton = withStyles(theme => ({
+
+const PayPalButton = withStyles(() => ({
   root: {
     textTransform: "none",
     fontWeight: "700"
-  }
-}))(Button);
-const PatreonButton = withStyles(theme => ({
-  root: {
-    color: "white",
-    textTransform: "none",
-    backgroundColor: "rgb(232, 91, 70)",
-    "&:hover": {
-      backgroundColor: "rgb(232, 91, 0)"
-    }
   }
 }))(Button);
 

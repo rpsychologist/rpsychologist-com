@@ -23,8 +23,8 @@ const Posters = () => {
         Posters
       </Typography>
       <Typography variant="body1">
-        I've created some posters inspired by my interactive visualizations. You
-        can find them on my{" "}
+        {"I've"} created some posters inspired by my interactive visualizations.
+        You can find them on my{" "}
         <a href="https://www.etsy.com/shop/rpsychologist">Etsy shop</a>.
       </Typography>
       <a href="https://www.etsy.com/shop/rpsychologist">

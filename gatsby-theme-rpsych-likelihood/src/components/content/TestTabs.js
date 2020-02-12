@@ -1,6 +1,5 @@
-import React, { useContext, useState, dispatch, useMemo } from "react";
+import React, { useContext, useState, useMemo } from "react";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
-import AppBar from "@material-ui/core/AppBar";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import Typography from "@material-ui/core/Typography";
@@ -119,7 +118,7 @@ const LrtPanel = React.memo(({sigma, sigma0, n, eqChisq}) => {
     <TabPanel className={classes.panel}>
       <Typography variant="body1">
         The likelihood ratio test compares the likelihood ratios of two
-        models. In this example it's the likelihood evaluated at the MLE and
+        models. In this example {"it's"} the likelihood evaluated at the MLE and
         at the null. This is illustrated in the plot by the vertical
         distance between the two horizontal lines. If we multiply the
         difference in log-likelihood by -2 we get the statistic,
@@ -168,7 +167,7 @@ const TestTabs = withStyles({
   }
 })(Tabs);
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   root: {
     flexGrow: 1
   },

@@ -1,26 +1,20 @@
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 import clsx from "clsx";
 import { scaleLinear } from "d3-scale";
 import { max, min } from "d3-array";
-import { axisBottom, axisLeft } from "d3-axis";
+import { axisBottom } from "d3-axis";
 import { select } from "d3-selection";
-import { format } from "d3-format";
-import { range } from "d3-array";
 import { line } from "d3-shape";
-import { normal } from "jstat";
-import { estimatedLogLik, genEstLogLikCurve } from "../utils";
-import katex from "katex";
+import { genEstLogLikCurve } from "../utils";
 
 const OverlapChart = props => {
   const vizRef = useRef(null);
 
   // Stuff
   const margin = { top: 20, right: 20, bottom: 30, left: 50 };
-  const aspect = 0.4;
   const durationTime = 200;
   const w = props.width - margin.left - margin.right;
   const h = props.width * 0.5 - margin.top - margin.bottom;
-  const sample = props.sample;
   const deriv = props.deriv;
   const llThetaMLE = props.llThetaMLE;
   const llThetaNull = props.llThetaNull;
@@ -82,7 +76,6 @@ const OverlapChart = props => {
 
   // Scales and Axis
   const xAxis = axisBottom(xScale);
-  const yAxis = axisLeft(yScale);
 
   // Line function
   const linex = line()
@@ -95,7 +88,7 @@ const OverlapChart = props => {
   }, [n, props.width]);
 
  
-  const createChart = durationTime => {
+  const createChart = () => {
     const node = vizRef.current;
 
     const gOuter = select(node).attr(
@@ -115,11 +108,6 @@ const OverlapChart = props => {
       .select("g.xAxis")
       .attr("transform", "translate(" + 0 + "," + h + ")")
       .call(xAxis);
-
-    const gViz = select(node)
-      .selectAll("g.viz")
-      .data([0])
-      .attr("transform", "translate(" + 0 + " ," + 0 + ")");
 
     // x label
     gOuter
