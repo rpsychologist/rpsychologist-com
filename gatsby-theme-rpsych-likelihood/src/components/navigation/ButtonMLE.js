@@ -1,24 +1,14 @@
-import React, { useEffect, useContext, useState } from "react";
-import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
+import React from "react";
 import Button from '@material-ui/core/Button';
-import { VizDispatch } from "../../App";
-import { drawSample } from "../../App";
-const useStyles = makeStyles(theme => ({
 
-}));
-
-export default function SampleButton({name, thetaHat, handleCange }) {
-  const classes = useStyles();
-  const dispatch = useContext(VizDispatch);
-
+export default function SampleButton({thetaHat, handleCange }) {
   const onClick = () => {
     handleCange(null, thetaHat)
   }
 
   return (
-    <div className={classes.root}>
-      <div className={classes.wrapper}>
+    <div>
+      <div>
         <Button
           variant="contained"
           onClick={onClick}>

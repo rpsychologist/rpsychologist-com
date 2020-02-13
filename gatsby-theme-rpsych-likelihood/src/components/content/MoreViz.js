@@ -3,10 +3,8 @@ import { graphql, useStaticQuery } from "gatsby";
 import Img from "gatsby-image";
 import {
   Grid,
-  Paper,
   Typography,
   makeStyles,
-  Container
 } from "@material-ui/core";
 import Card from "@material-ui/core/Card";
 import CardActionArea from "@material-ui/core/CardActionArea";

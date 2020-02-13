@@ -1,15 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { scaleLinear } from "d3-scale";
-import { max } from "d3-array";
 import { axisBottom, axisLeft } from "d3-axis";
-import { select, local, event } from "d3-selection";
-import { transition, textTween } from "d3-transition";
+import { select  } from "d3-selection";
 import { format } from "d3-format";
 import { range } from "d3-array";
-import { line, curveBasis } from "d3-shape";
+import { line } from "d3-shape";
 import { normal } from "jstat";
 import katex from "katex";
-import { interpolate } from "d3-interpolate";
 import { topTooltipPath } from "../utils"
 
 // Generates data
@@ -23,7 +20,7 @@ const genData = (mu, sigma, x) => {
   y.unshift(0);
   x.push(x[x.length - 1]);
   y.push(0);
-  for (var i = 0; i < x.length; i++) {
+  for (let i = 0; i < x.length; i++) {
     tmp.push([x[i], y[i]]);
   }
 
@@ -45,9 +42,6 @@ const SampleChart = props => {
   const w = props.width - margin.left - margin.right;
   const h = props.width * aspect - margin.top - margin.bottom;
   const sample = props.sample;
-  const mu0Label = props.muZeroLabel,
-    mu1Label = props.muOneLabel;
-  const _previous = local();
   const para = {
     mu: props.mu,
     muTheta: props.muTheta,
@@ -111,7 +105,7 @@ const SampleChart = props => {
       <g>
         <path
           d={path}
-          class="polygonTip1"
+          className="polygonTip1"
           transform={`translate(${x + margin.left}, ${y + margin.top })`}
         />
         <foreignObject
@@ -120,7 +114,7 @@ const SampleChart = props => {
           width={width}
           height={50}
         >
-          <div class="vizTooltip">
+          <div className="vizTooltip">
             <p>
               <span dangerouslySetInnerHTML={{ __html: eqLogLik }} />
               log({format(".2n")(L)})
@@ -131,7 +125,7 @@ const SampleChart = props => {
     );
   };
 
-  const createSampleChart = durationTime => {
+  const createSampleChart = () => {
     const node = vizRef.current;
 
     // Line function
@@ -271,7 +265,7 @@ const SampleChart = props => {
           props.setHighlight(i);
           select(this).attr("r", 10)
         })
-        .on("mouseout", function(d, i) {
+        .on("mouseout", function() {
           props.setHighlight();
           select(this).attr("r", 5)
         })

@@ -17,7 +17,6 @@ import { format } from "d3-format";
 import {
   logLikSum,
   estimatedLogLik,
-  genEstLogLikCurve,
   dSigma2,
   dMu,
   d2Mu
@@ -25,9 +24,6 @@ import {
 import { range } from "d3-array";
 
 const useStyles = makeStyles(theme => ({
-  paper: {
-    boxShadow: "none"
-  },
   sampleDist: {
     backgroundColor: "#fff",
     margin: 0,
@@ -49,7 +45,6 @@ const useStyles = makeStyles(theme => ({
     minWidth: "100%"
   },
   stickySlider: {
-    position: "-webkit-sticky",
     position: "sticky",
     top: 0,
 
@@ -113,7 +108,6 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
 
   // Data sets
   const dataMu = genLogLikCurve(sample, mu, sigma, "mu", muTheta, sigmaTheta);
-  const dataEstMu = genEstLogLikCurve(10, muHat, sigma, muTheta, sigmaTheta);
   const dataSigma = genLogLikCurve(
     sample,
     mu,
@@ -125,13 +119,9 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
   const derivMu = dMu(10, mu, muHat, sigma);
   const derivMuN = dMu(n, muNull, muHat, sigmaHat);
   const derivMuNull = dMu(n, muNull, muHat, sigmaMleNull);
-  const deriv2Mu = d2Mu(10, sigmaHat);
-  const deriv2MuN = d2Mu(n, sigmaHat);
   const deriv2MuNull = d2Mu(n, sigmaMleNull);
   const estllThetaMLE = estimatedLogLik(n, mu, mu, sigmaHat);
   const estllThetaNull = estimatedLogLik(n, muNull, muHat, sigmaHat);
-  const llThetaMLE = logLikSum(sample, muHat, sigma);
-  const llThetaNull = logLikSum(sample, muNull, sigmaTheta);
   const derivSigma2 = dSigma2(sample, mu, sigma);
   const y = vizState.sample.map(y => format(".1f")(y)).join(", ");
   const f2n = format(".2n");
@@ -161,7 +151,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
         </Typography>
         <Container className={classes.textContent}>
           <Typography variant="body1" gutterBottom>
-            Before we do any calculations, we need some data. So, here's 10
+            Before we do any calculations, we need some data. So, {"here's"} 10
             random observations from a normal distribution with unknown mean and
             variance.
           </Typography>
@@ -320,8 +310,8 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
         </Typography>
         <Container className={classes.textContent}>
           <Typography gutterBottom>
-            After we've found the MLEs we usually want to make some inferences,
-            so let's focus on three common hypothesis tests. Use the sliders
+            After {"we've"} found the MLEs we usually want to make some inferences,
+            so {"let's"} focus on three common hypothesis tests. Use the sliders
             below to change the null hypothesis and the sample size.
           </Typography>
         </Container>
@@ -329,7 +319,6 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
       <Container maxWidth="lg">
         <Grid
           container
-          alignItems="top"
           direction="row"
           justify="center"
           spacing={3}
@@ -341,7 +330,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
             <Slider
               name="n"
               label="Sample Size (n)"
-              value={10}
+              value={vizState.n}
               max={100}
               step={1}
               openSettings={openSettings}
@@ -350,7 +339,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
             <Slider
               name="muNull"
               label="Null (μ0)"
-              value={80}
+              value={vizState.muNull}
               min={70}
               max={160}
               step={1}

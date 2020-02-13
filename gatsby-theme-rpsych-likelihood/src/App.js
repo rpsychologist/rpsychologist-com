@@ -1,7 +1,7 @@
 import React, { useReducer, useState, useEffect, createContext } from "react";
 import Typography from "@material-ui/core/Typography";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import { makeStyles, useTheme, ThemeProvider } from "@material-ui/core/styles";
+import { makeStyles, ThemeProvider } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import HeaderAppBar from "./components/navigation/HeaderAppBar";
 import SettingsDrawer from "./components/navigation/SettingsDrawer";
@@ -16,8 +16,6 @@ import Button from "@material-ui/core/Button";
 import Content from "./Viz";
 import SEO from "./components/SEO";
 import Footer from "./components/content/Footer";
-import Term from "./components/content/Term"
-import { normal } from "jstat";
 import { randomNormal } from "d3-random";
 import { calcMean, calcSS } from "./components/utils";
 
@@ -41,38 +39,22 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-let initialState;
-if (typeof localStorage !== `undefined`) {
-  initialState = JSON.parse(localStorage.getItem("rpsy-likelihoodState")) || {
-    mu: 80,
-    muNull: 80,
-    muTheta: 100,
-    muHat: "",
-    SS: "",
-    sigma: 10,
-    sigmaTheta: 15,
-    sigmaMleNull: "",
-    sigmaHat: "",
-    n: 10,
-    test: "LRT",
-    sample: [],
-    cohend: "0.2",
-    U3: "",
-    propOverlap: "",
-    CER: 20,
-    NNT: "",
-    CL: "",
-    xLabel: "Outcome",
-    muZeroLabel: "Control",
-    muOneLabel: "Treatment",
-    sliderMax: 150,
-    sliderStep: 0.1
-  };
-} else {
-  initialState = {
-    sample: [1, 2]
-  };
-}
+const initialState = {
+  mu: 80,
+  muNull: 80,
+  muTheta: 100,
+  muHat: "",
+  SS: "",
+  sigma: 10,
+  sigmaTheta: 15,
+  sigmaMleNull: "",
+  sigmaHat: "",
+  n: 10,
+  test: "LRT",
+  sample: [1, 2],
+  sliderMax: 150,
+  sliderStep: 0.1
+};
 
 const vizReducer = (state, action) => {
   let { name, value } = action;
@@ -109,7 +91,7 @@ const vizReducer = (state, action) => {
         ...state,
         sigmaMleNull: sigmaHat,
         muNull: value
-      }
+      };
     }
     case "n":
     case "test":
@@ -201,17 +183,15 @@ const App = () => {
                 An Interactive Visualization
               </Typography>
               <Typography align="center">
-                <p>
-                  Created by{" "}
-                  <a href="https://rpsychologist.com/">Kristoffer Magnusson</a>
-                  <br />
-                  <a href="https://twitter.com/krstoffr">
-                    <Button className={classes.twitter}>
-                      <TwitterIcon />
-                      krstoffr
-                    </Button>
-                  </a>
-                </p>
+                Created by{" "}
+                <a href="https://rpsychologist.com/">Kristoffer Magnusson</a>
+                <br />
+                <a href="https://twitter.com/krstoffr">
+                  <Button className={classes.twitter}>
+                    <TwitterIcon />
+                    krstoffr
+                  </Button>
+                </a>
               </Typography>
             </Container>
             <Container className={classes.textContent}>
@@ -246,4 +226,3 @@ const App = () => {
   );
 };
 export default App;
-

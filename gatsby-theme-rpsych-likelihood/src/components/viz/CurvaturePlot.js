@@ -1,26 +1,20 @@
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 import clsx from "clsx";
 import { scaleLinear } from "d3-scale";
 import { max, min } from "d3-array";
-import { axisBottom, axisLeft } from "d3-axis";
+import { axisBottom } from "d3-axis";
 import { select } from "d3-selection";
-import { format } from "d3-format";
-import { range } from "d3-array";
 import { line } from "d3-shape";
-import { normal } from "jstat";
-import { estimatedLogLik, genEstLogLikCurve } from "../utils";
-import katex from "katex";
+import { genEstLogLikCurve } from "../utils";
 
 const OverlapChart = props => {
   const vizRef = useRef(null);
 
   // Stuff
   const margin = { top: 20, right: 20, bottom: 30, left: 50 };
-  const aspect = 0.4;
   const durationTime = 200;
   const w = props.width - margin.left - margin.right;
   const h = props.width * 0.5 - margin.top - margin.bottom;
-  const sample = props.sample;
   const deriv = props.deriv;
   const llThetaMLE = props.llThetaMLE;
   const llThetaNull = props.llThetaNull;
@@ -82,7 +76,6 @@ const OverlapChart = props => {
 
   // Scales and Axis
   const xAxis = axisBottom(xScale);
-  const yAxis = axisLeft(yScale);
 
   // Line function
   const linex = line()
@@ -95,7 +88,7 @@ const OverlapChart = props => {
   }, [n, props.width]);
 
  
-  const createChart = durationTime => {
+  const createChart = () => {
     const node = vizRef.current;
 
     const gOuter = select(node).attr(
@@ -115,11 +108,6 @@ const OverlapChart = props => {
       .select("g.xAxis")
       .attr("transform", "translate(" + 0 + "," + h + ")")
       .call(xAxis);
-
-    const gViz = select(node)
-      .selectAll("g.viz")
-      .data([0])
-      .attr("transform", "translate(" + 0 + " ," + 0 + ")");
 
     // x label
     gOuter
@@ -159,25 +147,25 @@ const OverlapChart = props => {
   return (
     <svg width={props.width} height={props.width * 0.5}>
       <g id="outer" ref={vizRef}>
-        <g class="viz" clip-path="url(#clip)">
+        <g className="viz" clipPath="url(#clip)">
           <path d={linex(data1.data)} id="logLikReferenceCurve" />
           <path d={linex(data2.data)} id="logLikNCurve" />
           <line
-            class={clsx("LRT", test == "LRT" && "highlight")}
+            className={clsx("LRT", test == "LRT" && "highlight")}
             x1={xScale(xMin)}
             x2={xScale(xMax)}
             y1={yScale(llThetaMLE)}
             y2={yScale(llThetaMLE)}
           />
           <line
-            class={clsx("LRT", test == "LRT" && "highlight")}
+            className={clsx("LRT", test == "LRT" && "highlight")}
             x1={xScale(xMin)}
             x2={xScale(xMax)}
             y1={yScale(llThetaNull)}
             y2={yScale(llThetaNull)}
           />
           <line
-            class={clsx("wald", test == "wald" && "highlight")}
+            className={clsx("wald", test == "wald" && "highlight")}
             x1={xScale(props.muHat)}
             x2={xScale(props.muHat)}
             y1={yScale(yMin)}
@@ -189,24 +177,24 @@ const OverlapChart = props => {
             cy={yScale(llThetaNull)}
             r="5"
             fill="red"
-            class="testPointMuNull"
+            className="testPointMuNull"
           />
           <circle
             cx={xScale(props.muHat)}
             cy={yScale(llTheta)}
             r="5"
-            class="testPointMu"
+            className="testPointMu"
           />
         </g>
         <line
-          class={clsx("wald", test == "wald" && "highlight")}
+          className={clsx("wald", test == "wald" && "highlight")}
           x1={xScale(props.muNull)}
           x2={xScale(props.muNull)}
           y1={yScale(yMin)}
           y2={yScale(yMax)}
         />
         <line
-          class={clsx("score", test == "score" && "highlight")}
+          className={clsx("score", test == "score" && "highlight")}
           x1={xScale(props.muNull - delta)}
           x2={xScale(props.muNull + delta)}
           y1={yScale(llThetaNull - delta * deriv)}

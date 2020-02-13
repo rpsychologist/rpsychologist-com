@@ -1,15 +1,11 @@
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 import { scaleLinear } from "d3-scale";
 import { max, min } from "d3-array";
 import { axisBottom, axisLeft } from "d3-axis";
-import { select, local, event } from "d3-selection";
-import { transition, textTween } from "d3-transition";
+import { select } from "d3-selection";
 import { format } from "d3-format";
-import { range } from "d3-array";
 import { line } from "d3-shape";
-import { normal } from "jstat";
 import { logLikSum } from "../utils";
-import { interpolate } from "d3-interpolate";
 import { topTooltipPath } from "../utils";
 import katex from "katex";
 
@@ -18,15 +14,11 @@ const OverlapChart = props => {
 
   // Stuff
   const margin = { top: 60, right: 20, bottom: 40, left: 50 };
-  const aspect = 0.4;
   const durationTime = 200;
   const w = props.width - margin.left - margin.right;
   const h = props.width * 0.5 - margin.top - margin.bottom;
   const sample = props.sample;
   const deriv = props.deriv;
-  const mu0Label = props.muZeroLabel,
-    mu1Label = props.muOneLabel;
-  const _previous = local();
   const para = {
     mu: props.mu,
     muTheta: props.muTheta,
@@ -103,7 +95,7 @@ const OverlapChart = props => {
       <g>
         <path
           d={path}
-          class="polygonTip"
+          className="polygonTip"
           transform={`translate(${x + margin.left}, ${y + margin.top - 5})`}
         />
         <foreignObject
@@ -112,7 +104,7 @@ const OverlapChart = props => {
           width={width}
           height={50}
         >
-          <div class="vizTooltip">
+          <div className="vizTooltip">
             <p>
               <span dangerouslySetInnerHTML={{ __html: eqLogLik }} />
               {format(".2f")(deriv)}
@@ -123,7 +115,7 @@ const OverlapChart = props => {
     );
   };
 
-  const createChart = durationTime => {
+  const createChart = () => {
     const node = vizRef.current;
 
     select(node)
@@ -202,16 +194,16 @@ const OverlapChart = props => {
   return (
     <svg width={props.width} height={props.width * 0.5}>
       <g ref={vizRef}>
-        <g class="viz">
+        <g className="viz">
           <path d={linex(data1.data)} id="dist2" />
           <circle
             cx={xScale(props.theta)}
             cy={yScale(llTheta)}
             r="5"
-            class="logLikX"
+            className="logLikX"
           />
           <line
-            class="deriv"
+            className="deriv"
             x1={xScale(props.theta - delta)}
             x2={xScale(props.theta + delta)}
             y1={yScale(llTheta - delta * deriv)}

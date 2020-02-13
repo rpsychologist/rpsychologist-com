@@ -1,16 +1,8 @@
 import React, { useRef, useEffect, useState } from "react";
 import useResizeObserver from "./ResizeObserver";
-import { makeStyles } from "@material-ui/core/styles";
-
-const useStyles = makeStyles(theme => ({
-  vizContainer: {
-    width: "100%"
-  }
-}));
 
 const responsiveChart = props => {
   const ref = useRef();
-  const classes = useStyles();
 
   if (typeof window !== `undefined`) {
     if ("ResizeObserver" in window) {
@@ -36,6 +28,9 @@ const responsiveChart = props => {
       useEffect(() => {
         window.addEventListener("resize", onResize, false);
         onResize();
+        return () => {
+          window.removeEventListener("resize", onResize, false)
+        }
       }, []);
     }
   }

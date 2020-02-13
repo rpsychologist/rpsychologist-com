@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import clsx from "clsx";
 import { Typography, makeStyles } from "@material-ui/core";
 import { format } from "d3-format";
@@ -32,7 +32,6 @@ const useStyles = makeStyles(theme => ({
     }
   }
 }));
-const round = val => Math.round(Number(val) * 100) / 100;
 
 const CalcLogLik = ({ sample, mu, sigma, highlight, setHighlight }) => {
   const classes = useStyles();
@@ -52,7 +51,7 @@ const CalcLogLik = ({ sample, mu, sigma, highlight, setHighlight }) => {
         {ll.map((y, i) => {
           y = format(".1f")(y);
           return (
-            <span>
+            <span key={i}>
               <span
                 className={clsx(
                   classes.logLikSpan,
