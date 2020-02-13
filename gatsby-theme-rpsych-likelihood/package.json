@@ -1,6 +1,6 @@
 {
   "name": "rpsych-likelihood",
-  "version": "0.1.0",
+  "version": "0.0.2",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.7.0",
@@ -41,6 +41,7 @@
     "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
     "start": "npm run develop",
     "serve": "gatsby serve -H 172.16.0.116",
+    "serve-local": "gatsby serve",
     "clean": "gatsby clean"
   },
   "eslintConfig": {

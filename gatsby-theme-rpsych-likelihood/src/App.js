@@ -39,38 +39,22 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-let initialState;
-if (typeof localStorage !== `undefined`) {
-  initialState = JSON.parse(localStorage.getItem("rpsy-likelihoodState")) || {
-    mu: 80,
-    muNull: 80,
-    muTheta: 100,
-    muHat: "",
-    SS: "",
-    sigma: 10,
-    sigmaTheta: 15,
-    sigmaMleNull: "",
-    sigmaHat: "",
-    n: 10,
-    test: "LRT",
-    sample: [],
-    cohend: "0.2",
-    U3: "",
-    propOverlap: "",
-    CER: 20,
-    NNT: "",
-    CL: "",
-    xLabel: "Outcome",
-    muZeroLabel: "Control",
-    muOneLabel: "Treatment",
-    sliderMax: 150,
-    sliderStep: 0.1
-  };
-} else {
-  initialState = {
-    sample: [1, 2]
-  };
-}
+const initialState = {
+  mu: 80,
+  muNull: 80,
+  muTheta: 100,
+  muHat: "",
+  SS: "",
+  sigma: 10,
+  sigmaTheta: 15,
+  sigmaMleNull: "",
+  sigmaHat: "",
+  n: 10,
+  test: "LRT",
+  sample: [1, 2],
+  sliderMax: 150,
+  sliderStep: 0.1
+};
 
 const vizReducer = (state, action) => {
   let { name, value } = action;
@@ -107,7 +91,7 @@ const vizReducer = (state, action) => {
         ...state,
         sigmaMleNull: sigmaHat,
         muNull: value
-      }
+      };
     }
     case "n":
     case "test":
@@ -201,8 +185,8 @@ const App = () => {
               <Typography align="center">
                 Created by{" "}
                 <a href="https://rpsychologist.com/">Kristoffer Magnusson</a>
-                  <br />
-                  <a href="https://twitter.com/krstoffr">
+                <br />
+                <a href="https://twitter.com/krstoffr">
                   <Button className={classes.twitter}>
                     <TwitterIcon />
                     krstoffr
@@ -242,4 +226,3 @@ const App = () => {
   );
 };
 export default App;
-
