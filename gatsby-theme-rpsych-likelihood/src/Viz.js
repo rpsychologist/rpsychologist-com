@@ -254,7 +254,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
         <Container className={classes.textContent}>
           <Typography variant="body1" gutterBottom>
             If we repeat the above calculation for a range of parameter values,
-            we get the plots bellow. (The function could be plotted as a
+            we get the plots below. (The function could be plotted as a
             three-dimensional hill as well). We can find the top of each curve
             by using the partial derivatives with regard to the mean and
             variance, which is generally called the <b>score function (U)</b>.
