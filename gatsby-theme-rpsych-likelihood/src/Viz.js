@@ -7,6 +7,7 @@ import Typography from "@material-ui/core/Typography";
 import SampleDist from "./components/viz/SamplePlot";
 import LogLikChart from "./components/viz/LogLikPlot";
 import CurvaturePlot from "./components/viz/CurvaturePlot";
+import ContourLogLik from "./components/viz/ContourLogLik";
 import ResponsiveChart from "./components/viz/ResponsiveChart";
 import Slider from "./components/navigation/SettingsSlider";
 import ButtonSample from "./components/navigation/ButtonSample";
@@ -286,6 +287,14 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
                 thetaLab="mu"
                 deriv={derivMu}
               />
+                              <ResponsiveChart
+                chart={ContourLogLik}
+                {...vizState}
+                data={dataSigma}
+                theta={sigma * sigma}
+                thetaLab="sigma"
+                deriv={derivSigma2}
+              />
             </Paper>
           </Grid>
           <Grid item md={6} xs={12}>
@@ -301,6 +310,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
                 thetaLab="sigma"
                 deriv={derivSigma2}
               />
+    
             </Paper>
           </Grid>
         </Grid>

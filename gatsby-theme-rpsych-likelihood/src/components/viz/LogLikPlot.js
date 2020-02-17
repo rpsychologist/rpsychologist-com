@@ -192,7 +192,7 @@ const OverlapChart = props => {
   };
   const delta = xMax - xMin;
   return (
-    <svg width={props.width} height={props.width * 0.5}>
+    <svg width={props.width} height={props.width * 0.5} transform={props.thetaLab == "sigma" && "" }>
       <g ref={vizRef}>
         <g className="viz">
           <path d={linex(data1.data)} id="dist2" />
