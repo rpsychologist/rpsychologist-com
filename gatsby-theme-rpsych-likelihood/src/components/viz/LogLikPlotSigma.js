@@ -37,11 +37,11 @@ const OverlapChart = props => {
   yMin = sigma2MLE - sigma2MLE * 5;
   yMin = yMin < 0 ? 0.1 : yMin;
   llTheta = useMemo(() =>
-    logLikSum(sample, props.mu, props.sigma, [
+    logLikSum(sample, props.mu, props.sigma), [
       props.mu,
       props.sigma,
       props.sample
-    ])
+    ]
   );
 
   const xMin = min(data1.y.filter(y => isFinite(y)));
@@ -82,8 +82,8 @@ const OverlapChart = props => {
   const Tooltip = ({ theta, thetaLab, ll, deriv }) => {
     const x = xScale(ll);
     const y = yScale(theta);
-    const width = 100;
-    const path = topTooltipPath(width, 40, 10, 10);
+    const width = 40;
+    const path = topTooltipPath(width, 100, 10, 10);
     const thetaSymb = thetaLab == "mu" ? "mu" : "sigma^2";
     const eqLogLik = katex.renderToString(
       `\\frac{\\partial}{\\partial \\${thetaSymb}}\\ell = `,
@@ -97,12 +97,12 @@ const OverlapChart = props => {
         <path
           d={path}
           className="polygonTip"
-          transform={`translate(${x + margin.left}, ${y + margin.top - 5})`}
+          transform={`translate(${x + margin.left + 5}, ${y + margin.top}) rotate(90)`}
         />
         <foreignObject
-          x={x - width / 2 + margin.left}
-          y={y}
-          width={width}
+          x={x + margin.right/2 + margin.left}
+          y={y - margin.bottom + 15}
+          width={100}
           height={50}
         >
           <div className="vizTooltip">
@@ -164,7 +164,7 @@ const OverlapChart = props => {
       .enter()
       .append("text")
       .style("text-anchor", "middle")
-      .attr("class", "x-label MuiTypography-body1");
+      .attr("class", "x-label MuiTypography-body2");
 
     select(node)
       .selectAll(".x-label")
@@ -172,35 +172,34 @@ const OverlapChart = props => {
         "transform",
         "translate(" + w / 2 + " ," + (h + margin.bottom - 5) + ")"
       )
-      .text("Log-likelihood");
+      .text(`ℓ(μ = ${props.mu}, σ²)`);
 
     // y label
     gViz
-      .selectAll("#y-label")
+      .selectAll(".y-label")
       .data([0])
       .enter()
       .append("text")
       .style("text-anchor", "middle")
-      .attr("id", "y-label");
+      .attr("class", "y-label MuiTypography-body2");
 
     select(node)
-      .selectAll("#y-label")
+      .selectAll(".y-label")
       .attr("transform", "rotate(-90)")
       .attr("text-anchor", "middle")
       .attr("x", -(h / 2))
       .attr("y", -40)
       .text("σ²");
   };
-  const delta = xMax - xMin;
+  const delta = yMax - yMin;
   return (
     <svg
-      width={props.width * 0.5}
+      width={props.width *0.75}
       height={props.width}
-      transform={props.thetaLab == "sigma" && ""}
     >
       <g ref={vizRef}>
         <g className="viz">
-          <path d={linex(data1.data)} id="dist2" />
+          <path d={linex(data1.data)} class="LogLikSigma" />
           <circle
             cx={xScale(llTheta)}
             cy={yScale(props.theta)}
@@ -209,10 +208,10 @@ const OverlapChart = props => {
           />
           <line
             className="deriv"
-            x1={xScale(props.theta - delta)}
-            x2={xScale(props.theta + delta)}
-            y1={yScale(llTheta - delta * deriv)}
-            y2={yScale(llTheta + delta * deriv)}
+            x1={xScale(llTheta - delta * deriv)}
+            x2={xScale(llTheta + delta * deriv)}
+            y1={yScale(props.theta - delta)}
+            y2={yScale(props.theta + delta)}
           />
         </g>
       </g>
@@ -221,7 +220,6 @@ const OverlapChart = props => {
         thetaLab={props.thetaLab}
         ll={llTheta}
         deriv={deriv}
-        transform="rotate(-90)"
       />
     </svg>
   );

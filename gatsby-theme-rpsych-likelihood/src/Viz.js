@@ -44,7 +44,7 @@ const useStyles = makeStyles(theme => ({
   },
   paper: {
     boxShadow: "none",
-    minWidth: "100%"
+
   },
   stickySlider: {
     position: "sticky",
@@ -273,9 +273,9 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
           alignItems="flex-end"
           direction="row"
           justify="center"
-          spacing={3}
+          spacing={0}
         >
-          <Grid item md={6} xs={12}>
+          <Grid item xs={6}>
             <Paper className={classes.paper}>
               <Typography variant="h4" component="h3" align="center">
                 Mean
@@ -288,7 +288,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
                 thetaLab="mu"
                 deriv={derivMu}
               />
-                              <ResponsiveChart
+               <ResponsiveChart
                 chart={ContourLogLik}
                 {...vizState}
                 data={dataSigma}
@@ -298,10 +298,13 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
               />
             </Paper>
           </Grid>
-          <Grid item md={6} xs={12}>
+          <Grid item xs={6}>
             <Paper className={classes.paper}>
               <Typography variant="h4" component="h3" align="center">
                 Variance
+              </Typography>
+              <Typography variant="body1" style={{padding:"1em"}}>
+              The partial derivatives with regard to the mean and variance, which is generally called the score function (U). In this case we can solve the score equation analytically (i.e. set it to zero and solve for the mean and variance). We can also solve this equation by brute force simply by moving the 
               </Typography>
               <ResponsiveChart
                 chart={LogLikPlotSigma}

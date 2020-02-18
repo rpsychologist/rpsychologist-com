@@ -13,8 +13,8 @@ import { topTooltipPath } from "../utils";
 import katex from "katex";
 
 const createGrid = (muMin, muMax, sigmaMin, sigmaMax, sample) => {
-  const n = 256,
-    m = 256,
+  const n = 100,
+    m = 100,
     values = new Array(n * m);
 
   const muStep = (muMax - muMin) / m;
@@ -24,7 +24,7 @@ const createGrid = (muMin, muMax, sigmaMin, sigmaMax, sample) => {
 
   for (let j = 0, k = 0; j < m; ++j) {
     for (let i = 0; i < n; ++i, ++k) {
-      values[k] =  logLikSum(sample, mu[i], Math.sqrt(sigma[j]));
+      values[k] = logLikSum(sample, mu[i], Math.sqrt(sigma[j]));
     }
   }
 
@@ -33,6 +33,36 @@ const createGrid = (muMin, muMax, sigmaMin, sigmaMax, sample) => {
   values.muStep = muStep;
   values.sigmaStep = sigmaStep;
   return values;
+};
+
+const Tooltip = ({ x, y, ll, margin }) => {
+  const width = 100;
+  const path = topTooltipPath(width, 40, 10, 10);
+  const eqLogLik = katex.renderToString(`\\ell = ${format(".2f")(ll)}`, {
+    displayMode: false,
+    throwOnError: false
+  });
+  return (
+    <g>
+      <path
+        d={path}
+        className="polygonTip"
+        transform={`translate(${x}, ${y - 5})`}
+      />
+      <foreignObject
+        x={x - width / 2 }
+        y={y -57.5}
+        width={width}
+        height={40}
+      >
+        <div className="vizTooltip">
+          <p>
+            <span dangerouslySetInnerHTML={{ __html: eqLogLik }} />
+          </p>
+        </div>
+      </foreignObject>
+    </g>
+  );
 };
 
 const OverlapChart = props => {
@@ -61,57 +91,67 @@ const OverlapChart = props => {
   let sigmaMin = sigma2MLE - sigma2MLE * 5;
   sigmaMin = sigmaMin < 0 ? 0.1 : sigmaMin;
 
-
-  const llMin = -100;
+  const llMin = -300;
   const llMax = -20;
-  const thresholds = range(llMin, llMax, (llMax - llMin)/100);
+  const thresholds = range(llMin, llMax, (llMax - llMin) / 100);
 
   const yScale = scaleLinear([sigmaMin, sigmaMax], [h, 0]);
 
   const xScale = scaleLinear([muMin, muMax], [0, w]);
 
-  const color = scaleLinear()
+/*   const color = scaleLinear()
     .domain([llMin, llMax])
-    .interpolate( d  => interpolateViridis);
+    .interpolate(d => interpolateViridis); */
 
-  const grid = useMemo(() => createGrid(muMin, muMax, sigmaMin, sigmaMax, sample), [props.sample]);
+  const grid = useMemo(
+    () => createGrid(muMin, muMax, sigmaMin, sigmaMax, sample),
+    [props.sample]
+  );
 
-  const contour = useMemo(() => contours()
-    .size([grid.n, grid.m])
-    .thresholds(thresholds)(grid)
-    .map(({ type, value, coordinates }) => {
-      return {
-        type,
-        value,
-        coordinates: coordinates.map(rings => {
-          return rings.map(points => {
-            return points.map(([mu, sigma]) => [
-              xScale(muMin + mu * grid.muStep),
-              yScale(sigmaMin + sigma * grid.sigmaStep)
-            ]);
-          });
-        })
-      };
-    })
-  , [props.sample]);
+  const contour = useMemo(
+    () =>
+      contours()
+        .size([grid.n, grid.m])
+        .thresholds(thresholds)(grid)
+        .map(({ type, value, coordinates }) => {
+          return {
+            type,
+            value,
+            coordinates: coordinates.map(rings => {
+              return rings.map(points => {
+                return points.map(([mu, sigma]) => [
+                  xScale(muMin + mu * grid.muStep),
+                  yScale(sigmaMin + sigma * grid.sigmaStep)
+                ]);
+              });
+            })
+          };
+        }),
+    [props.sample]
+  );
 
-  const contourPaths = useMemo(() => contour.map((d, i) => {
-    console.log("i " +  i % 5)
-    return (
-      <path
-        d={geoPath()(d)}
-        id="contour"
-        fill={color(d.value)}
-        fillOpacity={0}
-        stroke="#2980b9"
-        strokeWidth={i % 5 ? 0.2 : 1}
-        strokeOpacity={1}
-        strokeLinejoin="round"
-      />
-    );
-  }), [props.sample]);
+  const contourPaths = useMemo(
+    () =>
+      contour.map((d, i) => {
+        console.log("i " + (i % 5));
+        return (
+          <path
+            d={geoPath()(d)}
+            id="contour"
+            //fill={color(d.value)}
+            fillOpacity={0}
+            stroke="#485460"
+            strokeWidth={i % 5 ? 0.5 : 1.5}
+            strokeOpacity={1}
+            strokeLinejoin="round"
+            key={i}
+          />
+        );
+      }),
+    [props.sample]
+  );
 
-  useEffect(() => {
+/*   useEffect(() => {
     createChart();
   }, [para.sample]);
 
@@ -122,7 +162,7 @@ const OverlapChart = props => {
       .style("display", "block")
       .style("margin", "0 0")
       .style("width", "calc(100%)");
-  };
+  }; */
 
   return (
     <svg width={props.width} height={props.width}>
@@ -137,14 +177,14 @@ const OverlapChart = props => {
             x2={xScale(muMax)}
             y1={yScale(props.sigma * props.sigma)}
             y2={yScale(props.sigma * props.sigma)}
-            stroke="red"
+            className="LogLikMu"
           />
           <line
             y1={yScale(sigmaMin)}
             y2={yScale(sigmaMax)}
             x1={xScale(props.mu)}
             x2={xScale(props.mu)}
-            stroke="red"
+            className="LogLikSigma"
           />
           <circle
             cx={xScale(props.mu)}
@@ -152,6 +192,22 @@ const OverlapChart = props => {
             r="5"
             className="logLikX"
           />
+          <rect
+            id="clip-rect"
+            x="0"
+            y="0"
+            width={w}
+            height={h}
+            fill="none"
+            stroke="#fff"
+            strokeWidth="3px"
+          />
+    {/*       <Tooltip
+            x={xScale(props.mu)}
+            y={yScale(props.sigma * props.sigma)}
+            ll={logLikSum(sample, props.mu, props.sigma)}
+            margin={margin}
+          /> */}
         </g>
       </g>
     </svg>

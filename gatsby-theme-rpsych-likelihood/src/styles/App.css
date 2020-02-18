@@ -26,9 +26,14 @@ path#dist1 {
 .sampleCircles {
   fill:#00b894;
 }
-path#dist2 {
+.LogLikMu {
   fill: none;
-  stroke:#2f3640;
+  stroke: #00b894;
+  stroke-width: 4px;
+}
+.LogLikSigma {
+  fill: none;
+  stroke:#04725c;
   stroke-width: 4px;
 }
 path#logLikReferenceCurve {
@@ -88,8 +93,8 @@ line.score.highlight  {
 }
 
 .polygonTip {
-  fill:#d63031;
-  stroke: #d63031;
+  fill:#000000;
+  stroke: #000000;
   stroke-width: 2px;
 }
 
@@ -97,10 +102,10 @@ line.score.highlight  {
   opacity: 0.33;
 }
 line.deriv {
-  stroke: #d63031;
+  stroke: #000000;
   stroke-width: 2px;
 }
 circle.logLikX {
-  fill: #d63031;
+  fill: #000000;
 }
 

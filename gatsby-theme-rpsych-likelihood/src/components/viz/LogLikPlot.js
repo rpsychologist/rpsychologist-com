@@ -175,27 +175,27 @@ const OverlapChart = props => {
 
     // y label
     gViz
-      .selectAll("#y-label")
+      .selectAll(".y-label")
       .data([0])
       .enter()
       .append("text")
       .style("text-anchor", "middle")
-      .attr("id", "y-label");
+      .attr("class", "y-label MuiTypography-body2");
 
     select(node)
-      .selectAll("#y-label")
+      .selectAll(".y-label")
       .attr("transform", "rotate(-90)")
       .attr("text-anchor", "middle")
       .attr("x", -(h / 2))
       .attr("y", -40)
-      .text("Log-Likelihood");
+      .text(`ℓ(μ, σ² = ${props.sigma})`);
   };
   const delta = xMax - xMin;
   return (
     <svg width={props.width} height={props.width * 0.5} transform={props.thetaLab == "sigma" && "" }>
       <g ref={vizRef}>
         <g className="viz">
-          <path d={linex(data1.data)} id="dist2" />
+          <path d={linex(data1.data)} className="LogLikMu" />
           <circle
             cx={xScale(props.theta)}
             cy={yScale(llTheta)}
