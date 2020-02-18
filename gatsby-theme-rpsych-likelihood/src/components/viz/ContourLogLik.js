@@ -24,7 +24,7 @@ const createGrid = (muMin, muMax, sigmaMin, sigmaMax, sample) => {
 
   for (let j = 0, k = 0; j < m; ++j) {
     for (let i = 0; i < n; ++i, ++k) {
-      values[k] = logLikSum(sample, mu[i], Math.sqrt(sigma[j]));
+      values[k] =  logLikSum(sample, mu[i], Math.sqrt(sigma[j]));
     }
   }
 
@@ -61,15 +61,18 @@ const OverlapChart = props => {
   let sigmaMin = sigma2MLE - sigma2MLE * 5;
   sigmaMin = sigmaMin < 0 ? 0.1 : sigmaMin;
 
-  const thresholds = range(-100, -40);
+
+  const llMin = -100;
+  const llMax = -20;
+  const thresholds = range(llMin, llMax, (llMax - llMin)/100);
 
   const yScale = scaleLinear([sigmaMin, sigmaMax], [h, 0]);
 
   const xScale = scaleLinear([muMin, muMax], [0, w]);
 
-  const color = scaleLog()
-    .domain([-100, -41])
-    .interpolate(d => interpolateViridis);
+  const color = scaleLinear()
+    .domain([llMin, llMax])
+    .interpolate( d  => interpolateViridis);
 
   const grid = useMemo(() => createGrid(muMin, muMax, sigmaMin, sigmaMax, sample), [props.sample]);
 
@@ -93,14 +96,17 @@ const OverlapChart = props => {
   , [props.sample]);
 
   const contourPaths = useMemo(() => contour.map((d, i) => {
+    console.log("i " +  i % 5)
     return (
       <path
         d={geoPath()(d)}
         id="contour"
         fill={color(d.value)}
-        fill-opacity={0.5}
-        stroke="#000"
-        stroke-opacity={0.5}
+        fillOpacity={0}
+        stroke="#2980b9"
+        strokeWidth={i % 5 ? 0.2 : 1}
+        strokeOpacity={1}
+        strokeLinejoin="round"
       />
     );
   }), [props.sample]);
