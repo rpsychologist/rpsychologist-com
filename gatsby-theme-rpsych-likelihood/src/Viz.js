@@ -5,7 +5,8 @@ import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import SampleDist from "./components/viz/SamplePlot";
-import LogLikChart from "./components/viz/LogLikPlot";
+import LogLikPlot from "./components/viz/LogLikPlot";
+import LogLikPlotSigma from "./components/viz/LogLikPlotSigma";
 import CurvaturePlot from "./components/viz/CurvaturePlot";
 import ContourLogLik from "./components/viz/ContourLogLik";
 import ResponsiveChart from "./components/viz/ResponsiveChart";
@@ -269,7 +270,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
 
         <Grid
           container
-          alignItems="center"
+          alignItems="flex-end"
           direction="row"
           justify="center"
           spacing={3}
@@ -280,7 +281,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
                 Mean
               </Typography>
               <ResponsiveChart
-                chart={LogLikChart}
+                chart={LogLikPlot}
                 {...vizState}
                 data={dataMu}
                 theta={mu}
@@ -303,7 +304,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
                 Variance
               </Typography>
               <ResponsiveChart
-                chart={LogLikChart}
+                chart={LogLikPlotSigma}
                 {...vizState}
                 data={dataSigma}
                 theta={sigma * sigma}

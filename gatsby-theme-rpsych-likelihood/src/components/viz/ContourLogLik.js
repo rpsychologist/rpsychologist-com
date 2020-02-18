@@ -39,10 +39,10 @@ const OverlapChart = props => {
   const vizRef = useRef(null);
 
   // Stuff
-  const margin = { top: 60, right: 20, bottom: 40, left: 50 };
+  const margin = { top: 0, right: 20, bottom: 40, left: 50 };
   const durationTime = 200;
   const w = props.width - margin.left - margin.right;
-  const h = props.width - margin.top - margin.bottom;
+  const h = props.width * 0.75 - margin.top - margin.bottom;
   const sample = props.sample;
   const para = {
     mu: props.mu,
@@ -120,8 +120,8 @@ const OverlapChart = props => {
     select(node)
       .attr("viewBox", [0, 0, w, h])
       .style("display", "block")
-      .style("margin", "0 -14px")
-      .style("width", "calc(100% + 28px)");
+      .style("margin", "0 0")
+      .style("width", "calc(100%)");
   };
 
   return (
