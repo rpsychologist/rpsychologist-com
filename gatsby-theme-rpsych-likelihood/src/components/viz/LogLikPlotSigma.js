@@ -15,7 +15,7 @@ const OverlapChart = props => {
   // Stuff
   const margin = { top: 0, right: 20, bottom: 40, left: 50 };
   const durationTime = 200;
-  const w = props.width * 0.5 - margin.left - margin.right;
+  const w = props.width * 0.4 - margin.left - margin.right;
   const h = props.width * 0.75 - margin.top - margin.bottom;
   const sample = props.sample;
   const deriv = props.deriv;
@@ -34,18 +34,15 @@ const OverlapChart = props => {
 
   const sigma2MLE = Math.pow(para.sigmaTheta, 2);
   yMax = sigma2MLE + sigma2MLE * 2;
-  yMin = sigma2MLE - sigma2MLE * 5;
-  yMin = yMin < 0 ? 0.1 : yMin;
-  llTheta = useMemo(() =>
-    logLikSum(sample, props.mu, props.sigma), [
-      props.mu,
-      props.sigma,
-      props.sample
-    ]
-  );
+  yMin = 1;
+  llTheta = useMemo(() => logLikSum(sample, props.mu, props.sigma), [
+    props.mu,
+    props.sigma,
+    props.sample
+  ]);
 
-  const xMin = min(data1.y.filter(y => isFinite(y)));
-  const xMax = max(data1.y);
+  const xMin = -100;
+  const xMax = -20;
 
   //const y_max = 0.05;
   // Create scales
@@ -58,7 +55,7 @@ const OverlapChart = props => {
     .range([0, w]);
 
   // Scales and Axis
-  const xAxis = axisBottom(xScale);
+  const xAxis = axisBottom(xScale).ticks(3);
   const yAxis = axisLeft(yScale);
 
   // Line function
@@ -97,10 +94,11 @@ const OverlapChart = props => {
         <path
           d={path}
           className="polygonTip"
-          transform={`translate(${x + margin.left + 5}, ${y + margin.top}) rotate(90)`}
+          transform={`translate(${x + margin.left + 5}, ${y +
+            margin.top}) rotate(90)`}
         />
         <foreignObject
-          x={x + margin.right/2 + margin.left}
+          x={x + margin.right / 2 + margin.left}
           y={y - margin.bottom + 15}
           width={100}
           height={50}
@@ -192,28 +190,27 @@ const OverlapChart = props => {
       .text("σ²");
   };
   const delta = yMax - yMin;
-  console.log(data1.data)
+  console.log(data1.data);
   return (
-    <svg
-      width={props.width *0.75}
-      height={props.width}
-    >
+    <svg width={props.width * 0.75} height={props.width}>
       <g ref={vizRef}>
         <g className="viz">
-          <path d={linex(data1.data)} class="LogLikSigma" />
-          <circle
-            cx={xScale(llTheta)}
-            cy={yScale(props.theta)}
-            r="5"
-            className="logLikX"
-          />
-          <line
-            className="deriv"
-            x1={xScale(llTheta - delta * deriv)}
-            x2={xScale(llTheta + delta * deriv)}
-            y1={yScale(props.theta - delta)}
-            y2={yScale(props.theta + delta)}
-          />
+          <g clipPath="url(#clipSigma)">
+            <path d={linex(data1.data)} class="LogLikSigma" />
+            <circle
+              cx={xScale(llTheta)}
+              cy={yScale(props.theta)}
+              r="5"
+              className="logLikX"
+            />
+            <line
+              className="deriv"
+              x1={xScale(llTheta - delta * deriv)}
+              x2={xScale(llTheta + delta * deriv)}
+              y1={yScale(props.theta - delta)}
+              y2={yScale(props.theta + delta)}
+            />
+          </g>
         </g>
       </g>
       <Tooltip
@@ -222,6 +219,11 @@ const OverlapChart = props => {
         ll={llTheta}
         deriv={deriv}
       />
+      <defs>
+        <clipPath id="clipSigma">
+          <rect id="clip-rect2" x="0" y="-10" width={w} height={h + 10} />
+        </clipPath>
+      </defs>
     </svg>
   );
 };

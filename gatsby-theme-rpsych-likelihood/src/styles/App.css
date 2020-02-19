@@ -54,8 +54,9 @@ line.logLikLines {
   stroke-opacity: 0.2;
 }
 .gradientDescent {
-  stroke-dasharray: 5 2;
+
   stroke: #d63031;
+  stroke-dasharray: 1000px;
   stroke-width: 2;
   fill: none;
 }

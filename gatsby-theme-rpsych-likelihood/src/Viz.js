@@ -73,10 +73,10 @@ const genLogLikCurve = (d, mu, sigma, theta, muTheta, sigmaTheta) => {
     y = x.map(x => logLikSum(d, x, sigma));
   } else if (theta == "sigma") {
     const sigma2 = Math.pow(sigmaTheta, 2);
-    let xStart = sigma2 - 5 * sigma2;
-    const xEnd = sigma2 + 2 * sigma2;
-    xStart = xStart < 0 ? 40 : xStart;
+    let xStart = 1;
+    const xEnd = Math.sqrt(sigma2 + 2 * sigma2);
     x = range(xStart, xEnd, Math.abs(xStart - xEnd) / 50);
+    x = x.map(d => d*d);
     y = x.map(x => logLikSum(d, mu, Math.sqrt(x)));
   }
   const tmp = [];

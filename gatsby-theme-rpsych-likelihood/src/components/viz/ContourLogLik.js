@@ -1,4 +1,6 @@
-import React, { useEffect, useRef, useMemo } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
+import { Spring } from "react-spring/renderprops";
+
 import { scaleLinear, scaleLog } from "d3-scale";
 import { interpolateMagma, interpolateViridis } from "d3-scale-chromatic";
 import { max, min, extent, range } from "d3-array";
@@ -11,7 +13,7 @@ import { contours } from "d3-contour";
 import { logLikSum } from "../utils";
 import { topTooltipPath } from "../utils";
 import katex from "katex";
-import { dMu, dSigma2 } from "../utils"
+import { dMu, dSigma2 } from "../utils";
 
 const createGrid = (muMin, muMax, sigmaMin, sigmaMax, sample) => {
   const n = 100,
@@ -36,8 +38,16 @@ const createGrid = (muMin, muMax, sigmaMin, sigmaMax, sample) => {
   return values;
 };
 
-const gradientDescent = (dMu, dSigma2, muHat, sample, muMin, muMax, sigmaMin, sigmaMax) => {
-
+const gradientDescent = (
+  dMu,
+  dSigma2,
+  muHat,
+  sample,
+  muMin,
+  muMax,
+  sigmaMin,
+  sigmaMax
+) => {
   const muStart = 0;
   const sigmaStart = 20;
   const iter = 2000;
@@ -45,26 +55,25 @@ const gradientDescent = (dMu, dSigma2, muHat, sample, muMin, muMax, sigmaMin, si
 
   const mu = [muStart];
   const sigma = [sigmaStart];
-  const points = [{mu: mu[0], sigma: sigma[0]}];
+  const points = [{ mu: mu[0], sigma: sigma[0] }];
   const TOOL = 0.001;
 
   let gradientMu = 1;
   let gradientSigma = 1;
   let i = 1;
-  while( (Math.abs(gradientSigma) > TOOL) || (Math.abs(gradientMu) > TOOL) ) {
-    const muPrev = mu[i-1];
-    const sigmaPrev = sigma[i-1]
+  while (Math.abs(gradientSigma) > TOOL || Math.abs(gradientMu) > TOOL) {
+    const muPrev = mu[i - 1];
+    const sigmaPrev = sigma[i - 1];
     gradientMu = dMu(10, muPrev, muHat, Math.sqrt(sigmaPrev));
     gradientSigma = dSigma2(sample, muPrev, Math.sqrt(sigmaPrev));
     mu.push(muPrev + 1 * gradientMu);
     sigma.push(sigmaPrev + 1 * gradientSigma);
-    points.push({mu: mu[i], sigma: sigma[i]})
+    points.push({ mu: mu[i], sigma: sigma[i] });
     i++;
   }
 
   return points;
-
-}
+};
 
 const Tooltip = ({ x, y, ll, margin }) => {
   const width = 100;
@@ -80,12 +89,7 @@ const Tooltip = ({ x, y, ll, margin }) => {
         className="polygonTip"
         transform={`translate(${x}, ${y - 5})`}
       />
-      <foreignObject
-        x={x - width / 2 }
-        y={y -57.5}
-        width={width}
-        height={40}
-      >
+      <foreignObject x={x - width / 2} y={y - 57.5} width={width} height={40}>
         <div className="vizTooltip">
           <p>
             <span dangerouslySetInnerHTML={{ __html: eqLogLik }} />
@@ -121,8 +125,17 @@ const OverlapChart = props => {
   let sigmaMin = sigma2MLE - sigma2MLE * 5;
   sigmaMin = sigmaMin < 0 ? 0.1 : sigmaMin;
 
-  const gradientPath = gradientDescent(dMu, dSigma2, props.muHat, sample, muMin, muMax, sigmaMin, sigmaMax)
-  console.log(gradientPath)
+/*   const gradientPath = gradientDescent(
+    dMu,
+    dSigma2,
+    props.muHat,
+    sample,
+    muMin,
+    muMax,
+    sigmaMin,
+    sigmaMax
+  ); */
+
   const llMin = -300;
   const llMax = -20;
   const thresholds = range(llMin, llMax, (llMax - llMin) / 100);
@@ -132,10 +145,10 @@ const OverlapChart = props => {
   const xScale = scaleLinear([muMin, muMax], [0, w]);
 
   const linex = line()
-  .x(d => xScale(d.mu))
-  .y(d => yScale(d.sigma));
+    .x(d => xScale(d.mu))
+    .y(d => yScale(d.sigma));
 
-/*   const color = scaleLinear()
+  /*   const color = scaleLinear()
     .domain([llMin, llMax])
     .interpolate(d => interpolateViridis); */
 
@@ -186,7 +199,7 @@ const OverlapChart = props => {
     [props.sample]
   );
 
-/*   useEffect(() => {
+  /*   useEffect(() => {
     createChart();
   }, [para.sample]);
 
@@ -227,13 +240,13 @@ const OverlapChart = props => {
             r="5"
             className="logLikX"
           />
-          <path d={linex(gradientPath)} class="gradientDescent" /> 
-          <circle
+          <path />
+ {/*          <circle
             cx={xScale(props.muHat)}
             cy={yScale(props.sigmaHat * props.sigmaHat)}
             r="5"
             className="gradientMLE"
-          />
+          /> */}
           <rect
             id="clip-rect"
             x="0"
@@ -244,7 +257,7 @@ const OverlapChart = props => {
             stroke="#fff"
             strokeWidth="3px"
           />
-    {/*       <Tooltip
+          {/*       <Tooltip
             x={xScale(props.mu)}
             y={yScale(props.sigma * props.sigma)}
             ll={logLikSum(sample, props.mu, props.sigma)}

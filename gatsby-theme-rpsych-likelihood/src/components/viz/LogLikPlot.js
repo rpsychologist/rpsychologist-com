@@ -16,7 +16,7 @@ const OverlapChart = props => {
   const margin = { top: 60, right: 20, bottom: 40, left: 50 };
   const durationTime = 200;
   const w = props.width - margin.left - margin.right;
-  const h = props.width * 0.5 - margin.top - margin.bottom;
+  const h = props.width * 0.4 - margin.top - margin.bottom;
   const sample = props.sample;
   const deriv = props.deriv;
   const para = {
@@ -43,8 +43,8 @@ const OverlapChart = props => {
     llTheta = useMemo(() => logLikSum(sample, props.mu, props.sigma, [props.mu, props.sigma, props.sample]));
   }
 
-  const y_min = min(data1.y.filter(y => isFinite(y)));
-  const y_max = max(data1.y);
+  const y_min = -100;
+  const y_max = -20;
 
   //const y_max = 0.05;
   // Create scales
@@ -58,7 +58,7 @@ const OverlapChart = props => {
 
   // Scales and Axis
   const xAxis = axisBottom(xScale);
-  const yAxis = axisLeft(yScale);
+  const yAxis = axisLeft(yScale).ticks(4);
 
   // Line function
   const linex = line()
@@ -192,9 +192,10 @@ const OverlapChart = props => {
   };
   const delta = xMax - xMin;
   return (
-    <svg width={props.width} height={props.width * 0.5} transform={props.thetaLab == "sigma" && "" }>
+    <svg width={props.width} height={props.width * 0.4} transform={props.thetaLab == "sigma" && "" }>
       <g ref={vizRef}>
-        <g className="viz">
+        <g className="viz" >
+          <g clipPath="url(#clipMu)">
           <path d={linex(data1.data)} className="LogLikMu" />
           <circle
             cx={xScale(props.theta)}
@@ -209,6 +210,8 @@ const OverlapChart = props => {
             y1={yScale(llTheta - delta * deriv)}
             y2={yScale(llTheta + delta * deriv)}
           />
+          </g>
+     
         </g>
       </g>
       <Tooltip
@@ -217,6 +220,11 @@ const OverlapChart = props => {
         ll={llTheta}
         deriv={deriv}
       />
+            <defs>
+        <clipPath id="clipMu">
+          <rect id="clip-rectMu" x="0" y="-10" width={w} height={h + 10} />
+        </clipPath>
+      </defs>
     </svg>
   );
 };
