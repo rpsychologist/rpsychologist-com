@@ -192,6 +192,7 @@ const OverlapChart = props => {
       .text("σ²");
   };
   const delta = yMax - yMin;
+  console.log(data1.data)
   return (
     <svg
       width={props.width *0.75}

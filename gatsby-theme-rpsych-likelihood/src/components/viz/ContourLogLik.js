@@ -11,6 +11,7 @@ import { contours } from "d3-contour";
 import { logLikSum } from "../utils";
 import { topTooltipPath } from "../utils";
 import katex from "katex";
+import { dMu, dSigma2 } from "../utils"
 
 const createGrid = (muMin, muMax, sigmaMin, sigmaMax, sample) => {
   const n = 100,
@@ -34,6 +35,36 @@ const createGrid = (muMin, muMax, sigmaMin, sigmaMax, sample) => {
   values.sigmaStep = sigmaStep;
   return values;
 };
+
+const gradientDescent = (dMu, dSigma2, muHat, sample, muMin, muMax, sigmaMin, sigmaMax) => {
+
+  const muStart = 0;
+  const sigmaStart = 20;
+  const iter = 2000;
+  const delta = 2;
+
+  const mu = [muStart];
+  const sigma = [sigmaStart];
+  const points = [{mu: mu[0], sigma: sigma[0]}];
+  const TOOL = 0.001;
+
+  let gradientMu = 1;
+  let gradientSigma = 1;
+  let i = 1;
+  while( (Math.abs(gradientSigma) > TOOL) || (Math.abs(gradientMu) > TOOL) ) {
+    const muPrev = mu[i-1];
+    const sigmaPrev = sigma[i-1]
+    gradientMu = dMu(10, muPrev, muHat, Math.sqrt(sigmaPrev));
+    gradientSigma = dSigma2(sample, muPrev, Math.sqrt(sigmaPrev));
+    mu.push(muPrev + 1 * gradientMu);
+    sigma.push(sigmaPrev + 1 * gradientSigma);
+    points.push({mu: mu[i], sigma: sigma[i]})
+    i++;
+  }
+
+  return points;
+
+}
 
 const Tooltip = ({ x, y, ll, margin }) => {
   const width = 100;
@@ -67,7 +98,6 @@ const Tooltip = ({ x, y, ll, margin }) => {
 
 const OverlapChart = props => {
   const vizRef = useRef(null);
-
   // Stuff
   const margin = { top: 0, right: 20, bottom: 40, left: 50 };
   const durationTime = 200;
@@ -91,6 +121,8 @@ const OverlapChart = props => {
   let sigmaMin = sigma2MLE - sigma2MLE * 5;
   sigmaMin = sigmaMin < 0 ? 0.1 : sigmaMin;
 
+  const gradientPath = gradientDescent(dMu, dSigma2, props.muHat, sample, muMin, muMax, sigmaMin, sigmaMax)
+  console.log(gradientPath)
   const llMin = -300;
   const llMax = -20;
   const thresholds = range(llMin, llMax, (llMax - llMin) / 100);
@@ -98,6 +130,10 @@ const OverlapChart = props => {
   const yScale = scaleLinear([sigmaMin, sigmaMax], [h, 0]);
 
   const xScale = scaleLinear([muMin, muMax], [0, w]);
+
+  const linex = line()
+  .x(d => xScale(d.mu))
+  .y(d => yScale(d.sigma));
 
 /*   const color = scaleLinear()
     .domain([llMin, llMax])
@@ -133,7 +169,6 @@ const OverlapChart = props => {
   const contourPaths = useMemo(
     () =>
       contour.map((d, i) => {
-        console.log("i " + (i % 5));
         return (
           <path
             d={geoPath()(d)}
@@ -191,6 +226,13 @@ const OverlapChart = props => {
             cy={yScale(props.sigma * props.sigma)}
             r="5"
             className="logLikX"
+          />
+          <path d={linex(gradientPath)} class="gradientDescent" /> 
+          <circle
+            cx={xScale(props.muHat)}
+            cy={yScale(props.sigmaHat * props.sigmaHat)}
+            r="5"
+            className="gradientMLE"
           />
           <rect
             id="clip-rect"

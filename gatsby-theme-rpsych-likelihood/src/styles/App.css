@@ -53,6 +53,16 @@ line.logLikLines {
   stroke: black;
   stroke-opacity: 0.2;
 }
+.gradientDescent {
+  stroke-dasharray: 2 2;
+  stroke: #d63031;
+  stroke-width: 2;
+  fill: none;
+}
+.gradientMLE {
+  stroke: #d63031;
+  fill: none;
+}
 line.LRT, line.wald, line.score {
   stroke: rgb(0, 0, 0);
   stroke-opacity: 0.1;
