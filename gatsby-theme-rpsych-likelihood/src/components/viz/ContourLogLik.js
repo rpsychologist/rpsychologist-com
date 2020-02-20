@@ -166,7 +166,7 @@ const OverlapChart = props => {
             })
           };
         }),
-    [props.sample]
+    [props.sample, w]
   );
 
   const contourPaths = useMemo(
@@ -186,7 +186,7 @@ const OverlapChart = props => {
           />
         );
       }),
-    [props.sample]
+    [props.sample, w]
   );
 
   /*   useEffect(() => {
