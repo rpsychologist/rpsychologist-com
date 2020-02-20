@@ -194,11 +194,11 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
             gutterBottom
           >{`Y = [${y}]`}</Typography>
           <Typography variant="body1" gutterBottom>
-            No we also need to assume a model, we're gonna go with the model
+            We also need to assume a model, we're gonna go with the model
             that we know generated this data:{" "}
             <span dangerouslySetInnerHTML={{ __html: eqModel }} />. The
             challenge now is to find what combination of values for μ and σ²
-            that maximize the likelihood of observing this data (given our
+            maximize the likelihood of observing this data (given our
             assumed model). Try moving the sliders around to see what happens.
           </Typography>
         </Container>
