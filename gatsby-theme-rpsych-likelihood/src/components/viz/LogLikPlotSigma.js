@@ -181,7 +181,7 @@ const OverlapChart = props => {
   };
   const delta = yMax - yMin;
   return (
-    <svg width={props.width * 0.75} height={props.width}>
+    <svg width={props.width * 0.75} height={h + margin.bottom}>
       <g ref={vizRef}>
         <g className="viz">
           <g clipPath="url(#clipSigma)">

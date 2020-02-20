@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 import Container from "@material-ui/core/Container";
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
@@ -43,8 +44,7 @@ const useStyles = makeStyles(theme => ({
     maxWidth: 700
   },
   paper: {
-    boxShadow: "none",
-
+    boxShadow: "none"
   },
   stickySlider: {
     position: "sticky",
@@ -76,7 +76,7 @@ const genLogLikCurve = (d, mu, sigma2, theta, muTheta, sigma2Theta) => {
     let xStart = 1;
     const xEnd = Math.sqrt(650);
     x = range(xStart, xEnd, (xEnd - xStart) / 50);
-    x = x.map(d => d*d);
+    x = x.map(d => d * d);
     y = x.map(x => logLikSum(d, mu, x));
   }
   const tmp = [];
@@ -91,9 +91,36 @@ const genLogLikCurve = (d, mu, sigma2, theta, muTheta, sigma2Theta) => {
   return data;
 };
 
+const MleFirst = () => {
+  return (
+    <Typography variant="body1" gutterBottom>
+      Since we use a very simple model, there's a couple of ways to find the
+      MLEs. If we repeat the above calculation for a wide range of parameter
+      values, we get the plots below. The joint MLEs can be found at the top of{" "}
+      <b>contour plot</b>, which shows the likelihood function for a grid of
+      parameter values. We can also find the MLEs analytically by using some
+      calculus. We find the top of the hill by using the <b>partial derivatives</b> with regard to μ and σ² - which is generally called the{" "}
+      <b>score function (U)</b>. Solving the score equations mean that we find
+      which combination of μ and σ² leads to both partial derivates being zero.
+    </Typography>
+  );
+};
+const MleMore = () => {
+  return (
+    <Typography variant="body1">
+      For more challenging models, we often need to use some optimization
+      algorithm. Basically, we let the computer iteratively climb towards the top
+      of the hill.{" "}
+      <em>(I will add some examples here later, e.g., gradient ascent)</em>.
+    </Typography>
+  );
+};
+
 const Content = ({ openSettings, vizState, toggleDrawer }) => {
   const classes = useStyles();
   const [highlight, setHighlight] = useState();
+  const theme = useTheme();
+  const matchesBreak = useMediaQuery(theme.breakpoints.up("sm"));
 
   const {
     mu,
@@ -145,6 +172,10 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
       throwOnError: false
     }
   );
+  const eqModel = katex.renderToString("y \\sim \\mathcal N(\\mu, \\sigma^2)", {
+    displayMode: false,
+    throwOnError: false
+  });
   return (
     <div>
       <Container maxWidth="lg">
@@ -154,8 +185,8 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
         <Container className={classes.textContent}>
           <Typography variant="body1" gutterBottom>
             Before we do any calculations, we need some data. So, {"here's"} 10
-            random observations from a normal distribution with unknown mean and
-            variance.
+            random observations from a normal distribution with unknown mean (μ)
+            and variance (σ²).
           </Typography>
           <Typography
             variant="body1"
@@ -163,9 +194,12 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
             gutterBottom
           >{`Y = [${y}]`}</Typography>
           <Typography variant="body1" gutterBottom>
-            Now we need to find what combination of parameter values maximize
-            the likelihood of observing this data. Try moving the sliders
-            around.
+            No we also need to assume a model, we're gonna go with the model
+            that we know generated this data:{" "}
+            <span dangerouslySetInnerHTML={{ __html: eqModel }} />. The
+            challenge now is to find what combination of values for μ and σ²
+            that maximize the likelihood of observing this data (given our
+            assumed model). Try moving the sliders around to see what happens.
           </Typography>
         </Container>
         <div className={classes.stickySlider}>
@@ -205,7 +239,10 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
             justify="flex-end"
             direction="row"
           >
-            <ButtonSample M={vizState.muTheta} SD={Math.sqrt(vizState.sigma2Theta)} />
+            <ButtonSample
+              M={vizState.muTheta}
+              sigma2={vizState.sigma2Theta}
+            />
           </Grid>
         </div>
 
@@ -255,18 +292,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
           Finding the Maximum Likelihood Estimates
         </Typography>
         <Container className={classes.textContent}>
-          <Typography variant="body1" gutterBottom>
-            If we repeat the above calculation for a range of parameter values,
-            we get the plots below. (The function could be plotted as a
-            three-dimensional hill as well). We can find the top of each curve
-            by using the partial derivatives with regard to the mean and
-            variance, which is generally called the <b>score function (U)</b>.
-            In this case we can solve the score equation analytically (i.e. set
-            it to zero and solve for the mean and variance). We can also solve
-            this equation by brute force simply by moving the sliders around
-            until both partial derivatives are zero (hint: find the MLE for the
-            mean first).
-          </Typography>
+          <MleFirst />
         </Container>
 
         <Grid
@@ -276,9 +302,18 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
           justify="center"
           spacing={0}
         >
-          <Grid item xs={6}>
+          <Grid item xs={12} sm={6}>
             <Paper className={classes.paper}>
-              <Typography variant="h4" component="h3" align="center" style={{paddingBottom:"0em", paddingTop: "0.5em", paddingLeft: "0em"}}>
+              <Typography
+                variant="h4"
+                component="h3"
+                align="center"
+                style={{
+                  paddingBottom: "0em",
+                  paddingTop: "0.5em",
+                  paddingLeft: "0em"
+                }}
+              >
                 Mean
               </Typography>
               <ResponsiveChart
@@ -289,7 +324,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
                 thetaLab="mu"
                 deriv={derivMu}
               />
-               <ResponsiveChart
+              <ResponsiveChart
                 chart={ContourLogLik}
                 {...vizState}
                 data={dataSigma}
@@ -299,13 +334,19 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
               />
             </Paper>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12} sm={6}>
             <Paper className={classes.paper}>
-     
-              <Typography variant="body1">
-              The partial derivatives with regard to the mean and variance, which is generally called the score function (U). In this case we can solve the score equation analytically (i.e. set it to zero and solve for the mean and variance). We can also solve this equation by brute force simply by moving the 
-              </Typography>
-              <Typography variant="h4" component="h3" align="left" style={{paddingBottom:"0.5em", paddingTop: "1em", paddingLeft: "3em"}}>
+              {matchesBreak && <MleMore />}
+              <Typography
+                variant="h4"
+                component="h3"
+                align="left"
+                style={{
+                  paddingBottom: "0.5em",
+                  paddingTop: "1em",
+                  paddingLeft: "3em"
+                }}
+              >
                 Variance
               </Typography>
               <ResponsiveChart
@@ -316,29 +357,29 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
                 thetaLab="sigma"
                 deriv={derivSigma2}
               />
-    
             </Paper>
           </Grid>
+          {!matchesBreak && <MleMore />}
         </Grid>
 
-        <Typography variant="h2" align="center" gutterBottom>
+        <Typography
+          variant="h2"
+          align="center"
+          gutterBottom
+          style={{ paddingTop: "1em" }}
+        >
           Inference
         </Typography>
         <Container className={classes.textContent}>
           <Typography gutterBottom>
-            After {"we've"} found the MLEs we usually want to make some inferences,
-            so {"let's"} focus on three common hypothesis tests. Use the sliders
-            below to change the null hypothesis and the sample size.
+            After {"we've"} found the MLEs we usually want to make some
+            inferences, so {"let's"} focus on three common hypothesis tests. Use
+            the sliders below to change the null hypothesis and the sample size.
           </Typography>
         </Container>
       </Container>
       <Container maxWidth="lg">
-        <Grid
-          container
-          direction="row"
-          justify="center"
-          spacing={3}
-        >
+        <Grid container direction="row" justify="center" spacing={3}>
           <Grid item md={6} xs={12}>
             <Typography variant="h4" component="h2" align="center" gutterBottom>
               Illustration

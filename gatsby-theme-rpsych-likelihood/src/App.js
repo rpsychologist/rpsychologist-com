@@ -209,6 +209,7 @@ const App = () => {
                 component="h2"
                 align="center"
                 gutterBottom
+                style={{paddingTop: "1em"}}
               >
                 FAQ
               </Typography>

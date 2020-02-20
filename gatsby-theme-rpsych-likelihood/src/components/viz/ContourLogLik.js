@@ -203,7 +203,7 @@ const OverlapChart = props => {
   }; */
 
   return (
-    <svg width={props.width} height={props.width}>
+    <svg width={props.width} height={h + margin.bottom}>
       <g ref={vizRef}>
         <g
           className="viz"
