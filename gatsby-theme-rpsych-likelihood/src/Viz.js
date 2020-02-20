@@ -277,7 +277,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
         >
           <Grid item xs={6}>
             <Paper className={classes.paper}>
-              <Typography variant="h4" component="h3" align="center">
+              <Typography variant="h4" component="h3" align="center" style={{paddingBottom:"0em", paddingTop: "0.5em", paddingLeft: "0em"}}>
                 Mean
               </Typography>
               <ResponsiveChart
@@ -300,11 +300,12 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
           </Grid>
           <Grid item xs={6}>
             <Paper className={classes.paper}>
-              <Typography variant="h4" component="h3" align="center">
-                Variance
-              </Typography>
-              <Typography variant="body1" style={{padding:"1em"}}>
+     
+              <Typography variant="body1">
               The partial derivatives with regard to the mean and variance, which is generally called the score function (U). In this case we can solve the score equation analytically (i.e. set it to zero and solve for the mean and variance). We can also solve this equation by brute force simply by moving the 
+              </Typography>
+              <Typography variant="h4" component="h3" align="left" style={{paddingBottom:"0.5em", paddingTop: "1em", paddingLeft: "3em"}}>
+                Variance
               </Typography>
               <ResponsiveChart
                 chart={LogLikPlotSigma}
