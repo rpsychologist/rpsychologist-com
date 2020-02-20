@@ -19,25 +19,15 @@ const OverlapChart = props => {
   const h = props.width * 0.75 - margin.top - margin.bottom;
   const sample = props.sample;
   const deriv = props.deriv;
-  const para = {
-    mu: props.mu,
-    muTheta: props.muTheta,
-    sigma: props.sigma,
-    sigmaTheta: props.sigmaTheta,
-    n1: 10,
-    n2: 10,
-    step: 0.1
-  };
   const data1 = props.data;
   // Axes min and max
   var yMin, yMax, llTheta;
 
-  const sigma2MLE = Math.pow(para.sigmaTheta, 2);
-  yMax = sigma2MLE + sigma2MLE * 2;
+  yMax = 650;
   yMin = 1;
-  llTheta = useMemo(() => logLikSum(sample, props.mu, props.sigma), [
+  llTheta = useMemo(() => logLikSum(sample, props.mu, props.sigma2), [
     props.mu,
-    props.sigma,
+    props.sigma2,
     props.sample
   ]);
 
@@ -73,7 +63,7 @@ const OverlapChart = props => {
   // Update
   useEffect(() => {
     createChart(durationTime);
-  }, [para.mu, para.sigma, w, para.sample]);
+  }, [props.mu, props.sigma2, w, props.sample]);
 
   // Tooltip
   const Tooltip = ({ theta, thetaLab, ll, deriv }) => {
@@ -190,13 +180,12 @@ const OverlapChart = props => {
       .text("σ²");
   };
   const delta = yMax - yMin;
-  console.log(data1.data);
   return (
     <svg width={props.width * 0.75} height={props.width}>
       <g ref={vizRef}>
         <g className="viz">
           <g clipPath="url(#clipSigma)">
-            <path d={linex(data1.data)} class="LogLikSigma" />
+            <path d={linex(data1.data)} className="LogLikSigma" />
             <circle
               cx={xScale(llTheta)}
               cy={yScale(props.theta)}

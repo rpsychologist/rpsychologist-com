@@ -45,10 +45,11 @@ const initialState = {
   muTheta: 100,
   muHat: "",
   SS: "",
-  sigma: 10,
-  sigmaTheta: 15,
-  sigmaMleNull: "",
-  sigmaHat: "",
+  sigma2: 100,
+  sigma2Max: 650,
+  sigma2Theta: 225,
+  sigma2MleNull: "",
+  sigma2Hat: "",
   n: 10,
   test: "LRT",
   sample: [1, 2],
@@ -61,7 +62,7 @@ const vizReducer = (state, action) => {
   value = value === "" ? "" : action.value;
 
   switch (name) {
-    case "sigma":
+    case "sigma2":
     case "mu": {
       return {
         ...state,
@@ -72,24 +73,24 @@ const vizReducer = (state, action) => {
       const muHat = calcMean(value);
       const SS = calcSS(value, muHat);
       const n = value.length;
-      const sigmaHat = Math.sqrt(SS * (1 / n));
+      const sigma2Hat = SS * (1 / n);
       const SSnull = calcSS(value, state.muNull);
-      const sigmaNull = Math.sqrt(SSnull * (1 / n));
+      const sigma2Null = SSnull * (1 / n);
       return {
         ...state,
         sample: value,
         muHat: muHat,
-        sigmaHat: sigmaHat,
-        sigmaMleNull: sigmaNull,
+        sigma2Hat: sigma2Hat,
+        sigma2MleNull: sigma2Null,
         SS: SS
       };
     }
     case "muNull": {
       const SS = calcSS(state.sample, value);
-      const sigmaHat = Math.sqrt(SS * (1 / 10));
+      const sigma2Hat = SS * (1 / 10);
       return {
         ...state,
-        sigmaMleNull: sigmaHat,
+        sigma2MleNull: sigma2Hat,
         muNull: value
       };
     }
@@ -107,8 +108,8 @@ const vizReducer = (state, action) => {
   }
 };
 export const VizDispatch = createContext(null);
-export const drawSample = (n, M, SD) =>
-  [...Array(n)].map(() => randomNormal(M, SD)()).sort((a, b) => a - b);
+export const drawSample = (n, M, sigma2) =>
+  [...Array(n)].map(() => randomNormal(M, Math.sqrt(sigma2))()).sort((a, b) => a - b);
 const round = val => Math.round(Number(val) * 1000) / 1000;
 
 const App = () => {
@@ -120,7 +121,7 @@ const App = () => {
     () =>
       dispatch({
         name: "sample",
-        value: drawSample(10, state.muTheta, state.sigmaTheta)
+        value: drawSample(10, state.muTheta, state.sigma2Theta)
       }),
     []
   );

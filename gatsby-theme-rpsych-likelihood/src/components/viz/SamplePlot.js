@@ -42,34 +42,26 @@ const SampleChart = props => {
   const w = props.width - margin.left - margin.right;
   const h = props.width * aspect - margin.top - margin.bottom;
   const sample = props.sample;
-  const para = {
-    mu: props.mu,
-    muTheta: props.muTheta,
-    sigma: props.sigma,
-    sigmaTheta: props.sigmaTheta,
-    n1: 10,
-    n2: 10,
-    step: 0.1
-  };
-
+  const sigma = Math.sqrt(props.sigma2)
+  const sigmaTheta = Math.sqrt(props.sigma2Theta)
   // x.values
-  const x_start = para.muTheta - 10 * para.sigmaTheta;
-  const x_end = para.muTheta + 10 * para.sigmaTheta;
+  const x_start = props.muTheta - 10 * sigmaTheta;
+  const x_end = props.muTheta + 10 * sigmaTheta;
 
-  const x_start2 = para.mu - 3 * para.sigma;
-  const x_end2 = para.mu + 3 * para.sigma;
-  const x = range( para.mu - 3 * para.sigma,
-     para.mu + 3 * para.sigma, Math.abs(x_start2 - x_end2) / 50);
+  const x_start2 = props.mu - 3 * sigma;
+  const x_end2 = props.mu + 3 * sigma;
+  const x = range( props.mu - 3 * sigma,
+     props.mu + 3 * sigma, Math.abs(x_start2 - x_end2) / 50);
   x.push(x_end)
   x.unshift(x_start)
   
 
   // Data sets
-  const data1 = genData(para.mu, para.sigma, x);
+  const data1 = genData(props.mu, sigma, x);
 
   // Axes min and max
-  const x_max = para.muTheta + para.sigmaTheta * 5;
-  const x_min = para.muTheta - para.sigmaTheta * 5;
+  const x_max = props.muTheta + sigmaTheta * 5;
+  const x_min = props.muTheta - sigmaTheta * 5;
   //const y_max = max(data1.y);
   const y_max = 0.04;
   // Create scales
@@ -88,12 +80,12 @@ const SampleChart = props => {
   // Update
   useEffect(() => {
     createSampleChart(durationTime);
-  }, [para.mu, para.sigma, props.highlight, props.sample, w]);
+  }, [props.mu, props.sigma2, props.highlight, props.sample, w]);
 
   // Tooltip
   const Tooltip = ({ d, i }) => {
     const x = xScale(d);
-    const L = normal.pdf(d, para.mu, para.sigma);
+    const L = normal.pdf(d, props.mu, sigma);
     const y = yScale(L);
     const path = topTooltipPath(150, 50, 10, 10);
     const width = 150;
@@ -240,11 +232,11 @@ const SampleChart = props => {
         .data([0])
         .attr("x1", xScale(mu))
         .attr("x2", xScale(mu))
-        .attr("y1", yScale(normal.pdf(mu, para.mu, para.sigma)))
+        .attr("y1", yScale(normal.pdf(mu, props.mu, sigma)))
         .attr("y2", yScale(0));
     };
 
-    //muLines(para.mu0, "mu0");
+    //muLines(props.mu0, "mu0");
     sample.map((x, i) => sampleLines(x, `sample${i}`));
         // Points
         gViz
@@ -252,13 +244,13 @@ const SampleChart = props => {
         .data(sample)
         .enter()
         .append("svg:circle")
-        .attr("cy", d => yScale(normal.pdf(d, para.mu, para.sigma)))
+        .attr("cy", d => yScale(normal.pdf(d, props.mu, sigma)))
         .attr("cx", d => xScale(d));
   
       select(node)
         .selectAll("circle")
         .data(sample)
-        .attr("cy", d => yScale(normal.pdf(d, para.mu, para.sigma)))
+        .attr("cy", d => yScale(normal.pdf(d, props.mu, sigma)))
         .attr("cx", d => xScale(d))
         .attr("class", "sampleCircles")
         .on("mouseover", function(d, i) {

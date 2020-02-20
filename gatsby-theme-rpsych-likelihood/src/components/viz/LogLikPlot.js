@@ -18,29 +18,21 @@ const OverlapChart = props => {
   const w = props.width - margin.left - margin.right;
   const h = props.width * 0.4 - margin.top - margin.bottom;
   const sample = props.sample;
+  const sigmaTheta = Math.sqrt(props.sigma2Theta);
   const deriv = props.deriv;
-  const para = {
-    mu: props.mu,
-    muTheta: props.muTheta,
-    sigma: props.sigma,
-    sigmaTheta: props.sigmaTheta,
-    n1: 10,
-    n2: 10,
-    step: 0.1
-  };
   const data1 = props.data;
   // Axes min and max
   var xMax, xMin, llTheta;
   if (props.thetaLab == "mu") {
-    xMax = para.muTheta + para.sigmaTheta * 5;
-    xMin = para.muTheta - para.sigmaTheta * 5;
-    llTheta = useMemo(() => logLikSum(sample, props.mu, props.sigma), [props.mu, props.sigma, props.sample]);
+    xMax = props.muTheta + sigmaTheta * 5;
+    xMin = props.muTheta - sigmaTheta * 5;
+    llTheta = useMemo(() => logLikSum(sample, props.mu, props.sigma2), [props.mu, props.sigma2, props.sample]);
   } else if (props.thetaLab == "sigma") {
-    const sigma2MLE = Math.pow(para.sigmaTheta, 2);
+    const sigma2MLE = props.sigma2Theta;
     xMax = sigma2MLE + sigma2MLE * 2;
     xMin = sigma2MLE - sigma2MLE * 5;
     xMin = xMin < 0 ? 0.1 : xMin;
-    llTheta = useMemo(() => logLikSum(sample, props.mu, props.sigma, [props.mu, props.sigma, props.sample]));
+    llTheta = useMemo(() => logLikSum(sample, props.mu, props.sigma2, [props.mu, props.sigma2, props.sample]));
   }
 
   const y_min = -100;
@@ -75,7 +67,7 @@ const OverlapChart = props => {
   // Update
   useEffect(() => {
     createChart(durationTime);
-  }, [para.mu, para.sigma, w, para.sample]);
+  }, [props.mu, props.sigma2, w, props.sample]);
 
   // Tooltip
   const Tooltip = ({ theta, thetaLab, ll, deriv }) => {
@@ -188,11 +180,11 @@ const OverlapChart = props => {
       .attr("text-anchor", "middle")
       .attr("x", -(h / 2))
       .attr("y", -40)
-      .text(`ℓ(μ, σ² = ${props.sigma})`);
+      .text(`ℓ(μ, σ² = ${props.sigma2})`);
   };
   const delta = xMax - xMin;
   return (
-    <svg width={props.width} height={props.width * 0.4} transform={props.thetaLab == "sigma" && "" }>
+    <svg width={props.width} height={props.width * 0.4}>
       <g ref={vizRef}>
         <g className="viz" >
           <g clipPath="url(#clipMu)">

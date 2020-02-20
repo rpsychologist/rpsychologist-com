@@ -63,21 +63,21 @@ const useStyles = makeStyles(theme => ({
 }));
 
 // Generates log-lik function
-const genLogLikCurve = (d, mu, sigma, theta, muTheta, sigmaTheta) => {
+const genLogLikCurve = (d, mu, sigma2, theta, muTheta, sigma2Theta) => {
   var y;
   var x;
+  const sigmaTheta = Math.sqrt(sigma2Theta);
   if (theta == "mu") {
     const xStart = muTheta - 5 * sigmaTheta;
     const xEnd = muTheta + 5 * sigmaTheta;
     x = range(xStart, xEnd, Math.abs(xStart - xEnd) / 50);
-    y = x.map(x => logLikSum(d, x, sigma));
+    y = x.map(x => logLikSum(d, x, sigma2));
   } else if (theta == "sigma") {
-    const sigma2 = Math.pow(sigmaTheta, 2);
     let xStart = 1;
-    const xEnd = Math.sqrt(sigma2 + 2 * sigma2);
-    x = range(xStart, xEnd, Math.abs(xStart - xEnd) / 50);
+    const xEnd = Math.sqrt(650);
+    x = range(xStart, xEnd, (xEnd - xStart) / 50);
     x = x.map(d => d*d);
-    y = x.map(x => logLikSum(d, mu, Math.sqrt(x)));
+    y = x.map(x => logLikSum(d, mu, x));
   }
   const tmp = [];
   for (var i = 0; i < x.length; i++) {
@@ -100,31 +100,31 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
     muHat,
     muNull,
     muTheta,
-    sigmaTheta,
-    sigma,
-    sigmaHat,
-    sigmaMleNull,
+    sigma2Theta,
+    sigma2,
+    sigma2Hat,
+    sigma2MleNull,
     sample,
     n
   } = vizState;
 
   // Data sets
-  const dataMu = genLogLikCurve(sample, mu, sigma, "mu", muTheta, sigmaTheta);
+  const dataMu = genLogLikCurve(sample, mu, sigma2, "mu", muTheta, sigma2Theta);
   const dataSigma = genLogLikCurve(
     sample,
     mu,
-    sigma,
+    sigma2,
     "sigma",
     muTheta,
-    sigmaTheta
+    sigma2Theta
   );
-  const derivMu = dMu(10, mu, muHat, sigma);
-  const derivMuN = dMu(n, muNull, muHat, sigmaHat);
-  const derivMuNull = dMu(n, muNull, muHat, sigmaMleNull);
-  const deriv2MuNull = d2Mu(n, sigmaMleNull);
-  const estllThetaMLE = estimatedLogLik(n, mu, mu, sigmaHat);
-  const estllThetaNull = estimatedLogLik(n, muNull, muHat, sigmaHat);
-  const derivSigma2 = dSigma2(sample, mu, sigma);
+  const derivMu = dMu(10, mu, muHat, sigma2);
+  const derivMuN = dMu(n, muNull, muHat, sigma2Hat);
+  const derivMuNull = dMu(n, muNull, muHat, sigma2MleNull);
+  const deriv2MuNull = d2Mu(n, sigma2MleNull);
+  const estllThetaMLE = estimatedLogLik(n, mu, mu, sigma2Hat);
+  const estllThetaNull = estimatedLogLik(n, muNull, muHat, sigma2Hat);
+  const derivSigma2 = dSigma2(sample, mu, sigma2);
   const y = vizState.sample.map(y => format(".1f")(y)).join(", ");
   const f2n = format(".2n");
   const eqDeriv1 = katex.renderToString(
@@ -188,11 +188,12 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
             />
 
             <Slider
-              name="sigma"
-              label="SD (σ)"
-              thetaHat={vizState.sigmaHat}
-              value={vizState.sigma}
-              max={25}
+              name="sigma2"
+              label="Variance (σ²)"
+              thetaHat={vizState.sigma2Hat}
+              value={vizState.sigma2}
+              min={1}
+              max={vizState.sigma2Max}
               step={vizState.sliderStep}
               openSettings={openSettings}
               handleDrawer={toggleDrawer}
@@ -204,7 +205,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
             justify="flex-end"
             direction="row"
           >
-            <ButtonSample M={vizState.muTheta} SD={vizState.sigmaTheta} />
+            <ButtonSample M={vizState.muTheta} SD={Math.sqrt(vizState.sigma2Theta)} />
           </Grid>
         </div>
 
@@ -237,7 +238,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
                 <CalcLogLik
                   sample={vizState.sample}
                   mu={vizState.mu}
-                  sigma={vizState.sigma}
+                  sigma={vizState.sigma2}
                   highlight={highlight}
                   setHighlight={setHighlight}
                 />
@@ -292,7 +293,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
                 chart={ContourLogLik}
                 {...vizState}
                 data={dataSigma}
-                theta={sigma * sigma}
+                theta={sigma2}
                 thetaLab="sigma"
                 deriv={derivSigma2}
               />
@@ -311,7 +312,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
                 chart={LogLikPlotSigma}
                 {...vizState}
                 data={dataSigma}
-                theta={sigma * sigma}
+                theta={sigma2}
                 thetaLab="sigma"
                 deriv={derivSigma2}
               />
@@ -394,8 +395,8 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
             <TestTabs
               muNull={muNull}
               muHat={muHat}
-              sigma={sigmaHat}
-              sigma0={sigmaMleNull}
+              sigma2={sigma2Hat}
+              sigma2Null={sigma2MleNull}
               derivMuNull={derivMuNull}
               deriv2MuNull={deriv2MuNull}
               n={n}

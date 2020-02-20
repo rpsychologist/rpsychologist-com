@@ -207,8 +207,8 @@ function a11yProps(index) {
 export default function TabsWrappedLabel({
   muNull,
   muHat,
-  sigma,
-  sigma0,
+  sigma2,
+  sigma2Null,
   n,
   derivMuNull,
   deriv2MuNull
@@ -216,6 +216,8 @@ export default function TabsWrappedLabel({
   const classes = useStyles();
   const [value, setValue] = useState("LRT");
   const dispatch = useContext(VizDispatch);
+  const sigma = Math.sqrt(sigma2);
+  const sigma0 = Math.sqrt(sigma2Null);
 
   const handleChange = (event, newVal) => {
     setValue(newVal);

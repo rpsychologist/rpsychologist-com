@@ -15,19 +15,19 @@ import { topTooltipPath } from "../utils";
 import katex from "katex";
 import { dMu, dSigma2 } from "../utils";
 
-const createGrid = (muMin, muMax, sigmaMin, sigmaMax, sample) => {
+const createGrid = (muMin, muMax, sigma2Min, sigma2Max, sample) => {
   const n = 100,
     m = 100,
     values = new Array(n * m);
 
   const muStep = (muMax - muMin) / m;
-  const sigmaStep = (sigmaMax - sigmaMin) / n;
+  const sigmaStep = (sigma2Max - sigma2Min) / n;
   const mu = range(muMin, muMax, muStep);
-  const sigma = range(sigmaMin, sigmaMax, sigmaStep);
+  const sigma2 = range(sigma2Min, sigma2Max, sigmaStep);
 
   for (let j = 0, k = 0; j < m; ++j) {
     for (let i = 0; i < n; ++i, ++k) {
-      values[k] = logLikSum(sample, mu[i], Math.sqrt(sigma[j]));
+      values[k] = logLikSum(sample, mu[i], sigma2[j]);
     }
   }
 
@@ -45,8 +45,8 @@ const gradientDescent = (
   sample,
   muMin,
   muMax,
-  sigmaMin,
-  sigmaMax
+  sigma2Min,
+  sigma2Max
 ) => {
   const muStart = 0;
   const sigmaStart = 20;
@@ -108,22 +108,12 @@ const OverlapChart = props => {
   const w = props.width - margin.left - margin.right;
   const h = props.width * 0.75 - margin.top - margin.bottom;
   const sample = props.sample;
-  const para = {
-    mu: props.mu,
-    muTheta: props.muTheta,
-    sigma: props.sigma,
-    sigmaTheta: props.sigmaTheta,
-    n1: 10,
-    n2: 10,
-    step: 0.1
-  };
-
-  const muMax = props.muTheta + props.sigmaTheta * 5;
-  const muMin = props.muTheta - props.sigmaTheta * 5;
-  const sigma2MLE = Math.pow(props.sigmaTheta, 2);
-  const sigmaMax = sigma2MLE + sigma2MLE * 2;
-  let sigmaMin = sigma2MLE - sigma2MLE * 5;
-  sigmaMin = sigmaMin < 0 ? 0.1 : sigmaMin;
+  const sigmaTheta = Math.sqrt(props.sigma2Theta);
+  const muMax = props.muTheta + sigmaTheta * 5;
+  const muMin = props.muTheta - sigmaTheta * 5;
+  const sigma2MLE = props.sigma2Theta;
+  const sigma2Max = 650;
+  const sigma2Min = 1;
 
 /*   const gradientPath = gradientDescent(
     dMu,
@@ -132,15 +122,15 @@ const OverlapChart = props => {
     sample,
     muMin,
     muMax,
-    sigmaMin,
-    sigmaMax
+    sigma2Min,
+    sigma2Max
   ); */
 
   const llMin = -300;
   const llMax = -20;
   const thresholds = range(llMin, llMax, (llMax - llMin) / 100);
 
-  const yScale = scaleLinear([sigmaMin, sigmaMax], [h, 0]);
+  const yScale = scaleLinear([sigma2Min, sigma2Max], [h, 0]);
 
   const xScale = scaleLinear([muMin, muMax], [0, w]);
 
@@ -153,7 +143,7 @@ const OverlapChart = props => {
     .interpolate(d => interpolateViridis); */
 
   const grid = useMemo(
-    () => createGrid(muMin, muMax, sigmaMin, sigmaMax, sample),
+    () => createGrid(muMin, muMax, sigma2Min, sigma2Max, sample),
     [props.sample]
   );
 
@@ -168,9 +158,9 @@ const OverlapChart = props => {
             value,
             coordinates: coordinates.map(rings => {
               return rings.map(points => {
-                return points.map(([mu, sigma]) => [
+                return points.map(([mu, sigma2]) => [
                   xScale(muMin + mu * grid.muStep),
-                  yScale(sigmaMin + sigma * grid.sigmaStep)
+                  yScale(sigma2Min + sigma2 * grid.sigmaStep)
                 ]);
               });
             })
@@ -223,20 +213,20 @@ const OverlapChart = props => {
           <line
             x1={xScale(muMin)}
             x2={xScale(muMax)}
-            y1={yScale(props.sigma * props.sigma)}
-            y2={yScale(props.sigma * props.sigma)}
+            y1={yScale(props.sigma2)}
+            y2={yScale(props.sigma2)}
             className="LogLikMu"
           />
           <line
-            y1={yScale(sigmaMin)}
-            y2={yScale(sigmaMax)}
+            y1={yScale(sigma2Min)}
+            y2={yScale(sigma2Max)}
             x1={xScale(props.mu)}
             x2={xScale(props.mu)}
             className="LogLikSigma"
           />
           <circle
             cx={xScale(props.mu)}
-            cy={yScale(props.sigma * props.sigma)}
+            cy={yScale(props.sigma2)}
             r="5"
             className="logLikX"
           />
