@@ -1,12 +1,15 @@
 import React, { useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 import Container from "@material-ui/core/Container";
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import SampleDist from "./components/viz/SamplePlot";
-import LogLikChart from "./components/viz/LogLikPlot";
+import LogLikPlot from "./components/viz/LogLikPlot";
+import LogLikPlotSigma from "./components/viz/LogLikPlotSigma";
 import CurvaturePlot from "./components/viz/CurvaturePlot";
+import ContourLogLik from "./components/viz/ContourLogLik";
 import ResponsiveChart from "./components/viz/ResponsiveChart";
 import Slider from "./components/navigation/SettingsSlider";
 import ButtonSample from "./components/navigation/ButtonSample";
@@ -41,8 +44,7 @@ const useStyles = makeStyles(theme => ({
     maxWidth: 700
   },
   paper: {
-    boxShadow: "none",
-    minWidth: "100%"
+    boxShadow: "none"
   },
   stickySlider: {
     position: "sticky",
@@ -61,21 +63,21 @@ const useStyles = makeStyles(theme => ({
 }));
 
 // Generates log-lik function
-const genLogLikCurve = (d, mu, sigma, theta, muTheta, sigmaTheta) => {
+const genLogLikCurve = (d, mu, sigma2, theta, muTheta, sigma2Theta) => {
   var y;
   var x;
+  const sigmaTheta = Math.sqrt(sigma2Theta);
   if (theta == "mu") {
     const xStart = muTheta - 5 * sigmaTheta;
     const xEnd = muTheta + 5 * sigmaTheta;
     x = range(xStart, xEnd, Math.abs(xStart - xEnd) / 50);
-    y = x.map(x => logLikSum(d, x, sigma));
+    y = x.map(x => logLikSum(d, x, sigma2));
   } else if (theta == "sigma") {
-    const sigma2 = Math.pow(sigmaTheta, 2);
-    let xStart = sigma2 - 5 * sigma2;
-    const xEnd = sigma2 + 2 * sigma2;
-    xStart = xStart < 0 ? 40 : xStart;
-    x = range(xStart, xEnd, Math.abs(xStart - xEnd) / 50);
-    y = x.map(x => logLikSum(d, mu, Math.sqrt(x)));
+    let xStart = 1;
+    const xEnd = Math.sqrt(650);
+    x = range(xStart, xEnd, (xEnd - xStart) / 50);
+    x = x.map(d => d * d);
+    y = x.map(x => logLikSum(d, mu, x));
   }
   const tmp = [];
   for (var i = 0; i < x.length; i++) {
@@ -89,40 +91,67 @@ const genLogLikCurve = (d, mu, sigma, theta, muTheta, sigmaTheta) => {
   return data;
 };
 
+const MleFirst = () => {
+  return (
+    <Typography variant="body1" gutterBottom>
+      Since we use a very simple model, there's a couple of ways to find the
+      MLEs. If we repeat the above calculation for a wide range of parameter
+      values, we get the plots below. The joint MLEs can be found at the top of{" "}
+      <b>contour plot</b>, which shows the likelihood function for a grid of
+      parameter values. We can also find the MLEs analytically by using some
+      calculus. We find the top of the hill by using the <b>partial derivatives</b> with regard to μ and σ² - which is generally called the{" "}
+      <b>score function (U)</b>. Solving the score equations mean that we find
+      which combination of μ and σ² leads to both partial derivates being zero.
+    </Typography>
+  );
+};
+const MleMore = () => {
+  return (
+    <Typography variant="body1">
+      For more challenging models, we often need to use some optimization
+      algorithm. Basically, we let the computer iteratively climb towards the top
+      of the hill.{" "}
+      <em>(I will add some examples here later, e.g., gradient ascent)</em>.
+    </Typography>
+  );
+};
+
 const Content = ({ openSettings, vizState, toggleDrawer }) => {
   const classes = useStyles();
   const [highlight, setHighlight] = useState();
+  const theme = useTheme();
+  const matchesBreak = useMediaQuery(theme.breakpoints.up("sm"));
 
   const {
     mu,
     muHat,
     muNull,
     muTheta,
-    sigmaTheta,
-    sigma,
-    sigmaHat,
-    sigmaMleNull,
+    sigma2Theta,
+    sigma2,
+    sigma2Hat,
+    sigma2MleNull,
     sample,
     n
   } = vizState;
 
   // Data sets
-  const dataMu = genLogLikCurve(sample, mu, sigma, "mu", muTheta, sigmaTheta);
+  const dataMu = genLogLikCurve(sample, mu, sigma2, "mu", muTheta, sigma2Theta);
   const dataSigma = genLogLikCurve(
     sample,
     mu,
-    sigma,
+    sigma2,
     "sigma",
     muTheta,
-    sigmaTheta
+    sigma2Theta
   );
-  const derivMu = dMu(10, mu, muHat, sigma);
-  const derivMuN = dMu(n, muNull, muHat, sigmaHat);
-  const derivMuNull = dMu(n, muNull, muHat, sigmaMleNull);
-  const deriv2MuNull = d2Mu(n, sigmaMleNull);
-  const estllThetaMLE = estimatedLogLik(n, mu, mu, sigmaHat);
-  const estllThetaNull = estimatedLogLik(n, muNull, muHat, sigmaHat);
-  const derivSigma2 = dSigma2(sample, mu, sigma);
+  const derivMu = dMu(10, mu, muHat, sigma2);
+  const derivMuN = dMu(n, muNull, muHat, sigma2Hat);
+  const derivMuNull = dMu(n, muNull, muHat, sigma2MleNull);
+  const deriv2MuNull = d2Mu(n, sigma2MleNull);
+  const estllThetaMLE = estimatedLogLik(n, mu, mu, sigma2Hat);
+  const estllThetaNull = estimatedLogLik(n, muNull, muHat, sigma2Hat);
+  const derivSigma2 = dSigma2(sample, mu, sigma2);
   const y = vizState.sample.map(y => format(".1f")(y)).join(", ");
   const f2n = format(".2n");
   const eqDeriv1 = katex.renderToString(
@@ -143,6 +172,10 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
       throwOnError: false
     }
   );
+  const eqModel = katex.renderToString("y \\sim \\mathcal N(\\mu, \\sigma^2)", {
+    displayMode: false,
+    throwOnError: false
+  });
   return (
     <div>
       <Container maxWidth="lg">
@@ -152,8 +185,8 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
         <Container className={classes.textContent}>
           <Typography variant="body1" gutterBottom>
             Before we do any calculations, we need some data. So, {"here's"} 10
-            random observations from a normal distribution with unknown mean and
-            variance.
+            random observations from a normal distribution with unknown mean (μ)
+            and variance (σ²).
           </Typography>
           <Typography
             variant="body1"
@@ -161,9 +194,12 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
             gutterBottom
           >{`Y = [${y}]`}</Typography>
           <Typography variant="body1" gutterBottom>
-            Now we need to find what combination of parameter values maximize
-            the likelihood of observing this data. Try moving the sliders
-            around.
+            We also need to assume a model, we're gonna go with the model
+            that we know generated this data:{" "}
+            <span dangerouslySetInnerHTML={{ __html: eqModel }} />. The
+            challenge now is to find what combination of values for μ and σ²
+            maximize the likelihood of observing this data (given our
+            assumed model). Try moving the sliders around to see what happens.
           </Typography>
         </Container>
         <div className={classes.stickySlider}>
@@ -186,11 +222,12 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
             />
 
             <Slider
-              name="sigma"
-              label="SD (σ)"
-              thetaHat={vizState.sigmaHat}
-              value={vizState.sigma}
-              max={25}
+              name="sigma2"
+              label="Variance (σ²)"
+              thetaHat={vizState.sigma2Hat}
+              value={vizState.sigma2}
+              min={1}
+              max={vizState.sigma2Max}
               step={vizState.sliderStep}
               openSettings={openSettings}
               handleDrawer={toggleDrawer}
@@ -202,7 +239,10 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
             justify="flex-end"
             direction="row"
           >
-            <ButtonSample M={vizState.muTheta} SD={vizState.sigmaTheta} />
+            <ButtonSample
+              M={vizState.muTheta}
+              sigma2={vizState.sigma2Theta}
+            />
           </Grid>
         </div>
 
@@ -235,7 +275,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
                 <CalcLogLik
                   sample={vizState.sample}
                   mu={vizState.mu}
-                  sigma={vizState.sigma}
+                  sigma={vizState.sigma2}
                   highlight={highlight}
                   setHighlight={setHighlight}
                 />
@@ -252,77 +292,94 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
           Finding the Maximum Likelihood Estimates
         </Typography>
         <Container className={classes.textContent}>
-          <Typography variant="body1" gutterBottom>
-            If we repeat the above calculation for a range of parameter values,
-            we get the plots below. (The function could be plotted as a
-            three-dimensional hill as well). We can find the top of each curve
-            by using the partial derivatives with regard to the mean and
-            variance, which is generally called the <b>score function (U)</b>.
-            In this case we can solve the score equation analytically (i.e. set
-            it to zero and solve for the mean and variance). We can also solve
-            this equation by brute force simply by moving the sliders around
-            until both partial derivatives are zero (hint: find the MLE for the
-            mean first).
-          </Typography>
+          <MleFirst />
         </Container>
 
         <Grid
           container
-          alignItems="center"
+          alignItems="flex-end"
           direction="row"
           justify="center"
-          spacing={3}
+          spacing={0}
         >
-          <Grid item md={6} xs={12}>
+          <Grid item xs={12} sm={6}>
             <Paper className={classes.paper}>
-              <Typography variant="h4" component="h3" align="center">
+              <Typography
+                variant="h4"
+                component="h3"
+                align="center"
+                style={{
+                  paddingBottom: "0em",
+                  paddingTop: "0.5em",
+                  paddingLeft: "0em"
+                }}
+              >
                 Mean
               </Typography>
               <ResponsiveChart
-                chart={LogLikChart}
+                chart={LogLikPlot}
                 {...vizState}
                 data={dataMu}
                 theta={mu}
                 thetaLab="mu"
                 deriv={derivMu}
               />
-            </Paper>
-          </Grid>
-          <Grid item md={6} xs={12}>
-            <Paper className={classes.paper}>
-              <Typography variant="h4" component="h3" align="center">
-                Variance
-              </Typography>
               <ResponsiveChart
-                chart={LogLikChart}
+                chart={ContourLogLik}
                 {...vizState}
                 data={dataSigma}
-                theta={sigma * sigma}
+                theta={sigma2}
                 thetaLab="sigma"
                 deriv={derivSigma2}
               />
             </Paper>
           </Grid>
+          <Grid item xs={12} sm={6}>
+            <Paper className={classes.paper}>
+              {matchesBreak && <MleMore />}
+              <Typography
+                variant="h4"
+                component="h3"
+                align="left"
+                style={{
+                  paddingBottom: "0.5em",
+                  paddingTop: "1em",
+                  paddingLeft: "3em"
+                }}
+              >
+                Variance
+              </Typography>
+              <ResponsiveChart
+                chart={LogLikPlotSigma}
+                {...vizState}
+                data={dataSigma}
+                theta={sigma2}
+                thetaLab="sigma"
+                deriv={derivSigma2}
+              />
+            </Paper>
+          </Grid>
+          {!matchesBreak && <MleMore />}
         </Grid>
 
-        <Typography variant="h2" align="center" gutterBottom>
+        <Typography
+          variant="h2"
+          align="center"
+          gutterBottom
+          style={{ paddingTop: "1em" }}
+        >
           Inference
         </Typography>
         <Container className={classes.textContent}>
           <Typography gutterBottom>
-            After {"we've"} found the MLEs we usually want to make some inferences,
-            so {"let's"} focus on three common hypothesis tests. Use the sliders
-            below to change the null hypothesis and the sample size.
+            After {"we've"} found the MLEs we usually want to make some
+            inferences, so {"let's"} focus on three common hypothesis tests. Use
+            the sliders below to change the null hypothesis and the sample size.
           </Typography>
         </Container>
       </Container>
       <Container maxWidth="lg">
-        <Grid
-          container
-          direction="row"
-          justify="center"
-          spacing={3}
-        >
+        <Grid container direction="row" justify="center" spacing={3}>
           <Grid item md={6} xs={12}>
             <Typography variant="h4" component="h2" align="center" gutterBottom>
               Illustration
@@ -379,8 +436,8 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
             <TestTabs
               muNull={muNull}
               muHat={muHat}
-              sigma={sigmaHat}
-              sigma0={sigmaMleNull}
+              sigma2={sigma2Hat}
+              sigma2Null={sigma2MleNull}
               derivMuNull={derivMuNull}
               deriv2MuNull={deriv2MuNull}
               n={n}

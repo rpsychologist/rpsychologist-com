@@ -13,35 +13,31 @@ const OverlapChart = props => {
   const vizRef = useRef(null);
 
   // Stuff
-  const margin = { top: 60, right: 20, bottom: 40, left: 50 };
+  const margin = { top: 0, right: 20, bottom: 40, left: 50 };
   const durationTime = 200;
-  const w = props.width - margin.left - margin.right;
-  const h = props.width * 0.4 - margin.top - margin.bottom;
+  const w = props.width * 0.4 - margin.left - margin.right;
+  const h = props.width * 0.75 - margin.top - margin.bottom;
   const sample = props.sample;
-  const sigmaTheta = Math.sqrt(props.sigma2Theta);
   const deriv = props.deriv;
   const data1 = props.data;
   // Axes min and max
-  var xMax, xMin, llTheta;
-  if (props.thetaLab == "mu") {
-    xMax = props.muTheta + sigmaTheta * 5;
-    xMin = props.muTheta - sigmaTheta * 5;
-    llTheta = useMemo(() => logLikSum(sample, props.mu, props.sigma2), [props.mu, props.sigma2, props.sample]);
-  } else if (props.thetaLab == "sigma") {
-    const sigma2MLE = props.sigma2Theta;
-    xMax = sigma2MLE + sigma2MLE * 2;
-    xMin = sigma2MLE - sigma2MLE * 5;
-    xMin = xMin < 0 ? 0.1 : xMin;
-    llTheta = useMemo(() => logLikSum(sample, props.mu, props.sigma2, [props.mu, props.sigma2, props.sample]));
-  }
+  var yMin, yMax, llTheta;
 
-  const y_min = -100;
-  const y_max = -20;
+  yMax = 650;
+  yMin = 1;
+  llTheta = useMemo(() => logLikSum(sample, props.mu, props.sigma2), [
+    props.mu,
+    props.sigma2,
+    props.sample
+  ]);
+
+  const xMin = -100;
+  const xMax = -20;
 
   //const y_max = 0.05;
   // Create scales
   const yScale = scaleLinear()
-    .domain([y_min, y_max])
+    .domain([yMin, yMax])
     .range([h, 0]);
 
   const xScale = scaleLinear()
@@ -49,19 +45,19 @@ const OverlapChart = props => {
     .range([0, w]);
 
   // Scales and Axis
-  const xAxis = axisBottom(xScale);
-  const yAxis = axisLeft(yScale).ticks(4);
+  const xAxis = axisBottom(xScale).ticks(3);
+  const yAxis = axisLeft(yScale);
 
   // Line function
   const linex = line()
-    .x(d => xScale(d[0]))
-    .y(d => yScale(d[1]));
+    .x(d => xScale(d[1]))
+    .y(d => yScale(d[0]));
 
   // Resize
   //useEffect(() => {
-    // const t = zoomTransform(vizRef.current);
-    // const newXScale = t.rescaleX(xScale.range([0, w]));
-    // setXAxis(() => axisBottom(newXScale));
+  // const t = zoomTransform(vizRef.current);
+  // const newXScale = t.rescaleX(xScale.range([0, w]));
+  // setXAxis(() => axisBottom(newXScale));
   //}, [w]);
 
   // Update
@@ -71,10 +67,10 @@ const OverlapChart = props => {
 
   // Tooltip
   const Tooltip = ({ theta, thetaLab, ll, deriv }) => {
-    const x = xScale(theta);
-    const y = yScale(ll);
-    const width = 100;
-    const path = topTooltipPath(width, 40, 10, 10);
+    const x = xScale(ll);
+    const y = yScale(theta);
+    const width = 40;
+    const path = topTooltipPath(width, 100, 10, 10);
     const thetaSymb = thetaLab == "mu" ? "mu" : "sigma^2";
     const eqLogLik = katex.renderToString(
       `\\frac{\\partial}{\\partial \\${thetaSymb}}\\ell = `,
@@ -88,12 +84,13 @@ const OverlapChart = props => {
         <path
           d={path}
           className="polygonTip"
-          transform={`translate(${x + margin.left}, ${y + margin.top - 5})`}
+          transform={`translate(${x + margin.left + 5}, ${y +
+            margin.top}) rotate(90)`}
         />
         <foreignObject
-          x={x - width / 2 + margin.left}
-          y={y}
-          width={width}
+          x={x + margin.right / 2 + margin.left}
+          y={y - margin.bottom + 15}
+          width={100}
           height={50}
         >
           <div className="vizTooltip">
@@ -155,7 +152,7 @@ const OverlapChart = props => {
       .enter()
       .append("text")
       .style("text-anchor", "middle")
-      .attr("class", "x-label MuiTypography-body1");
+      .attr("class", "x-label MuiTypography-body2");
 
     select(node)
       .selectAll(".x-label")
@@ -163,7 +160,7 @@ const OverlapChart = props => {
         "transform",
         "translate(" + w / 2 + " ," + (h + margin.bottom - 5) + ")"
       )
-      .text(props.thetaLab == "mu" ? "μ":"σ²");
+      .text(`ℓ(μ = ${props.mu}, σ²)`);
 
     // y label
     gViz
@@ -180,30 +177,29 @@ const OverlapChart = props => {
       .attr("text-anchor", "middle")
       .attr("x", -(h / 2))
       .attr("y", -40)
-      .text(`ℓ(μ, σ² = ${props.sigma2})`);
+      .text("σ²");
   };
-  const delta = xMax - xMin;
+  const delta = yMax - yMin;
   return (
-    <svg width={props.width} height={props.width * 0.4}>
+    <svg width={props.width * 0.75} height={h + margin.bottom}>
       <g ref={vizRef}>
-        <g className="viz" >
-          <g clipPath="url(#clipMu)">
-          <path d={linex(data1.data)} className="LogLikMu" />
-          <circle
-            cx={xScale(props.theta)}
-            cy={yScale(llTheta)}
-            r="5"
-            className="logLikX"
-          />
-          <line
-            className="deriv"
-            x1={xScale(props.theta - delta)}
-            x2={xScale(props.theta + delta)}
-            y1={yScale(llTheta - delta * deriv)}
-            y2={yScale(llTheta + delta * deriv)}
-          />
+        <g className="viz">
+          <g clipPath="url(#clipSigma)">
+            <path d={linex(data1.data)} className="LogLikSigma" />
+            <circle
+              cx={xScale(llTheta)}
+              cy={yScale(props.theta)}
+              r="5"
+              className="logLikX"
+            />
+            <line
+              className="deriv"
+              x1={xScale(llTheta - delta * deriv)}
+              x2={xScale(llTheta + delta * deriv)}
+              y1={yScale(props.theta - delta)}
+              y2={yScale(props.theta + delta)}
+            />
           </g>
-     
         </g>
       </g>
       <Tooltip
@@ -212,9 +208,9 @@ const OverlapChart = props => {
         ll={llTheta}
         deriv={deriv}
       />
-            <defs>
-        <clipPath id="clipMu">
-          <rect id="clip-rectMu" x="0" y="-10" width={w} height={h + 10} />
+      <defs>
+        <clipPath id="clipSigma">
+          <rect id="clip-rect2" x="0" y="-10" width={w} height={h + 10} />
         </clipPath>
       </defs>
     </svg>

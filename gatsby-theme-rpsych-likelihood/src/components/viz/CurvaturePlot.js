@@ -21,21 +21,13 @@ const OverlapChart = props => {
   const test = props.test;
   const n = props.n;
   const muNull = props.muNull;
-  const para = {
-    mu: props.mu,
-    muTheta: props.muTheta,
-    sigma: props.sigma,
-    sigmaTheta: props.sigmaTheta,
-    n1: 10,
-    n2: 10,
-    step: 0.1
-  };
 
   // Axes min and max
   var xMax, xMin, llTheta;
 
-  xMax = para.muTheta + para.sigmaTheta * 5;
-  xMin = para.muTheta - para.sigmaTheta * 5;
+  const sigmaTheta = Math.sqrt(props.sigma2Theta);
+  xMax = props.muTheta + sigmaTheta * 5;
+  xMin = props.muTheta - sigmaTheta * 5;
   llTheta = 0;
 
   const data1 = useMemo(
@@ -43,11 +35,11 @@ const OverlapChart = props => {
       genEstLogLikCurve(
         10,
         props.muHat,
-        props.sigmaHat,
+        props.sigma2Hat,
         props.muTheta,
-        props.sigmaTheta
+        props.sigma2Theta
       ),
-    [props.width, props.sigmaHat, props.muHat]
+    [props.width, props.sigma2Hat, props.muHat]
   );
 
   const data2 = useMemo(
@@ -55,11 +47,11 @@ const OverlapChart = props => {
       genEstLogLikCurve(
         n,
         props.muHat,
-        props.sigmaHat,
+        props.sigma2Hat,
         props.muTheta,
-        props.sigmaTheta
+        props.sigma2Theta
       ),
-    [n, props.width, props.sigmaHat, props.muHat]
+    [n, props.width, props.sigma2Hat, props.muHat]
   );
 
   const yMin = min(data1.y.filter(y => isFinite(y)));
