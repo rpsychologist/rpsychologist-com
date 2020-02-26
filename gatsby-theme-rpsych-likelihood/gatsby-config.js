@@ -4,8 +4,8 @@ module.exports = {
     description: `A tool to understand maximum likelihood estimation`,
     author: `Kristoffer Magnusson`,
     twitter: `@krstoffr`,
-    version: '0.0.3',
-    lastUpdated: `2020-02-20`,
+    version: '0.0.4',
+    lastUpdated: `2020-02-26`,
     github: 'https://github.com/rpsychologist/likelihood',
     url: 'https://rpsychologist.com/d3/likelihood/'
   },

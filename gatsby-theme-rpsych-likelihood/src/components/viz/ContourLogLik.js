@@ -2,18 +2,26 @@ import React, { useEffect, useState, useRef, useMemo } from "react";
 import { Spring } from "react-spring/renderprops";
 
 import { scaleLinear, scaleLog } from "d3-scale";
-import { interpolateMagma, interpolateViridis } from "d3-scale-chromatic";
+import { interpolateMagma, interpolateBlues } from "d3-scale-chromatic";
 import { max, min, extent, range } from "d3-array";
 import { geoPath, geoIdentity } from "d3-geo";
 import { axisBottom, axisLeft } from "d3-axis";
 import { select } from "d3-selection";
 import { format } from "d3-format";
+import { interpolateRgb } from "d3-interpolate";
 import { line } from "d3-shape";
 import { contours } from "d3-contour";
 import { logLikSum } from "../utils";
-import { topTooltipPath } from "../utils";
 import katex from "katex";
+
 import { dMu, dSigma2 } from "../utils";
+import Tooltip from "./Tooltip";
+
+const eqLogLik = ll =>
+  katex.renderToString(`\\ell = ${ll}`, {
+    displayMode: false,
+    throwOnError: false
+  });
 
 const createGrid = (muMin, muMax, sigma2Min, sigma2Max, sample) => {
   const n = 100,
@@ -75,32 +83,7 @@ const gradientDescent = (
   return points;
 };
 
-const Tooltip = ({ x, y, ll, margin }) => {
-  const width = 100;
-  const path = topTooltipPath(width, 40, 10, 10);
-  const eqLogLik = katex.renderToString(`\\ell = ${format(".2f")(ll)}`, {
-    displayMode: false,
-    throwOnError: false
-  });
-  return (
-    <g>
-      <path
-        d={path}
-        className="polygonTip"
-        transform={`translate(${x}, ${y - 5})`}
-      />
-      <foreignObject x={x - width / 2} y={y - 57.5} width={width} height={40}>
-        <div className="vizTooltip">
-          <p>
-            <span dangerouslySetInnerHTML={{ __html: eqLogLik }} />
-          </p>
-        </div>
-      </foreignObject>
-    </g>
-  );
-};
-
-const OverlapChart = props => {
+const ContourChart = props => {
   const vizRef = useRef(null);
   // Stuff
   const margin = { top: 0, right: 20, bottom: 40, left: 50 };
@@ -115,7 +98,7 @@ const OverlapChart = props => {
   const sigma2Max = 650;
   const sigma2Min = 1;
 
-/*   const gradientPath = gradientDescent(
+  /*   const gradientPath = gradientDescent(
     dMu,
     dSigma2,
     props.muHat,
@@ -134,16 +117,25 @@ const OverlapChart = props => {
 
   const xScale = scaleLinear([muMin, muMax], [0, w]);
 
-  const linex = line()
-    .x(d => xScale(d.mu))
-    .y(d => yScale(d.sigma));
-
-  /*   const color = scaleLinear()
-    .domain([llMin, llMax])
-    .interpolate(d => interpolateViridis); */
+  const linex = useMemo(
+    () =>
+      line()
+        .x(d => xScale(d.mu))
+        .y(d => yScale(d.sigma)),
+    []
+  );
 
   const grid = useMemo(
     () => createGrid(muMin, muMax, sigma2Min, sigma2Max, sample),
+    [props.sample]
+  );
+
+  const color = useMemo(
+    () =>
+      scaleLinear()
+        .domain([-100, max(grid)])
+        .range(["#82b3aa", "#fff"])
+        .interpolate(interpolateRgb.gamma(0.6)),
     [props.sample]
   );
 
@@ -175,12 +167,12 @@ const OverlapChart = props => {
         return (
           <path
             d={geoPath()(d)}
-            id="contour"
-            //fill={color(d.value)}
-            fillOpacity={0}
+            class="contour"
+            fill={color(d.value)}
+            fillOpacity={1}
             stroke="#485460"
             strokeWidth={i % 5 ? 0.5 : 1.5}
-            strokeOpacity={1}
+            strokeOpacity={0.75}
             strokeLinejoin="round"
             key={i}
           />
@@ -201,6 +193,10 @@ const OverlapChart = props => {
       .style("margin", "0 0")
       .style("width", "calc(100%)");
   }; */
+  const ll = useMemo(
+    () => format(".2f")(logLikSum(sample, props.mu, props.sigma2)),
+    [sample, props.mu, props.sigma2]
+  );
 
   return (
     <svg width={props.width} height={h + margin.bottom}>
@@ -231,7 +227,7 @@ const OverlapChart = props => {
             className="logLikX"
           />
           <path />
- {/*          <circle
+          {/*          <circle
             cx={xScale(props.muHat)}
             cy={yScale(props.sigmaHat * props.sigmaHat)}
             r="5"
@@ -247,16 +243,16 @@ const OverlapChart = props => {
             stroke="#fff"
             strokeWidth="3px"
           />
-          {/*       <Tooltip
+          <Tooltip
             x={xScale(props.mu)}
-            y={yScale(props.sigma * props.sigma)}
-            ll={logLikSum(sample, props.mu, props.sigma)}
+            y={yScale(props.sigma2)}
+            equation={eqLogLik(ll)}
             margin={margin}
-          /> */}
+          />
         </g>
       </g>
     </svg>
   );
 };
 
-export default OverlapChart;
+export default ContourChart;
