@@ -167,7 +167,7 @@ const ContourChart = props => {
         return (
           <path
             d={geoPath()(d)}
-            class="contour"
+            className="contour"
             fill={color(d.value)}
             fillOpacity={1}
             stroke="#485460"
@@ -243,13 +243,13 @@ const ContourChart = props => {
             stroke="#fff"
             strokeWidth="3px"
           />
-          <Tooltip
-            x={xScale(props.mu)}
+        </g>
+        <Tooltip
+            x={xScale(props.mu) + margin.left}
             y={yScale(props.sigma2)}
             equation={eqLogLik(ll)}
             margin={margin}
           />
-        </g>
       </g>
     </svg>
   );
