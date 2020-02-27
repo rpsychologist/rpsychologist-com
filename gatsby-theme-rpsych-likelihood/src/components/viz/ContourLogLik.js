@@ -105,7 +105,7 @@ const ContourChart = props => {
   const sigma2Max = 650;
   const sigma2Min = 1;
 
-  const gradientPath = gradientDescent(
+  const gradientPath = useMemo(() => gradientDescent(
     dMu,
     dSigma2,
     props.muHat,
@@ -115,19 +115,17 @@ const ContourChart = props => {
     muMax,
     sigma2Min,
     sigma2Max
-  );
+  ), [sample]);
 
-  const [count, setCount] = useState(0);
+
+  // For gradient ascent illustration
   const [delay, setDelay] = useState(1);
-  //const [drawGradientPath, setGradientPath] = useState([gradientPath[0]])
 
   useInterval(() => {
     if (props.count == gradientPath.length) {
       setDelay(null);
     } else {
-      //setCount(currentCount => currentCount + 1);
       const points = gradientPath[props.count];
-      //setGradientPath();
       dispatch({
         name: "gradientAscent",
         value: { mu: points.mu, sigma2: points.sigma, gradientPoints: points, maxIter: gradientPath.length }
@@ -140,7 +138,7 @@ const ContourChart = props => {
       name: "resetGradientAscent",
       value: gradientPath[0],
     });
-    setDelay(1);
+    setDelay(16);
   }, [sample]);
 
   const llMin = -300;
