@@ -54,7 +54,9 @@ const initialState = {
   test: "LRT",
   sample: [1, 2],
   sliderMax: 150,
-  sliderStep: 0.1
+  sliderStep: 0.1,
+  drawGradientPath: [{mu: 0, sigma: 1}],
+  count: 0,
 };
 
 const vizReducer = (state, action) => {
@@ -68,6 +70,23 @@ const vizReducer = (state, action) => {
         ...state,
         [name]: round(value)
       };
+    }
+    case "gradientAscent": {
+      const newCount = state.count + 10;
+      return {
+        ...state,
+        mu: value.mu,
+        sigma2: value.sigma2,
+        drawGradientPath: [...state.drawGradientPath, value.gradientPoints],
+        count: newCount > value.maxIter ? value.maxIter : newCount,
+      };
+    }
+    case "resetGradientAscent": {
+      return {
+        ...state,
+        drawGradientPath: [value],
+        count: 0
+      }
     }
     case "sample": {
       const muHat = calcMean(value);
@@ -121,7 +140,7 @@ const App = () => {
     () =>
       dispatch({
         name: "sample",
-        value: drawSample(10, state.muTheta, state.sigma2Theta)
+        value: [78.0, 95.5, 100.3, 100.6, 102.8, 107.8, 109.1, 110.8, 113.9, 125.0]
       }),
     []
   );

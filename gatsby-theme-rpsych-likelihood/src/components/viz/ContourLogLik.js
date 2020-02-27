@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef, useMemo } from "react";
-import { Spring } from "react-spring/renderprops";
-
+import React, { useEffect, useState, useRef, useMemo, useContext } from "react";
+import useInterval from "@use-it/interval";
+import { VizDispatch } from "../../App";
 import { scaleLinear, scaleLog } from "d3-scale";
 import { interpolateMagma, interpolateBlues } from "d3-scale-chromatic";
 import { max, min, extent, range } from "d3-array";
@@ -50,41 +50,48 @@ const gradientDescent = (
   dMu,
   dSigma2,
   muHat,
+  sigmaHat,
   sample,
   muMin,
   muMax,
   sigma2Min,
   sigma2Max
 ) => {
-  const muStart = 0;
-  const sigmaStart = 20;
+  const muStart = (160 - muHat) / sigmaHat;
+  const sigmaStart = 1.5;
   const iter = 2000;
-  const delta = 2;
+  const alpha = 0.01;
 
   const mu = [muStart];
   const sigma = [sigmaStart];
-  const points = [{ mu: mu[0], sigma: sigma[0] }];
-  const TOOL = 0.001;
-
+  const points = [
+    { mu: mu[0] * sigmaHat + muHat, sigma: sigma[0] * Math.pow(sigmaHat, 2) }
+  ];
+  const TOOL = 0.01;
+  // Normalize y
+  const y = sample.map(y => (y - muHat) / sigmaHat);
   let gradientMu = 1;
   let gradientSigma = 1;
   let i = 1;
   while (Math.abs(gradientSigma) > TOOL || Math.abs(gradientMu) > TOOL) {
     const muPrev = mu[i - 1];
     const sigmaPrev = sigma[i - 1];
-    gradientMu = dMu(10, muPrev, muHat, Math.sqrt(sigmaPrev));
-    gradientSigma = dSigma2(sample, muPrev, Math.sqrt(sigmaPrev));
-    mu.push(muPrev + 1 * gradientMu);
-    sigma.push(sigmaPrev + 1 * gradientSigma);
-    points.push({ mu: mu[i], sigma: sigma[i] });
+    gradientMu = dMu(10, muPrev, 0, sigmaPrev);
+    gradientSigma = dSigma2(y, muPrev, sigmaPrev);
+    mu.push(muPrev + alpha * gradientMu);
+    sigma.push(sigmaPrev + alpha * gradientSigma);
+    points.push({
+      mu: mu[i] * sigmaHat + muHat,
+      sigma: sigma[i] * Math.pow(sigmaHat, 2)
+    });
     i++;
   }
-
   return points;
 };
 
 const ContourChart = props => {
   const vizRef = useRef(null);
+  const dispatch = useContext(VizDispatch);
   // Stuff
   const margin = { top: 0, right: 20, bottom: 40, left: 50 };
   const durationTime = 200;
@@ -98,20 +105,50 @@ const ContourChart = props => {
   const sigma2Max = 650;
   const sigma2Min = 1;
 
-  /*   const gradientPath = gradientDescent(
+  const gradientPath = gradientDescent(
     dMu,
     dSigma2,
     props.muHat,
+    Math.sqrt(props.sigma2Hat),
     sample,
     muMin,
     muMax,
     sigma2Min,
     sigma2Max
-  ); */
+  );
+
+  const [count, setCount] = useState(0);
+  const [delay, setDelay] = useState(1);
+  //const [drawGradientPath, setGradientPath] = useState([gradientPath[0]])
+
+  useInterval(() => {
+    if (props.count == gradientPath.length) {
+      setDelay(null);
+    } else {
+      //setCount(currentCount => currentCount + 1);
+      const points = gradientPath[props.count];
+      //setGradientPath();
+      dispatch({
+        name: "gradientAscent",
+        value: { mu: points.mu, sigma2: points.sigma, gradientPoints: points, maxIter: gradientPath.length }
+      });
+    }
+  }, delay);
+
+  useEffect(() => {
+    dispatch({
+      name: "resetGradientAscent",
+      value: gradientPath[0],
+    });
+    setDelay(1);
+  }, [sample]);
 
   const llMin = -300;
   const llMax = -20;
-  const thresholds = range(llMin, llMax, (llMax - llMin) / 100);
+  const thresholds = useMemo(
+    () => range(llMin, llMax, (llMax - llMin) / 100),
+    []
+  );
 
   const yScale = scaleLinear([sigma2Min, sigma2Max], [h, 0]);
 
@@ -226,7 +263,7 @@ const ContourChart = props => {
             r="5"
             className="logLikX"
           />
-          <path />
+          <path d={linex(props.drawGradientPath)} class="gradientDescent" />
           {/*          <circle
             cx={xScale(props.muHat)}
             cy={yScale(props.sigmaHat * props.sigmaHat)}
@@ -245,11 +282,11 @@ const ContourChart = props => {
           />
         </g>
         <Tooltip
-            x={xScale(props.mu) + margin.left}
-            y={yScale(props.sigma2)}
-            equation={eqLogLik(ll)}
-            margin={margin}
-          />
+          x={xScale(props.mu) + margin.left}
+          y={yScale(props.sigma2)}
+          equation={eqLogLik(ll)}
+          margin={margin}
+        />
       </g>
     </svg>
   );

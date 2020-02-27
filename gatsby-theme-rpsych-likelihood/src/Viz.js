@@ -105,12 +105,12 @@ const MleFirst = () => {
     </Typography>
   );
 };
-const MleMore = () => {
+const MleMore = ({iter}) => {
   return (
     <Typography variant="body1">
       For more challenging models, we often need to use some optimization
       algorithm. Basically, we let the computer iteratively climb towards the top
-      of the hill.{" "}
+      of the hill.{" "} Algo iter {iter}.
       <em>(I will add some examples here later, e.g., gradient ascent)</em>.
     </Typography>
   );
@@ -336,7 +336,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
           </Grid>
           <Grid item xs={12} sm={6}>
             <Paper className={classes.paper}>
-              {matchesBreak && <MleMore />}
+              {matchesBreak && <MleMore iter={vizState.count} />}
               <Typography
                 variant="h4"
                 component="h3"
