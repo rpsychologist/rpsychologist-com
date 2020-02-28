@@ -160,7 +160,7 @@ const OverlapChart = props => {
         "transform",
         "translate(" + w / 2 + " ," + (h + margin.bottom - 5) + ")"
       )
-      .text(`ℓ(μ = ${props.mu}, σ²)`);
+      .text(`ℓ(μ = ${format(".2f")(props.mu)}, σ²)`);
 
     // y label
     gViz

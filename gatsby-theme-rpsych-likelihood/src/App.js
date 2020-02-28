@@ -56,6 +56,7 @@ const initialState = {
   sliderMax: 150,
   sliderStep: 0.1,
   drawGradientPath: [{mu: 0, sigma: 1}],
+  gradientDelay: null,
   count: 0,
 };
 
@@ -72,20 +73,44 @@ const vizReducer = (state, action) => {
       };
     }
     case "gradientAscent": {
-      const newCount = state.count + 10;
+      const newCount = state.count + value.increment;
+      const count = newCount >= state.maxIter ? state.maxIter : newCount;
+      const point = state.gradientPath[count]
+      const delay = count == state.maxIter ? null : state.gradientDelay;
+      const converged = count == state.maxIter ? true : false;
       return {
         ...state,
-        mu: value.mu,
-        sigma2: value.sigma2,
-        drawGradientPath: [...state.drawGradientPath, value.gradientPoints],
-        count: newCount > value.maxIter ? value.maxIter : newCount,
+        mu: point.mu,
+        sigma2: point.sigma,
+        drawGradientPath: [...state.drawGradientPath, point],
+        count: count,
+        gradientDelay: delay,
+        converged: converged,
+      };
+    }
+    case "runGradientAscent": {
+      return {
+        ...state,
+        gradientDelay: value.delay,
       };
     }
     case "resetGradientAscent": {
       return {
         ...state,
-        drawGradientPath: [value],
-        count: 0
+        count: 0,
+        drawGradientPath: [state.gradientPath[0]],
+        gradientDelay: null,
+        converged: false,
+      };
+    }
+    case "newSampleGradientAscent": {
+      return {
+        ...state,
+        drawGradientPath: [value.gradientPath[0]],
+        gradientPath: value.gradientPath,
+        maxIter: value.gradientPath.length - 1,
+        count: 0,
+        converged: false,
       }
     }
     case "sample": {

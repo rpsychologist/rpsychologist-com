@@ -59,9 +59,7 @@ const gradientDescent = (
 ) => {
   const muStart = (160 - muHat) / sigmaHat;
   const sigmaStart = 1.5;
-  const iter = 2000;
   const alpha = 0.01;
-
   const mu = [muStart];
   const sigma = [sigmaStart];
   const points = [
@@ -105,40 +103,30 @@ const ContourChart = props => {
   const sigma2Max = 650;
   const sigma2Min = 1;
 
-  const gradientPath = useMemo(() => gradientDescent(
-    dMu,
-    dSigma2,
-    props.muHat,
-    Math.sqrt(props.sigma2Hat),
-    sample,
-    muMin,
-    muMax,
-    sigma2Min,
-    sigma2Max
-  ), [sample]);
-
-
   // For gradient ascent illustration
-  const [delay, setDelay] = useState(1);
-
   useInterval(() => {
-    if (props.count == gradientPath.length) {
-      setDelay(null);
-    } else {
-      const points = gradientPath[props.count];
-      dispatch({
-        name: "gradientAscent",
-        value: { mu: points.mu, sigma2: points.sigma, gradientPoints: points, maxIter: gradientPath.length }
-      });
-    }
-  }, delay);
+    dispatch({
+      name: "gradientAscent",
+      value: { increment: 10 }
+    });
+  }, props.gradientDelay);
 
   useEffect(() => {
+    const gradientPath = gradientDescent(
+      dMu,
+      dSigma2,
+      props.muHat,
+      Math.sqrt(props.sigma2Hat),
+      sample,
+      muMin,
+      muMax,
+      sigma2Min,
+      sigma2Max
+    );
     dispatch({
-      name: "resetGradientAscent",
-      value: gradientPath[0],
+      name: "newSampleGradientAscent",
+      value: { gradientPath: gradientPath }
     });
-    setDelay(16);
   }, [sample]);
 
   const llMin = -300;
@@ -157,7 +145,7 @@ const ContourChart = props => {
       line()
         .x(d => xScale(d.mu))
         .y(d => yScale(d.sigma)),
-    []
+    [w]
   );
 
   const grid = useMemo(
@@ -261,7 +249,7 @@ const ContourChart = props => {
             r="5"
             className="logLikX"
           />
-          <path d={linex(props.drawGradientPath)} class="gradientDescent" />
+          <path d={linex(props.drawGradientPath)} className="gradientDescent" />
           {/*          <circle
             cx={xScale(props.muHat)}
             cy={yScale(props.sigmaHat * props.sigmaHat)}

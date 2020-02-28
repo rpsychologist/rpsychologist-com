@@ -180,7 +180,7 @@ const OverlapChart = props => {
       .attr("text-anchor", "middle")
       .attr("x", -(h / 2))
       .attr("y", -40)
-      .text(`ℓ(μ, σ² = ${props.sigma2})`);
+      .text(`ℓ(μ, σ² = ${format(".2f")(props.sigma2)})`);
   };
   const delta = xMax - xMin;
   return (
