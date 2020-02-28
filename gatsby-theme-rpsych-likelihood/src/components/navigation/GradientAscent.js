@@ -4,7 +4,7 @@ import { VizDispatch } from "../../App";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import PlayCircleFilledIcon from "@material-ui/icons/PlayCircleFilled";
-import HighlightOffIcon from "@material-ui/icons/HighlightOff";
+import ReplayIcon from '@material-ui/icons/Replay';
 import Tooltip from "@material-ui/core/Tooltip";
 
 const GradientAscent = ({ count, converged }) => {
@@ -80,7 +80,7 @@ const GradientAscent = ({ count, converged }) => {
           aria-label="reset gradient ascent"
           disabled={!converged}
         >
-          <HighlightOffIcon />
+          <ReplayIcon />
         </IconButton>
       </Tooltip>
       <Typography display="inline" variant="body2">
