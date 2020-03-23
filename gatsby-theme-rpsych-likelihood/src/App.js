@@ -17,7 +17,7 @@ import Content from "./Viz";
 import SEO from "./components/SEO";
 import Footer from "./components/content/Footer";
 import { randomNormal } from "d3-random";
-import { calcMean, calcSS } from "./components/utils";
+import { calcMean, calcSS, newtonStep, gradientStep } from "./components/utils";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -53,11 +53,15 @@ const initialState = {
   n: 10,
   test: "LRT",
   sample: [1, 2],
+  sampleZ: [],
   sliderMax: 150,
   sliderStep: 0.1,
-  drawGradientPath: [{mu: 0, sigma: 1}],
-  gradientDelay: null,
+  drawGradientPath: [],
+  algoDelay: null,
+  algoDelaySetting: null,
+  animating: false,
   count: 0,
+  algo: "gradientAscent"
 };
 
 const vizReducer = (state, action) => {
@@ -69,49 +73,101 @@ const vizReducer = (state, action) => {
     case "mu": {
       return {
         ...state,
-        [name]: round(value)
+        [name]: round(value),
+        animating: false
       };
     }
-    case "gradientAscent": {
+    case "n":
+    case "test":
+    case "algo": {
+      return {
+        ...state,
+        [name]: value
+      };
+    }
+    case "contourDrag": {
+      return {
+        ...state,
+        mu: value.mu,
+        sigma2: value.sigma2,
+        animating: false
+      };
+    }
+    case "algoIterate": {
       const newCount = state.count + value.increment;
-      const count = newCount >= state.maxIter ? state.maxIter : newCount;
-      const point = state.gradientPath[count]
-      const delay = count == state.maxIter ? null : state.gradientDelay;
-      const converged = count == state.maxIter ? true : false;
+      const count = newCount;
+      const update = state.algo == "gradientAscent" ? gradientStep(state) : newtonStep(state);
+      const newPath =
+        state.count == 0
+          ? [{ mu: state.mu, sigma2: state.sigma2 }, update.points]
+          : [...state.drawGradientPath, update.points];
+      const convergedCurrent = update.converged;
+      const convergedHistory =
+        state.count == 0
+          ? [false]
+          : [...state.convergedHistory, convergedCurrent];
+      //const animate = state.algo == "newtonRaphson";
       return {
         ...state,
-        mu: point.mu,
-        sigma2: point.sigma,
-        drawGradientPath: [...state.drawGradientPath, point],
+        mu: update.points.mu,
+        sigma2: update.points.sigma2,
+        drawGradientPath: newPath,
         count: count,
-        gradientDelay: delay,
-        converged: converged,
+        convergedHistory: convergedHistory,
+        converged: convergedCurrent,
+        animating: state.algo == "newtonRaphson",
+        algoDelay: convergedCurrent ? null : state.algoDelaySetting,
+        algoDelaySetting: convergedCurrent ? null : state.algoDelaySetting
       };
     }
-    case "runGradientAscent": {
+    case "algoReverse": {
+      const newPath = state.drawGradientPath;
+      newPath.pop();
+      const prev = newPath[newPath.length - 1];
+      const convergedHistory = state.convergedHistory;
+      convergedHistory.pop();
+      const convergedCurrent = convergedHistory[convergedHistory.length - 1];
       return {
         ...state,
-        gradientDelay: value.delay,
+        mu: prev.mu,
+        sigma2: prev.sigma2,
+        drawGradientPath: newPath,
+        count: state.count - 1,
+        convergedHistory: convergedHistory,
+        converged: convergedCurrent,
+        animating: state.algo == "newtonRaphson",
       };
     }
-    case "resetGradientAscent": {
+    case "algoRun": {
+      return {
+        ...state,
+        algoDelay: 0,
+        algoDelaySetting: state.algo == "gradientAscent" ? 0 : value.delay
+      };
+    }
+    case "algoReset": {
+      const path = state.drawGradientPath[0];
       return {
         ...state,
         count: 0,
-        drawGradientPath: [state.gradientPath[0]],
-        gradientDelay: null,
+        mu: path.mu,
+        sigma2: path.sigma2,
+        drawGradientPath: path,
+        algoDelay: null,
+        algoDelaySetting: null,
         converged: false,
+        animating: false
       };
     }
-    case "newSampleGradientAscent": {
+    case "algoNewSample": {
       return {
         ...state,
-        drawGradientPath: [value.gradientPath[0]],
-        gradientPath: value.gradientPath,
+        drawGradientPath: [value.gradientPath.points[0]],
+        gradientPath: value.gradientPath.points,
         maxIter: value.gradientPath.length - 1,
         count: 0,
-        converged: false,
-      }
+        converged: false
+      };
     }
     case "sample": {
       const muHat = calcMean(value);
@@ -123,6 +179,7 @@ const vizReducer = (state, action) => {
       return {
         ...state,
         sample: value,
+        sampleZ:  value.map(y => (y - muHat) / Math.sqrt(sigma2Hat)),
         muHat: muHat,
         sigma2Hat: sigma2Hat,
         sigma2MleNull: sigma2Null,
@@ -138,22 +195,13 @@ const vizReducer = (state, action) => {
         muNull: value
       };
     }
-    case "n":
-    case "test":
-    case "xLabel":
-    case "muZeroLabel":
-    case "muOneLabel":
-    case "sliderMax":
-    case "sliderStep":
-      return {
-        ...state,
-        [name]: value
-      };
   }
 };
 export const VizDispatch = createContext(null);
 export const drawSample = (n, M, sigma2) =>
-  [...Array(n)].map(() => randomNormal(M, Math.sqrt(sigma2))()).sort((a, b) => a - b);
+  [...Array(n)]
+    .map(() => randomNormal(M, Math.sqrt(sigma2))())
+    .sort((a, b) => a - b);
 const round = val => Math.round(Number(val) * 1000) / 1000;
 
 const App = () => {
@@ -165,7 +213,18 @@ const App = () => {
     () =>
       dispatch({
         name: "sample",
-        value: [78.0, 95.5, 100.3, 100.6, 102.8, 107.8, 109.1, 110.8, 113.9, 125.0]
+        value: [
+          78.0,
+          95.5,
+          100.3,
+          100.6,
+          102.8,
+          107.8,
+          109.1,
+          110.8,
+          113.9,
+          125.0
+        ]
       }),
     []
   );
@@ -253,7 +312,7 @@ const App = () => {
                 component="h2"
                 align="center"
                 gutterBottom
-                style={{paddingTop: "1em"}}
+                style={{ paddingTop: "1em" }}
               >
                 FAQ
               </Typography>

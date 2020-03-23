@@ -7,7 +7,7 @@ import { select } from "d3-selection";
 import { line } from "d3-shape";
 import { genEstLogLikCurve } from "../utils";
 
-const OverlapChart = props => {
+const CurvatureChart = props => {
   const vizRef = useRef(null);
 
   // Stuff
@@ -202,4 +202,4 @@ const OverlapChart = props => {
   );
 };
 
-export default OverlapChart;
+export default CurvatureChart;

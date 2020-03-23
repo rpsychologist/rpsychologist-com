@@ -31,6 +31,44 @@ path#dist1 {
   stroke: #00b894;
   stroke-width: 4px;
 }
+.animated--path {
+  fill: none;
+  stroke: #069419;
+  stroke-width: 4px;
+}
+.LogLikNewton {
+  fill: none;
+  stroke: #c0392b;
+  stroke-width: 2px;
+}
+
+.LogLikNewton--test {
+  fill: none;
+  stroke: #c0392b;
+  stroke-width: 2px;
+}
+circle.logLikNewtonX--logLik {
+  fill: #47494b;
+  fill-opacity: 0.5;
+  stroke: #47494b;
+  stroke-width: 2px;
+}
+circle.logLikNewtonX--approx {
+  fill: none;
+  stroke: #c0392b;
+  stroke-width: 2px;
+}
+circle.logLikNewtonX--test {
+  fill: red;
+  stroke: #a1920c;
+  stroke-width: 2px;
+}
+.LogLikNewton--maxima {
+  fill: none;
+  stroke: #47494b;
+  stroke-width: 2px;
+  stroke-dasharray: 2 2;
+}
 .LogLikSigma {
   fill: none;
   stroke:#04725c;
@@ -88,13 +126,15 @@ line.score.highlight  {
 
 .vizTooltip {
   width: 100%;
+  position: fixed;
   display: -webkit-inline-box;
   -webkit-box-pack: center;
   -webkit-box-align: center;
+  user-select: none;
 }
 .vizTooltip p {
   text-align: center;
-  color: white;
+  color: #ffffff;
   z-index: -1;
 }
 
@@ -112,6 +152,10 @@ line.score.highlight  {
 
 .xAxis, .yAxis {
   opacity: 0.33;
+  user-select: none;
+}
+.y-label, .x-label {
+  user-select: none;
 }
 line.deriv {
   stroke: #000000;
@@ -119,4 +163,11 @@ line.deriv {
 }
 circle.logLikX {
   fill: #000000;
+}
+
+g.draggable {
+  cursor: -webkit-grab;
+}
+g.draggable:active {
+  cursor: -webkit-grabbing;
 }
