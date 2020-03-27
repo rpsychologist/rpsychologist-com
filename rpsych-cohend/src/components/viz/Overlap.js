@@ -1,404 +1,221 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { scaleLinear } from "d3-scale";
-import { max } from "d3-array";
-import { axisBottom } from "d3-axis";
-import { select, local, event } from "d3-selection";
-import { transition, textTween } from "d3-transition";
 import { format } from "d3-format";
 import { range } from "d3-array";
 import { line } from "d3-shape";
 import { normal } from "jstat";
-import { interpolate } from "d3-interpolate";
-import { zoom, zoomIdentity, zoomTransform } from "d3-zoom";
+import { useGesture } from "react-use-gesture";
+import { useSpring, animated } from "react-spring";
+import { AxisBottom } from "@vx/axis";
 
 // Generates data
-const genData = (mu, sigma, x) => {
-  var y = [];
-  for (var i = 0; i < x.length; i++) {
-    y.push(normal.pdf(x[i], mu, sigma));
-  }
-  var tmp = [];
-  x.unshift(x[0]);
-  y.unshift(0);
-  x.push(x[x.length - 1]);
-  y.push(0);
-  for (var i = 0; i < x.length; i++) {
-    tmp.push([x[i], y[i]]);
-  }
+const genData = (mu, SD, x) => {
+  const tmp = x.map(x => [x, normal.pdf(x, mu, SD)]);
+  // close tails
+  tmp.unshift([tmp[0][0], 0])
+  tmp.push([tmp[tmp.length - 1][0], 0]);
 
-  var data = {
+  return {
     data: tmp,
-    x: x,
-    y: y
+    yMax: normal.pdf(mu, mu, SD)
   };
-  return data;
 };
 
+const VerticalLine = ({ x, y1, y2, id }) => {
+  return <line x1={x} x2={x} y1={y1} y2={y2} id={id} />;
+};
+
+const margin = { top: 60, right: 20, bottom: 30, left: 20 };
+
 const OverlapChart = props => {
-  const vizRef = useRef(null);
-  const [zoomTrans, setZoomTrans] = useState(0);
-
-  // Stuff
-  const margin = { top: 60, right: 20, bottom: 30, left: 20 };
-  const aspect = 0.4;
-  const durationTime = 200;
-  const w = props.width - margin.left - margin.right;
-  const h = props.width * 0.4 - margin.top - margin.bottom;
-  const mu0Label = props.muZeroLabel,
-    mu1Label = props.muOneLabel;
-  const _previous = local();
-  const para = {
-    cohend: props.cohend,
-    var_ratio: 1,
-    mu0: props.M0,
-    mu1: props.M1,
-    sigma: props.SD,
-    n1: 10,
-    n2: 10,
-    step: 0.1
-  };
-
-  // x.values
-  const x_start = para.mu0 - 3 * para.sigma;
-  const x_end = para.mu1 + 3 * para.sigma;
-  const x = range(x_start, x_end, Math.abs(x_start - x_end) / 100);
-
-  // Data sets
-  const data1 = genData(para.mu0, para.sigma, x),
-    data2 = genData(para.mu1, para.sigma, x);
-
-  // Axes min and max
-  const x_max = para.mu1 + para.sigma * 3;
-  const x_min = para.mu0 - para.sigma * 3;
-  const y_max = max([max(data1.y), max(data2.y)]);
-
-  // Scales and Axis
-  const [xScale, setXScale] = useState(() =>
-    scaleLinear()
-      .domain([x_min, x_max])
-      .range([0, w])
-  );
-  const [xAxis, setXAxis] = useState(() => {
-    return axisBottom(xScale);
+  const [{ xOffset }, set] = useSpring(() => ({ xOffset: 0 }));
+  // Use state to force re-render of x-axis on drag
+  const [xDiff, setDiff] = useState(0);
+  const [reset, setReset] = useState(false);
+  const bind = useGesture({
+    onDrag: ({ delta: [dx] }) => {
+      set({ xOffset: xOffset.value + dx, immediate: true });
+      setDiff(xScale.invert(xOffset.value) - xScale.invert(0));
+    },
+    onDoubleClick: () => {
+      set({ xOffset: 0 });
+      setDiff(0);
+      setReset(!reset);
+    }
   });
 
-  // Zoom
-  var zoomFn = zoom().on("zoom", zoomed);
+  const {
+    cohend,
+    M0,
+    M1,
+    xLabel,
+    muZeroLabel,
+    muOneLabel,
+    width,
+    height,
+    SD
+  } = props;
 
-  function zoomed() {
-    setZoomTrans(event.transform.x);
-    const xAxis = axisBottom(xScale);
-    if (typeof event.transform.rescaleX === "function") {
-      const newX = xAxis.scale(event.transform.rescaleX(xScale));
-      setXAxis(() => newX);
-    }
-  }
+  const w = width - margin.left - margin.right;
+  const h = width * 0.4 - margin.top - margin.bottom;
 
-  // Resize
-  useEffect(() => {
-    const t = zoomTransform(vizRef.current);
-    const newXScale = t.rescaleX(xScale.range([0, w]));
-    setXAxis(() => axisBottom(newXScale));
-  }, [w]);
+  // x.values
+  const xStart = M0 - 3 * SD;
+  const xEnd = M1 + 3 * SD;
+  const x = useMemo(() => range(xStart, xEnd, Math.abs(xStart - xEnd) / 100), [
+    M0,
+    w,
+    SD,
+    reset
+  ]);
 
-  // Update
-  useEffect(() => {
-    createOverlapChart(durationTime);
-  }, [para]);
+  // Data
+  const data1 = useMemo(() => genData(M0, SD, x), [M0, SD, w, reset]);
 
-  const createOverlapChart = durationTime => {
-    const node = vizRef.current;
+  // Axes min and max
+  const xMax = useMemo(() => M1 + SD * 3, [reset]);
+  const xMin = useMemo(() => M0 - SD * 3, [reset]);
+  const yMax = data1.yMax;
 
-    // Create scales
-    const yScale = scaleLinear()
-      .domain([0, y_max])
-      .range([0, h]);
+  // Scales and Axis
+  const xScale = useMemo(
+    () =>
+      scaleLinear()
+        .domain([xMin, xMax])
+        .range([0, w]),
+    [w, reset]
+  );
+  const yScale = scaleLinear()
+    .domain([0, yMax])
+    .range([0, h]);
 
-    // Line function
-    const linex = line()
-      .x(d => xScale(d[0]))
-      .y(d => h - yScale(d[1]));
+  // Line function
+  const linex = useMemo(
+    () =>
+      line()
+        .x(d => xScale(d[0]))
+        .y(d => h - yScale(d[1])),
+    [w, reset]
+  );
 
-    select(node)
-      .selectAll("g.viz")
-      .attr(
-        "transform",
-        "translate(" + (margin.left + zoomTrans) + "," + margin.top + ")"
-      );
+  const PathDist1 = useMemo(() => linex(data1.data), [SD, M0, w, reset]);
+  const labMargin = cohend > 0.1 ? 5 : 15;
 
-    // Axis
-    select(node)
-      .selectAll("g.xAxis")
-      .data([0])
-      .enter()
-      .append("g")
-      .attr("class", "xAxis");
+  return (
+    <svg
+      id="overlapChart"
+      {...bind()}
+      width={props.width}
+      height={props.width * 0.4}
+    >
+      <animated.g
+        transform={xOffset.to(
+          x => `translate(${margin.left + x}, ${margin.top})`
+        )}
+      >
+        <path id="dist1" d={PathDist1} />
+        <clipPath id="distClip">
+          <use href="#dist2" />
+        </clipPath>
+        <g>
+          <path
+            d={PathDist1}
+            id="dist2"
+            transform={`translate(${xScale(M1) - xScale(M0)},0)`}
+          />
+        </g>
+        <path d={PathDist1} clipPath="url(#distClip)" id="distOverlap" />
 
-    select(node)
-      .select("g.xAxis")
-      .attr(
-        "transform",
-        "translate(" + margin.left + "," + (h + margin.top) + ")"
-      )
-      .call(xAxis);
-
-    const gViz = select(node)
-      .selectAll("g.viz")
-      .data([0])
-      .enter()
-      .append("g")
-      .attr("class", "viz")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-  
-    select(node)
-      .call(zoomFn)
-      .on("wheel.zoom", null)
-      .on("mousewheel.zoom", null)
-      .on("dblclick.zoom", () => {
-        const newXScale = xScale.domain([x_min, x_max]).range([0, w]);
-        setXScale(() => newXScale);
-        select(vizRef.current)
-          .transition()
-          .duration(200)
-          .call(zoomFn.transform, zoomIdentity);
-      });
-
-    // x label
-    gViz
-      .selectAll("#x-label")
-      .data([0])
-      .enter()
-      .append("text")
-      .style("text-anchor", "middle")
-      .attr("id", "x-label");
-
-    select(node)
-      .selectAll("#x-label")
-      .attr(
-        "transform",
-        "translate(" + w / 2 + " ," + (h + margin.bottom) + ")"
-      )
-      .text(props.xLabel);
-
-    // Append dists
-
-    // DIST1
-    gViz
-      .selectAll("#dist1")
-      .data([data1.data])
-      .enter()
-      .append("svg:path")
-      .attr("d", linex)
-      .attr("id", "dist1");
-
-    select(node)
-      .selectAll("#dist1")
-      .data([data1.data])
-      .transition()
-      .duration(durationTime)
-      .attr("d", linex);
-
-    // CLIP 1
-    gViz
-      .selectAll("#dist1-clip")
-      .data([data2.data])
-      .enter()
-      .append("clipPath")
-      .attr("id", "dist1-clip")
-      .append("path")
-      .attr("d", linex) // define a clip path
-      .attr("id", "clip-path");
-
-    select(node)
-      .selectAll("#clip-path")
-      .data([data1.data])
-      .transition()
-      .duration(durationTime)
-      .attr("d", linex);
-
-    // DIST 2
-    gViz
-      .selectAll("#dist2")
-      .data([data2.data])
-      .enter()
-      .append("svg:path")
-      .attr("d", linex)
-      .attr("id", "dist2");
-
-    select(node)
-      .selectAll("#dist2")
-      .data([data2.data])
-      .transition()
-      .duration(durationTime)
-      .attr("d", linex);
-
-    // DIST overlap
-    gViz
-      .selectAll("#distOverlap")
-      .data([data2.data])
-      .enter()
-      .append("svg:path")
-      .attr("clip-path", "url(#dist1-clip)")
-      .attr("d", linex)
-      .attr("id", "distOverlap");
-
-    select(node)
-      .selectAll("#distOverlap")
-      .data([data2.data])
-      .transition()
-      .duration(durationTime)
-      .attr("d", linex);
-
-    // mu vertical lines
-    const muLines = (mu, id) => {
-      gViz
-        .selectAll("#" + id)
-        .data([0])
-        .enter()
-        .append("line")
-        .attr("id", id);
-
-      select(node)
-        .selectAll("#" + id)
-        .data([0])
-        .transition()
-        .duration(durationTime)
-        .attr("x1", xScale(mu))
-        .attr("x2", xScale(mu))
-        .attr("y1", yScale(0))
-        .attr("y2", yScale(y_max));
-    };
-
-    muLines(para.mu0, "mu0");
-    muLines(para.mu1, "mu1");
-
-    // marker
-    gViz
-      .selectAll("#marker-start")
-      .data([0])
-      .enter()
-      .append("svg:defs")
-      .append("marker")
-      .attr("id", "marker-start")
-      .attr("viewBox", "0 -5 10 10")
-      .attr("refX", 1)
-      .attr("refY", 0)
-      .attr("markerWidth", 6)
-      .attr("markerHeight", 6)
-      .attr("orient", "auto")
-      .append("path")
-      .attr("d", "M0,0L10,-5L10,5");
-
-    gViz
-      .selectAll("#marker-end")
-      .data([0])
-      .enter()
-      .append("svg:defs")
-      .append("marker")
-      .attr("id", "marker-end")
-      .attr("viewBox", "0 -5 10 10")
-      .attr("refX", 9)
-      .attr("refY", 0)
-      .attr("markerWidth", 6)
-      .attr("markerHeight", 6)
-      .attr("orient", "auto")
-      .append("path")
-      .attr("d", "M0, -5L10,0L0,5");
-
-    // effect line
-    gViz
-      .selectAll("#mu_connect")
-      .data([0])
-      .enter()
-      .append("line")
-      .attr("id", "mu_connect")
-      .attr("marker-start", "url(#marker-start)")
-      .attr("marker-end", "url(#marker-end)");
-
-    select(node)
-      .selectAll("#mu_connect")
-      .transition()
-      .duration(durationTime)
-      .attr("x1", xScale(para.mu0))
-      .attr("x2", xScale(para.mu1))
-      .attr("y1", -10)
-      .attr("y2", -10);
-
-    // ES line label
-    function createLabel({ label, id, x, y, textAnchor }) {
-      gViz
-        .selectAll("#" + id)
-        .data([0])
-        .enter()
-        .append("text")
-        .attr("id", id)
-        .attr("class", "MuiTypography-body1")
-        .attr("dominant-baseline", "central");
-
-      select(node)
-        .selectAll("#" + id)
-        .transition()
-        .duration(durationTime)
-        .attr("x", x)
-        .attr("y", y)
-        .attr("text-anchor", textAnchor)
-        .text(label);
-    }
-
-    gViz
-      .selectAll("#cohen_float")
-      .data([para.cohend])
-      .enter()
-      .append("text")
-      .attr("id", "cohen_float")
-      .attr("class", "MuiTypography-h5 fontWeightBold")
-      .attr("dominant-baseline", "central")
-      .attr("x", xScale((para.mu0 + para.mu1) / 2))
-      .attr("y", -50);
-
-    select(node)
-      .selectAll("#cohen_float")
-      .each(function(d) {
-        _previous.set(this, d);
-      })
-      .data([para.cohend])
-      .transition()
-      .duration(durationTime)
-      .textTween(function(d) {
-        let i = interpolate(_previous.get(this, d), d);
-        return t => `Cohen's d: ${format(".2n")(i(t))}`;
-      })
-      .attr("text-anchor", "middle")
-      .attr("x", xScale((para.mu0 + para.mu1) / 2))
-      .attr("y", -50);
-
-    createLabel({
-      label: `(Diff: ${format(".3n")(para.mu1 - para.mu0)})`,
-      id: "diff_float",
-      x: xScale((para.mu0 + para.mu1) / 2),
-      y: -25,
-      textAnchor: "middle"
-    });
-
-    const labMargin = para.cohend > 0.1 ? 5 : 15;
-
-    createLabel({
-      label: mu0Label,
-      id: "mu0Label",
-      x: xScale(para.mu0) - labMargin,
-      y: -10,
-      textAnchor: para.cohend >= 0 ? "end" : "start"
-    });
-    createLabel({
-      label: mu1Label,
-      id: "mu1Label",
-      x: xScale(para.mu1) + labMargin,
-      y: -10,
-      textAnchor: para.cohend >= 0 ? "start" : "end"
-    });
-  };
-
-  return <svg ref={vizRef} width={props.width} height={props.width * 0.4} />;
+        <VerticalLine
+          x={xScale(M0)}
+          y1={yScale(0)}
+          y2={yScale(yMax)}
+          id="mu0"
+        />
+        <VerticalLine
+          x={xScale(M1)}
+          y1={yScale(0)}
+          y2={yScale(yMax)}
+          id="mu1"
+        />
+        <text
+          textAnchor="middle"
+          id="x-label"
+          transform={`translate(${w / 2}, ${h + margin.bottom})`}
+        >
+          {xLabel}
+        </text>
+        <line
+          x1={xScale(M0)}
+          x2={xScale(M1)}
+          y1={-10}
+          y2={-10}
+          id="mu_connect"
+          markerStart="url(#arrow)"
+          markerEnd="url(#arrow)"
+        />
+        <text
+          x={xScale((M0 + M1) / 2)}
+          y={-50}
+          className="MuiTypography-h5 fontWeightBold"
+          dominantBaseline="central"
+          textAnchor="middle"
+          id="cohend_float"
+        >
+          {`Cohen's d: ${format(".2n")(cohend)}`}
+        </text>
+        <text
+          x={xScale((M0 + M1) / 2)}
+          y={-25}
+          className="MuiTypography-body1"
+          dominantBaseline="central"
+          textAnchor="middle"
+          id="diff_float"
+        >
+          {`(Diff: ${format(".3n")(M1 - M0)})`}
+        </text>
+        <text
+          x={xScale(M0) - labMargin}
+          y={-10}
+          className="MuiTypography-body1"
+          dominantBaseline="central"
+          textAnchor={cohend >= 0 ? "end" : "start"}
+          id="mu0Label"
+        >
+          {muZeroLabel}
+        </text>
+        <text
+          x={xScale(M1) + labMargin}
+          y={-10}
+          className="MuiTypography-body1"
+          dominantBaseline="central"
+          textAnchor={cohend >= 0 ? "start" : "end"}
+          id="mu1Label"
+        >
+          {muOneLabel}
+        </text>
+      </animated.g>
+      <g transform={`translate(${margin.left}, ${h + margin.top})`}>
+        <AxisBottom
+          ticks={10}
+          scale={xScale.copy().domain([xMin - xDiff, xMax - xDiff])}
+        />
+      </g>
+      <defs>
+        <marker
+          id="arrow"
+          viewBox="0 0 10 10"
+          refX="5"
+          refY="5"
+          markerWidth="6"
+          markerHeight="6"
+          orient="auto-start-reverse"
+        >
+          <path d="M 0 0 L 10 5 L 0 10 z" />
+        </marker>
+      </defs>
+    </svg>
+  );
 };
 
 export default OverlapChart;

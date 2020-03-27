@@ -5,7 +5,7 @@ import { Grid } from "@material-ui/core";
 
 import Img from "gatsby-image";
 
-const Posters = () => {
+const Posters = React.memo(() => {
   const data = useStaticQuery(graphql`
     query {
       file(relativePath: { eq: "posters/posters_sample.png" }) {
@@ -34,5 +34,5 @@ const Posters = () => {
       </a>
     </div>
   );
-};
+});
 export default Posters;

@@ -6,6 +6,7 @@
     "@material-ui/core": "^4.7.0",
     "@material-ui/icons": "^4.5.1",
     "@material-ui/styles": "^4.6.0",
+    "@vx/axis": "^0.0.195",
     "d3": "^5.14.2",
     "gatsby": "^2.18.2",
     "gatsby-image": "^2.2.36",
@@ -31,10 +32,13 @@
     "react-dom": "^16.12.0",
     "react-helmet": "^5.2.1",
     "react-scripts": "3.2.0",
+    "react-spring": "^9.0.0-beta.34",
+    "react-use-gesture": "^7.0.5",
     "typescript": "^3.7.2"
   },
   "scripts": {
     "build": "gatsby build --prefix-paths",
+    "build-local": "gatsby build",
     "develop": "gatsby develop -H 172.16.0.116",
     "develop-local": "gatsby develop",
     "format": "prettier --write \"**/*.{js,jsx,json,md}\"",

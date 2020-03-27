@@ -43,7 +43,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Footer = () => {
+const Footer =  React.memo(() =>{
   const classes = useStyles();
   const data = useStaticQuery(
     graphql`
@@ -68,12 +68,12 @@ const Footer = () => {
           spacing={8}
         >
           <Grid  sm={6} key="1" item>
-            <Grid xs={12} >
+            <Grid item xs={12} >
             <Typography variant="h6" align="left" gutterBottom>
               About
             </Typography>
             </Grid>
-            <Grid xs={12} className={classes.logoContainer}>
+            <Grid item xs={12} className={classes.logoContainer}>
               <img src={logo} alt="RPsychologist logo" className={classes.logo} />
             <Typography variant="body2" align="left" gutterBottom>
               Created by <a href="https://rpsychologist.com/about">Kristoffer Magnusson</a>
@@ -110,7 +110,6 @@ const Footer = () => {
                 <ListItemText primary="Blog" />
               </ListItem>
             </List>
-
             <Typography variant="h6" align="left" gutterBottom>
               Donate
             </Typography>
@@ -129,8 +128,7 @@ const Footer = () => {
               </ListItem>
             </List>
           </Grid>
-          <Grid xs={12} className={classes.licenses}>
-            
+          <Grid item xs={12} className={classes.licenses}>
         <Typography variant="h6" align="center" gutterBottom>
           License
         </Typography>
@@ -144,6 +142,6 @@ const Footer = () => {
       </Container>
     </footer>
   );
-};
+});
 
 export default Footer;

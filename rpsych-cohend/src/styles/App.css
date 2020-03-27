@@ -18,6 +18,13 @@ footer a {
 }
 
 /* VIZ */
+svg#overlapChart {
+  cursor: -webkit-grab;
+  user-select: none;
+}
+svg#overlapChart:active {
+  cursor: -webkit-grabbing;
+}
 path#dist1 {
   fill: #30394F;
   stroke: #30394F;
@@ -29,9 +36,13 @@ path#dist2{
   stroke-width: 0px;
 
 }
-path.poly {
+path#poly {
   stroke: #0E6569;
-  fill: #0E6569;
+  fill: rgb(6, 18, 19) 38, 39);
+}
+#distOverlap {
+  stroke: rgb(6, 18, 19) 38, 39);
+  fill: rgb(6, 18, 19) 38, 39);
 }
 line#mu_connect {
   fill: none;
@@ -54,3 +65,6 @@ path.arc1 {
 path.arc0 {
   fill: #2e8ece
 } 
+.vx-axis, #x-label {
+  user-select: none;
+}

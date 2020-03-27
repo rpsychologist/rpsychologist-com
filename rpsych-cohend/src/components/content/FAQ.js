@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const FaqPage = () => {
+const FaqPage = React.memo(() => {
   const classes = useStyles();
   const data = useStaticQuery(
     graphql`
@@ -48,25 +48,27 @@ const FaqPage = () => {
   return (
     <div className={classes.root}>
       {data.allMarkdownRemark.edges.map(({ node }) => (
-        <ExpansionPanel>
+        <ExpansionPanel key={node.id}>
           <ExpansionPanelSummary
             expandIcon={<ExpandMoreIcon />}
-            aria-controls={`FAQ-${node.frontmatter.id}`}
-            id={`FAQ-${node.frontmatter.id}`}
+            aria-controls={`FAQ-${node.id}`}
+            id={`FAQ-${node.id}`}
           >
             <Typography className={classes.heading}>
               {node.frontmatter.title}
             </Typography>
           </ExpansionPanelSummary>
-          <ExpansionPanelDetails collapsedHeight="0px">
-            <Typography variant="body1" className={classes.content}>
-              <div dangerouslySetInnerHTML={{ __html: node.html }} />
-            </Typography>
+          <ExpansionPanelDetails>
+            <Typography
+              variant="body1"
+              className={classes.content}
+              dangerouslySetInnerHTML={{ __html: node.html }}
+            />
           </ExpansionPanelDetails>
         </ExpansionPanel>
       ))}
     </div>
   );
-};
+});
 
 export default FaqPage;

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import TextField from "@material-ui/core/TextField";
 import { makeStyles } from "@material-ui/core/styles";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   textField: {
     width: "100%"
   }
@@ -17,11 +17,13 @@ const SettingsInput = ({
   name,
   min,
   max,
-  step
+  step,
+  helperText
 }) => {
   const classes = useStyles();
   const inputProps = { min: min, max: max, step: step };
-  const [input, setInput] = useState(Number(value));
+  const [error, setError] = useState(false);
+  const [input, setInput] = useState(value);
 
   useEffect(() => {
     setInput(value);
@@ -30,16 +32,17 @@ const SettingsInput = ({
   const onChange = e => {
     const value = e.target.value;
     const name = e.target.name;
-
-    setInput(value);
-    const checkInput = (name === "M0" | name === "M1");
-    if ((value > max & checkInput) | (value < min & checkInput)) {
-    } else {
+    const checkInput = (name === "M0") | (name === "M1") | name === "CER" | name === "SD";
+    if (!((value > max) & checkInput) & !((value < min) & checkInput)) {
       handleChange({
         name: e.target.name,
         value: value
       });
+      setError(false);
+    } else {
+      setError(true);
     }
+    setInput(value)
   };
   return (
     <form
@@ -50,6 +53,7 @@ const SettingsInput = ({
     >
       <div>
         <TextField
+          error={error}
           id={`input-${name}`}
           label={label}
           name={name}
@@ -63,6 +67,7 @@ const SettingsInput = ({
           variant="filled"
           onChange={onChange}
           value={input}
+          helperText={helperText}
         />
       </div>
     </form>

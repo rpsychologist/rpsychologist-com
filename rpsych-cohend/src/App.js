@@ -1,7 +1,13 @@
-import React, { useReducer, useState, useEffect, createContext } from "react";
+import React, {
+  useReducer,
+  useState,
+  useEffect,
+  createContext,
+  useMemo
+} from "react";
 import Typography from "@material-ui/core/Typography";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import { makeStyles, useTheme, ThemeProvider } from "@material-ui/core/styles";
+import { makeStyles, ThemeProvider } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import HeaderAppBar from "./components/navigation/HeaderAppBar";
 import SettingsDrawer from "./components/navigation/SettingsDrawer";
@@ -16,7 +22,7 @@ import Contribute from "./components/content/Contribute";
 import Button from "@material-ui/core/Button";
 import Content from "./Viz";
 import SEO from "./components/SEO";
-import Footer from "./components/content/Footer"
+import Footer from "./components/content/Footer";
 import { normal } from "jstat";
 
 const useStyles = makeStyles(theme => ({
@@ -55,7 +61,7 @@ if (typeof localStorage !== `undefined`) {
     muZeroLabel: "Control",
     muOneLabel: "Treatment",
     sliderMax: 2,
-    sliderStep: 0.1
+    sliderStep: 0.01
   };
 } else {
   initialState = {
@@ -64,35 +70,35 @@ if (typeof localStorage !== `undefined`) {
   };
 }
 
+const calcGaussOverlap = d => 2 * normal.cdf(-Math.abs(d) / 2, 0, 1);
+const calcCL = d => normal.cdf(d / Math.sqrt(2), 0, 1);
+const calcNNT = (d, CER) =>
+  1 / (normal.cdf(d + normal.inv(CER, 0, 1), 0, 1) - CER);
+
+const calcCohend = (value, name, state) => {
+  switch (name) {
+    case "M0":
+      return (state.M1 - value) / state.SD;
+    case "M1":
+      return (value - state.M0) / state.SD;
+    case "SD":
+      return (state.M1 - state.M0) / value;
+  }
+};
+const updateDonutData = (d, CER) => {
+  const dNumber = Number(d);
+  const cerNumber = Number(CER);
+  return {
+    U3: normal.cdf(dNumber, 0, 1),
+    propOverlap: calcGaussOverlap(dNumber),
+    CL: calcCL(dNumber),
+    NNT: calcNNT(dNumber, cerNumber)
+  };
+};
 const vizReducer = (state, action) => {
   let { name, value } = action;
   value = value === "" ? "" : action.value;
-  const calcGaussOverlap = d => 2 * normal.cdf(-Math.abs(d) / 2, 0, 1);
-  const calcCL = d => normal.cdf(d / Math.sqrt(2), 0, 1);
-  const calcNNT = (d, CER) =>
-    1 / (normal.cdf(d + normal.inv(CER, 0, 1), 0, 1) - CER);
 
-  const calcCohend = (value, name) => {
-    switch (name) {
-      case "M0":
-        return (state.M1 - value) / state.SD;
-      case "M1":
-        return (value - state.M0) / state.SD;
-      case "SD":
-        return (state.M1 - state.M0) / value;
-    }
-  };
-
-  const updateDonutData = (d, CER) => {
-    const dNumber = Number(d);
-    const cerNumber = Number(CER);
-    return {
-      U3: normal.cdf(dNumber, 0, 1),
-      propOverlap: calcGaussOverlap(dNumber),
-      CL: calcCL(dNumber),
-      NNT: calcNNT(dNumber, cerNumber)
-    };
-  };
   switch (name) {
     case "cohend":
       return {
@@ -109,11 +115,12 @@ const vizReducer = (state, action) => {
       } else if (name === "M0") {
         value = value > state.M1 ? state.M1 : value;
       }
-      const cohend = calcCohend(value, name);
+      value = Number(value);
+      const cohend = calcCohend(value, name, state);
       return {
         ...state,
         cohend: cohend,
-        [name]: round(value),
+        [name]: value,
         ...updateDonutData(cohend, state.CER / 100)
       };
     }
@@ -134,13 +141,17 @@ const vizReducer = (state, action) => {
       };
   }
 };
-export const VizDispatch = createContext(null);
+
+export const SettingsContext = createContext(null);
 const round = val => Math.round(Number(val) * 1000) / 1000;
 
 const App = () => {
   const classes = useStyles();
   const [openSettings, setOpenSettings] = useState(false);
   const [state, dispatch] = useReducer(vizReducer, initialState);
+  const contextValue = useMemo(() => {
+    return { state, dispatch };
+  }, [state, dispatch]);
 
   useEffect(() => dispatch({ name: "cohend", value: initialState.cohend }), []);
 
@@ -157,20 +168,10 @@ const App = () => {
 
   return (
     <div className={classes.root}>
-      <SEO
-        keywords={[
-          `Cohen's d`,
-          `Effect size`,
-          `Interactive`,
-          `Visualization`,
-          `Teaching`,
-          `Science`,
-          `Psychology`
-        ]}
-      />
+      <SEO />
       <CssBaseline />
       <ThemeProvider theme={theme}>
-        <VizDispatch.Provider value={dispatch}>
+        <SettingsContext.Provider value={contextValue}>
           <HeaderAppBar />
           <SettingsDrawer
             handleDrawer={toggleDrawer}
@@ -196,8 +197,7 @@ const App = () => {
               >
                 An Interactive Visualization
               </Typography>
-              <Typography align="center">
-                <p>
+              <Typography align="center" gutterBottom>
                   Created by{" "}
                   <a href="https://rpsychologist.com/">Kristoffer Magnusson</a>
                   <br />
@@ -207,7 +207,6 @@ const App = () => {
                       krstoffr
                     </Button>
                   </a>
-                </p>
               </Typography>
             </Container>
             <Container className={classes.textContent}>
@@ -244,8 +243,8 @@ const App = () => {
               <MoreViz />
             </Container>
           </SettingsDrawer>
-        </VizDispatch.Provider>
-        <Footer/>
+        </SettingsContext.Provider>
+        <Footer />
       </ThemeProvider>
     </div>
   );

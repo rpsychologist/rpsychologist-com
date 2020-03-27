@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useContext } from "react";
-import Button from "@material-ui/core/Button";
+import React, { useContext } from "react";
 import Divider from "@material-ui/core/Divider";
 import SettingsInput from "./SettingsInput";
-import Grid from "@material-ui/core/Grid";
 import Container from "@material-ui/core/Container";
 import SaveButton from "./SaveButton";
 import { Typography } from "@material-ui/core";
-import { VizDispatch } from "../../App";
+import { SettingsContext } from "../../App";
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles(theme => ({
@@ -17,12 +15,10 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const VizSettings = props => {
-  const { vizState } = props;
+const VizSettings = () => {
   const classes = useStyles();
-  const dispatch = useContext(VizDispatch);
+  const {state, dispatch} = useContext(SettingsContext);
   const {
-    cohend,
     M0,
     M1,
     SD,
@@ -32,7 +28,7 @@ const VizSettings = props => {
     muOneLabel,
     sliderMax,
     sliderStep
-  } = vizState;
+  } = state;
   const handleSubmit = e => {
     e.preventDefault();
   };
@@ -54,6 +50,7 @@ const VizSettings = props => {
           name="M0"
           value={M0}
           max={M1}
+          min={0}
           handleChange={handleChange}
           handleSubmit={handleSubmit}
         />
@@ -71,17 +68,18 @@ const VizSettings = props => {
           type="number"
           name="SD"
           value={SD}
-          min="0.01"
+          min={0}
           handleChange={handleChange}
           handleSubmit={handleSubmit}
+          helperText="Tip: double-click chart to rescale"
         />
         <SettingsInput
           label="CER"
           type="number"
           name="CER"
           value={CER}
-          min="0"
-          max="100"
+          min={0}
+          max={100}
           handleChange={handleChange}
           handleSubmit={handleSubmit}
         />
@@ -137,7 +135,7 @@ const VizSettings = props => {
           handleSubmit={handleSubmit}
         />
           <Divider />
-          <SaveButton data={vizState} />
+          <SaveButton data={state} />
       </Container>
     </div>
   );

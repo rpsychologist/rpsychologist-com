@@ -29,7 +29,6 @@ const CommonLanguage = ({ vizState }) => {
   return (
     <div>
       <Typography variant="body1" gutterBottom>
-        <p>
           With a Cohen's <em>d</em> of {cohend}, {U3}% of the "{muOneLabel}" group
           will be above the mean of the "{muZeroLabel}" group (Cohen's U
           <sub>3</sub>), {propOverlap}% of the two groups will overlap, and
@@ -41,15 +40,12 @@ const CommonLanguage = ({ vizState }) => {
           means that if 100 people go through the treatment, {NNTPerc} more
           people will have a favorable outcome compared to if they had received
           the control treatment.<sup>1</sup>
-        </p>
       </Typography>
       <Typography variant="body2">
-        <p>
           <sup>1</sup>It is assumed that {CER}% (CER) of the control group have
           "favorable outcomes", i.e. their outcomes are below some predefined
           cut-off. Change this by pressing the settings symbol to the right of
           slider. Go to the formula section for more information.
-        </p>
       </Typography>
     </div>
   );
