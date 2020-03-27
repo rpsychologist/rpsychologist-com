@@ -21,11 +21,17 @@ const useStyles = makeStyles(theme => ({
 
 const Content = ({ openSettings, vizState, toggleDrawer }) => {
   const classes = useStyles();
+  const { NNT, CER, U3, propOverlap, CL } = vizState;
+  const NNTdata = [CER / 100, 1 / NNT, 1 - (1 / NNT + CER / 100)];
+
   return (
     <div>
       <Box my={4}>
         <Container maxWidth="lg">
           <Slider
+            value={vizState.cohend}
+            max={vizState.sliderMax}
+            step={vizState.sliderStep}
             openSettings={openSettings}
             handleDrawer={toggleDrawer}
           />
@@ -35,8 +41,9 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
               <Paper className={classes.paper}>
                 <ResponsiveChart
                   chart={DonutChart}
-                  data={vizState.U3}
+                  data={[U3, 1 - U3]}
                   formatType={".3p"}
+                  className={"donut--two-arcs"}
                 />
                 <Typography align="center" variant="body1">
                   Cohen's U<sub>3</sub>
@@ -47,8 +54,9 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
               <Paper className={classes.paper}>
                 <ResponsiveChart
                   chart={DonutChart}
-                  data={vizState.propOverlap}
+                  data={[propOverlap, 1 - propOverlap]}
                   formatType={".3p"}
+                  className={"donut--two-arcs"}
                 />
                 <Typography align="center" variant="body1">
                   % Overlap
@@ -59,8 +67,9 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
               <Paper className={classes.paper}>
                 <ResponsiveChart
                   chart={DonutChart}
-                  data={vizState.CL}
+                  data={[CL, 1 - CL]}
                   formatType={".3p"}
+                  className={"donut--two-arcs"}
                 />
                 <Typography align="center" variant="body1">
                   Probability of Superiority
@@ -71,8 +80,10 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
               <Paper className={classes.paper}>
                 <ResponsiveChart
                   chart={DonutChart}
-                  data={vizState.NNT}
+                  data={NNTdata}
+                  label={vizState.NNT}
                   formatType={".3n"}
+                  className={"donut--NNT"}
                 />
                 <Typography align="center" variant="body1">
                   Number Needed to Treat

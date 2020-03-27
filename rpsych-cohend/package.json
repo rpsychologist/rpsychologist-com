@@ -37,8 +37,8 @@
     "typescript": "^3.7.2"
   },
   "scripts": {
-    "build": "gatsby build --prefix-paths",
-    "build-local": "gatsby build",
+    "build-production": "gatsby build --prefix-paths",
+    "build-serve": "gatsby build && gatsby serve -H 172.16.0.116",
     "develop": "gatsby develop -H 172.16.0.116",
     "develop-local": "gatsby develop",
     "format": "prettier --write \"**/*.{js,jsx,json,md}\"",

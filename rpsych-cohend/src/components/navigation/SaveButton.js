@@ -74,7 +74,6 @@ export default function SaveButton({data}) {
           setLoading(false);
           alert("Saving failed")
         }
-
       }, 500);
     }
   };

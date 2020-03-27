@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Slider from "@material-ui/core/Slider";
@@ -19,31 +19,25 @@ const useStyles = makeStyles({
 
 const InputSlider = ({ handleDrawer, openSettings }) => {
   const classes = useStyles();
-  //const dispatch = useContext(VizDispatch);
   const {state, dispatch} = useContext(SettingsContext);
   const {cohend, sliderMax, sliderStep} = state;
   const handleSliderChange = (event, newVal) => {
     dispatch({ name: "cohend", value: newVal });
   };
-
-  const handleDragStop = (event, newVal) =>
-    dispatch({ name: "cohend", value: newVal });
   const handleInputChange = e => {
     const newVal = e.target.value === "" ? "" : Number(e.target.value);
     dispatch({ name: "cohend", value: newVal });
   };
-
   return (
     <div className={classes.root}>
       <Grid container spacing={2} alignItems="center">
         <Grid item>Cohen's d</Grid>
         <Grid item xs>
           <Slider
-            value={Number(cohend)}
+            value={typeof cohend === 'number' ? cohend : 0}
             onChange={handleSliderChange}
-            onChangeCommitted={handleDragStop}
-            max={Number(sliderMax)}
-            step={Number(sliderStep)}
+            max={sliderMax}
+            step={sliderStep}
             aria-labelledby="input-slider"
           />
         </Grid>

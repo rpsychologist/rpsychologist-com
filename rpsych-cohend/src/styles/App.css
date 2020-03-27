@@ -59,12 +59,26 @@ line#mu1 {
   stroke: white;
   stroke-dasharray: 2,2;
 }
-path.arc1 {
-  fill: #fff;
-}
-path.arc0 {
+
+
+svg.donut--two-arcs path.arc0 {
   fill: #2e8ece
+} 
+svg.donut--two-arcs path.arc1 {
+  fill: #ffffff;
+}
+
+
+svg.donut--NNT path.arc0 {
+  fill: #30394F;
+} 
+svg.donut--NNT path.arc1 {
+  fill: #2e8ece
+}
+svg.donut--NNT path.arc2 {
+  fill: #ffffff
 } 
 .vx-axis, #x-label {
   user-select: none;
 }
+

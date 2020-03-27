@@ -45,35 +45,14 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-let initialState;
-if (typeof localStorage !== `undefined`) {
-  initialState = JSON.parse(localStorage.getItem("cohendState")) || {
-    M0: 100,
-    M1: "",
-    SD: 15,
-    cohend: "0.2",
-    U3: "",
-    propOverlap: "",
-    CER: 20,
-    NNT: "",
-    CL: "",
-    xLabel: "Outcome",
-    muZeroLabel: "Control",
-    muOneLabel: "Treatment",
-    sliderMax: 2,
-    sliderStep: 0.01
-  };
-} else {
-  initialState = {
-    muZeroLabel: "Control",
-    muOneLabel: "Treatment"
-  };
-}
-
+const round = val => Math.round(Number(val) * 1000) / 1000;
 const calcGaussOverlap = d => 2 * normal.cdf(-Math.abs(d) / 2, 0, 1);
 const calcCL = d => normal.cdf(d / Math.sqrt(2), 0, 1);
-const calcNNT = (d, CER) =>
-  1 / (normal.cdf(d + normal.inv(CER, 0, 1), 0, 1) - CER);
+const calcNNT = (d, CER) => {
+  return d == 0
+    ? Infinity
+    : 1 / (normal.cdf(d + normal.inv(CER, 0, 1), 0, 1) - CER);
+};
 
 const calcCohend = (value, name, state) => {
   switch (name) {
@@ -142,8 +121,32 @@ const vizReducer = (state, action) => {
   }
 };
 
+let initialState = {
+  M0: 100,
+  M1: 100,
+  SD: 15,
+  cohend: 0.8,
+  U3: 0,
+  propOverlap: 0,
+  CER: 20,
+  NNT: 0,
+  CL: 0,
+  xLabel: "Outcome",
+  muZeroLabel: "Control",
+  muOneLabel: "Treatment",
+  sliderMax: 2,
+  sliderStep: 0.01
+};
+
+if (typeof localStorage !== `undefined`) {
+  initialState =
+    JSON.parse(localStorage.getItem("cohendState")) || vizReducer(initialState, { name: "cohend", value: initialState.cohend });
+} else {
+  // calculate actual values based on Cohen's d
+  initialState = vizReducer(initialState, { name: "cohend", value: initialState.cohend });
+}
+
 export const SettingsContext = createContext(null);
-const round = val => Math.round(Number(val) * 1000) / 1000;
 
 const App = () => {
   const classes = useStyles();
@@ -152,8 +155,6 @@ const App = () => {
   const contextValue = useMemo(() => {
     return { state, dispatch };
   }, [state, dispatch]);
-
-  useEffect(() => dispatch({ name: "cohend", value: initialState.cohend }), []);
 
   const toggleDrawer = (side, open) => event => {
     if (
@@ -171,8 +172,8 @@ const App = () => {
       <SEO />
       <CssBaseline />
       <ThemeProvider theme={theme}>
+        <HeaderAppBar />
         <SettingsContext.Provider value={contextValue}>
-          <HeaderAppBar />
           <SettingsDrawer
             handleDrawer={toggleDrawer}
             open={openSettings}
@@ -198,15 +199,15 @@ const App = () => {
                 An Interactive Visualization
               </Typography>
               <Typography align="center" gutterBottom>
-                  Created by{" "}
-                  <a href="https://rpsychologist.com/">Kristoffer Magnusson</a>
-                  <br />
-                  <a href="https://twitter.com/krstoffr">
-                    <Button className={classes.twitter}>
-                      <TwitterIcon />
-                      krstoffr
-                    </Button>
-                  </a>
+                Created by{" "}
+                <a href="https://rpsychologist.com/">Kristoffer Magnusson</a>
+                <br />
+                <a href="https://twitter.com/krstoffr">
+                  <Button className={classes.twitter}>
+                    <TwitterIcon />
+                    krstoffr
+                  </Button>
+                </a>
               </Typography>
             </Container>
             <Container className={classes.textContent}>

@@ -28,7 +28,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const MoreViz = React.memo(() => {
+const MoreViz = () => {
   const classes = useStyles();
   const data = useStaticQuery(
     graphql`
@@ -84,6 +84,6 @@ const MoreViz = React.memo(() => {
       </Grid>
     </div>
   );
-});
+};
 
 export default MoreViz;

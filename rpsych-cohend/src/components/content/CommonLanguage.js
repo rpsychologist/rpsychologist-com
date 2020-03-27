@@ -29,23 +29,24 @@ const CommonLanguage = ({ vizState }) => {
   return (
     <div>
       <Typography variant="body1" gutterBottom>
-          With a Cohen's <em>d</em> of {cohend}, {U3}% of the "{muOneLabel}" group
-          will be above the mean of the "{muZeroLabel}" group (Cohen's U
-          <sub>3</sub>), {propOverlap}% of the two groups will overlap, and
-          there is a {CL}% chance that a person picked at random from the
-          treatment group will have a higher score than a person picked at
-          random from the control group (probability of superiority). Moreover,
-          in order to have one more favorable outcome in the treatment group
-          compared to the control group we need to treat {NNT} people. This
-          means that if 100 people go through the treatment, {NNTPerc} more
-          people will have a favorable outcome compared to if they had received
-          the control treatment.<sup>1</sup>
+        With a Cohen's <em>d</em> of {cohend}, {U3}% of the "{muOneLabel}" group
+        will be above the mean of the "{muZeroLabel}" group (Cohen's U
+        <sub>3</sub>), {propOverlap}% of the two groups will overlap, and there
+        is a {CL}% chance that a person picked at random from the treatment
+        group will have a higher score than a person picked at random from the
+        control group (probability of superiority). Moreover, in order to have
+        one more favorable outcome in the treatment group compared to the
+        control group, we need to treat{" "}
+        {isFinite(NNT) ? NNT : "an infinite number of"} people on average. This means that
+        if there are 100 people in each group, and we assume that {CER} people
+        have favorable outcomes in the control group, then {CER} + {NNTPerc}{" "}
+        people in the treatment group will have favorable outcomes.<sup>1</sup>
       </Typography>
-      <Typography variant="body2">
-          <sup>1</sup>It is assumed that {CER}% (CER) of the control group have
-          "favorable outcomes", i.e. their outcomes are below some predefined
-          cut-off. Change this by pressing the settings symbol to the right of
-          slider. Go to the formula section for more information.
+      <Typography variant="body2" gutterBottom>
+        <sup>1</sup>The values are averages, and it is assumed that {CER}% (CER)
+        of the control group have "favorable outcomes," i.e., their outcomes are
+        below some cut-off. Change this by pressing the settings symbol to the
+        right of the slider. Go to the formula section for more information.
       </Typography>
     </div>
   );

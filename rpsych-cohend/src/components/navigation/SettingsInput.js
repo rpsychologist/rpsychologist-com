@@ -30,8 +30,7 @@ const SettingsInput = ({
   }, [value]);
 
   const onChange = e => {
-    const value = e.target.value;
-    const name = e.target.name;
+    const value = e.target.type === "number" ? Number(e.target.value) : e.target.value;
     const checkInput = (name === "M0") | (name === "M1") | name === "CER" | name === "SD";
     if (!((value > max) & checkInput) & !((value < min) & checkInput)) {
       handleChange({

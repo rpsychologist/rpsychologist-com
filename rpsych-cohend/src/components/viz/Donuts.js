@@ -11,7 +11,7 @@ const pieFn = pie()
   });
 
 const DonutChart = props => {
-  const { data, formatType, width } = props;
+  const { data, label, formatType, width } = props;
   const w = width - margin.left - margin.right;
   const rad = w > 100 ? 66 : w / 2;
   const arcFn = useMemo(
@@ -21,10 +21,10 @@ const DonutChart = props => {
         .innerRadius(rad - rad / 7),
     [rad]
   );
-  const arcs = pieFn(entries([data, 1 - data]));
+  const arcs = pieFn(entries(data));
 
   return (
-    <svg width={width} height={rad * 2 + 10}>
+    <svg width={width} height={rad * 2 + 10} className={props.className}>
       <g transform={`translate(${width / 2},${rad + 10})`}>
         {arcs.map((d, i) => {
           return <path d={arcFn(d)} className={"arc" + i} key={i} />;
@@ -36,7 +36,7 @@ const DonutChart = props => {
           dy="0.35em"
           style={{ fontSize: `${rad / 2.5}px` }}
         >
-          {format(formatType)(data)}
+          {format(formatType)(label ? label : data[0])}
         </text>
       </g>
     </svg>
