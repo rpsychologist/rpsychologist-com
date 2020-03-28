@@ -5,7 +5,7 @@ module.exports = {
     author: `Kristoffer Magnusson`,
     twitter: `@krstoffr`,
     version: '2.0.0 (beta)',
-    lastUpdated: `2020-03-27`,
+    lastUpdated: `2020-03-28`,
     github: 'https://github.com/rpsychologist/cohend',
     url: 'https://rpsychologist.com/d3/cohend/'
   },
@@ -16,7 +16,33 @@ module.exports = {
     `gatsby-transformer-yaml`,
     `gatsby-transformer-sharp`,
     `gatsby-plugin-sharp`,
+    `gatsby-remark-images`,
     `gatsby-plugin-react-helmet`,
+    {
+      resolve: `gatsby-plugin-mdx`,
+      options: {
+        extensions: ['.mdx', '.md'],
+        gatsbyRemarkPlugins: [
+          `gatsby-remark-images`,
+          {
+            resolve: 'gatsby-remark-prismjs',
+            options: {
+              classPrefix: 'language-',
+              aliases: {},
+              copy: true,
+            },
+          },
+          {
+            resolve: `gatsby-remark-katex`,
+            options: {
+              // Add any KaTeX options from https://github.com/KaTeX/KaTeX/blob/master/docs/options.md here
+              strict: `ignore`,
+              output: `html`,
+            },
+          },
+        ],
+      }
+    },
     {
       resolve: `gatsby-plugin-google-analytics`,
       options: {
@@ -35,22 +61,6 @@ module.exports = {
       options: {
         extensions: ['css', 'html', 'js', 'svg']
       }
-    },
-    {
-      resolve: `gatsby-transformer-remark`,
-      options: {
-        plugins: [
-          {
-            resolve: `gatsby-remark-katex`,
-            options: {
-              // Add any KaTeX options from https://github.com/KaTeX/KaTeX/blob/master/docs/options.md here
-              strict: `ignore`,
-              output: `html`,
-            },
-          },
-          `gatsby-remark-prismjs`,
-        ],
-      },
     },
     {
     resolve: `gatsby-plugin-manifest`,

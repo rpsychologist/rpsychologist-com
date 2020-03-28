@@ -1,5 +1,6 @@
 import React from "react";
 import { graphql, useStaticQuery } from "gatsby";
+import { MDXRenderer } from "gatsby-plugin-mdx";
 import { Typography, makeStyles } from "@material-ui/core";
 import ExpansionPanel from "@material-ui/core/ExpansionPanel";
 import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
@@ -25,14 +26,14 @@ const FaqPage = React.memo(() => {
   const data = useStaticQuery(
     graphql`
       query {
-        allMarkdownRemark(
+        allMdx(
           filter: { fileAbsolutePath: { regex: "/FAQ/" } }
           sort: { fields: frontmatter___order, order: ASC }
         ) {
           edges {
             node {
               id
-              html
+              body
               frontmatter {
                 title
                 order
@@ -47,7 +48,7 @@ const FaqPage = React.memo(() => {
 
   return (
     <div className={classes.root}>
-      {data.allMarkdownRemark.edges.map(({ node }) => (
+      {data.allMdx.edges.map(({ node }) => (
         <ExpansionPanel key={node.id}>
           <ExpansionPanelSummary
             expandIcon={<ExpandMoreIcon />}
@@ -61,9 +62,11 @@ const FaqPage = React.memo(() => {
           <ExpansionPanelDetails>
             <Typography
               variant="body1"
+              component="div"
               className={classes.content}
-              dangerouslySetInnerHTML={{ __html: node.html }}
-            />
+            >
+            <MDXRenderer>{ node.body}</MDXRenderer>
+            </Typography>
           </ExpansionPanelDetails>
         </ExpansionPanel>
       ))}
