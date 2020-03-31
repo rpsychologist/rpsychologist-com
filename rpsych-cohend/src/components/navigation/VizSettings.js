@@ -1,4 +1,5 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
+import Grid from "@material-ui/core/Grid";
 import Divider from "@material-ui/core/Divider";
 import SettingsInput from "./SettingsInput";
 import Container from "@material-ui/core/Container";
@@ -6,6 +7,8 @@ import SaveButton from "./SaveButton";
 import { Typography } from "@material-ui/core";
 import { SettingsContext } from "../../App";
 import { makeStyles } from "@material-ui/core/styles";
+import { SketchPicker } from "react-color";
+import reactCSS from "reactcss";
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -15,9 +18,66 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+const ColorPicker = ({ dist }) => {
+  const { state, dispatch } = useContext(SettingsContext);
+  const [color, setColor] = useState(state[`color${dist}`]);
+  const [toggle, setToggle] = useState(false);
+
+  const handleClick = () => setToggle(!toggle);
+  const handleClose = () => setToggle(false);
+  const handleChange = ({ rgb }) => {
+    setColor(rgb);
+    dispatch({ name: `color${dist}`, value: rgb });
+  };
+
+  const styles = reactCSS({
+    default: {
+      color: {
+        width: "36px",
+        height: "14px",
+        borderRadius: "2px",
+        background: `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`
+      },
+      swatch: {
+        padding: "5px",
+        background: "#fff",
+        borderRadius: "1px",
+        boxShadow: "0 0 0 1px rgba(0,0,0,.1)",
+        display: "inline-block",
+        cursor: "pointer"
+      },
+      popover: {
+        position: "absolute",
+        left:"10px",
+        zIndex: "2"
+      },
+      cover: {
+        position: "fixed",
+        top: "0px",
+        right: "0px",
+        bottom: "0px",
+        left: "0px"
+      }
+    }
+  });
+  return (
+    <div>
+      <div style={styles.swatch} onClick={handleClick}>
+        <div style={styles.color} />
+      </div>
+      {toggle ? (
+        <div style={styles.popover}>
+          <div style={styles.cover} onClick={handleClose} />
+          <SketchPicker color={color} onChange={handleChange} />
+        </div>
+      ) : null}
+    </div>
+  );
+};
+
 const VizSettings = () => {
   const classes = useStyles();
-  const {state, dispatch} = useContext(SettingsContext);
+  const { state, dispatch } = useContext(SettingsContext);
   const {
     M0,
     M1,
@@ -34,13 +94,40 @@ const VizSettings = () => {
   };
   const handleChange = e => {
     dispatch(e);
-  }
+  };
   const onClick = () => {
     localStorage.setItem("cohendState", JSON.stringify(vizState));
   };
   return (
     <div>
       <Container maxWidth="sm" className={classes.container}>
+      <Typography align="center" variant="h6" component="h3">
+          Colors
+        </Typography>
+        <Grid container justify="space-around">
+          <Grid item>
+            <Typography align="center" variant="caption" component="p">
+              Dist1
+            </Typography>
+            <ColorPicker dist="Dist1" />
+          </Grid>
+          <Grid item>
+            <Typography align="center" variant="caption" component="p">
+              Overlap
+            </Typography>
+            <ColorPicker dist="DistOverlap" />
+          </Grid>
+          <Grid item>
+            <Typography align="center" variant="caption" component="p">
+              Dist2
+            </Typography>
+            <ColorPicker dist="Dist2" />
+          </Grid>
+          <Typography align="center" variant="caption" component="p">
+              Click to change colors.
+            </Typography>
+        </Grid>
+        <Divider />
         <Typography align="center" variant="h6" component="h3">
           Parameters
         </Typography>
@@ -134,8 +221,8 @@ const VizSettings = () => {
           handleChange={handleChange}
           handleSubmit={handleSubmit}
         />
-          <Divider />
-          <SaveButton data={state} />
+        <Divider />
+        <SaveButton data={state} />
       </Container>
     </div>
   );

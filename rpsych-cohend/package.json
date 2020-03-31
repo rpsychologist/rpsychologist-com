@@ -1,6 +1,6 @@
 {
   "name": "rpsych-cohend",
-  "version": "2.0.0",
+  "version": "2.1.1",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.7.0",
@@ -33,11 +33,13 @@
     "prismjs": "^1.17.1",
     "prop-types": "^15.7.2",
     "react": "^16.12.0",
+    "react-color": "^2.18.0",
     "react-dom": "^16.12.0",
     "react-helmet": "^5.2.1",
     "react-scripts": "3.2.0",
     "react-spring": "^9.0.0-beta.34",
     "react-use-gesture": "^7.0.5",
+    "svgsaver": "^0.9.0",
     "typescript": "^3.7.2"
   },
   "scripts": {

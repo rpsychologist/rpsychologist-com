@@ -25,26 +25,23 @@ svg#overlapChart {
 svg#overlapChart:active {
   cursor: -webkit-grabbing;
 }
-path#dist1 {
+/* path#dist1 {
   fill: #30394F;
   stroke: #30394F;
   stroke-width: 0px;
-}
+} 
 path#dist2{
   fill: #6ACEEB;
   stroke: #6ACEEB;
   stroke-width: 0px;
 
-}
-path#poly {
-  stroke: #0E6569;
-  fill: rgb(6, 18, 19) 38, 39);
-}
+} 
+
 #distOverlap {
   stroke: rgb(6, 18, 19) 38, 39);
   fill: rgb(6, 18, 19) 38, 39);
-}
-line#mu_connect {
+}  */
+#mu_connect {
   fill: none;
   stroke: black;
   stroke-width: 2px;

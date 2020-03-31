@@ -19,6 +19,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+
 const Content = ({ openSettings, vizState, toggleDrawer }) => {
   const classes = useStyles();
   const { NNT, CER, U3, propOverlap, CL } = vizState;
