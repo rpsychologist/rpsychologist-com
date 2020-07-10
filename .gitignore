@@ -17,9 +17,6 @@ lib-cov
 # Coverage directory used by tools like istanbul
 coverage
 
-# nyc test coverage
-.nyc_output
-
 # Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
 .grunt
 
@@ -67,3 +64,12 @@ yarn-error.log
 .pnp.js
 # Yarn Integrity file
 .yarn-integrity
+
+# Server
+Makefile
+# Local Netlify folder
+.netlify
+
+# Large binary assets
+content/assets/Posters/
+content/assets/profile.jpg

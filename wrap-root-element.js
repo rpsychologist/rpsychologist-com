@@ -1,22 +1,73 @@
 import React from 'react'
+import { withStyles, ThemeProvider } from '@material-ui/core/styles'
 import { MDXProvider } from '@mdx-js/react'
-import { Code } from './src/components/code'
-import { preToCodeBlock } from 'mdx-utils'
+import MuiLink from '@material-ui/core/Link'
+import Typography from '@material-ui/core/Typography'
+import Table from '@material-ui/core/Table'
+import TableBody from '@material-ui/core/TableBody'
+import TableCell from '@material-ui/core/TableCell'
+import TableContainer from '@material-ui/core/TableContainer'
+import TableHead from '@material-ui/core/TableHead'
+import TableRow from '@material-ui/core/TableRow'
+import Paper from '@material-ui/core/Paper'
+import CodeBlock from './src/components/code/code-block'
+import theme from './src/styles/theme'
 
-// components is its own object outside of render so that the references to
-// components are stable
+const StyledTableContainer = withStyles(() => ({
+  root: {
+    boxShadow: 'none',
+    marginBottom: '2em',
+  },
+}))(TableContainer)
+
+
 const components = {
-  pre: preProps => {
-    const props = preToCodeBlock(preProps)
-    // if there's a codeString and some props, we passed the test
-    if (props) {
-      return <Code {...props} />
-    } else {
-      // it's possible to have a pre without a code in it
-      return <pre {...preProps} />
-    }
+  a: props => <MuiLink {...props} />,
+  p: props => <Typography variant="body1" paragraph {...props} className="article--outer" />,
+  h1: props => <Typography variant="h2" component="h1" {...props} className="article--outer"/>,
+  h2: props => <Typography variant="h2" {...props} className="article--outer"/>,
+  h3: props => <Typography variant="h3" {...props} className="article--outer"/>,
+  h4: props => <Typography variant="h4" gutterBottom {...props} className="article--outer"/>,
+  h5: props => <Typography variant="h5" gutterBottom {...props} className="article--outer"/>,
+  h6: props => <Typography variant="h6" gutterBottom {...props} className="article--outer"/>,
+  ul: props =>  <Typography variant="body1" paragraph component="ul" {...props} className="article--outer"/>,
+  li: props =>  <Typography variant="body1" component="li" {...props} className="article--outer"/>,
+  ol: props =>  <Typography variant="body1" component="ol" {...props} className="article--outer"/>,
+  pre: ({ children }) => <CodeBlock>{children}</CodeBlock>,
+  blockquote: props => (
+    <div className="article--outer" >
+      <blockquote {...props} />
+    </div>
+  ),
+  table: props => {
+    return (
+      <StyledTableContainer component={Paper}>
+        <Table {...props} />
+      </StyledTableContainer>
+    )
+  },
+  thead: props => {
+    return <TableHead {...props} />
+  },
+  tbody: props => {
+    return <TableBody {...props} />
+  },
+  tr: props => {
+    return <TableRow {...props} />
+  },
+  td: props => {
+    return <TableCell children={props.children} align={props.align === null ? 'inherit':props.align} />
+  },
+  th: props => {
+    return <TableCell children={props.children} align={props.align === null ? 'inherit':props.align} />
   },
 }
-export const wrapRootElement = ({ element }) => (
-  <MDXProvider components={components}>{element}</MDXProvider>
-)
+
+export const wrapRootElement = ({ element }) => {
+
+  return (
+    <ThemeProvider theme={theme}>
+      <MDXProvider components={components}>{element}</MDXProvider>
+    </ThemeProvider>
+  )
+}

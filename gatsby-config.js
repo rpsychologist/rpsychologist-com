@@ -1,19 +1,23 @@
 module.exports = {
   siteMetadata: {
-    title: `Gatsby Starter Blog MDX`,
-    author: `Matt Hagner`,
-    description: `An extension of the gatsby starter blog, with support for MDX`,
-    siteUrl: `https://gatsby-starter-blog-mdx-demo.netlify.com/`,
+    title: `R Psychologist`,
+    author: `Kristoffer Magnusson`,
+    description: `Kristoffer Magnusson's blog`,
+    siteUrl: `https://rpsychologist.com`,
     social: {
-      twitter: `mattinthecouch`,
+      twitter: `krstoffr`,
+      linkedin: `https://www.linkedin.com/in/kristofferm`,
+      github: `rpsychologist`,
     },
   },
   plugins: [
+    `gatsby-plugin-material-ui`,
     {
       resolve: `gatsby-source-filesystem`,
       options: {
         path: `${__dirname}/content/blog`,
         name: `blog`,
+        ignore: [`**/**.knit.md`, `**/**.utf8.md`, `**/**.Rmd`, `**/**.R`, `**/*_cache/**`, `**/cache/**`]
       },
     },
     {
@@ -31,12 +35,39 @@ module.exports = {
         // https://github.com/gatsbyjs/gatsby/issues/15486
         plugins: [
           `gatsby-remark-images`,
+          `gatsby-remark-images-zoom`,
         ],
         gatsbyRemarkPlugins: [
           {
             resolve: `gatsby-remark-images`,
             options: {
-              maxWidth: 590,
+              maxWidth: 960,
+              linkImagesToOriginal: false,
+              showCaptions: ['title'],
+              markdownCaptions: true,
+            },
+          },
+          `gatsby-remark-images-zoom`,
+/*           {
+            resolve: 'gatsby-remark-prismjs',
+            options: {
+              classPrefix: 'language-',
+              aliases: {},
+              copy: true,
+            },
+          }, */
+          {
+            resolve: `gatsby-remark-autolink-headers`,
+            options: {
+              offsetY: 104,
+            },
+          },
+          {
+            resolve: `gatsby-remark-katex`,
+            options: {
+              // Add any KaTeX options from https://github.com/KaTeX/KaTeX/blob/master/docs/options.md here
+              strict: `ignore`,
+              output: `html`,
             },
           },
           {
@@ -55,12 +86,34 @@ module.exports = {
         ],
       },
     },
+    {
+      resolve: `gatsby-transformer-remark`,
+      options: {
+        plugins: [
+          {
+            resolve: `gatsby-remark-autolink-headers`,
+            options: {
+              offsetY: 104,
+            },
+          },
+          {
+            resolve: 'gatsby-remark-prismjs',
+            options: {
+              classPrefix: 'language-',
+              aliases: {},
+              copy: true,
+            },
+          },
+        ]
+      }
+    },
+    `gatsby-transformer-yaml`,
     `gatsby-transformer-sharp`,
     `gatsby-plugin-sharp`,
     {
       resolve: `gatsby-plugin-google-analytics`,
       options: {
-        //trackingId: `ADD YOUR TRACKING ID HERE`,
+        trackingId: `UA-47065595-1`,
       },
     },
     {
@@ -73,6 +126,7 @@ module.exports = {
                 title
                 description
                 siteUrl
+                site_url: siteUrl
               }
             }
           }
@@ -86,21 +140,14 @@ module.exports = {
                   data: edge.node.frontmatter.date,
                   url: site.siteMetadata.siteUrl + edge.node.fields.slug,
                   guid: site.siteMetadata.siteUrl + edge.node.fields.slug,
-                  custom_elements: [{ 'content:encoded': edge.node.html }],
+                 /*  custom_elements: [{ 'content:encoded': edge.node.html }], */
                 })
               })
             },
-
-            /* if you want to filter for only published posts, you can do
-             * something like this:
-             * filter: { frontmatter: { published: { ne: false } } }
-             * just make sure to add a published frontmatter field to all posts,
-             * otherwise gatsby will complain
-             **/
             query: `
             {
               allMdx(
-                limit: 1000,
+                limit: 10,
                 sort: { order: DESC, fields: [frontmatter___date] },
               ) {
                 edges {
@@ -110,37 +157,37 @@ module.exports = {
                       title
                       date
                     }
-                    html
+                    excerpt
                   }
                 }
               }
             }
             `,
             output: '/rss.xml',
-            title: 'Gatsby RSS feed',
+            title: 'R Psychologist RSS feed (last 10 posts)',
           },
         ],
       },
     },
     {
+      resolve: 'gatsby-plugin-zopfli',
+      options: {
+        extensions: ['css', 'html', 'js', 'svg', 'json', 'xml']
+      }
+    },
+    {
       resolve: `gatsby-plugin-manifest`,
       options: {
-        name: `Gatsby Starter Blog`,
-        short_name: `GatsbyJS`,
+        name: `R Psychologist - Kristoffer Magnusson`,
+        short_name: `R Psychologist`,
         start_url: `/`,
         background_color: `#ffffff`,
-        theme_color: `#663399`,
+        theme_color: `#3498DB`,
         display: `minimal-ui`,
-        icon: `content/assets/gatsby-icon.png`,
+        icon: `content/assets/rpsych-favicon.png`,
       },
     },
     `gatsby-plugin-offline`,
     `gatsby-plugin-react-helmet`,
-    {
-      resolve: `gatsby-plugin-typography`,
-      options: {
-        pathToConfigModule: `src/utils/typography`,
-      },
-    },
   ],
 }

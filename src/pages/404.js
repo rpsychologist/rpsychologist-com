@@ -1,18 +1,20 @@
 import React from 'react'
-
+import Typography from '@material-ui/core/Typography'
 import Layout from '../components/Layout'
 import SEO from '../components/seo'
 
-class NotFoundPage extends React.Component {
-  render() {
-    return (
-      <Layout location={this.props.location}>
-        <SEO title="404: Not Found" />
-        <h1>Not Found</h1>
-        <p>You just hit a route that doesn&#39;t exist... the sadness.</p>
-      </Layout>
-    )
-  }
+const NotFoundPage = props => {
+  return (
+    <Layout location={props.location}>
+      <SEO title="404: Not Found" />
+      <Typography variant="h1" align="center">
+        Not Found
+      </Typography>
+      <Typography variant="body1" paragraph align="center">
+        You just hit a route that may or may not exist.
+      </Typography>
+    </Layout>
+  )
 }
 
 export default NotFoundPage

@@ -1,0 +1,248 @@
+---
+title: Why linear mixed-effects models are probably not the solution to your missing data problems
+date: 2020-07-09 17:00
+author: Kristoffer Magnusson
+output: 
+  md_document:
+    variant: markdown_github+tex_math_dollars
+    preserve_yaml: true
+category: R
+tags: 
+- Missing data
+- Linear mixed-effects model
+- Simulation
+slug: lmm-slope-missingness
+summary: "Linear mixed-effects models are often used for their ability to handle missing data using maximum likelihood estimation. In this post I will present a simple example of when the LMM fails, and illustrate two MNAR sensitivity analyses: the pattern-mixture method and the joint model."
+bibliography: references.bib
+---
+
+```{r, include=FALSE}
+library(knitr)
+knit_hooks$set(source = function(x, options) {
+  if(options$collapse) r_block <- "```r:collapsed=true" else r_block <- "```r"
+  paste(c(r_block, x, "```\n\n"), collapse = "\n")
+},
+output = function(x, options) {
+  collapse <- options$collapse_output
+  if(!is.null(collapse) && collapse) r_block <- "```output:collapsed=true" else r_block <- "```output"
+  paste(c(r_block, x, "```\n\n"), collapse = "\n")
+},
+plot = function(x, options) {
+  if(!is.null(options$fig.cap)) title <- paste0(' title="', options$fig.cap, '"') else title <- ''
+  paste0('<img src="', x,'"', title, '/>')
+})
+opts_chunk$set(warning = FALSE, message=FALSE, fig.path = "img/")
+source("code/MNAR_functions.R")
+read_chunk("code/MNAR_sim.R")
+read_chunk("code/MNAR_functions.R")
+```
+
+Linear mixed-effects models are often used for their ability to handle missing data using maximum likelihood estimation. In this post I will present a simple example of when the LMM fails, and illustrate two MNAR sensitivity analyses: the pattern-mixture method and the joint model (shared parameter model). This post is based on a small example from my [PhD thesis](https://openarchive.ki.se/xmlui/handle/10616/46909).
+
+## MCAR, MAR, and MNAR missing data
+@rubinInferenceMissingData1976 presented three types of missing data mechanisms: missing completely at random (MCAR), missing at random (MAR), missing not at random (MNAR). LMMs provide unbiased estimates under MAR missingness. If we have the complete outcome variable $Y$ (which is made up of the observed data $Y_{obs}$ and the missing values $Y_{miss}$) and a missing data indicator $R$ [@rubinInferenceMissingData1976; @little2014statistical; @schaferMissingDataOur2002], then we can write the MCAR and MAR mechanisms as,
+
+$$
+\begin{aligned}
+\text{MCAR}:\quad \text{P}(R \mid Y) &= \text{P}(R) \\
+\text{MAR}:\quad \text{P}(R \mid Y) &= \text{P}(R \mid Y_{obs}).
+\end{aligned}
+$$
+
+If the missingness depends on $Y_{miss}$, the missing values in $Y$, then the mechanism is MNAR. MCAR and MAR are called ignorable because the precise model describing the missing data process is not needed. In theory, valid inference under MNAR missingness requires specifying a joint distribution for both the data and the missingness mechanisms [@littleModelingDropOutMechanism1995]. There are no ways to test if the missing data are MAR or MNAR [@molenberghsEveryMissingnessNot2008; @rhoadsProblemsTestsMissingness2012], and it is therefore recommended to perform sensitivity analyses using different MNAR mechanisms [@schaferMissingDataOur2002; @littleModelingDropOutMechanism1995; @hedekerApplicationRandomEffectsPatternMixture1997].
+
+### LMMs and missing data
+LMMs are frequently used by researchers to try to deal with missing data problems. However, researchers frequently misunderstand the MAR assumption and often fail to build a model that would make the assumption more plausible. Sometimes you even see researchers using tests, e.g., Little's MCAR test, to prove that the missing data mechanisms is either MCAR or MAR and hence ignorable—which is clearly a misunderstanding and builds on faulty logic.
+
+A common problem is that researchers do not include covariates that potentially predict dropout. Thus, it is assumed that missingness *only* depend on the previously observed values of the outcome. This is quite a strong assumption.  A related misunderstanding, is that the LMM's missing data assumption is more liberal as it allows for participants' slopes to vary. It is sometimes assumed tat if a random slope is included in the model it can also be used to satisfy the MAR assumption. Clearly, it would be very practical if the inclusion of random slopes would allow missingness to depend on patients' latent change over time. Because it is probably true that some participants' dropout is related to their symptom's rate of change over time. Unfortunately, the **random effects are latent variables** and not observed variables—hence, such a **missingness mechanism would also be MNAR** [@littleModelingDropOutMechanism1995]. The figure below illustrates the MAR, outcome-based MNAR, and random coefficient-based MNAR mechanisms. 
+
+```{r fig-missing-data-labels, fig.cap="Figure 1. Three different drop out mechanisms in longitudinal data from one patient. a) Illustrates a MAR mechanism where the patient's likelihood of dropping out is related to an observed large value. b) Shows an outcome-related MNAR mechanism, where dropout is related to a large unobserved value. c) Shows a random-slope MNAR mechanism where the likelihood of dropping out is related to the patient's unobserved slope.", echo = FALSE}
+knitr::include_graphics("img/missing_data_labels.png", auto_pdf = TRUE)
+```
+
+## Let's generate some data
+To illustrate these concepts let's generate data from a two-level LMM with random intercept and slopes, and included a MNAR missing data mechanism where the likelihood of dropping out depended on the patient-specific random slopes. Moreover, let's assume that the missingness differs between the treatment and control group. This isn't *that* unlikely in unblinded studies (e.g., wait-list controls).
+
+```{r fig-MNAR-probs, fig.cap="Figure 2. A differential MNAR dropout process where the probability of dropping out from a trial depends on the patient-specific slopes which interact with the treatment allocation. The probability of dropout is assumed to be constant over time.", echo = FALSE}
+knitr::include_graphics("img/MNAR_p_dropout.png", auto_pdf = TRUE)
+```
+
+```{r fig-MNAR, fig.cap="Figure 3. A sample of patients drawn from the MNAR (random slope) data-generating process.  Circles represent complete observations; the bold line represents the slope before dropping out. P(dropout) gives the probability of dropout, which is assumed to be constant at all time points.", echo = FALSE}
+knitr::include_graphics("img/MNAR.png", auto_pdf = TRUE)
+```
+
+The equations for the dropout can be written as,
+
+$$
+\begin{aligned}
+\text{logit}(\text{Pr}(R_{ij} = 1 | TX_{ij} = 1)) &= -\sigma_{u_{1}} + \text{logit}(0.15) + U_{1j} \\
+\text{logit}(\text{Pr}(R_{ij} = 1 | TX_{ij} = 0)) &= -\sigma_{u_{1}} + \text{logit}(0.15) -U_{1j}.
+\end{aligned}
+$$
+
+The R code is quite simple,
+
+```{r, add-MNAR, collapse=TRUE, eval=FALSE}
+```
+
+Now let's draw a large sample from this model (1000 participants per group), and fit a typical longitudinal LMM using both the complete outcome variable and the incomplete (MNAR) outcome variable.
+
+```{r, cache=TRUE}
+library(lme4)
+library(powerlmm)
+p <- study_parameters(n1 = 11,
+    n2 = 1000,
+    icc_pre_subject = 0.6,
+    fixed_slope = -0.48,
+    var_ratio = 0.02,
+    cor_subject = -0.5,
+    effect_size = cohend(-0.2))
+
+set.seed(1111)
+d <- simulate_data(p)
+d <- add_MNAR_missing(d)
+
+# MNAR
+fit <- lmer(y ~ time * treatment + (time | subject), data = d)
+# Complete Y
+fit_c <- lmer(y_c ~ time * treatment + (time | subject), data = d)
+```
+Here are the results (click on "SHOW" to see the output).
+```{r, collapse_output=TRUE}
+# complete
+summary(fit_c)
+```
+
+```{r, collapse_output=TRUE}
+# MNAR
+summary(fit)
+```
+
+We can see that the slope difference is -0.25 for the complete data and *much* larger for the LMM with missing data (-1.14). 
+
+### A Pattern-mixture model
+A simple extension of the classical LMM is a pattern-mixture model. This is a simple model where we allow the slope to differ within subgroups of different dropout patterns. The simplest pattern is to group the participants into two subgroups dropouts (1) or completers (0), and include this dummy variable in the model.
+
+```{r, cache=TRUE, collapse_output=TRUE}
+fit_PM <- lmer(
+  y ~ time * treatment * dropout + (time | subject),
+  data = d)
+summary(fit_PM)
+```
+As you can see in the output, we now have a bunch of new coefficients. In order to get the marginal treatment effect we need to average over the dropout patterns. There are several ways to do this, we could just calculate a weighted average manually. For example, the outcome at posttest in the control group is
+
+```{r}
+# weight by the overall proportion of dropouts
+p <- mean(d$dropout == 0)
+b <- fixef(fit_PM)
+# Outcome in control group at posttest
+(b[1] + b[2]*10) * p[1] + 
+(b[1] + b[4] + (b[2] + b[6]) * 10) * (1 - p[1])
+```
+To estimate the treatment effect we'd need to repeat this for the treatment group and take the difference. However, we'd also need to calculate the standard errors (e.g., using the delta method). An easier option is to just specify the linear contrast we are interest in.
+
+```{r}
+L <- c(0, 0, 1, 0, 10, 0, (1 - p), (1 - p) * 10)
+lmerTest::contest1D(fit_PM, L = L)
+```
+This tells us that the difference between the groups at posttest is estimated to be -4.65. This is considerably smaller than the estimate from the classical LMM, but still larger then for the complete data. We could accomplish to same thing using `emmeans` package. 
+
+```{r}
+emmeans::emmeans(fit_PM,
+        pairwise ~ treatment | time,
+        at = list(time = 10),
+        CIs = FALSE,
+        lmer.df = "asymptotic", # wald
+        weights = "proportional",
+        data = d)
+```
+
+## Fitting a joint model
+The pattern-mixture model was an improvement, but it didn't completely recover the treatment effect under the random slope MNAR model. We can actually fit a model that allows dropout to be related to the participants' random slopes. To accomplish this we combine a survival model for the dropout process and an LMM for the longitudinal outcome.
+
+```{r, cache=TRUE, collapse_output=TRUE}
+library(JM)
+# JM
+d_c <- d
+d_m <- d %>%
+    filter(!is.na(y)) %>%
+    arrange(subject)
+#  LMM
+fit_lme <- lme(
+  y ~ treatment * time, data = d_m,
+  random = ~ time | subject
+  )
+# dropouts
+d_miss <- d_m %>%
+    group_by(subject, treatment) %>%
+    summarise(time = max(time),
+        time = ifelse(time < 10, time + 1, time),
+        dropout = ifelse(time < 10, 1, 0)) %>%
+    arrange(subject)
+# the Cox model
+fit_surv <- coxph(
+  Surv(time, dropout) ~ 1 + treatment,
+   data = d_miss, 
+   x = TRUE
+   )
+# slope derivatives
+dForm <- list(
+    fixed = ~treatment,
+    random = ~1,
+    indFixed = c(3, 4),
+    indRandom = c(2)
+)
+# Fit the joint model
+fit_JM <- jointModel(
+  fit_lme, 
+  fit_surv,
+  timeVar = "time",
+  parameterization = "slope",
+  derivForm = dForm,
+  interFact = list(slope = ~treatment,
+  data = d_miss))
+summary(fit_JM)
+```
+
+We can see from the output that the estimate of the treatment effect is really close to the estimate from the complete data (-0.23 vs -0.25). There's only one small problem with the joint model and that is that we almost never know what the correct model is... 
+
+
+## A small simulation
+Now let's run a small simulation to show the consequences of this random-slope dependent MNAR scenario. We'll do a study with 11 time points, 150 participants per group, a variance ratio of 0.02, and pretest ICC = 0.6, with a correlation between intercept and slopes of -0.5. There will be a "small" effect in favor of the treatment of $d = -0.2$. The following models will be compared:
+
+* LMM (MAR): a classical LMM assuming that the dropout was MAR.
+* GEE: a generalized estimating equation model.
+* LMM (PM): an LMM using a pattern-mixture approach. Two patterns were used; either "dropout" or "completer", and the results were averaged over the two patterns.
+* JM: A joint model that correctly allowed the dropout to be related to the random slopes. 
+* LMM with complete data: an LMM fit to the complete data without any missingness.
+
+I will not post all code here; [the complete code for this post can be found on GitHub](https://github.com/rpsychologist/rpsychologist-com/blob/master/content/blog/2020-07-08-lmm-slope-missingness). Here's a snippet showing the code that was used to fit the models.
+
+```{r, post-test, collapse=TRUE, eval=FALSE}
+```
+
+### Results
+The table and figure below shows how much the treatment effects differ. We can see that LMMs are badly biased under this missing data scenario; the treatment effect is much larger than it should be (Cohen's *d*: -0.7 vs. -0.2). The pattern-mixture approach improves the situation, and the joint model recovers the true effect. Since the sample size is large, the bias under the MAR assumption leads to the LMM's CIs having extremely bad coverage. Moreover, under the assumption of no treatment effect the MAR LMM's type I errors are very high (83%), whereas the pattern-mixture and joint model are closer to the nominal levels. 
+
+```{r echo=FALSE, results="asis"}
+source("code/table_summarize.R", local = knitr::knit_global())
+tab %>% 
+        dplyr::select(Model = mod, 
+                      `M(Est.)` = M_est, 
+                      `Rel. bias` = rel_bias, 
+                      d, 
+                      Power,
+                      `CI coverage` = CI_cover,
+                      `Type I error` = type_I) %>% 
+        kable(format = "markdown", booktabs = T, caption = "Test", digits = 2)
+```
+**Note:** MAR = missing at random; LMM = linear mixed-effects model; GEE = generalized estimating equation; JM = joint model; PM = pattern mixture; Est. = mean of the estimated effects; Rel. bias = relative bias of Est.; d = mean of the Cohen’s d estimates.
+
+```{r fig-missing-data-simulation, fig.cap="Figure 3. Mean of the estimated treatment effect from the MNAR missing data simulations for the different models. The dashed lines represents the control group\'s estimated average slope and the solid lines the treatment group\'s average slope.", echo = FALSE}
+knitr::include_graphics("img/MNAR_sim_res.png", auto_pdf = TRUE)
+```
+
+## Summary
+This example is purposely quite extreme. However, even if the MNAR mechanism would be weaker, the LMM will yield biased estimates of the treatment effect. The assumption that dropout might be related to patients' unobserved slopes is not unreasonable. However, fitting a joint model is often not feasible as we do not know the true missingness mechanism. I included it just to illustrate what is required to avoid bias under a plausible MNAR mechanism. In reality, the patients' likelihood of dropping out is likely an inseparable mix of various degrees of MCAR, MAR, and MNAR mechanisms. The only sure way of avoiding bias would be to try to acquire data from all participants—and when that fails, perform sensitivity analyses using reasonable assumptions of the missingness mechanisms.
+
+## References

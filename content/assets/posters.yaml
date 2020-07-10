@@ -1,0 +1,19 @@
+- title: "Bayesian Inference"
+  excerpt: "Vertical and horizontal, 30x40cm, 600dpi"
+  image: "Posters/bayes_white_30x40_vertical.png"
+  attachments: "./Posters/bayes.7z"
+
+- title: "Cohen's d"
+  excerpt: "Vertical and horizontal, 30x40cm, 600dpi"
+  image: "Posters/cohend_white_30x40_vertical.png"
+  attachments: "./Posters/cohend.7z"
+
+- title: "Cohen's d (small, medium, large)"
+  excerpt: "Vertical, 30x40cm 600dpi."
+  image: "Posters/cohend_white_3_30x40_vertical.png"
+  attachments: "./Posters/cohend_3.7z"
+
+- title: "Frequentist Significance Testing"
+  excerpt: "Vertical and horizontal, 30x40cm, 600dpi"
+  image: "Posters/NHST_white_30x40_vertical.png"
+  attachments: "./Posters/NHST.7z"
