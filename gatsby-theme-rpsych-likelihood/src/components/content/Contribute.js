@@ -57,9 +57,9 @@ const Contribute = () => {
         </Grid>
       </Grid>
       <Typography variant="body1" paragraph style={{ marginTop: '1em' }}>
-        Finacial support is not the only way to contribute. Other ways to
-        contribute is to suggest new features, contribute useful references,
-        or help fix typos. Just open a issues on{" "}
+        Financial support is not the only way to contribute. Other ways to
+        contribute are to suggest new features, contribute useful references,
+        or help fix typos. Just open an issue on{" "}
         <a href="https://github.com/rpsychologist/likelihood">GitHub</a>.
       </Typography>
     </div>
