@@ -218,7 +218,7 @@ const GradientAscent = props => {
         For more challenging models, we often need to use some{" "}
         <b>optimization algorithm</b>. Basically, we let the computer
         iteratively climb towards the top of the hill. You can use the controls below
-        to see how a gradient ascent or Newton-Raphson algorithm finds it's way to the maximum
+        to see how a gradient ascent or Newton-Raphson algorithm finds its way to the maximum
         likelihood estimate.
       </Typography>
       <Collapse in={expanded} timeout="auto" unmountOnExit>

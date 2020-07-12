@@ -324,7 +324,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
                 thetaLab="sigma"
                 deriv={derivSigma2}
               />
-              <Typography align="right" variant="caption" component="p">Tip: You can move the values around my dragging them.</Typography>
+              <Typography align="right" variant="caption" component="p">Tip: You can move the values around by dragging them.</Typography>
             </Paper>
           </Grid>
           <Grid item xs={12} sm={6}>

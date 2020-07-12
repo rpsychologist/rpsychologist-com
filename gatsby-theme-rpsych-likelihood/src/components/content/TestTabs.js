@@ -49,7 +49,7 @@ const WaldPanel = React.memo(({sigma, muHat, muNull, n}) => {
         dangerouslySetInnerHTML={{ __html: eqWald }}
       />
       <Typography variant="body1">
-        Asymptotically <em>Z</em> follow a standard normal distribution,
+        Asymptotically <em>Z</em> follows a standard normal distribution,
         giving <em>p</em> = {format(".2f")(pvalZ)}.
       </Typography>
     </TabPanel>
@@ -77,7 +77,7 @@ const ScorePanel = React.memo(({derivMuNull, deriv2MuNull, eqChisq}) => {
     <TabPanel className={classes.panel}>
       <Typography variant="body1">
         The Score test (also known as the Lagrange multiplier test) is
-        slightly different in the sense that we only evaluated it at the null.
+        slightly different in the sense that we only evaluate it at the null.
         It involves both the first and second derivative evaluated at the
         null.
       </Typography>
@@ -86,7 +86,7 @@ const ScorePanel = React.memo(({derivMuNull, deriv2MuNull, eqChisq}) => {
         dangerouslySetInnerHTML={{ __html: eqScore }}
       />
       <Typography variant="body1">
-        Asymptotically <em>S</em> follow a{" "}
+        Asymptotically <em>S</em> follows a{" "}
         <span dangerouslySetInnerHTML={{ __html: eqChisq }} /> distribution
         with 1 degrees of freedom, which gives <em>p</em> ={" "}
         {format(".2f")(pvalScore)}.
@@ -128,12 +128,12 @@ const LrtPanel = React.memo(({sigma, sigma0, n, eqChisq}) => {
         dangerouslySetInnerHTML={{ __html: eqLogLik }}
       />
       <Typography variant="body1">
-        Asymptotically LR follow a
+        Asymptotically LR follows a{" "}
         <span dangerouslySetInnerHTML={{ __html: eqChisq }} /> distribution
         with 1 degrees of freedom, which gives <em>p</em> = {pvalLRT}.
       </Typography>
       <Typography variant="body1">
-        Note: The figure is simplified and do not account for the fact that
+        Note: The figure is simplified and does not account for the fact that
         each likelihood is based on different variance estimates.
       </Typography>
     </TabPanel>
