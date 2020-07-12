@@ -1,6 +1,6 @@
 {
   "name": "rpsych-likelihood",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.7.0",
