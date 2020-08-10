@@ -24,10 +24,9 @@ const Posters = React.memo(() => {
       </Typography>
       <Typography variant="body1">
         I've created some posters inspired by my interactive visualizations. You
-        can find them on my{" "}
-        <a href="https://www.etsy.com/shop/rpsychologist">Etsy shop</a>.
+        can <a href="https://rpsychologist.com/viz/#posters">download them here</a>.
       </Typography>
-      <a href="https://www.etsy.com/shop/rpsychologist">
+      <a href="https://rpsychologist.com/viz/#posters">
         <Grid container justify="center" alignItems="center">
           <Img fixed={data.file.childImageSharp.fixed} alt="Stats posters" />
         </Grid>

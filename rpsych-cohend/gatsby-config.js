@@ -4,8 +4,8 @@ module.exports = {
     description: `A tool to understand Cohen's d standardized effect size`,
     author: `Kristoffer Magnusson`,
     twitter: `@krstoffr`,
-    version: '2.1.1',
-    lastUpdated: `2020-03-31`,
+    version: '2.1.2',
+    lastUpdated: `2020-08-10`,
     github: 'https://github.com/rpsychologist/cohend',
     url: 'https://rpsychologist.com/d3/cohend/'
   },
@@ -59,7 +59,7 @@ module.exports = {
     {
       resolve: 'gatsby-plugin-zopfli',
       options: {
-        extensions: ['css', 'html', 'js', 'svg']
+        extensions: ['css', 'html', 'js', 'svg', 'json']
       }
     },
     {

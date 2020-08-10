@@ -20,6 +20,7 @@ Makefile
 .env.development.local
 .env.test.local
 .env.production.local
+/.netlify
 
 npm-debug.log*
 yarn-debug.log*

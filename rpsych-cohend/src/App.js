@@ -124,7 +124,7 @@ const vizReducer = (state, action) => {
   }
 };
 
-let initialState = {
+let defaultState = {
   M0: 100,
   M1: 100,
   SD: 15,
@@ -144,12 +144,21 @@ let initialState = {
   colorDist2: {r: 106, g:206, b:235, a:1},
 };
 
+let initialState;
 if (typeof localStorage !== `undefined`) {
   initialState =
-    JSON.parse(localStorage.getItem("cohendState")) || vizReducer(initialState, { name: "cohend", value: initialState.cohend });
+    JSON.parse(localStorage.getItem("cohendState")) || ""
+  const keysDefault = Object.keys(defaultState);
+  const keysLocalStorage = Object.keys(initialState);
+  // use default if keys don't match with localStorage
+  // avoids breaking the app
+  if(JSON.stringify(keysDefault.sort()) != JSON.stringify(keysLocalStorage.sort())) {
+    localStorage.removeItem("cohendState")
+    initialState = vizReducer(defaultState, { name: "cohend", value: defaultState.cohend });
+  }
 } else {
   // calculate actual values based on Cohen's d
-  initialState = vizReducer(initialState, { name: "cohend", value: initialState.cohend });
+  initialState = vizReducer(defaultState, { name: "cohend", value: defaultState.cohend });
 }
 
 export const SettingsContext = createContext(null);
