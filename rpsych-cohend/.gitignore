@@ -21,6 +21,7 @@ Makefile
 .env.test.local
 .env.production.local
 /.netlify
+.vscode/
 
 npm-debug.log*
 yarn-debug.log*
