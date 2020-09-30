@@ -31,21 +31,27 @@ const VerticalLine = ({ x, y1, y2, id }) => {
 const margin = { top: 70, right: 20, bottom: 35, left: 20 };
 
 const OverlapChart = props => {
-  const [{ xOffset }, set] = useSpring(() => ({ xOffset: 0 }));
+  const [{ xOffset }, set] = useSpring(() => ({ xOffset: [0, 0] }));
   // Use state to force re-render of x-axis on drag
   const [xDiff, setDiff] = useState(0);
   const [reset, setReset] = useState(false);
   const bind = useGesture({
-    onDrag: ({ delta: [dx] }) => {
-      set({ xOffset: xOffset.value + dx, immediate: true });
-      setDiff(xScale.invert(xOffset.value) - xScale.invert(0));
+    onDrag: ({ movement: pos, down}) => {
+      console.log(pos)
+      set({ xOffset: pos, immediate: down });
+      //setDiff(xScale.invert(xOffset.get()[0]) - xScale.invert(0));
     },
     onDoubleClick: () => {
-      set({ xOffset: 0 });
+      set({ xOffset: [0, 0] });
       setDiff(0);
       setReset(!reset);
+    },
+    onDragEnd: ({movement: pos}) => {
+      setDiff(xScale.invert(pos[0]) - xScale.invert(0));
     }
-  });
+  },
+  {drag: { initial: () => xOffset.get() } }
+  );
 
   const {
     cohend,
