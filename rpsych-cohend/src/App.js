@@ -17,17 +17,14 @@ import CommonLanguage from "./components/content/CommonLanguage";
 import initialTheme from "./theme.js";
 import TwitterIcon from "@material-ui/icons/Twitter";
 import IntroText from "./components/content/Intro";
-import Posters from "./components/content/Posters";
 import Contribute from "./components/content/Contribute";
 import Button from "@material-ui/core/Button";
 import Content from "./Viz";
 import SEO from "./components/SEO";
 import Footer from "./components/content/Footer";
 import { normal } from "jstat";
-import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { createMuiTheme, responsiveFontSizes } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -281,7 +278,6 @@ const App = () => {
               </Typography>
               <Faq />
               <Contribute />
-              <Posters />
             </Container>
             <Container maxWidth="lg">
               <MoreViz />
