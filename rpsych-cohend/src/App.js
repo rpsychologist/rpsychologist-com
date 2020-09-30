@@ -191,8 +191,6 @@ const App = () => {
     side == "right" ? setOpenSettings(open) : setOpen(open);
   };
   const theme = React.useMemo(() => {
-    
-    console.log("dark mode " + prefersDarkMode)
     const useDarkMode = prefersDarkMode || state.darkMode
     const updatedTheme = createMuiTheme({
       ...initialTheme,

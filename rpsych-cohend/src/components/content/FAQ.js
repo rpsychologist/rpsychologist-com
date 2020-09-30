@@ -2,9 +2,9 @@ import React from "react";
 import { graphql, useStaticQuery } from "gatsby";
 import { MDXRenderer } from "gatsby-plugin-mdx";
 import { Typography, makeStyles } from "@material-ui/core";
-import ExpansionPanel from "@material-ui/core/ExpansionPanel";
-import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
-import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
+import Accordion from "@material-ui/core/Accordion";
+import AccordionSummary from "@material-ui/core/AccordionSummary";
+import AccordionDetails from "@material-ui/core/AccordionDetails";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 const useStyles = makeStyles(theme => ({
@@ -13,7 +13,7 @@ const useStyles = makeStyles(theme => ({
     paddingBottom: "2em",
     "& .gatsby-highlight": {
       borderRadius: 0,
-      margin: '0 -24px 0 -24px',
+      margin: '0 -16px 0 -16px',
       padding: '0 1em',
       overflow: 'auto',
       backgroundColor:  theme.palette.type === "light" ? "#fdf6e3" : "#151618",
@@ -31,7 +31,7 @@ const useStyles = makeStyles(theme => ({
   },
   expanded: {
     '&$expanded': {
-        backgroundColor: "#1e1d1d",
+        backgroundColor:  theme.palette.type === "light" ? "none" : "#1e1d1d",
      }
   }
 }));
@@ -64,8 +64,8 @@ const FaqPage = React.memo(() => {
   return (
     <div className={classes.root}>
       {data.allMdx.edges.map(({ node }) => (
-        <ExpansionPanel classes={{ expanded: classes.expanded }} key={node.id}>
-          <ExpansionPanelSummary
+        <Accordion classes={{ expanded: classes.expanded }} key={node.id}>
+          <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls={`FAQ-${node.id}`}
             id={`FAQ-${node.id}`}
@@ -73,8 +73,8 @@ const FaqPage = React.memo(() => {
             <Typography className={classes.heading}>
               {node.frontmatter.title}
             </Typography>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
+          </AccordionSummary>
+          <AccordionDetails>
             <Typography
               variant="body1"
               component="div"
@@ -82,8 +82,8 @@ const FaqPage = React.memo(() => {
             >
             <MDXRenderer>{ node.body}</MDXRenderer>
             </Typography>
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
+          </AccordionDetails>
+        </Accordion>
       ))}
     </div>
   );

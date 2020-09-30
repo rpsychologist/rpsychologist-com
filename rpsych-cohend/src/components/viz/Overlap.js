@@ -37,7 +37,6 @@ const OverlapChart = props => {
   const [reset, setReset] = useState(false);
   const bind = useGesture({
     onDrag: ({ movement: pos, down}) => {
-      console.log(pos)
       set({ xOffset: pos, immediate: down });
       //setDiff(xScale.invert(xOffset.get()[0]) - xScale.invert(0));
     },
