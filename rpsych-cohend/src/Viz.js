@@ -11,12 +11,23 @@ import ResponsiveChart from "./components/viz/ResponsiveChart";
 import Slider from "./components/navigation/SettingsSlider";
 
 const useStyles = makeStyles(theme => ({
+  root: {
+    "& svg text": {
+        fill: theme.palette.text.primary,
+    },
+    "& svg .muConnect, & svg .vx-axis-bottom line": {
+      stroke: theme.palette.text.primary,
+  },
+  "& svg .muConnectMarker": {
+    fill: theme.palette.text.primary,
+  }
+  },
   paper: {
     boxShadow: "none"
   },
   control: {
     padding: theme.spacing(2)
-  }
+  },
 }));
 
 
@@ -26,7 +37,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
   const NNTdata = [CER / 100, 1 / NNT, 1 - (1 / NNT + CER / 100)];
 
   return (
-    <div>
+    <div className={classes.root}>
       <Box my={4}>
         <Container maxWidth="lg">
           <Slider

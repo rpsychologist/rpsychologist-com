@@ -9,6 +9,8 @@ import { SettingsContext } from "../../App";
 import { makeStyles } from "@material-ui/core/styles";
 import { SketchPicker } from "react-color";
 import reactCSS from "reactcss";
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -40,16 +42,17 @@ const ColorPicker = ({ dist }) => {
       },
       swatch: {
         padding: "5px",
-        background: "#fff",
+        background: state.darkMode ? '#272727':'#fff',
         borderRadius: "1px",
         boxShadow: "0 0 0 1px rgba(0,0,0,.1)",
         display: "inline-block",
         cursor: "pointer"
       },
       popover: {
+        backgroundColor: "red",
         position: "absolute",
         left:"10px",
-        zIndex: "2"
+        zIndex: "2",
       },
       cover: {
         position: "fixed",
@@ -57,8 +60,8 @@ const ColorPicker = ({ dist }) => {
         right: "0px",
         bottom: "0px",
         left: "0px"
+      },
       }
-    }
   });
   return (
     <div>
@@ -101,7 +104,7 @@ const VizSettings = () => {
   return (
     <div>
       <Container maxWidth="sm" className={classes.container}>
-      <Typography align="center" variant="h6" component="h3">
+        <Typography align="center" variant="h6" component="h3">
           Colors
         </Typography>
         <Grid container justify="space-around">
@@ -124,9 +127,23 @@ const VizSettings = () => {
             <ColorPicker dist="Dist2" />
           </Grid>
           <Typography align="center" variant="caption" component="p">
-              Click to change colors.
-            </Typography>
+            Click to change colors.
+          </Typography>
+          
         </Grid>
+        <Divider />
+        <FormControlLabel
+        control={
+          <Switch
+            checked={state.darkMode}
+            onChange={() => dispatch({name: "toggleDarkMode"})}
+            name="dark mode"
+            color="primary"
+          />
+        }
+        label="Toggle Dark Mode"
+        labelPlacement="start"
+      />
         <Divider />
         <Typography align="center" variant="h6" component="h3">
           Parameters

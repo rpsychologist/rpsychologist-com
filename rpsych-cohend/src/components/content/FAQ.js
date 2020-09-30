@@ -10,7 +10,17 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 const useStyles = makeStyles(theme => ({
   root: {
     width: "100%",
-    paddingBottom: "2em"
+    paddingBottom: "2em",
+    "& .gatsby-highlight": {
+      borderRadius: 0,
+      margin: '0 -24px 0 -24px',
+      padding: '0 1em',
+      overflow: 'auto',
+      backgroundColor:  theme.palette.type === "light" ? "#fdf6e3" : "#151618",
+    }, 
+    '& :not(pre) > code[class*="language-"], pre[class*="language-"]': {
+      backgroundColor:  theme.palette.type === "light" ? "#fdf6e3" : "#151618",
+    },
   },
   heading: {
     fontSize: theme.typography.pxToRem(20),
@@ -18,6 +28,11 @@ const useStyles = makeStyles(theme => ({
   },
   content: {
     minWidth: "100%"
+  },
+  expanded: {
+    '&$expanded': {
+        backgroundColor: "#1e1d1d",
+     }
   }
 }));
 
@@ -49,7 +64,7 @@ const FaqPage = React.memo(() => {
   return (
     <div className={classes.root}>
       {data.allMdx.edges.map(({ node }) => (
-        <ExpansionPanel key={node.id}>
+        <ExpansionPanel classes={{ expanded: classes.expanded }} key={node.id}>
           <ExpansionPanelSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls={`FAQ-${node.id}`}

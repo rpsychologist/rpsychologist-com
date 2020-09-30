@@ -1,14 +1,7 @@
 import { red } from '@material-ui/core/colors';
 import { createMuiTheme, responsiveFontSizes } from '@material-ui/core/styles';
 
-
-let theme = createMuiTheme({
-  palette: {
-    background: {
-      default: '#fff',
-      appBar: '#000',
-    },
-  },
+let theme = {
   typography: {
     h2: {
       fontWeight: 700,
@@ -20,7 +13,6 @@ let theme = createMuiTheme({
       fontWeight: 700,
     }
   },
-});
-theme = responsiveFontSizes(theme);
+};
 export default theme;
 

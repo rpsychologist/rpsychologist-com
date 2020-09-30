@@ -14,7 +14,7 @@ import SettingsDrawer from "./components/navigation/SettingsDrawer";
 import Faq from "./components/content/FAQ";
 import MoreViz from "./components/content/MoreViz";
 import CommonLanguage from "./components/content/CommonLanguage";
-import theme from "./theme.js";
+import initialTheme from "./theme.js";
 import TwitterIcon from "@material-ui/icons/Twitter";
 import IntroText from "./components/content/Intro";
 import Posters from "./components/content/Posters";
@@ -24,12 +24,16 @@ import Content from "./Viz";
 import SEO from "./components/SEO";
 import Footer from "./components/content/Footer";
 import { normal } from "jstat";
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { createMuiTheme, responsiveFontSizes } from '@material-ui/core/styles';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+
 
 const useStyles = makeStyles(theme => ({
   root: {
     display: "flex",
     flexDirection: "column",
-    minHeight: "100vh"
+    minHeight: "100vh",
   },
   textContent: {
     maxWidth: 700
@@ -42,7 +46,7 @@ const useStyles = makeStyles(theme => ({
   },
   twitter: {
     textTransform: "none"
-  }
+  },
 }));
 
 const round = val => Math.round(Number(val) * 1000) / 1000;
@@ -121,6 +125,12 @@ const vizReducer = (state, action) => {
         CER: value,
         NNT: calcNNT(state.cohend, value / 100)
       };
+    case "toggleDarkMode": {
+      return {
+        ...state,
+        darkMode: !state.darkMode
+      }
+    }
   }
 };
 
@@ -142,6 +152,7 @@ let defaultState = {
   colorDist1: {r: 48, g:57, b:79, a:1},
   colorDistOverlap: {r: 0, g:0, b:0, a:1},
   colorDist2: {r: 106, g:206, b:235, a:1},
+  darkMode: false
 };
 
 let initialState;
@@ -167,6 +178,7 @@ const App = () => {
   const classes = useStyles();
   const [openSettings, setOpenSettings] = useState(false);
   const [state, dispatch] = useReducer(vizReducer, initialState);
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const contextValue = useMemo(() => {
     return { state, dispatch };
   }, [state, dispatch]);
@@ -181,7 +193,23 @@ const App = () => {
     }
     side == "right" ? setOpenSettings(open) : setOpen(open);
   };
-
+  const theme = React.useMemo(() => {
+    
+    console.log("dark mode " + prefersDarkMode)
+    const useDarkMode = prefersDarkMode || state.darkMode
+    const updatedTheme = createMuiTheme({
+      ...initialTheme,
+      palette: {
+        background: {
+          default: useDarkMode ? '#121212' : '#fff',
+          paper: useDarkMode ? '#121212' : '#fff',
+          appBar: useDarkMode ? '#000' : '#fff',
+        },
+        type: useDarkMode ? 'dark' : 'light'
+      }
+    })
+    return responsiveFontSizes(updatedTheme)
+  }, [state.darkMode]);
   return (
     <div className={classes.root}>
       <SEO />

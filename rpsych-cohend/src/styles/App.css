@@ -9,13 +9,6 @@ footer a {
   text-decoration: none;
   color: white;
 }
-.gatsby-highlight {
-  background-color: #fdf6e3;
-  border-radius: 0;
-  margin: 0 -24px 0 -24px;
-  padding: 0 1em;
-  overflow: auto;
-}
 
 /* VIZ */
 svg#overlapChart {
@@ -41,9 +34,8 @@ path#dist2{
   stroke: rgb(6, 18, 19) 38, 39);
   fill: rgb(6, 18, 19) 38, 39);
 }  */
-#mu_connect {
+#muConnectLine {
   fill: none;
-  stroke: black;
   stroke-width: 2px;
 }
 line#mu0 {
@@ -62,7 +54,7 @@ svg.donut--two-arcs path.arc0 {
   fill: #2e8ece
 } 
 svg.donut--two-arcs path.arc1 {
-  fill: #ffffff;
+  fill: none;
 }
 
 
@@ -73,7 +65,7 @@ svg.donut--NNT path.arc1 {
   fill: #2e8ece
 }
 svg.donut--NNT path.arc2 {
-  fill: #ffffff
+  fill: none;
 } 
 .vx-axis, #x-label {
   user-select: none;

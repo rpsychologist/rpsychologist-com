@@ -4,14 +4,14 @@ import { withStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
 
-const CoffeButton = withStyles(() => ({
+const CoffeButton = withStyles((theme) => ({
   root: {
     textTransform: "none",
     fontWeight: "700",
     color: "white",
-    backgroundColor: "black",
+    backgroundColor: theme.palette.type === "light" ? "black" : "rgb(255, 129, 63)",
     "&:hover": {
-      backgroundColor: "rgb(255, 129, 63)"
+      backgroundColor: theme.palette.type === "light" ? "rgb(255, 129, 63)" : "black"
     }
   }
 }))(Button);

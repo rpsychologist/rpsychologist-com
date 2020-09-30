@@ -193,7 +193,8 @@ const OverlapChart = props => {
             x2={xScaleM1}
             y1={-10}
             y2={-10}
-            id="mu_connect"
+            id="muConnectLine"
+            className="muConnect"
             markerStart="url(#arrowLeft)"
             markerEnd="url(#arrowRight)"
           />
@@ -249,6 +250,7 @@ const OverlapChart = props => {
         {/* Manually create both markers so they will orient correctly if saveSvg is used. Auto-orient renders incorrectly in some programs*/}
         <marker
           id="arrowLeft"
+          className="muConnectMarker"
           viewBox="0 -5 10 10"
           refX="5"
           refY="0"
@@ -260,6 +262,7 @@ const OverlapChart = props => {
         </marker>
         <marker
           id="arrowRight"
+          className="muConnectMarker"
           viewBox="0 -5 10 10"
           refX="5"
           refY="0"

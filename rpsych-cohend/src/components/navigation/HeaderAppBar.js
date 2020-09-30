@@ -4,20 +4,24 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import logo from "./rpsychologist-logo.svg";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   appBar: {
-    boxShadow: "none"
+    boxShadow: "none",
   },
   logoContainer: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   logo: {
     maxWidth: 250,
     transition: "0.5s",
+    filter: theme.palette.type === "light" ? "invert(0)" : "invert(1)",
     "&:hover": {
-      filter: "drop-shadow( 0px 0px 6px rgba(106, 206, 235, .9))"
-    }
-  }
+      filter:
+        theme.palette.type === "light"
+          ? "invert(0) drop-shadow( 0px 0px 6px rgba(106, 206, 235, .9))"
+          : "invert(1) drop-shadow( 0px 0px 6px rgba(106, 206, 235, .9))",
+    },
+  },
 }));
 
 const HeaderAppBar = React.memo(() => {
