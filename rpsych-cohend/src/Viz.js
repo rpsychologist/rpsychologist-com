@@ -48,8 +48,8 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
             handleDrawer={toggleDrawer}
           />
           <ResponsiveChart chart={Cohend} {...vizState} />
-          <Grid container spacing={3}>
-            <Grid item xs={3}>
+          <Grid container justify="center" spacing={3}>
+            <Grid item xs={5} sm={3}>
               <Paper className={classes.paper}>
                 <ResponsiveChart
                   chart={DonutChart}
@@ -62,7 +62,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
                 </Typography>
               </Paper>
             </Grid>
-            <Grid item xs={3}>
+            <Grid item xs={5} sm={3}>
               <Paper className={classes.paper}>
                 <ResponsiveChart
                   chart={DonutChart}
@@ -75,7 +75,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
                 </Typography>
               </Paper>
             </Grid>
-            <Grid item xs={3}>
+            <Grid item xs={5} sm={3}>
               <Paper className={classes.paper}>
                 <ResponsiveChart
                   chart={DonutChart}
@@ -88,7 +88,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
                 </Typography>
               </Paper>
             </Grid>
-            <Grid item xs={3}>
+            <Grid item xs={5} sm={3}>
               <Paper className={classes.paper}>
                 <ResponsiveChart
                   chart={DonutChart}

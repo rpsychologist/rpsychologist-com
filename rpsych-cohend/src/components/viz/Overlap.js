@@ -69,7 +69,8 @@ const OverlapChart = props => {
   } = props;
 
   const w = width - margin.left - margin.right;
-  const h = width * 0.4 - margin.top - margin.bottom;
+  const aspect = width < 450 ? 0.6 : 0.4;
+  const h = width * aspect - margin.top - margin.bottom;
 
   const fillDist1 = useMemo(() => toColorString(colorDist1), [colorDist1]);
   const fillDistOverlap = useMemo(() => toColorString(colorDistOverlap), [
@@ -129,8 +130,8 @@ const OverlapChart = props => {
       id="overlapChart"
       {...bind()}
       width={props.width}
-      height={props.width * 0.4}
-      viewBox={`0,0, ${props.width}, ${props.width * 0.4}`}
+      height={props.width * aspect}
+      viewBox={`0,0, ${props.width}, ${props.width * aspect}`}
     >
       <animated.g
         transform={xOffset.to(
