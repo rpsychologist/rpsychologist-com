@@ -8,20 +8,22 @@ import { useGesture } from "react-use-gesture";
 import { useSpring, animated } from "react-spring";
 import { AxisBottom } from "@vx/axis";
 
+const AnimatedAxis = animated(AxisBottom);
+
 // Generates data
 const genData = (mu, SD, x) => {
-  const tmp = x.map(x => [x, normal.pdf(x, mu, SD)]);
+  const tmp = x.map((x) => [x, normal.pdf(x, mu, SD)]);
   // close tails
   tmp.unshift([tmp[0][0], 0]);
   tmp.push([tmp[tmp.length - 1][0], 0]);
 
   return {
     data: tmp,
-    yMax: normal.pdf(mu, mu, SD)
+    yMax: normal.pdf(mu, mu, SD),
   };
 };
 
-const toColorString = color =>
+const toColorString = (color) =>
   `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`;
 
 const VerticalLine = ({ x, y1, y2, id }) => {
@@ -30,26 +32,20 @@ const VerticalLine = ({ x, y1, y2, id }) => {
 
 const margin = { top: 70, right: 20, bottom: 35, left: 20 };
 
-const OverlapChart = props => {
-  const [{ xOffset }, set] = useSpring(() => ({ xOffset: [0, 0] }));
-  // Use state to force re-render of x-axis on drag
-  const [xDiff, setDiff] = useState(0);
+const OverlapChart = (props) => {
+  const [{ xOffset }, set] = useSpring(() => ({ xOffset: 0 }));
   const [reset, setReset] = useState(false);
-  const bind = useGesture({
-    onDrag: ({ movement: pos, down}) => {
-      set({ xOffset: pos, immediate: down });
-      //setDiff(xScale.invert(xOffset.get()[0]) - xScale.invert(0));
+  const bind = useGesture(
+    {
+      onDrag: ({ movement: [xOffset], down }) => {
+        set({ xOffset, immediate: down });
+      },
+      onDoubleClick: () => {
+        set({ xOffset: 0 });
+        setReset(!reset);
+      },
     },
-    onDoubleClick: () => {
-      set({ xOffset: [0, 0] });
-      setDiff(0);
-      setReset(!reset);
-    },
-    onDragEnd: ({movement: pos}) => {
-      setDiff(xScale.invert(pos[0]) - xScale.invert(0));
-    }
-  },
-  {drag: { initial: () => xOffset.get() } }
+    { drag: { initial: () => [xOffset.get(), 0] } }
   );
 
   const {
@@ -64,7 +60,7 @@ const OverlapChart = props => {
     SD,
     colorDist1,
     colorDistOverlap,
-    colorDist2
+    colorDist2,
   } = props;
 
   const w = width - margin.left - margin.right;
@@ -73,7 +69,7 @@ const OverlapChart = props => {
 
   const fillDist1 = useMemo(() => toColorString(colorDist1), [colorDist1]);
   const fillDistOverlap = useMemo(() => toColorString(colorDistOverlap), [
-    colorDistOverlap
+    colorDistOverlap,
   ]);
   const fillDist2 = useMemo(() => toColorString(colorDist2), [colorDist2]);
 
@@ -84,7 +80,7 @@ const OverlapChart = props => {
     M0,
     w,
     SD,
-    reset
+    reset,
   ]);
 
   // Data
@@ -97,22 +93,17 @@ const OverlapChart = props => {
 
   // Scales and Axis
   const xScale = useMemo(
-    () =>
-      scaleLinear()
-        .domain([xMin, xMax])
-        .range([0, w]),
+    () => scaleLinear().domain([xMin, xMax]).range([0, w]),
     [w, reset]
   );
-  const yScale = scaleLinear()
-    .domain([0, yMax])
-    .range([0, h]);
+  const yScale = scaleLinear().domain([0, yMax]).range([0, h]);
 
   // Line function
   const linex = useMemo(
     () =>
       line()
-        .x(d => xScale(d[0]))
-        .y(d => h - yScale(d[1])),
+        .x((d) => xScale(d[0]))
+        .y((d) => h - yScale(d[1])),
     [w, reset]
   );
 
@@ -123,7 +114,6 @@ const OverlapChart = props => {
   const xScaleDiff = xScaleM1 - xScaleM0;
   const xScaleCenter = (xScaleM1 + xScaleM0) / 2;
   const yScaleZero = yScale(0);
-
   return (
     <svg
       id="overlapChart"
@@ -131,11 +121,14 @@ const OverlapChart = props => {
       width={props.width}
       height={props.width * aspect}
       viewBox={`0,0, ${props.width}, ${props.width * aspect}`}
+      style={{ touchAction: "none" }}
     >
       <animated.g
-        transform={xOffset.to(
-          x => `translate(${margin.left + x}, ${margin.top})`
-        )}
+        style={{
+          transform: xOffset.to(
+            (x) => `translate(${margin.left + x}px, ${margin.top}px)`
+          ),
+        }}
       >
         <path
           id="dist1"
@@ -155,17 +148,16 @@ const OverlapChart = props => {
             fill="yellow"
             opacity={0.5}
           />
-          </clipPath>
-          <clipPath id="rectClip2">
-            <rect
-              x={xScaleCenter}
-              y={0}
-              height={h}
-              width={cohend == 0 ? 0 : xScale(xMax) - xScaleCenter}
-              fill="yellow"
-              opacity={0.5}
-            />
- 
+        </clipPath>
+        <clipPath id="rectClip2">
+          <rect
+            x={xScaleCenter}
+            y={0}
+            height={h}
+            width={cohend == 0 ? 0 : xScale(xMax) - xScaleCenter}
+            fill="yellow"
+            opacity={0.5}
+          />
         </clipPath>
         <clipPath id="distClip">
           <use href="#dist2" />
@@ -247,9 +239,12 @@ const OverlapChart = props => {
         </g>
       </animated.g>
       <g transform={`translate(${margin.left}, ${h + margin.top})`}>
-        <AxisBottom
+        <AnimatedAxis
           ticks={10}
-          scale={xScale.copy().domain([xMin - xDiff, xMax - xDiff])}
+          scale={xOffset.to((x) => {
+            const diff = xScale.invert(x) - xScale.invert(0);
+            return xScale.copy().domain([xMin - diff, xMax - diff]);
+          })}
         />
       </g>
       <defs>
