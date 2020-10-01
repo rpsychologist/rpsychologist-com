@@ -127,7 +127,13 @@ const vizReducer = (state, action) => {
         ...state,
         darkMode: !state.darkMode
       }
-    }
+    };
+    case "setDarkMode": {
+      return {
+        ...state,
+        darkMode: value
+      }
+    };
   }
 };
 
@@ -174,8 +180,15 @@ export const SettingsContext = createContext(null);
 const App = () => {
   const classes = useStyles();
   const [openSettings, setOpenSettings] = useState(false);
-  const [state, dispatch] = useReducer(vizReducer, initialState);
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const [state, dispatch] = useReducer(vizReducer, initialState);
+
+  // causes unnecessary re-render
+  // TODO: use this https://joshwcomeau.com/gatsby/dark-mode/
+  useEffect(() => {
+    dispatch({name: "setDarkMode", value: prefersDarkMode || initialState.darkMode})
+  }, [prefersDarkMode])
+
   const contextValue = useMemo(() => {
     return { state, dispatch };
   }, [state, dispatch]);
@@ -191,16 +204,16 @@ const App = () => {
     side == "right" ? setOpenSettings(open) : setOpen(open);
   };
   const theme = React.useMemo(() => {
-    const useDarkMode = prefersDarkMode || state.darkMode
+    const darkMode = state.darkMode;
     const updatedTheme = createMuiTheme({
       ...initialTheme,
       palette: {
         background: {
-          default: useDarkMode ? '#121212' : '#fff',
-          paper: useDarkMode ? '#121212' : '#fff',
-          appBar: useDarkMode ? '#000' : '#fff',
+          default: darkMode ? '#121212' : '#fff',
+          paper: darkMode ? '#121212' : '#fff',
+          appBar: darkMode ? '#000' : '#fff',
         },
-        type: useDarkMode ? 'dark' : 'light'
+        type: darkMode ? 'dark' : 'light'
       }
     })
     return responsiveFontSizes(updatedTheme)
