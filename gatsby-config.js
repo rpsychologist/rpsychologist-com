@@ -44,7 +44,7 @@ module.exports = {
               maxWidth: 960,
               linkImagesToOriginal: false,
               showCaptions: ['title'],
-              markdownCaptions: true,
+              markdownCaptions: false,
             },
           },
           `gatsby-remark-images-zoom`,
