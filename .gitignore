@@ -69,6 +69,7 @@ yarn-error.log
 Makefile
 # Local Netlify folder
 .netlify
+netlify.toml
 
 # Large binary assets
 content/assets/Posters/
