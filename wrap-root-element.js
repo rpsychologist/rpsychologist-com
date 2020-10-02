@@ -23,6 +23,7 @@ const StyledTableContainer = withStyles(() => ({
 
 const components = {
   a: props => <MuiLink {...props} />,
+  figcaption: props => <Typography {...props} />,
   p: props => <Typography variant="body1" paragraph {...props} className="article--outer" />,
   h1: props => <Typography variant="h2" component="h1" {...props} className="article--outer"/>,
   h2: props => <Typography variant="h2" {...props} className="article--outer"/>,
