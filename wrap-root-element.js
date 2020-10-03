@@ -1,5 +1,6 @@
 import React from 'react'
-import { withStyles, ThemeProvider } from '@material-ui/core/styles'
+import App from './src/components/App';
+import { withStyles } from '@material-ui/core/styles'
 import { MDXProvider } from '@mdx-js/react'
 import MuiLink from '@material-ui/core/Link'
 import Typography from '@material-ui/core/Typography'
@@ -11,7 +12,6 @@ import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import Paper from '@material-ui/core/Paper'
 import CodeBlock from './src/components/code/code-block'
-import theme from './src/styles/theme'
 
 const StyledTableContainer = withStyles(() => ({
   root: {
@@ -67,8 +67,8 @@ const components = {
 export const wrapRootElement = ({ element }) => {
 
   return (
-    <ThemeProvider theme={theme}>
+    <App>
       <MDXProvider components={components}>{element}</MDXProvider>
-    </ThemeProvider>
+    </App>
   )
 }

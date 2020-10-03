@@ -36,6 +36,7 @@ module.exports = {
         plugins: [
           `gatsby-remark-images`,
           `gatsby-remark-images-zoom`,
+          'gatsby-plugin-use-dark-mode',
         ],
         gatsbyRemarkPlugins: [
           {

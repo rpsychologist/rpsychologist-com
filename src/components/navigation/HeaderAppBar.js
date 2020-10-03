@@ -10,6 +10,7 @@ import MenuIcon from '@material-ui/icons/Menu'
 import TwitterIcon from '@material-ui/icons/Twitter'
 import GitHubIcon from '@material-ui/icons/GitHub'
 import RssFeedIcon from '@material-ui/icons/RssFeed'
+import DarkModeToggle from '../DarkModeToggle'
 import Logo from './Logo'
 
 const useStyles = makeStyles(theme => ({
@@ -101,6 +102,7 @@ const MenuList = () => {
       >
         <RssFeedIcon />
       </IconButton>
+      <DarkModeToggle />
     </>
   )
 }

@@ -74,3 +74,6 @@ netlify.toml
 # Large binary assets
 content/assets/Posters/
 content/assets/profile.jpg
+
+# Other
+TODO.md
