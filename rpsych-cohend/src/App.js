@@ -25,6 +25,7 @@ import Footer from "./components/content/Footer";
 import { normal } from "jstat";
 import { createMuiTheme, responsiveFontSizes } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
+import Tour from "./components/HelpTour"
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -180,6 +181,7 @@ export const SettingsContext = createContext(null);
 const App = () => {
   const classes = useStyles();
   const [openSettings, setOpenSettings] = useState(false);
+  const [openHelpTour, setHelpTour] = useState(false);
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [state, dispatch] = useReducer(vizReducer, initialState);
 
@@ -218,6 +220,8 @@ const App = () => {
     })
     return responsiveFontSizes(updatedTheme)
   }, [state.darkMode]);
+  const tour = React.useMemo(() => <Tour openHelpTour={openHelpTour} handleHelpTour={setHelpTour}/>, [openHelpTour])
+
   return (
     <div className={classes.root}>
       <SEO />
@@ -231,6 +235,7 @@ const App = () => {
             vizState={state}
           >
             <Container>
+            {tour}
               <Typography
                 variant="h2"
                 component="h1"
@@ -268,6 +273,7 @@ const App = () => {
               openSettings={openSettings}
               vizState={state}
               toggleDrawer={toggleDrawer}
+              handleHelpTour={setHelpTour}
             />
             <Container className={classes.textContent}>
               <Typography

@@ -31,26 +31,23 @@ const useStyles = makeStyles(theme => ({
 }));
 
 
-const Content = ({ openSettings, vizState, toggleDrawer }) => {
+const Content = ({ openSettings, vizState, toggleDrawer, handleHelpTour }) => {
   const classes = useStyles();
   const { NNT, CER, U3, propOverlap, CL } = vizState;
   const NNTdata = [CER / 100, 1 / NNT, 1 - (1 / NNT + CER / 100)];
-
   return (
     <div className={classes.root}>
       <Box my={4}>
         <Container maxWidth="lg">
           <Slider
-            value={vizState.cohend}
-            max={vizState.sliderMax}
-            step={vizState.sliderStep}
             openSettings={openSettings}
             handleDrawer={toggleDrawer}
+            handleHelpTour={handleHelpTour}
           />
           <ResponsiveChart chart={Cohend} {...vizState} />
           <Grid container justify="center" spacing={3}>
             <Grid item xs={5} sm={3}>
-              <Paper className={classes.paper}>
+              <Paper className={classes.paper} id="donut--cohen--u3">
                 <ResponsiveChart
                   chart={DonutChart}
                   data={[U3, 1 - U3]}
@@ -63,7 +60,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
               </Paper>
             </Grid>
             <Grid item xs={5} sm={3}>
-              <Paper className={classes.paper}>
+              <Paper className={classes.paper} id="donut--prop-overlap">
                 <ResponsiveChart
                   chart={DonutChart}
                   data={[propOverlap, 1 - propOverlap]}
@@ -76,7 +73,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
               </Paper>
             </Grid>
             <Grid item xs={5} sm={3}>
-              <Paper className={classes.paper}>
+              <Paper className={classes.paper} id="donut--CL">
                 <ResponsiveChart
                   chart={DonutChart}
                   data={[CL, 1 - CL]}
@@ -89,7 +86,7 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
               </Paper>
             </Grid>
             <Grid item xs={5} sm={3}>
-              <Paper className={classes.paper}>
+              <Paper className={classes.paper} id="donut--NNT">
                 <ResponsiveChart
                   chart={DonutChart}
                   data={NNTdata}

@@ -6,6 +6,7 @@ import Input from "@material-ui/core/Input";
 import IconButton from "@material-ui/core/IconButton";
 import SettingsIcon from "@material-ui/icons/Settings";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
+import HelpIcon from '@material-ui/icons/Help';
 import Tooltip from "@material-ui/core/Tooltip";
 import { Typography } from "@material-ui/core";
 import clsx from "clsx";
@@ -33,7 +34,7 @@ const saveSvg = () => {
   //svg.setAttribute("viewBox", `0, 0, ${width}, ${height}`);
 };
 
-const InputSlider = ({ handleDrawer, openSettings }) => {
+const InputSlider = ({ handleDrawer, openSettings, handleHelpTour }) => {
   const classes = useStyles();
   const { state, dispatch } = useContext(SettingsContext);
   const { cohend, sliderMax, sliderStep } = state;
@@ -71,6 +72,7 @@ const InputSlider = ({ handleDrawer, openSettings }) => {
               edge="end"
               onClick={handleDrawer("right", !openSettings)}
               className={clsx(openSettings && classes.hide)}
+              id="button--open-settings"
             >
               <SettingsIcon />
             </IconButton>
@@ -81,8 +83,19 @@ const InputSlider = ({ handleDrawer, openSettings }) => {
               aria-label="save svg"
               edge="end"
               onClick={() => saveSvg()}
+              id="button--save-svg"
             >
               <SaveAltIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Start guided help">
+            <IconButton
+              color="inherit"
+              aria-label="start guided help"
+              edge="end"
+              onClick={() => handleHelpTour(true)}
+            >
+              <HelpIcon />
             </IconButton>
           </Tooltip>
         </Grid>
@@ -95,6 +108,7 @@ const InputSlider = ({ handleDrawer, openSettings }) => {
             max={sliderMax}
             step={sliderStep}
             aria-labelledby="input-slider"
+            classes={{ root: 'main--slider'}}
           />
         </Grid>
 
