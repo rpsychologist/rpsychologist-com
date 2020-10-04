@@ -18,6 +18,9 @@ export const ThemeProvider = ({ children }) => {
           paper: darkMode.value  ? '#121212' : '#fff',
           appBar: darkMode.value  ? '#000' : '#fff',
         },
+        primary: {
+          main: '#1e88e5',
+        },
         type: darkMode.value  ? 'dark' : 'light'
       }
     })

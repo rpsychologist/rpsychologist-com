@@ -13,12 +13,13 @@ const useStyles = makeStyles(theme => ({
     paddingBottom: '2em',
   },
 
-  card: {
+  cardActionArea: {
     borderRadius: 0,
     transition: '250ms cubic-bezier(0.4,0,0.2,1)',
-    boxShadow: theme.palette.type === 'dark' ?
-      '0px 1px 2px rgba(255,255,255,0.08), 0px 2px 4px rgba(255,255,255,0.08)':
-      '0px 1px 2px rgba(46,41,51,0.08), 0px 2px 4px rgba(71,63,79,0.08)',
+    boxShadow:
+      theme.palette.type === 'dark'
+        ? '0px 1px 2px rgba(255,255,255,0.08), 0px 2px 4px rgba(255,255,255,0.08)'
+        : '0px 1px 2px rgba(46,41,51,0.08), 0px 2px 4px rgba(71,63,79,0.08)',
     maxWidth: 200,
     marginBottom: '0.5em',
     [theme.breakpoints.down('sm')]: {
@@ -26,20 +27,20 @@ const useStyles = makeStyles(theme => ({
     },
     '&:hover, &:focus': {
       transform: 'translateY(-0.15rem)',
-      boxShadow: theme.palette.type === 'dark' ?
-        '0px 4px 8px rgba(255,255,255,0.16  ), 0px 8px 16px rgba(255,255,255,0.16)':
-        '0px 4px 8px rgba(46,41,51,0.08), 0px 8px 16px rgba(71,63,79,0.16)'
+      boxShadow:
+        theme.palette.type === 'dark'
+          ? '0px 4px 8px rgba(255,255,255,0.16  ), 0px 8px 16px rgba(255,255,255,0.16)'
+          : '0px 4px 8px rgba(46,41,51,0.08), 0px 8px 16px rgba(71,63,79,0.16)',
     },
   },
   img: {
     filter: theme.palette.type === 'dark' ? 'invert(0.9) grayscale(1)' : 'none',
     '&:hover, &focus': {
       filter: 'none',
-    }
+    },
   },
   cardMedia: {
     width: 200,
-
     [theme.breakpoints.down('sm')]: {
       width: 150,
     },
@@ -47,47 +48,21 @@ const useStyles = makeStyles(theme => ({
   content: {},
 }))
 
-const MoreViz = ({ explanation }) => {
+const CardThumbnail = ({ data, explanation, children }) => {
   const classes = useStyles()
-  const data = useStaticQuery(
-    graphql`
-      query Posters {
-        allPostersYaml {
-          edges {
-            node {
-              id
-              attachments {
-                publicURL
-              }
-              image {
-                publicURL
-                childImageSharp {
-                  fluid(maxWidth: 200) {
-                    ...GatsbyImageSharpFluid
-                  }
-                }
-              }
-              title
-              excerpt
-            }
-          }
-        }
-      }
-    `
-  )
   return (
     <div className={classes.root}>
       <Grid container spacing={3} justify="center">
-        {data.allPostersYaml.edges.map(({ node }) => (
+        {data.allOtherVizYaml.edges.map(({ node }) => (
           <Grid item key={node.title} className={classes.cardMedia}>
-              <CardActionArea className={classes.card} href={node.attachments.publicURL}>
-                {' '}
-                <Img
-                  fluid={node.image.childImageSharp.fluid}
-                  alt={`${node.title}`}
-                  className={classes.img}
-                />
-              </CardActionArea>
+            <CardActionArea className={classes.cardActionArea} href={node.url}>
+              {' '}
+              <Img
+                fluid={node.image.childImageSharp.fluid}
+                alt={`${node.title}`}
+                className={classes.img}
+              />
+            </CardActionArea>
             <Typography
               gutterBottom
               variant="body2"
@@ -102,6 +77,7 @@ const MoreViz = ({ explanation }) => {
                 {node.excerpt}
               </Typography>
             )}
+            {children}
           </Grid>
         ))}
       </Grid>
@@ -109,4 +85,4 @@ const MoreViz = ({ explanation }) => {
   )
 }
 
-export default MoreViz
+export default CardThumbnail

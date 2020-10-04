@@ -6,12 +6,7 @@ import Typography from '@material-ui/core/Typography'
 import kebabCase from 'lodash/kebabCase'
 import { Helmet } from 'react-helmet'
 import { graphql } from 'gatsby'
-import MuiLink from '@material-ui/core/Link'
-import { Link as GatsbyLink } from 'gatsby'
-
-const Link = React.forwardRef(function Link(props, ref) {
-  return <MuiLink component={GatsbyLink} ref={ref} {...props} />
-})
+import InternalLink from '../utils/InternalLink'
 
 let currentLetter = ``
 
@@ -69,9 +64,9 @@ const TagsPage = ({
                   listStyleType: `none`,
                 }}
               >
-                <Link to={`/tags/${kebabCase(tag.fieldValue)}/`}>
+                <InternalLink to={`/tags/${kebabCase(tag.fieldValue)}/`}>
                   {tag.fieldValue} ({tag.totalCount})
-                </Link>
+                </InternalLink>
               </li>
             )
 

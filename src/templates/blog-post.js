@@ -18,12 +18,8 @@ import ExpandMore from '@material-ui/icons/ExpandMore'
 import Collapse from '@material-ui/core/Collapse'
 import Social from '../components/Social'
 import Tags from '../components/TagsPost'
-import MuiLink from '@material-ui/core/Link'
-import { Link as GatsbyLink } from 'gatsby'
-
-const Link = React.forwardRef(function Link(props, ref) {
-  return <MuiLink component={GatsbyLink} ref={ref} {...props} />
-})
+import Link from '@material-ui/core/Link'
+import InternalLink from '../utils/InternalLink'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -95,9 +91,7 @@ const useStyles = makeStyles(theme => ({
     // Fix IE 11 position sticky issue.
     width: 230,
     flexShrink: 0,
-
     position: 'fixed',
-
     overflowY: 'auto',
     padding: theme.spacing(0, 0, 0, 0),
     display: 'none',
@@ -197,7 +191,6 @@ const Toc = ({ post }) => {
 
 const BlogPostTemplate = ({ data, pageContext, location }) => {
   const classes = useStyles()
-
   const post = data.mdx
   const siteTitle = data.site.siteMetadata.title
   const { previous, next } = pageContext
@@ -240,7 +233,6 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
             <div className={classes.articleInner}>
               <Divider style={{ marginBottom: '1em', marginTop: '1em' }} />
               <Bio />
-
               <Divider style={{ marginTop: '1em', marginBottom: '1em' }} />
               <div
                 style={{
@@ -268,11 +260,11 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
                 style={{ marginTop: '1em' }}
               >
                 Published {post.frontmatter.date}{' '}
-                <MuiLink
+                <Link
                   href={`https://github.com/rpsychologist/rpsychologist-com/blob/master/content/blog/${post.parent.relativePath}`}
                 >
                   (View on GitHub)
-                </MuiLink>
+                </Link>
               </Typography>
 
               <Divider style={{ marginBottom: '1em' }} />
@@ -288,16 +280,16 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
               >
                 <li>
                   {previous && (
-                    <Link to={previous.fields.slug} rel="prev">
+                    <InternalLink to={previous.fields.slug} rel="prev">
                       ← {previous.frontmatter.title}
-                    </Link>
+                    </InternalLink>
                   )}
                 </li>
                 <li>
                   {next && (
-                    <Link to={next.fields.slug} rel="next">
+                    <InternalLink to={next.fields.slug} rel="next">
                       {next.frontmatter.title} →
-                    </Link>
+                    </InternalLink>
                   )}
                 </li>
               </ul>

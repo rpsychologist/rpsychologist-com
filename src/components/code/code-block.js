@@ -30,7 +30,9 @@ const useStyles = makeStyles(theme => ({
   codeBlockHeader: {
     borderStyle: 'none none solid none',
     borderWidth: '1px',
-    borderColor: '#e7e7e7',
+    borderColor: theme.palette.type === 'dark' ? '#121212':'#e7e7e7',
+    backgroundColor: theme.palette.type === 'dark' ? '#171717':'#fafafa', 
+    paddingBottom: 0
   },
   toggleCodeButton: {
     marginLeft: 'auto',
@@ -60,7 +62,7 @@ const useStyles = makeStyles(theme => ({
     marginTop: '-1em',
     borderStyle: 'solid none none none',
     borderWidth: '1px',
-    borderColor: '#e7e7e7',
+    borderColor: theme.palette.type === 'dark' ? '#000':'#e7e7e7',
   }
 }))
 
@@ -127,7 +129,6 @@ const CodeBlock = ({
               justify="space-between"
               direction="row"
               className={classes.codeBlockHeader}
-              style={{ backgroundColor: '#fafafa', paddingBottom: 0 }}
             >
               <span className={`code--label language-${language}`} />
               {title && (

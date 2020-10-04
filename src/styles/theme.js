@@ -1,11 +1,14 @@
 import { createMuiTheme, responsiveFontSizes } from '@material-ui/core/styles'
 
-let theme = createMuiTheme({
+let theme = {
   palette: {
     background: {
       paper: '#fff',
       default: 'white',
     },
+  },
+  a: {
+    color: "red",
   },
   typography: {
     fontSize: 16,
@@ -52,7 +55,6 @@ let theme = createMuiTheme({
       fontWeight: 700,
     },
   },
-})
+}
 
-theme = responsiveFontSizes(theme)
 export default theme

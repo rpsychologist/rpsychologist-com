@@ -11,20 +11,20 @@ const useStyles = makeStyles(theme => ({
     paddingBottom: '2em',
   },
 
-  card: {
+  cardActionArea: {
     borderRadius: 0,
     transition: '250ms cubic-bezier(0.4,0,0.2,1)',
     boxShadow:
-      '0px 1px 2px rgba(46,41,51,0.08), 0px 2px 4px rgba(71,63,79,0.08)',
-    maxWidth: 300,
+      theme.palette.type === 'dark'
+        ? '0px 1px 2px rgba(255,255,255,0.08), 0px 2px 4px rgba(255,255,255,0.08)'
+        : '0px 1px 2px rgba(46,41,51,0.08), 0px 2px 4px rgba(71,63,79,0.08)',
     marginBottom: '0.5em',
-    [theme.breakpoints.down('xs')]: {
-      maxWidth: '100%',
-    },
-    '&:hover': {
+    '&:hover, &:focus': {
       transform: 'translateY(-0.15rem)',
       boxShadow:
-        '0px 4px 8px rgba(46,41,51,0.08), 0px 8px 16px rgba(71,63,79,0.16)',
+        theme.palette.type === 'dark'
+          ? '0px 4px 8px rgba(255,255,255,0.16  ), 0px 8px 16px rgba(255,255,255,0.16)'
+          : '0px 4px 8px rgba(46,41,51,0.08), 0px 8px 16px rgba(71,63,79,0.16)',
     },
   },
   cardMedia: {
@@ -35,10 +35,15 @@ const useStyles = makeStyles(theme => ({
     },
   },
   content: {},
-  img: {},
+  img: {
+    filter: theme.palette.type === 'dark' ? 'invert(0.9)' : 'none',
+    '&:hover, &focus': {
+      filter: 'none',
+    },
+  },
 }))
 
-const MoreViz = ({ explanation }) => {
+const PowerlmmCard = ({ explanation }) => {
   const classes = useStyles()
   const data = useStaticQuery(
     graphql`
@@ -57,15 +62,14 @@ const MoreViz = ({ explanation }) => {
     <div className={classes.root}>
       <Grid container spacing={3} justify="center">
         <Grid item className={classes.cardMedia}>
-          <Card className={classes.card} elevation={2}>
-            <CardActionArea href="https://github.com/rpsychologist/powerlmm">
+            <CardActionArea className={classes.cardActionArea} href="https://github.com/rpsychologist/powerlmm">
               {' '}
               <Image
                 fluid={data.powerlmm.childImageSharp.fluid}
                 alt="powerlmm"
+                className={classes.img}
               />
             </CardActionArea>
-          </Card>
           <Typography
             gutterBottom
             variant="body2"
@@ -103,4 +107,4 @@ const MoreViz = ({ explanation }) => {
   )
 }
 
-export default MoreViz
+export default PowerlmmCard

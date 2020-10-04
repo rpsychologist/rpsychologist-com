@@ -1,15 +1,27 @@
 import React from 'react'
-import { Link, graphql } from 'gatsby'
+import { Link as GatsbyLink, graphql } from 'gatsby'
 import Layout from '../components/Layout'
 import Container from '@material-ui/core/Container'
 import Grid from '@material-ui/core/Grid'
-
 import Typography from '@material-ui/core/Typography'
 import SEO from '../components/seo'
 import Button from '@material-ui/core/Button'
 import LocalOfferIcon from '@material-ui/icons/LocalOffer'
+import InternalLink from '../utils/InternalLink'
+import { makeStyles } from '@material-ui/core'
 
-const Contact = ({ data }) => {
+const useStyles = makeStyles(theme => ({
+  post: {
+    color: theme.palette.type === 'dark' ? '#fff':'#000',
+    "&:hover, &:focus": {
+      color: theme.palette.primary.main,
+      textDecoration: 'underline',    
+    },
+  }
+}))
+
+const PostList = ({ data }) => {
+  const classes = useStyles()
   const posts = data.allMdx.edges
   return (
     <Layout>
@@ -32,7 +44,7 @@ const Contact = ({ data }) => {
             color="primary"
             variant="contained"
             size="small"
-            component={Link}
+            component={GatsbyLink}
             endIcon={<LocalOfferIcon />}
             style={{ boxShadow: 'none', textTransform: 'none' }}
           >
@@ -44,14 +56,7 @@ const Contact = ({ data }) => {
           const title = node.frontmatter.title || node.fields.slug
           return (
             <div key={node.fields.slug} style={{ paddingBottom: '2em' }}>
-              <Link
-                style={{
-                  boxShadow: `none`,
-                  color: 'black',
-                  textDecoration: 'none',
-                }}
-                to={node.fields.slug}
-              >
+              <InternalLink to={node.fields.slug} className={classes.post}>
                 <Typography
                   variant="h5"
                   component="h3"
@@ -59,14 +64,14 @@ const Contact = ({ data }) => {
                 >
                   {title}
                 </Typography>
-              </Link>
-              <Typography
-                variant="subtitle"
-                component="p"
-                style={{ paddingBottom: '0.5em' }}
-              >
-                {node.frontmatter.date}
-              </Typography>
+                <Typography
+                  variant="subtitle"
+                  component="p"
+                  style={{ paddingBottom: '0.5em' }}
+                >
+                  {node.frontmatter.date}
+                </Typography>
+              </InternalLink>
             </div>
           )
         })}
@@ -75,7 +80,7 @@ const Contact = ({ data }) => {
   )
 }
 
-export default Contact
+export default PostList
 
 export const pageQuery = graphql`
   query {

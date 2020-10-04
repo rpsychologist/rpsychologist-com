@@ -18,7 +18,7 @@ import IconButton from '@material-ui/core/IconButton'
 const useStyles = makeStyles(theme => ({
   root: {
     width: '100%',
-    backgroundColor: '#3498DB',
+    backgroundColor: theme.palette.type === 'dark' ? '#121f28':'#3498DB',
     marginBottom: '3rem',
     '& < *': {
       fontColor: 'white',

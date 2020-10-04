@@ -1,10 +1,9 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import Layout from '../components/Layout'
-
-// Components
 import { graphql } from 'gatsby'
 import MuiLink from '@material-ui/core/Link'
+import { makeStyles } from '@material-ui/styles'
 import { Link as GatsbyLink } from 'gatsby'
 import Container from '@material-ui/core/Container'
 import Grid from '@material-ui/core/Grid'
@@ -16,9 +15,21 @@ const Link = React.forwardRef(function Link(props, ref) {
   return <MuiLink component={GatsbyLink} ref={ref} {...props} />
 })
 
+const useStyles = makeStyles(theme => ({
+  post: {
+    color: theme.palette.type === 'dark' ? '#fff':'#000',
+    "&:hover, &:focus": {
+      color: theme.palette.primary.main,
+      textDecoration: 'underline',    
+    },
+  }
+}))
+
+
 const Tags = ({ pageContext, data }) => {
   const { tag } = pageContext
   const { edges, totalCount } = data.allMdx
+  const classes = useStyles()
   const tagHeader = `${totalCount} post${
     totalCount === 1 ? '' : 's'
   } tagged with "${tag}"`
@@ -57,11 +68,7 @@ const Tags = ({ pageContext, data }) => {
           return (
             <div key={slug} style={{ paddingBottom: '2em' }}>
               <Link
-                style={{
-                  boxShadow: `none`,
-                  color: 'black',
-                  textDecoration: 'none',
-                }}
+                className={classes.post}
                 to={node.fields.slug}
               >
                 <Typography

@@ -21,10 +21,31 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1,
   },
   logo: {
+    filter: theme.palette.type === 'dark' ? 'invert(1)' : 'invert(0)',
     [theme.breakpoints.down('sm')]: {
       maxWidth: 200,
     },
     maxWidth: 250,
+    '& .rpsych--logo-circle': {
+      fill: 'black',
+      strokeWidth: 0,
+      strokeOpacity: 0.5,
+    },
+    '& svg .rpsych--logo-circle': {
+      transformBox: 'fill-box',
+      transformOrigin: 'center',
+      transform: 'rotate(0deg)',
+      transition: 'stroke-width 0.1s ease-out',
+      transition: 'transform 0.1s ease-out',
+      strokeWidth: 0,
+    },
+    '& svg:hover > * .rpsych--logo-circle': {
+      transform: 'rotate(180deg)',
+      transition: 'stroke-width 0.1s ease-in',
+      transition: ' transform 0.1s ease-in',
+      stroke: theme.palette.type === 'dark' ? '#ff63009c' : '#3498DB',
+      strokeWidth: 13,
+    },
   },
   appBarButton: {
     textTransform: 'none',

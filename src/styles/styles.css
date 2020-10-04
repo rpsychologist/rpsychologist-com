@@ -2,27 +2,6 @@
   font-weight: 600;
 }
 
-svg .rpsych--logo-circle {
-  transform-box: fill-box;
-  transform-origin: center;
-  transform: rotate(0deg);
-  transition: stroke-width 0.1s ease-out;
-  transition: transform 0.1s ease-out;
-  stroke-width: 0;
-}
- .rpsych--logo-circle {
-	fill: black;
-	stroke-width: 0;
-	stroke-opacity: 0.5;
-}
-svg:hover > * .rpsych--logo-circle {
-  transform: rotate(180deg);
-  transition: stroke-width 0.1s ease-in;
-  transition: transform 0.1s ease-in;
-  stroke: #3498DB;
-  stroke-width: 10;
-}
-
 @keyframes rotate {
   0% {
 	transform: rotate(0deg);
@@ -76,12 +55,21 @@ svg:hover > * .rpsych--logo-circle {
   color: #ffffff;
   background: rgb(66, 196, 248);
 }
+body.dark-mode .code--label.language-r {
+  color: #ffffff;
+  background: rgb(39, 116, 146);
+}
 .code--label.language-r::after {
   content: 'R';
 }
 .code--label.language-output {
   color: #ffffff;
   background: rgb(189, 192, 192);
+}
+
+body.dark-mode .code--label.language-output {
+  color: #ffffff;
+  background: rgb(66, 66, 66);
 }
 .code--label.language-output::after {
   content: 'Output';
@@ -129,6 +117,11 @@ pre[class*='language-'] {
   -moz-hyphens: none;
   -ms-hyphens: none;
   hyphens: none;
+}
+body.dark-mode code[class*='language-'],
+body.dark-mode pre[class*='language-'] {
+  color: #878787;
+  background: #171717;
 }
 
 code[class*='language-']::-moz-selection,
