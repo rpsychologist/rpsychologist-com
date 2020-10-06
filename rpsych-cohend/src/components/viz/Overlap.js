@@ -29,6 +29,7 @@ const toColorString = (color) =>
 const VerticalLine = ({ x, y1, y2, id }) => {
   return <line x1={x} x2={x} y1={y1} y2={y2} id={id} />;
 };
+const AnimatedVerticalLine = animated(VerticalLine)
 
 const margin = { top: 70, right: 20, bottom: 35, left: 20 };
 
@@ -61,8 +62,10 @@ const OverlapChart = (props) => {
     colorDist1,
     colorDistOverlap,
     colorDist2,
+    immediate
   } = props;
-
+  const calcCenter = (x) => (xScale(x) + xScaleM0)/2
+  const aniProps = useSpring({x: M1, d: cohend, immediate: immediate});
   const w = width - margin.left - margin.right;
   const aspect = width < 450 ? 0.6 : 0.4;
   const h = width * aspect - margin.top - margin.bottom;
@@ -140,18 +143,18 @@ const OverlapChart = (props) => {
         Clip dist1 och dist2 to avoid bleed around overlap path (caused by antialiasing)
         */}
         <clipPath id="rectClip1">
-          <rect
+          <animated.rect
             x={0}
             y={0}
             height={h}
-            width={cohend == 0 ? 0 : xScaleCenter}
+            width={cohend == 0 ? 0 : aniProps.x.interpolate(calcCenter)}
             fill="yellow"
             opacity={0.5}
           />
         </clipPath>
         <clipPath id="rectClip2">
-          <rect
-            x={xScaleCenter}
+          <animated.rect
+            x={aniProps.x.interpolate(calcCenter)}
             y={0}
             height={h}
             width={cohend == 0 ? 0 : xScale(xMax) - xScaleCenter}
@@ -163,11 +166,11 @@ const OverlapChart = (props) => {
           <use href="#dist2" />
         </clipPath>
         <g clipPath="url(#rectClip2)">
-          <path
+          <animated.path
             d={PathDist1}
             id="dist2"
             fill={fillDist2}
-            transform={`translate(${xScaleDiff},0)`}
+            transform={aniProps.x.interpolate(x => `translate(${xScale(x) - xScaleM0}, 0)`)}
           />
         </g>
         <path
@@ -176,8 +179,8 @@ const OverlapChart = (props) => {
           id="distOverlap"
           fill={fillDistOverlap}
         />
-        <VerticalLine x={xScaleM0} y1={yScaleZero} y2={yScale(yMax)} id="mu0" />
-        <VerticalLine x={xScaleM1} y1={yScaleZero} y2={yScale(yMax)} id="mu1" />
+        <AnimatedVerticalLine x={xScaleM0} y1={yScaleZero} y2={yScale(yMax)} id="mu0" />
+        <AnimatedVerticalLine x={aniProps.x.interpolate(x => xScale(x))} y1={yScaleZero} y2={yScale(yMax)} id="mu1" />
         <g>
           <text
             textAnchor="middle"
@@ -186,9 +189,9 @@ const OverlapChart = (props) => {
           >
             {xLabel}
           </text>
-          <line
+          <animated.line
             x1={xScaleM0}
-            x2={xScaleM1}
+            x2={aniProps.x.interpolate(x => xScale(x))}
             y1={-10}
             y2={-10}
             id="muConnectLine"
@@ -196,26 +199,26 @@ const OverlapChart = (props) => {
             markerStart="url(#arrowLeft)"
             markerEnd="url(#arrowRight)"
           />
-          <text
-            x={xScaleCenter}
+          <animated.text
+            x={aniProps.x.interpolate(calcCenter)}
             y={-50}
             className="MuiTypography-h5 fontWeightBold"
             dominantBaseline="central"
             textAnchor="middle"
             id="cohend_float"
           >
-            {`Cohen's d: ${format(".2n")(cohend)}`}
-          </text>
-          <text
-            x={xScaleCenter}
+            {aniProps.d.interpolate(d => `Cohen's d: ${format(".2n")(d)}`)}
+          </animated.text>
+          <animated.text
+            x={aniProps.x.interpolate(calcCenter)}
             y={-25}
             className="MuiTypography-body1"
             dominantBaseline="central"
             textAnchor="middle"
             id="diff_float"
           >
-            {`(Diff: ${format(".3n")(M1 - M0)})`}
-          </text>
+            {aniProps.x.interpolate(x => `(Diff: ${format(".3n")(x - M0)})`)}
+          </animated.text>
           <text
             x={xScaleM0 - labMargin}
             y={-10}
@@ -226,8 +229,8 @@ const OverlapChart = (props) => {
           >
             {muZeroLabel}
           </text>
-          <text
-            x={xScaleM1 + labMargin}
+          <animated.text
+            x={aniProps.x.interpolate(x => xScale(x) + labMargin)}
             y={-10}
             className="MuiTypography-body1"
             dominantBaseline="central"
@@ -235,7 +238,7 @@ const OverlapChart = (props) => {
             id="mu1Label"
           >
             {muOneLabel}
-          </text>
+          </animated.text>
         </g>
       </animated.g>
       <g transform={`translate(${margin.left}, ${h + margin.top})`}>

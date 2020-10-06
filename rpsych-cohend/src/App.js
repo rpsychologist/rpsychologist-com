@@ -77,7 +77,8 @@ const updateDonutData = (d, CER) => {
   };
 };
 const vizReducer = (state, action) => {
-  let { name, value } = action;
+  let { name, value, immediate } = action;
+  immediate = typeof immediate === 'undefined' ? false : immediate
   value = value === "" ? "" : action.value;
 
   switch (name) {
@@ -85,6 +86,7 @@ const vizReducer = (state, action) => {
       return {
         ...state,
         cohend: round(value),
+        immediate: immediate,
         M1: round(state.M0 + value * state.SD),
         ...updateDonutData(value, state.CER / 100)
       };
@@ -101,6 +103,7 @@ const vizReducer = (state, action) => {
       return {
         ...state,
         cohend: cohend,
+        immediate: immediate,
         [name]: value,
         ...updateDonutData(cohend, state.CER / 100)
       };
@@ -156,7 +159,8 @@ let defaultState = {
   colorDist1: {r: 48, g:57, b:79, a:1},
   colorDistOverlap: {r: 0, g:0, b:0, a:1},
   colorDist2: {r: 106, g:206, b:235, a:1},
-  darkMode: false
+  darkMode: false,
+  immediate: false
 };
 
 let initialState;

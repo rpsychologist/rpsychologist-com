@@ -1,4 +1,7 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, {
+  useContext,
+  useState,
+} from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Slider from "@material-ui/core/Slider";
@@ -6,7 +9,7 @@ import Input from "@material-ui/core/Input";
 import IconButton from "@material-ui/core/IconButton";
 import SettingsIcon from "@material-ui/icons/Settings";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
-import HelpIcon from '@material-ui/icons/Help';
+import HelpIcon from "@material-ui/icons/Help";
 import Tooltip from "@material-ui/core/Tooltip";
 import { Typography } from "@material-ui/core";
 import clsx from "clsx";
@@ -15,15 +18,15 @@ import { SettingsContext } from "../../App";
 
 const useStyles = makeStyles({
   root: {
-    width: "100%"
+    width: "100%",
   },
   input: {
-    width: 60
-  }
+    width: 60,
+  },
 });
 
 const saveSvg = () => {
-  var svgsaver = new svgSaver(); 
+  var svgsaver = new svgSaver();
   var svg = document.querySelector("#overlapChart");
   //const height = svg.getAttribute("height");
   //const width = svg.getAttribute("width");
@@ -38,18 +41,32 @@ const InputSlider = ({ handleDrawer, openSettings, handleHelpTour }) => {
   const classes = useStyles();
   const { state, dispatch } = useContext(SettingsContext);
   const { cohend, sliderMax, sliderStep } = state;
+  const [immediate, setImmediate] = useState(false);
+
   const handleSliderChange = (event, newVal) => {
-    dispatch({ name: "cohend", value: newVal });
+    // We want to animate if we click on the slider,
+    // but no animation when dragging (immediate: true)
+    if(event.type === 'mousedown' || event.type === 'touchstart') {
+      setImmediate(false)
+      setTimeout(() => {
+        setImmediate(true)
+      }, 100);
+      dispatch({ name: "cohend", value: newVal, immediate: false });
+    } else {
+      dispatch({ name: "cohend", value: newVal, immediate: immediate });
+    }
   };
-  const handleInputChange = e => {
+  const handleInputChange = (e) => {
     const newVal = e.target.value === "" ? "" : Number(e.target.value);
-    dispatch({ name: "cohend", value: newVal });
+    dispatch({ name: "cohend", value: newVal, immediate: false });
   };
   return (
     <div className={classes.root}>
       <Grid container spacing={1} alignItems="center" justify="space-between">
         <Grid item>
-          <Typography display="inline" style={{paddingRight: "10px"}}>Cohen's d</Typography>
+          <Typography display="inline" style={{ paddingRight: "10px" }}>
+            Cohen's d
+          </Typography>
           <Input
             className={classes.input}
             value={cohend}
@@ -60,11 +77,11 @@ const InputSlider = ({ handleDrawer, openSettings, handleHelpTour }) => {
               min: 0,
               max: `${sliderMax}`,
               type: "number",
-              "aria-labelledby": "input-slider"
+              "aria-labelledby": "input-slider",
             }}
           />
-          </Grid>
-          <Grid item>
+        </Grid>
+        <Grid item>
           <Tooltip title="Settings">
             <IconButton
               color="inherit"
@@ -108,7 +125,7 @@ const InputSlider = ({ handleDrawer, openSettings, handleHelpTour }) => {
             max={sliderMax}
             step={sliderStep}
             aria-labelledby="input-slider"
-            classes={{ root: 'main--slider'}}
+            classes={{ root: "main--slider" }}
           />
         </Grid>
 
