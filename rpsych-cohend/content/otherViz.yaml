@@ -1,8 +1,8 @@
 
-- title: "Cohen's d"
+- title: "Maximum Likelihood"
   excerpt: ""
-  image: "MoreViz/cohend.png"
-  url: "https://rpsychologist.com/d3/cohend"
+  image: "MoreViz/likelihood.png"
+  url: "https://rpsychologist.com/d3/likelihood/"
 - title: "Statistical Power and Significance Testing"
   excerpt: ""
   image: "MoreViz/NHST.png"
