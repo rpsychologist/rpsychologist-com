@@ -40,7 +40,7 @@ const DonutChart = (props) => {
     >
       <g transform={`translate(${width / 2},${rad + 10})`}>
         <AnimatedArcs
-          data={d.interpolate((d) => d)}
+          data={d.to((d) => d)}
           dataFn={dataFn}
           arcFn={arcFn}
         />
@@ -52,8 +52,8 @@ const DonutChart = (props) => {
           style={{ fontSize: `${rad / 2.5}px` }}
         >
           {label
-            ? lab.interpolate((d) => format(formatType)(d))
-            : d.interpolate((d) => format(formatType)(d))}
+            ? lab.to((d) => format(formatType)(d))
+            : d.to((d) => format(formatType)(d))}
         </animated.text>
       </g>
     </animated.svg>

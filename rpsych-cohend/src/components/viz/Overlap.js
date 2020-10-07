@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { scaleLinear } from "d3-scale";
 import { format } from "d3-format";
 import { range } from "d3-array";
@@ -48,6 +48,11 @@ const OverlapChart = (props) => {
     },
     { drag: { initial: () => [xOffset.get(), 0] } }
   );
+  // Clear loading spinner
+  useEffect(() => {
+    document.getElementById("__loader").style.display = "none"
+    return
+  }, [])
 
   const {
     cohend,
@@ -147,14 +152,14 @@ const OverlapChart = (props) => {
             x={0}
             y={0}
             height={h}
-            width={cohend == 0 ? 0 : aniProps.x.interpolate(calcCenter)}
+            width={cohend == 0 ? 0 : aniProps.x.to(calcCenter)}
             fill="yellow"
             opacity={0.5}
           />
         </clipPath>
         <clipPath id="rectClip2">
           <animated.rect
-            x={aniProps.x.interpolate(calcCenter)}
+            x={aniProps.x.to(calcCenter)}
             y={0}
             height={h}
             width={cohend == 0 ? 0 : xScale(xMax) - xScaleCenter}
@@ -170,7 +175,7 @@ const OverlapChart = (props) => {
             d={PathDist1}
             id="dist2"
             fill={fillDist2}
-            transform={aniProps.x.interpolate(x => `translate(${xScale(x) - xScaleM0}, 0)`)}
+            transform={aniProps.x.to(x => `translate(${xScale(x) - xScaleM0}, 0)`)}
           />
         </g>
         <path
@@ -180,7 +185,7 @@ const OverlapChart = (props) => {
           fill={fillDistOverlap}
         />
         <AnimatedVerticalLine x={xScaleM0} y1={yScaleZero} y2={yScale(yMax)} id="mu0" />
-        <AnimatedVerticalLine x={aniProps.x.interpolate(x => xScale(x))} y1={yScaleZero} y2={yScale(yMax)} id="mu1" />
+        <AnimatedVerticalLine x={aniProps.x.to(x => xScale(x))} y1={yScaleZero} y2={yScale(yMax)} id="mu1" />
         <g>
           <text
             textAnchor="middle"
@@ -191,7 +196,7 @@ const OverlapChart = (props) => {
           </text>
           <animated.line
             x1={xScaleM0}
-            x2={aniProps.x.interpolate(x => xScale(x))}
+            x2={aniProps.x.to(x => xScale(x))}
             y1={-10}
             y2={-10}
             id="muConnectLine"
@@ -200,24 +205,24 @@ const OverlapChart = (props) => {
             markerEnd="url(#arrowRight)"
           />
           <animated.text
-            x={aniProps.x.interpolate(calcCenter)}
+            x={aniProps.x.to(calcCenter)}
             y={-50}
             className="MuiTypography-h5 fontWeightBold"
             dominantBaseline="central"
             textAnchor="middle"
             id="cohend_float"
           >
-            {aniProps.d.interpolate(d => `Cohen's d: ${format(".2n")(d)}`)}
+            {aniProps.d.to(d => `Cohen's d: ${format(".2n")(d)}`)}
           </animated.text>
           <animated.text
-            x={aniProps.x.interpolate(calcCenter)}
+            x={aniProps.x.to(calcCenter)}
             y={-25}
             className="MuiTypography-body1"
             dominantBaseline="central"
             textAnchor="middle"
             id="diff_float"
           >
-            {aniProps.x.interpolate(x => `(Diff: ${format(".3n")(x - M0)})`)}
+            {aniProps.x.to(x => `(Diff: ${format(".3n")(x - M0)})`)}
           </animated.text>
           <text
             x={xScaleM0 - labMargin}
@@ -230,7 +235,7 @@ const OverlapChart = (props) => {
             {muZeroLabel}
           </text>
           <animated.text
-            x={aniProps.x.interpolate(x => xScale(x) + labMargin)}
+            x={aniProps.x.to(x => xScale(x) + labMargin)}
             y={-10}
             className="MuiTypography-body1"
             dominantBaseline="central"
