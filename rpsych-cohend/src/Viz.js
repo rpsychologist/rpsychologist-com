@@ -30,11 +30,17 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+// for donut charts
+const dataFn = (d) => [d, 1 - d]
+const CreateNntFn = (x) => {
+  const CER = x
+  return (NNT) => [CER / 100, 1 / NNT, 1 - (1 / NNT + CER / 100)]
+}
 
 const Content = ({ openSettings, vizState, toggleDrawer, handleHelpTour }) => {
   const classes = useStyles();
-  const { NNT, CER, U3, propOverlap, CL } = vizState;
-  const NNTdata = [CER / 100, 1 / NNT, 1 - (1 / NNT + CER / 100)];
+  const { NNT, CER, U3, propOverlap, CL, immediate } = vizState;
+  const nntFn = CreateNntFn(CER)
   return (
     <div className={classes.root}>
       <Box my={4}>
@@ -50,7 +56,9 @@ const Content = ({ openSettings, vizState, toggleDrawer, handleHelpTour }) => {
               <Paper className={classes.paper} id="donut--cohen--u3">
                 <ResponsiveChart
                   chart={DonutChart}
-                  data={[U3, 1 - U3]}
+                  data={U3}
+                  dataFn={dataFn}
+                  immediate={immediate}
                   formatType={".3p"}
                   className={"donut--two-arcs"}
                 />
@@ -63,7 +71,9 @@ const Content = ({ openSettings, vizState, toggleDrawer, handleHelpTour }) => {
               <Paper className={classes.paper} id="donut--prop-overlap">
                 <ResponsiveChart
                   chart={DonutChart}
-                  data={[propOverlap, 1 - propOverlap]}
+                  data={propOverlap}
+                  dataFn={dataFn}
+                  immediate={immediate}
                   formatType={".3p"}
                   className={"donut--two-arcs"}
                 />
@@ -76,7 +86,9 @@ const Content = ({ openSettings, vizState, toggleDrawer, handleHelpTour }) => {
               <Paper className={classes.paper} id="donut--CL">
                 <ResponsiveChart
                   chart={DonutChart}
-                  data={[CL, 1 - CL]}
+                  data={CL}
+                  dataFn={dataFn}
+                  immediate={immediate}
                   formatType={".3p"}
                   className={"donut--two-arcs"}
                 />
@@ -89,7 +101,9 @@ const Content = ({ openSettings, vizState, toggleDrawer, handleHelpTour }) => {
               <Paper className={classes.paper} id="donut--NNT">
                 <ResponsiveChart
                   chart={DonutChart}
-                  data={NNTdata}
+                  data={NNT}
+                  dataFn={nntFn}
+                  immediate={immediate}
                   label={vizState.NNT}
                   formatType={".3n"}
                   className={"donut--NNT"}
