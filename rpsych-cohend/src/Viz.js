@@ -9,6 +9,8 @@ import Cohend from "./components/viz/Overlap";
 import DonutChart from "./components/viz/Donuts";
 import ResponsiveChart from "./components/viz/ResponsiveChart";
 import Slider from "./components/navigation/SettingsSlider";
+import CircularProgress from '@material-ui/core/CircularProgress';
+
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -23,7 +25,13 @@ const useStyles = makeStyles(theme => ({
   }
   },
   paper: {
-    boxShadow: "none"
+    boxShadow: "none",
+
+  },
+  loading: {
+    textAlign: 'center',
+    padding: theme.spacing(10),
+    boxShadow: "none",
   },
   control: {
     padding: theme.spacing(2)
@@ -51,6 +59,15 @@ const Content = ({ openSettings, vizState, toggleDrawer, handleHelpTour }) => {
             handleHelpTour={handleHelpTour}
           />
           <ResponsiveChart chart={Cohend} {...vizState} />
+          <Grid container justify="center" spacing={3} id="__loader">
+            <Paper className={classes.loading}>
+              <CircularProgress />
+              <Typography align="center" variant="body1">
+                Loading visualization
+              </Typography>
+            </Paper>
+          </Grid>
+
           <Grid container justify="center" spacing={3}>
             <Grid item xs={5} sm={3}>
               <Paper className={classes.paper} id="donut--cohen--u3">
@@ -62,7 +79,7 @@ const Content = ({ openSettings, vizState, toggleDrawer, handleHelpTour }) => {
                   formatType={".3p"}
                   className={"donut--two-arcs"}
                 />
-                <Typography align="center" variant="body1">
+                <Typography variant="body1">
                   Cohen's U<sub>3</sub>
                 </Typography>
               </Paper>
