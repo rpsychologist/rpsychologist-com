@@ -34,7 +34,7 @@ const useStyles = makeStyles(theme => ({
     },
   },
   img: {
-    filter: theme.palette.type === 'dark' ? 'invert(0.9) grayscale(1)' : 'none',
+    filter: theme.palette.type === 'dark' ? 'invert(0.9) grayscale(0.75)' : 'none',
     '&:hover, &focus': {
       filter: 'none',
     },
