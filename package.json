@@ -2,7 +2,7 @@
   "name": "rpsychologist-blog",
   "private": true,
   "description": "R Psychologist - Kristoffer Magnusson's blog",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Kristoffer Magnusson <hello@kristoffer.email>",
   "bugs": {
     "url": "https://github.com/rpsychologist/rpsychologist-com/issues"
