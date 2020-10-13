@@ -151,6 +151,11 @@ const Footer = React.memo(({ blogPost }) => {
             <Typography variant="h6" align="center" gutterBottom>
               License
             </Typography>
+            {!blogPost && (
+                            <Typography variant="subtitle1" align="center" paragraph>
+                              Most content on this blog is licensed under a CC-BY or CC0 license, the specific license for each page will appear here.
+                            </Typography>
+            )}
             {blogPost && (
               <Typography variant="subtitle1" align="center" paragraph>
                 Except where otherwise noted, the content of this blog post is
