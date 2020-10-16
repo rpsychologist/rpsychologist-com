@@ -1,0 +1,8 @@
+version: "3.3"
+services:
+  gatsby-serve:
+    build: 
+      context: .
+      dockerfile: Dockerfile.serve
+    ports:
+      - "2015:2015"
