@@ -1,0 +1,16 @@
+{
+    "name": "rpsych",
+    "private": true,
+    "version": "0.0.1",
+    "main": "index.js",
+    "license": "MIT",
+    "scripts": {
+        "dev": "yarn workspace blog develop -H 172.16.0.116",
+        "build": "yarn workspace blog build"
+    },
+    "workspaces": [
+      "blog",
+      "rpsych-cohend"
+    ]
+  }
+  
