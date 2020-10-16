@@ -1,7 +1,13 @@
 import "katex/dist/katex.min.css"
 //import "prismjs/themes/prism-solarizedlight.css"
 import "./src/styles/styles.css"
+import { ThemeProvider } from './src/components/ThemeContext'
 
-import { wrapRootElement as wrap } from './wrap-root-element'
 
-export const wrapRootElement = wrap
+export const wrapRootElement = ({ element }) => {
+    return (
+     <ThemeProvider>
+       {element}
+     </ThemeProvider>
+    );
+   };
