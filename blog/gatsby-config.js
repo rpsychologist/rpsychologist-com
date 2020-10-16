@@ -12,10 +12,11 @@ module.exports = {
   },
   plugins: [
     `gatsby-plugin-material-ui`,
+    `rpsych-cohend`,
     {
       resolve: `gatsby-source-filesystem`,
       options: {
-        path: `${__dirname}/content/blog`,
+        path: `./content/blog`,
         name: `blog`,
         ignore: [`**/**.knit.md`, `**/**.utf8.md`, `**/**.Rmd`, `**/**.R`, `**/*_cache/**`, `**/cache/**`]
       },
@@ -23,7 +24,7 @@ module.exports = {
     {
       resolve: `gatsby-source-filesystem`,
       options: {
-        path: `${__dirname}/content/assets`,
+        path: `./content/assets`,
         name: `assets`,
       },
     },
