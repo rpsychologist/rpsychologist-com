@@ -41,11 +41,11 @@ where $\Phi$ is the cumulative distribution function of the standard normal dist
 ### R code to calculate NNT from Cohen's *d*
 Since many have asked about R code for the formula above, here it is
 
-<!-- ```r
+```r
 CER <- 0.2
 d <- 0.2
 1 / (pnorm(d + qnorm(CER))-CER)
-``` -->
+```
 
 ### References
 
