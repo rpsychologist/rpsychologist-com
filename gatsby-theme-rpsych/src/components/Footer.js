@@ -14,7 +14,7 @@ import HomeIcon from '@material-ui/icons/Home'
 import { useStaticQuery, graphql } from 'gatsby'
 import { Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
-import logo from '../../content/assets/rpsychologist-logo.svg'
+import logo from '../../assets/rpsychologist-logo.svg'
 
 const useStyles = makeStyles(theme => ({
   root: {
