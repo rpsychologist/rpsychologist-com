@@ -12,7 +12,8 @@
     },
     "workspaces": [
       "blog",
-      "rpsych-cohend"
+      "rpsych-cohend",
+      "gatsby-theme-rpsych"
     ]
   }
   

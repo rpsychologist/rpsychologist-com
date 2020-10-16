@@ -5,7 +5,7 @@ const { createFilePath } = require(`gatsby-source-filesystem`)
 exports.createPages = async ({ graphql, actions }) => {
   const { createPage } = actions
 
-  const blogPost = path.resolve(`./src/templates/blog-post.js`)
+  const blogPost = require.resolve(`./src/templates/blog-post.js`)
   return graphql(
     `
       {
@@ -61,7 +61,7 @@ exports.createPages = async ({ graphql, actions }) => {
     Array.from({ length: numPages }).forEach((_, i) => {
       createPage({
         path: i === 0 ? `/` : `/${i + 1}`,
-        component: path.resolve('./src/templates/index.js'),
+        component: require.resolve('./src/templates/index.js'),
         context: {
           limit: postsPerPage,
           skip: i * postsPerPage,
@@ -76,7 +76,7 @@ exports.createPages = async ({ graphql, actions }) => {
   tags.forEach(tag => {
     createPage({
       path: `/tags/${_.kebabCase(tag.fieldValue)}/`,
-      component: path.resolve("./src/templates/tags.js"),
+      component: require.resolve("./src/templates/tags.js"),
       context: {
         tag: tag.fieldValue,
       },
