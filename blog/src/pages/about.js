@@ -1,7 +1,7 @@
 import React from 'react'
 import { graphql } from 'gatsby'
 import Image from 'gatsby-image'
-import Layout from '../components/Layout'
+import Layout from 'gatsby-theme-rpsych/src/components/Layout'
 import Container from '@material-ui/core/Container'
 import Grid from '@material-ui/core/Grid'
 import Box from '@material-ui/core/Box'
@@ -11,7 +11,7 @@ import TwitterIcon from '@material-ui/icons/Twitter'
 import LinkedInIcon from '@material-ui/icons/LinkedIn'
 import EmailIcon from '@material-ui/icons/Email'
 import AlternateEmailIcon from '@material-ui/icons/AlternateEmail'
-import SEO from '../components/seo'
+import SEO from 'gatsby-theme-rpsych/src/components/seo'
 
 const Contact = props => {
   const { data } = props

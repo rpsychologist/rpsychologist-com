@@ -1,12 +1,12 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import Layout from '../components/Layout'
+import Layout from 'gatsby-theme-rpsych/src/components/Layout'
 import Container from '@material-ui/core/Container'
 import Typography from '@material-ui/core/Typography'
 import kebabCase from 'lodash/kebabCase'
 import { Helmet } from 'react-helmet'
 import { graphql } from 'gatsby'
-import InternalLink from '../utils/InternalLink'
+import InternalLink from 'gatsby-theme-rpsych/src/utils/InternalLink'
 
 let currentLetter = ``
 

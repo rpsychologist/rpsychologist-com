@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import Layout from '../components/Layout'
+import Layout from 'gatsby-theme-rpsych/src/components/Layout'
 import { graphql } from 'gatsby'
 import MuiLink from '@material-ui/core/Link'
 import { makeStyles } from '@material-ui/styles'

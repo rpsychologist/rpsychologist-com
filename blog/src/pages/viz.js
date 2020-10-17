@@ -1,13 +1,13 @@
 import React from 'react'
 import { graphql } from 'gatsby'
-import Layout from '../components/Layout'
+import Layout from 'gatsby-theme-rpsych/src/components/Layout'
 import Container from '@material-ui/core/Container'
 import MuiLink from '@material-ui/core/Link'
 import Typography from '@material-ui/core/Typography'
-import SEO from '../components/seo'
-import MoreViz from '../components/MoreViz'
-import Posters from '../components/Posters'
-import Social from '../components/Social'
+import SEO from 'gatsby-theme-rpsych/src/components/seo'
+import MoreViz from 'gatsby-theme-rpsych/src/components/MoreViz'
+import Posters from 'gatsby-theme-rpsych/src/components/Posters'
+import Social from 'gatsby-theme-rpsych/src/components/Social'
 
 const Contact = ({ data }) => {
   const image = data.image ? data.image.childImageSharp.resize : null
