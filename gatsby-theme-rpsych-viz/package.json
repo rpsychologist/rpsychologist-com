@@ -1,0 +1,23 @@
+{
+  "name": "gatsby-theme-rpsych-viz",
+  "version": "0.1.0",
+  "description": "Rpsychologist subtheme for interactive viz",
+  "main": "gatsby-config.js",
+  "author": "Kristoffer Magnusson",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "@vx/axis": "^0.0.199",
+    "d3": "^5.14.2",
+    "gatsby-theme-rpsych": "0.1.0",
+    "jstat": "^1.9.2",
+    "react-color": "^2.18.0",
+    "react-joyride": "^2.2.1",
+    "react-spring": "^9.0.0-beta.34",
+    "react-use-gesture": "^7.0.5",
+    "svgsaver": "^0.9.0"
+  },
+  "scripts": {
+    "format": "prettier --write \"**/*.{js,jsx,json,md}\""
+  }
+}

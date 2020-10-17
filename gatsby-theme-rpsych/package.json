@@ -67,7 +67,7 @@
     "gatsby"
   ],
   "license": "MIT",
-  "main": "n/a",
+  "main": "gatsby-config.js",
   "repository": "git+https://github.com/rpsychologist/rpsychologist-com/",
   "scripts": {
     "dev": "gatsby develop -H 172.16.0.116",

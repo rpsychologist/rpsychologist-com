@@ -9,8 +9,8 @@ import Typography from "@material-ui/core/Typography";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { makeStyles, ThemeProvider } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
-import HeaderAppBar from "./components/navigation/HeaderAppBar";
-import SettingsDrawer from "./components/navigation/SettingsDrawer";
+import HeaderAppBar from "./components/settings/HeaderAppBar";
+import SettingsDrawer from "./components/settings/SettingsDrawer";
 import Faq from "./components/content/FAQ";
 import MoreViz from "./components/content/MoreViz";
 import CommonLanguage from "./components/content/CommonLanguage";
@@ -20,12 +20,14 @@ import IntroText from "./components/content/Intro";
 import Contribute from "./components/content/Contribute";
 import Button from "@material-ui/core/Button";
 import Content from "./Viz";
-import SEO from "./components/SEO";
+//import SEO from "./components/SEO";
+import Layout from 'gatsby-theme-rpsych/src/components/Layout'
+import SEO from 'gatsby-theme-rpsych/src/components/seo'
 import Footer from "./components/content/Footer";
 import { normal } from "jstat";
 import { createMuiTheme, responsiveFontSizes } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import Tour from "./components/HelpTour"
+import Tour from "./components/content/HelpTour"
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -227,11 +229,12 @@ const App = () => {
   const tour = React.useMemo(() => <Tour openHelpTour={openHelpTour} handleHelpTour={setHelpTour}/>, [openHelpTour])
 
   return (
+    <Layout>
     <div className={classes.root}>
       <SEO />
       <CssBaseline />
       <ThemeProvider theme={theme}>
-        <HeaderAppBar />
+        {/* <HeaderAppBar /> */}
         <SettingsContext.Provider value={contextValue}>
           <SettingsDrawer
             handleDrawer={toggleDrawer}
@@ -308,6 +311,7 @@ const App = () => {
         <Footer />
       </ThemeProvider>
     </div>
+    </Layout>
   );
 };
 export default App;
