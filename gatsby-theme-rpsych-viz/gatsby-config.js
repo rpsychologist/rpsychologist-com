@@ -7,14 +7,14 @@ module.exports = {
         extensions: ['.mdx', '.md'],
         gatsbyRemarkPlugins: [
           `gatsby-remark-images`,
-          {
-            resolve: 'gatsby-remark-prismjs',
-            options: {
-              classPrefix: 'language-',
-              aliases: {},
-              copy: true,
-            },
-          },
+          // {
+          //   resolve: 'gatsby-remark-prismjs',
+          //   options: {
+          //     classPrefix: 'language-',
+          //     aliases: {},
+          //     copy: true,
+          //   },
+          // },
           {
             resolve: `gatsby-remark-katex`,
             options: {
@@ -25,13 +25,6 @@ module.exports = {
           },
         ],
       }
-    },
-    {
-      resolve: `gatsby-source-filesystem`,
-      options: {
-        name: `src`,
-        path: `${__dirname}/content/`
-      }
-    },
+    }
   ]
 };

@@ -8,12 +8,13 @@
     "url": "https://github.com/rpsychologist/rpsychologist-com/issues"
   },
   "dependencies": {
-    "gatsby-theme-rpsych": "0.1.0",
     "gatsby": "^2.18.2",
     "gatsby-plugin-manifest": "^2.0.5",
+    "gatsby-theme-rpsych": "0.1.0",
     "react": "^16.12.0",
-    "react-dom": "^16.12.0"
-    },
+    "react-dom": "^16.12.0",
+    "rpsych-cohend": "*"
+  },
   "devDependencies": {
     "eslint": "^6.2.2",
     "eslint-plugin-react": "^7.11.1",

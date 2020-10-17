@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useSiteMetadata } from "../../hooks/useSiteMetaData";
+import { useSiteMetadata } from "gatsby-theme-rpsych-viz/src/hooks/useSiteMetaData";
 
 export const BibTex = () => {
   const data = useSiteMetadata();

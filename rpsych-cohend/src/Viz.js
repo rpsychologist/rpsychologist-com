@@ -7,7 +7,7 @@ import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
 import Cohend from "./components/viz/Overlap";
 import DonutChart from "./components/viz/Donuts";
-import ResponsiveChart from "./components/viz/ResponsiveChart";
+import ResponsiveChart from "gatsby-theme-rpsych-viz/src/components/ResponsiveChart";
 import Slider from "./components/settings/SettingsSlider";
 import CircularProgress from '@material-ui/core/CircularProgress';
 

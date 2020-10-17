@@ -1,6 +1,10 @@
 {
   "name": "rpsych-cohend",
+  "description": "A tool to understand Cohen's d standardized effect size",
+  "author": "Kristoffer Magnusson",
+  "license": "MIT",
   "version": "2.3.0",
+  "lastUpdated": "2020-01-01",
   "private": true,
   "dependencies": {
     "gatsby-theme-rpsych": "*",

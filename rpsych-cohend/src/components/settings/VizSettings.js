@@ -1,9 +1,9 @@
 import React, { useContext, useState } from "react";
 import Grid from "@material-ui/core/Grid";
 import Divider from "@material-ui/core/Divider";
-import SettingsInput from "./SettingsInput";
 import Container from "@material-ui/core/Container";
-import SaveButton from "./SaveButton";
+import SettingsInput from "gatsby-theme-rpsych-viz/src/components/SettingsInput";
+import SaveButton from "gatsby-theme-rpsych-viz/src/components/SaveButton";
 import { Typography } from "@material-ui/core";
 import { SettingsContext } from "../../App";
 import { makeStyles } from "@material-ui/core/styles";
@@ -101,6 +101,7 @@ const VizSettings = () => {
   const onClick = () => {
     localStorage.setItem("cohendState", JSON.stringify(vizState));
   };
+  console.log("vis settings")
   return (
     <div>
       <Container maxWidth="sm" className={classes.container}>
@@ -132,7 +133,7 @@ const VizSettings = () => {
           
         </Grid>
         <Divider />
-        <FormControlLabel
+        {/* <FormControlLabel
         control={
           <Switch
             checked={state.darkMode}
@@ -143,7 +144,7 @@ const VizSettings = () => {
         }
         label="Toggle Dark Mode"
         labelPlacement="start"
-      />
+      /> */}
         <Divider />
         <Typography align="center" variant="h6" component="h3">
           Parameters

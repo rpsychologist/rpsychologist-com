@@ -7,33 +7,33 @@ import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
     paddingBottom: "2em",
     "& .gatsby-highlight": {
       borderRadius: 0,
-      margin: '0 -16px 0 -16px',
-      padding: '0 1em',
-      overflow: 'auto',
-      backgroundColor:  theme.palette.type === "light" ? "#fdf6e3" : "#151618",
-    }, 
+      margin: "0 -16px 0 -16px",
+      padding: "0 1em",
+      overflow: "auto",
+      backgroundColor: theme.palette.type === "light" ? "#fdf6e3" : "#151618",
+    },
     '& :not(pre) > code[class*="language-"], pre[class*="language-"]': {
-      backgroundColor:  theme.palette.type === "light" ? "#fdf6e3" : "#151618",
+      backgroundColor: theme.palette.type === "light" ? "#fdf6e3" : "#151618",
     },
   },
   heading: {
     fontSize: theme.typography.pxToRem(20),
-    fontWeight: theme.typography.fontWeightRegular
+    fontWeight: theme.typography.fontWeightRegular,
   },
   content: {
-    minWidth: "100%"
+    minWidth: "100%",
   },
   expanded: {
-    '&$expanded': {
-        backgroundColor:  theme.palette.type === "light" ? "none" : "#1e1d1d",
-     }
-  }
+    "&$expanded": {
+      backgroundColor: theme.palette.type === "light" ? "none" : "#1e1d1d",
+    },
+  },
 }));
 
 const FaqPage = React.memo(() => {
@@ -63,6 +63,9 @@ const FaqPage = React.memo(() => {
 
   return (
     <div className={classes.root}>
+      <Typography variant="h4" component="h2" align="center" gutterBottom>
+        FAQ
+      </Typography>
       {data.allMdx.edges.map(({ node }) => (
         <Accordion classes={{ expanded: classes.expanded }} key={node.id}>
           <AccordionSummary
@@ -80,7 +83,7 @@ const FaqPage = React.memo(() => {
               component="div"
               className={classes.content}
             >
-            <MDXRenderer>{ node.body}</MDXRenderer>
+              <MDXRenderer>{node.body}</MDXRenderer>
             </Typography>
           </AccordionDetails>
         </Accordion>
