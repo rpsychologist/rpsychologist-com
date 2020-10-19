@@ -1,14 +1,14 @@
 import React from "react";
-import "prismjs/themes/prism-solarizedlight.css"
 import Bio from "gatsby-theme-rpsych/src/components/Bio";
 import Layout from "gatsby-theme-rpsych/src/components/Layout";
 import { makeStyles } from "@material-ui/core/styles";
 import { Typography } from "@material-ui/core";
-import SEO from "gatsby-theme-rpsych/src/components/seo";
 import Container from "@material-ui/core/Container";
 import Faq from "./FAQ"
 import MoreViz from "gatsby-theme-rpsych/src/components/MoreViz"
 import Contribute from "./Contribute"
+import SEO from "gatsby-theme-rpsych/src/components/seo"
+import clsx from "clsx";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -28,13 +28,38 @@ const useStyles = makeStyles((theme) => ({
   twitter: {
     textTransform: "none",
   },
+  content: {
+    flexGrow: 1,
+    padding: 0,
+    marginRight: 0,
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen
+    }),
+  },
+  contentShift: {
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen
+    }),
+    [theme.breakpoints.between('sm', 'lg')]: {
+      marginRight: drawerWidth
+    },
+    [theme.breakpoints.down('sm')]: {
+      marginRight: 0
+    },
+  }
 }));
-
-const VizLayout = ({ children }) => {
+const drawerWidth = 240;
+const VizLayout = ({ openSettings, children, path }) => {
   const classes = useStyles();
   return (
-    <Layout title={"Cohend"} blogPost={false}>
-      {/* <SEO /> */}
+    <Layout title={"Cohend"} blogPost={false} >
+      <div
+              className={clsx(classes.content, {
+                [classes.contentShift]: openSettings,
+              })}
+      >
       {children}
       <Container className={classes.textContent}>
         <Faq />
@@ -44,8 +69,9 @@ const VizLayout = ({ children }) => {
       <Typography variant="h4" component="h2" align="center" gutterBottom>
       More Visualizations
       </Typography>
-        <MoreViz explanation={true} />  
+        <MoreViz explanation={true} path={path} />  
       </Container>
+      </div>
     </Layout>
   );
 };

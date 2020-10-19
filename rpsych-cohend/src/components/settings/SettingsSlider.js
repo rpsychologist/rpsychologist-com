@@ -15,7 +15,7 @@ import Tooltip from "@material-ui/core/Tooltip";
 import { Typography } from "@material-ui/core";
 import clsx from "clsx";
 import svgSaver from "svgsaver";
-import { SettingsContext } from "../../App";
+import { SettingsContext } from "../../Viz";
 import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -46,14 +46,12 @@ const saveSvg = () => {
 
 
 const InputCohen = ({ cohend, sliderStep, sliderMax }) => {
-  console.log("render input");
   const { state, dispatch } = useContext(SettingsContext);
   const classes = useStyles();
   const [inputVal, setInputVal] = useState(cohend);
   const [submitted, setSubmitted] = useState(true);
 
   const handleInputChange = (e) => {
-    console.log("inputChange")
     const newVal = e.target.value === "" ? "" : Number(e.target.value);
     setInputVal(newVal);
     setSubmitted(false)
@@ -122,7 +120,6 @@ const InputSlider = ({ handleDrawer, openSettings, handleHelpTour }) => {
   const { state, dispatch } = useContext(SettingsContext);
   const { cohend, sliderMax, sliderStep } = state;
   const [immediate, setImmediate] = useState(false);
- console.log("render slider component")
 
   const handleSliderChange = (event, newVal) => {
     // We want to animate if we click on the slider,
@@ -154,7 +151,7 @@ const InputSlider = ({ handleDrawer, openSettings, handleHelpTour }) => {
               color="inherit"
               aria-label="open settings drawer"
               edge="end"
-              onClick={handleDrawer("right", !openSettings)}
+              onClick={handleDrawer(!openSettings)}
               className={clsx(openSettings && classes.hide)}
               id="button--open-settings"
             >

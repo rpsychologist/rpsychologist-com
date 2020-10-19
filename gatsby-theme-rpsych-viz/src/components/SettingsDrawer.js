@@ -17,19 +17,34 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import InboxIcon from "@material-ui/icons/MoveToInbox";
 import MailIcon from "@material-ui/icons/Mail";
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 const drawerWidth = 240;
 
 const useStyles = makeStyles(theme => ({
   root: {
-    display: "flex"
+
   },
   drawer: {
-    width: drawerWidth,
+    [theme.breakpoints.between('sm', 'xl')]: {
+      width: drawerWidth
+    },
+    [theme.breakpoints.down('sm')]: {
+      width: "100%",
+    },
     flexShrink: 0
   },
   drawerPaper: {
-    width: drawerWidth
+    [theme.breakpoints.between('sm', 'xl')]: {
+      width: drawerWidth
+    },
+    [theme.breakpoints.down('xs')]: {
+      width: "100%",
+      height: "50%",
+    },
+    '& h3': {
+      fontWeight: 500,
+    }
   },
   drawerHeader: {
     display: "flex",
@@ -38,22 +53,6 @@ const useStyles = makeStyles(theme => ({
     ...theme.mixins.toolbar,
     justifyContent: "flex-start"
   },
-  content: {
-    flexGrow: 1,
-    padding: 0,
-    marginRight: 0,
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen
-    }),
-  },
-  contentShift: {
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen
-    }),
-    marginRight: drawerWidth
-  }
 }));
 
 const PersistentDrawerRight = React.memo(({
@@ -65,28 +64,20 @@ const PersistentDrawerRight = React.memo(({
 }) => {
   const classes = useStyles();
   const theme = useTheme();
-  console.log
+  const mobile = useMediaQuery(theme.breakpoints.down('xs'));
   return (
     <div>
-      <main
-        className={clsx(classes.content, {
-          [classes.contentShift]: open
-        })}
-      >
-        {children}
-      </main>
-
       <Drawer
         className={classes.drawer}
         variant="persistent"
-        anchor="right"
+        anchor= {mobile ? "bottom" : "right"}
         open={open}
         classes={{
           paper: classes.drawerPaper
         }}
       >
         <div className={classes.drawerHeader}>
-          <IconButton onClick={handleDrawer("right", false)}>
+          <IconButton onClick={handleDrawer(false)}>
             {theme.direction === "rtl" ? (
               <ChevronLeftIcon />
             ) : (

@@ -1,64 +1,97 @@
-import React from "react";
+import React, { useReducer, useState, createContext, useMemo } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
-import Box from "@material-ui/core/Box";
 import Cohend from "./components/viz/Overlap";
 import DonutChart from "./components/viz/Donuts";
 import ResponsiveChart from "gatsby-theme-rpsych-viz/src/components/ResponsiveChart";
 import Slider from "./components/settings/SettingsSlider";
-import CircularProgress from '@material-ui/core/CircularProgress';
+import CircularProgress from "@material-ui/core/CircularProgress";
+import CommonLanguage from "./components/content/CommonLanguage";
+import SettingsDrawer from "gatsby-theme-rpsych-viz/src/components/SettingsDrawer";
+import { defaultState } from "./components/settings/defaultSettings";
+import { vizReducer } from "./components/settings/vizReducer";
+import VizSettings from "./components/settings/VizSettings";
 
+export const SettingsContext = createContext(null);
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     "& svg text": {
-        fill: theme.palette.text.primary,
+      fill: theme.palette.text.primary,
     },
     "& svg .muConnect, & svg .vx-axis-bottom line": {
       stroke: theme.palette.text.primary,
-  },
-  "& svg .muConnectMarker": {
-    fill: theme.palette.text.primary,
-  }
+    },
+    "& svg .muConnectMarker": {
+      fill: theme.palette.text.primary,
+    },
   },
   paper: {
     boxShadow: "none",
-
   },
   loading: {
-    textAlign: 'center',
+    textAlign: "center",
     padding: theme.spacing(10),
     boxShadow: "none",
   },
   control: {
-    padding: theme.spacing(2)
+    padding: theme.spacing(2),
   },
 }));
 
-// for donut charts
-const dataFn = (d) => [d, 1 - d]
-const CreateNntFn = (x) => {
-  const CER = x
-  return (NNT) => [CER / 100, 1 / NNT, 1 - (1 / NNT + CER / 100)]
+let initialState;
+if (typeof localStorage !== `undefined`) {
+  initialState = JSON.parse(localStorage.getItem("cohendState")) || "";
+  const keysDefault = Object.keys(defaultState);
+  const keysLocalStorage = Object.keys(initialState);
+  // use default if keys don't match with localStorage
+  // avoids breaking the app
+  if (
+    JSON.stringify(keysDefault.sort()) !=
+    JSON.stringify(keysLocalStorage.sort())
+  ) {
+    localStorage.removeItem("cohendState");
+    initialState = vizReducer(defaultState, {
+      name: "cohend",
+      value: defaultState.cohend,
+    });
+  }
+} else {
+  // calculate actual values based on Cohen's d
+  initialState = vizReducer(defaultState, {
+    name: "cohend",
+    value: defaultState.cohend,
+  });
 }
 
-const Viz = ({ openSettings, vizState, toggleDrawer, handleHelpTour }) => {
+// for donut charts
+const dataFn = (d) => [d, 1 - d];
+const CreateNntFn = (x) => {
+  const CER = x;
+  return (NNT) => [CER / 100, 1 / NNT, 1 - (1 / NNT + CER / 100)];
+};
+
+const Viz = ({ openSettings, toggleDrawer, handleHelpTour }) => {
+  const [state, dispatch] = useReducer(vizReducer, initialState);
+  const contextValue = useMemo(() => {
+    return { state, dispatch };
+  }, [state, dispatch]);
   const classes = useStyles();
-  const { NNT, CER, U3, propOverlap, CL, immediate } = vizState;
-  const nntFn = CreateNntFn(CER)
+  const { NNT, CER, U3, propOverlap, CL, immediate } = state;
+  const nntFn = CreateNntFn(CER);
   return (
     <div className={classes.root}>
-      <Box my={4}>
-        <Container maxWidth="lg">
+      <Container maxWidth="lg">
+        <SettingsContext.Provider value={contextValue}>
           <Slider
             openSettings={openSettings}
             handleDrawer={toggleDrawer}
             handleHelpTour={handleHelpTour}
           />
-          <ResponsiveChart chart={Cohend} {...vizState} />
+          <ResponsiveChart chart={Cohend} {...state} />
           <Grid container justify="center" spacing={3} id="__loader">
             <Paper className={classes.loading}>
               <CircularProgress />
@@ -79,7 +112,7 @@ const Viz = ({ openSettings, vizState, toggleDrawer, handleHelpTour }) => {
                   formatType={".3p"}
                   className={"donut--two-arcs"}
                 />
-                <Typography variant="body1">
+                <Typography align="center" variant="body1">
                   Cohen's U<sub>3</sub>
                 </Typography>
               </Paper>
@@ -121,7 +154,7 @@ const Viz = ({ openSettings, vizState, toggleDrawer, handleHelpTour }) => {
                   data={NNT}
                   dataFn={nntFn}
                   immediate={immediate}
-                  label={vizState.NNT}
+                  label={NNT}
                   formatType={".3n"}
                   className={"donut--NNT"}
                 />
@@ -131,8 +164,18 @@ const Viz = ({ openSettings, vizState, toggleDrawer, handleHelpTour }) => {
               </Paper>
             </Grid>
           </Grid>
-        </Container>
-      </Box>
+          <Typography variant="h4" component="h2" align="center" gutterBottom>
+            A Common Language Explanation
+          </Typography>
+          <CommonLanguage vizState={state} />
+          <SettingsDrawer
+            handleDrawer={toggleDrawer}
+            open={openSettings}
+            vizState={state}
+            vizSettings={<VizSettings />}
+          />
+        </SettingsContext.Provider>
+      </Container>
     </div>
   );
 };

@@ -2,11 +2,9 @@ import React from "react";
 
 import { useSiteMetadata } from "gatsby-theme-rpsych-viz/src/hooks/useSiteMetaData";
 
-export const BibTex = () => {
-  const data = useSiteMetadata();
-  const date = new Date(data.lastUpdated);
+export const BibTex = ({lastUpdated, version}) => {
+  const date = new Date(lastUpdated);
   const year = date.getFullYear();
-  const version = data.version;
   return (
     <p>
       {`@software{magnussonCohend,
@@ -20,11 +18,10 @@ export const BibTex = () => {
   );
 };
 
-export const ApaReference = () => {
-  const data = useSiteMetadata();
-  const date = new Date(data.lastUpdated);
+export const ApaReference = ({lastUpdated, version}) => {
+  //const data = useSiteMetadata();
+  const date = new Date(lastUpdated);
   const year = date.getFullYear();
-  const version = data.version;
   return (
     <p style={{ paddingLeft: "2em", textIndent: "-2em" }}>
       Magnusson, K. ({year}).{" "}
