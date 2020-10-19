@@ -81,7 +81,6 @@ const ColorPicker = ({ dist }) => {
   const matches = useMediaQuery(theme.breakpoints.down("xs"));
 
   const handleChange = ({ rgb }) => {
-    console.log(rgb)
     setColor(rgb);
     dispatch({ name: `color${dist}`, value: rgb });
   };

@@ -254,7 +254,7 @@ const Toc = ({ post }) => {
 }
 
 const BlogPostTemplate = ({ data, pageContext, location }) => {
-  console.log(data)
+
   const classes = useStyles()
   const post = data.mdx
   const siteTitle = data.site.siteMetadata.title

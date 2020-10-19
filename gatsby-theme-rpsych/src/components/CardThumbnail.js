@@ -50,7 +50,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const VizActionArea = ({ node, path, children, className }) => {
-  console.log(node.internal_link);
   return node.internal_link ? (
     <CardActionArea className={className} to={node.url} component={GatsbyLink}>
       {children}
