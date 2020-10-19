@@ -1,7 +1,7 @@
 import React from 'react'
 import { graphql, useStaticQuery } from 'gatsby'
 import CardThumbnail from './CardThumbnail'
-const MoreViz = ({ explanation }) => {
+const MoreViz = (props) => {
   const data = useStaticQuery(
     graphql`
       query MoreViz {
@@ -19,6 +19,7 @@ const MoreViz = ({ explanation }) => {
               title
               url
               excerpt
+              internal_link
             }
           }
         }
@@ -26,7 +27,7 @@ const MoreViz = ({ explanation }) => {
     `
   )
   return (
-    <CardThumbnail data={data} explanation={explanation} />
+    <CardThumbnail data={data} {...props} />
   )
 }
 

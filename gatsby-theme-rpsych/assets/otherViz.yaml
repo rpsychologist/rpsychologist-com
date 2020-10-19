@@ -6,7 +6,8 @@
 - title: "Cohen's d"
   excerpt: "An interactive app to visualize and understand standardized effect sizes."
   image: "MoreViz/cohend.png"
-  url: "https://rpsychologist.com/d3/cohend/"
+  internal_link: true
+  url: "/cohend/"
 
 - title: "Statistical Power and Significance Testing"
   excerpt: "An interactive version of the traditional Type I and II error illustration."
