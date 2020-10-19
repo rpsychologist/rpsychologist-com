@@ -1,5 +1,6 @@
 import React from "react";
 import { Typography, makeStyles } from "@material-ui/core";
+import Container from "@material-ui/core/Container";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -11,7 +12,10 @@ const useStyles = makeStyles(theme => ({
   },
   content: {
     minWidth: "100%"
-  }
+  },
+  textContent: {
+    maxWidth: 700,
+  },
 }));
 const round = val => Math.round(Number(val) * 10) / 10;
 
@@ -27,7 +31,7 @@ const CommonLanguage = ({ vizState }) => {
   const muOneLabel = vizState.muOneLabel.toLowerCase();
   const muZeroLabel = vizState.muZeroLabel.toLowerCase();
   return (
-    <div>
+    <Container className={classes.textContent}>
       <Typography variant="body1" gutterBottom>
         With a Cohen's <em>d</em> of {cohend}, {U3}% of the "{muOneLabel}" group
         will be above the mean of the "{muZeroLabel}" group (Cohen's U
@@ -48,7 +52,7 @@ const CommonLanguage = ({ vizState }) => {
         below some cut-off. Change this by pressing the settings symbol to the
         right of the slider. Go to the formula section for more information.
       </Typography>
-    </div>
+    </Container>
   );
 };
 
