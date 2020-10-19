@@ -45,7 +45,7 @@ const CreateNntFn = (x) => {
   return (NNT) => [CER / 100, 1 / NNT, 1 - (1 / NNT + CER / 100)]
 }
 
-const Content = ({ openSettings, vizState, toggleDrawer, handleHelpTour }) => {
+const Viz = ({ openSettings, vizState, toggleDrawer, handleHelpTour }) => {
   const classes = useStyles();
   const { NNT, CER, U3, propOverlap, CL, immediate } = vizState;
   const nntFn = CreateNntFn(CER)
@@ -136,4 +136,4 @@ const Content = ({ openSettings, vizState, toggleDrawer, handleHelpTour }) => {
     </div>
   );
 };
-export default Content;
+export default Viz;
