@@ -11,6 +11,7 @@ import Tour from "./components/content/HelpTour";
 import VizLayout from "gatsby-theme-rpsych-viz/src/components/Layout";
 import SEO from "gatsby-theme-rpsych/src/components/seo";
 import { version, lastUpdated } from "../package.json";
+import License from "./components/License"
 
 const drawerWidth = 240;
 const useStyles = makeStyles((theme) => ({
@@ -29,23 +30,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const App = (props) => {
+  console.log(props)
   const classes = useStyles();
   const [openHelpTour, setHelpTour] = useState(false);
-  const data = useStaticQuery(
-    graphql`
-      query {
-        image: file(absolutePath: { regex: "/cohend_SEO.png/" }) {
-          childImageSharp {
-            resize(width: 1200) {
-              src
-              height
-              width
-            }
-          }
-        }
-      }
-    `
-  );
   const toggleDrawer = (open) => (event) => {
     if (
       event &&
@@ -57,13 +44,14 @@ const App = (props) => {
     setOpenSettings(open);
   };
   const [openSettings, setOpenSettings] = useState(false);
+  const data = props.data
   const seoImage = data.image ? data.image.childImageSharp.resize : null;
   const tour = React.useMemo(
     () => <Tour openHelpTour={openHelpTour} handleHelpTour={setHelpTour} />,
     [openHelpTour]
   );
   return (
-    <VizLayout openSettings={openSettings} {...props}>
+    <VizLayout openSettings={openSettings} License={License} {...props}>
       <SEO
         keywords={[
           `Cohen's d`,
@@ -123,3 +111,5 @@ const App = (props) => {
   );
 };
 export default App;
+
+

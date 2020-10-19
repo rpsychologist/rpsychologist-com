@@ -1,13 +1,14 @@
 import React from "react";
 import Bio from "gatsby-theme-rpsych/src/components/Bio";
+import { graphql } from 'gatsby'
 import Layout from "gatsby-theme-rpsych/src/components/Layout";
 import { makeStyles } from "@material-ui/core/styles";
 import { Typography } from "@material-ui/core";
 import Container from "@material-ui/core/Container";
-import Faq from "./FAQ"
-import MoreViz from "gatsby-theme-rpsych/src/components/MoreViz"
-import Contribute from "./Contribute"
-import SEO from "gatsby-theme-rpsych/src/components/seo"
+import Faq from "./FAQ";
+import MoreViz from "gatsby-theme-rpsych/src/components/MoreViz";
+import Contribute from "./Contribute";
+import SEO from "gatsby-theme-rpsych/src/components/seo";
 import clsx from "clsx";
 
 const useStyles = makeStyles((theme) => ({
@@ -34,45 +35,74 @@ const useStyles = makeStyles((theme) => ({
     marginRight: 0,
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen
+      duration: theme.transitions.duration.leavingScreen,
     }),
   },
   contentShift: {
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen
+      duration: theme.transitions.duration.enteringScreen,
     }),
-    [theme.breakpoints.between('sm', 'lg')]: {
-      marginRight: drawerWidth
+    [theme.breakpoints.between("sm", "lg")]: {
+      marginRight: drawerWidth,
     },
-    [theme.breakpoints.down('sm')]: {
-      marginRight: 0
+    [theme.breakpoints.down("sm")]: {
+      marginRight: 0,
     },
-  }
+  },
 }));
 const drawerWidth = 240;
-const VizLayout = ({ openSettings, children, path }) => {
+const VizLayout = ({ openSettings, children, path, license, data }) => {
   const classes = useStyles();
   return (
-    <Layout title={"Cohend"} blogPost={false} >
+    <Layout license={license}>
       <div
-              className={clsx(classes.content, {
-                [classes.contentShift]: openSettings,
-              })}
+        className={clsx(classes.content, {
+          [classes.contentShift]: openSettings,
+        })}
       >
-      {children}
-      <Container className={classes.textContent}>
-        <Faq />
-        <Contribute />
-      </Container>
-      <Container maxWidth="lg">
-      <Typography variant="h4" component="h2" align="center" gutterBottom>
-      More Visualizations
-      </Typography>
-        <MoreViz explanation={true} path={path} />  
-      </Container>
+        {children}
+        <Container className={classes.textContent}>
+          <Faq data={data.FAQ}/>
+          <Contribute />
+        </Container>
+        <Container maxWidth="lg">
+          <Typography variant="h4" component="h2" align="center" gutterBottom>
+            More Visualizations
+          </Typography>
+          <MoreViz explanation={true} path={path} />
+        </Container>
       </div>
     </Layout>
   );
 };
 export default VizLayout;
+
+// export const pageQuery = graphql`
+//   query($slug: String!) {
+//     site {
+//       siteMetadata {
+//         title
+//         author
+//       }
+//     }
+//     mdx(fields: { slug: { eq: $slug } }) {
+//       id
+//       excerpt(pruneLength: 160)
+//       tableOfContents
+//       frontmatter {
+//         title
+//         include_toc
+//         slug
+//         tags
+//         date(formatString: "MMMM DD, YYYY")
+//       }
+//       body
+//       parent {
+//         ... on File {
+//           relativePath
+//         }
+//       }
+//     }
+//   }
+// `

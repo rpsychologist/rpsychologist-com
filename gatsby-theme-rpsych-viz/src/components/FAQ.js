@@ -36,37 +36,38 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const FaqPage = React.memo(() => {
+const FaqPage = React.memo(({data}) => {
+  console.log(data)
   const classes = useStyles();
-  const data = useStaticQuery(
-    graphql`
-      query FAQ {
-        allMdx(
-          filter: { fileAbsolutePath: { regex: "/FAQ/" } }
-          sort: { fields: frontmatter___order, order: ASC }
-        ) {
-          edges {
-            node {
-              id
-              body
-              frontmatter {
-                title
-                order
-              }
-            }
-          }
-          totalCount
-        }
-      }
-    `
-  );
+  // const data = useStaticQuery(
+  //   graphql`
+  //     query FAQ {
+  //       allMdx(
+  //         filter: { fileAbsolutePath: { regex: "/FAQ/" } }
+  //         sort: { fields: frontmatter___order, order: ASC }
+  //       ) {
+  //         edges {
+  //           node {
+  //             id
+  //             body
+  //             frontmatter {
+  //               title
+  //               order
+  //             }
+  //           }
+  //         }
+  //         totalCount
+  //       }
+  //     }
+  //   `
+  // );
 
   return (
     <div className={classes.root}>
       <Typography variant="h4" component="h2" align="center" gutterBottom>
         FAQ
       </Typography>
-      {data.allMdx.edges.map(({ node }) => (
+      {data.edges.map(({ node }) => (
         <Accordion classes={{ expanded: classes.expanded }} key={node.id}>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
