@@ -1,21 +1,20 @@
 import React, { useReducer, useState, createContext, useMemo } from "react";
-import "./styles/App.css"
+import { graphql, useStaticQuery } from 'gatsby'
+import "./styles/App.css";
 import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
 import SettingsDrawer from "gatsby-theme-rpsych-viz/src/components/SettingsDrawer";
 import { makeStyles } from "@material-ui/core/styles";
-import Faq from "gatsby-theme-rpsych-viz/src/components/FAQ";
-//import MoreViz from "./components/content/MoreViz";
 import CommonLanguage from "./components/content/CommonLanguage";
-//import initialTheme from "./theme.js";
 import IntroText from "./components/content/Intro";
 import Button from "@material-ui/core/Button";
-import Content from "./Viz";
+import Viz from "./Viz";
 import { normal } from "jstat";
 import Tour from "./components/content/HelpTour";
 import VizSettings from "./components/settings/VizSettings";
 import VizLayout from "gatsby-theme-rpsych-viz/src/components/Layout";
-import { version, lastUpdated } from '../package.json';
+import SEO from "gatsby-theme-rpsych/src/components/seo";
+import { version, lastUpdated } from "../package.json";
 
 const useStyles = makeStyles((theme) => ({
   textContent: {
@@ -168,6 +167,23 @@ const App = () => {
   const [openHelpTour, setHelpTour] = useState(false);
   const [state, dispatch] = useReducer(vizReducer, initialState);
 
+  const data = useStaticQuery(
+    graphql`
+      query {
+        image: file(absolutePath: { regex: "/cohend_SEO.png/" }) {
+          childImageSharp {
+            resize(width: 1200) {
+              src
+              height
+              width
+            }
+          }
+        }
+      }
+    `
+  );
+  const seoImage = data.image ? data.image.childImageSharp.resize : null
+
   const contextValue = useMemo(() => {
     return { state, dispatch };
   }, [state, dispatch]);
@@ -188,61 +204,73 @@ const App = () => {
   );
   return (
     <VizLayout>
-    <SettingsContext.Provider value={contextValue}>
-      {/* PROBLEM IS IN settingsdrawer */}
-      <SettingsDrawer
-            handleDrawer={toggleDrawer}
-            open={openSettings}
+      <SettingsContext.Provider value={contextValue}>
+        <SEO
+          keywords={[
+            `Cohen's d`,
+            `Effect size`,
+            `Interactive`,
+            `Visualization`,
+            `Teaching`,
+            `Science`,
+            `Psychology`,
+          ]}
+          description={"A tool to understand Cohen's d standardized effect size"}
+          title={"Understanding Cohen's d"}
+          image={seoImage}
+        />
+        <SettingsDrawer
+          handleDrawer={toggleDrawer}
+          open={openSettings}
+          vizState={state}
+          vizSettings={<VizSettings />}
+        >
+          <Container>
+            {tour}
+            <Typography
+              variant="h1"
+              className={classes.siteTitle}
+              gutterBottom
+              align="center"
+            >
+              Interpreting Cohen's <em>d</em> Effect Size
+            </Typography>
+            <Typography
+              variant="h2"
+              component="h2"
+              align="center"
+              className={classes.siteSubTitle}
+              gutterBottom
+            >
+              An Interactive Visualization
+            </Typography>
+            <Typography align="center" gutterBottom>
+              Created by{" "}
+              <a href="https://rpsychologist.com/">Kristoffer Magnusson</a>
+              <br />
+              <a href="https://twitter.com/krstoffr">
+                <Button className={classes.twitter}>
+                  {/* <TwitterIcon /> */}
+                  krstoffr
+                </Button>
+              </a>
+            </Typography>
+          </Container>
+          <Container className={classes.textContent}>
+            <IntroText />
+          </Container>
+          <Viz
+            openSettings={openSettings}
             vizState={state}
-            vizSettings={<VizSettings />}
-          >
-      <Container>
-        {tour}
-        <Typography
-          variant="h2"
-          component="h1"
-          className={classes.siteTitle}
-          gutterBottom
-          align="center"
-        >
-          Interpreting Cohen's <em>d</em> Effect Size (v {version} {lastUpdated})
-        </Typography>
-        <Typography
-          variant="h4"
-          component="h2"
-          align="center"
-          className={classes.siteSubTitle}
-          gutterBottom
-        >
-          An Interactive Visualization
-        </Typography>
-        <Typography align="center" gutterBottom>
-          Created by{" "}
-          <a href="https://rpsychologist.com/">Kristoffer Magnusson</a>
-          <br />
-          <a href="https://twitter.com/krstoffr">
-            <Button className={classes.twitter}>
-              {/* <TwitterIcon /> */}
-              krstoffr
-            </Button>
-          </a>
-        </Typography>
-      </Container>
-      <Container className={classes.textContent}>
-        <IntroText />
-      </Container>
-      <Content
-        openSettings={openSettings}
-        vizState={state}
-        toggleDrawer={toggleDrawer}
-        handleHelpTour={setHelpTour}
-      />
-      <Typography variant="h4" component="h2" align="center" gutterBottom>
-        A Common Language Explanation
-      </Typography>
-      <CommonLanguage vizState={state} />
-      </SettingsDrawer>
-    </SettingsContext.Provider>
+            toggleDrawer={toggleDrawer}
+            handleHelpTour={setHelpTour}
+          />
+          <Typography variant="h4" component="h2" align="center" gutterBottom>
+            A Common Language Explanation
+          </Typography>
+          <CommonLanguage vizState={state} />
+        </SettingsDrawer>
+      </SettingsContext.Provider>
     </VizLayout>
   );
 };
