@@ -129,7 +129,7 @@ const OverlapChart = (props) => {
       width={props.width}
       height={props.width * aspect}
       viewBox={`0,0, ${props.width}, ${props.width * aspect}`}
-      style={{ touchAction: "none" }}
+      style={{ touchAction: "pan-y" }}
     >
       <animated.g
         style={{
