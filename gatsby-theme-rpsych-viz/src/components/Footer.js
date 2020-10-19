@@ -45,19 +45,19 @@ const useStyles = makeStyles((theme) => ({
 
 const Footer = React.memo(() => {
   const classes = useStyles();
-  const data = useStaticQuery(
-    graphql`
-      query {
-        site {
-          siteMetadata {
-            version
-            github
-            lastUpdated
-          }
-        }
-      }
-    `
-  );
+  // const data = useStaticQuery(
+  //   graphql`
+  //     query {
+  //       site {
+  //         siteMetadata {
+  //           version
+  //           github
+  //           lastUpdated
+  //         }
+  //       }
+  //     }
+  //   `
+  // );
   return (
     <footer className={classes.footer}>
       <Container maxWidth="sm">
@@ -165,10 +165,10 @@ const Footer = React.memo(() => {
               License
             </Typography>
             <Typography variant="subtitle1" align="center" component="p">
-              Version {data.site.siteMetadata.version}, last updated{" "}
+              {/* Version {data.site.siteMetadata.version}, last updated{" "}
               {data.site.siteMetadata.lastUpdated}. License MIT (
               <a href={data.site.siteMetadata.github}>source code</a>).
-              Visualization is CC0.
+              Visualization is CC0. */}
             </Typography>
           </Grid>
         </Grid>
