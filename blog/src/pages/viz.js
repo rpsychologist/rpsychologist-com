@@ -7,7 +7,8 @@ import Typography from '@material-ui/core/Typography'
 import SEO from 'gatsby-theme-rpsych/src/components/seo'
 import MoreViz from 'gatsby-theme-rpsych/src/components/MoreViz'
 import Posters from 'gatsby-theme-rpsych/src/components/Posters'
-import Social from 'gatsby-theme-rpsych/src/components/Social'
+import SocialShare from 'gatsby-theme-rpsych/src/components/SocialShare'
+
 
 const Contact = ({ data }) => {
   const image = data.image ? data.image.childImageSharp.resize : null
@@ -23,25 +24,10 @@ const Contact = ({ data }) => {
         <Typography variant="h1" component="h1" align="center">
           Visualizations
         </Typography>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <Typography
-            variant="subtitle2"
-            component="span"
-            color="textSecondary"
-          >
-            Share:
-          </Typography>
-          <Social
+          <SocialShare
             slug="viz"
             title="Check out @krstoffr's interactive statistical visualizations"
           />
-        </div>
         <Typography variant="body1" paragraph>
           Since 2014 I've tried to illustrate various statistical concepts using
           interactive visualizations. This page contains an updated overview of
