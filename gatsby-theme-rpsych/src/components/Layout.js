@@ -13,7 +13,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 const Layout = props => {
-  const { blogPost, children, data } = props
+  const { children, data } = props
   const classes = useStyles()
 
   return (
