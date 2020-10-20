@@ -65,7 +65,7 @@ const PostList = ({ data }) => {
                   {title}
                 </Typography>
                 <Typography
-                  variant="subtitle"
+                  variant="subtitle1"
                   component="p"
                   style={{ paddingBottom: '0.5em' }}
                 >
