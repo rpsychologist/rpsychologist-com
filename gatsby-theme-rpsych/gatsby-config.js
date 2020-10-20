@@ -140,6 +140,7 @@ module.exports = {
             query: `
             {
               allMdx(
+                filter: { fileAbsolutePath: { regex: "/content/blog/" } }
                 limit: 10,
                 sort: { order: DESC, fields: [frontmatter___date] },
               ) {
