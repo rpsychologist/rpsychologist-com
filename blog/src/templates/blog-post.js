@@ -271,7 +271,7 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
               >
                 Published {post.frontmatter.date}{' '}
                 <Link
-                  href={`https://github.com/rpsychologist/rpsychologist-com/blog/blob/master/content/blog/${post.parent.relativePath}`}
+                  href={`https://github.com/rpsychologist/rpsychologist-com/blob/master/blog/content/blog/${post.parent.relativePath}`}
                 >
                   (View on GitHub)
                 </Link>
