@@ -148,7 +148,7 @@ const Footer = React.memo(({ blogPost, data }) => {
             <Typography variant="h6" align="center" gutterBottom>
               License
             </Typography>
-            <Typography variant="subtitle1" align="center" paragraph>
+            <Typography component="div" align="center" paragraph>
               <MDXRenderer>
                 {data.license.body}
               </MDXRenderer>
