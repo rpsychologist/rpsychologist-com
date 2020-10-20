@@ -11,14 +11,21 @@ module.exports = {
   },
   plugins: [
     `gatsby-theme-rpsych`,
-    `rpsych-cohend`,
+    `gatsby-theme-rpsych-cohend`,
     {
       resolve: `gatsby-source-filesystem`,
       options: {
-        path: `content/blog`,
+        path: `${__dirname}/content/blog`,
         name: `blog`,
         ignore: [`**/**.knit.md`, `**/**.utf8.md`, `**/**.Rmd`, `**/**.R`, `**/*_cache/**`, `**/cache/**`]
       },
+    },
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        name: `license`,
+        path: `${__dirname}/content/license/`
+      }
     },
     {
       resolve: `gatsby-plugin-manifest`,

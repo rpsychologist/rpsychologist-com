@@ -18,7 +18,7 @@ const Contact = props => {
   const { social } = data.site.siteMetadata
 
   return (
-    <Layout>
+    <Layout data={data}>
       <SEO title="About Kristoffer" />
       <Container maxWidth="sm">
         <Typography variant="h1" component="h1" align="center">
@@ -155,6 +155,11 @@ export const bioQuery = graphql`
           linkedin
         }
       }
+    }
+    license: mdx( fileAbsolutePath: { regex: "/blog/content/license/license/" }) {
+      id
+      body
+      slug
     }
   }
 `

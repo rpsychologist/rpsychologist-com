@@ -52,10 +52,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 const drawerWidth = 240;
-const VizLayout = ({ openSettings, children, path, license, data }) => {
+const VizLayout = ({ openSettings, children, path, data }) => {
   const classes = useStyles();
   return (
-    <Layout license={license}>
+    <Layout data={data}>
       <div
         className={clsx(classes.content, {
           [classes.contentShift]: openSettings,

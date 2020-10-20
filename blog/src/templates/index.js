@@ -42,6 +42,7 @@ const useStyles = makeStyles(theme => ({
 
 const BlogIndex = props => {
   const { data, pageContext } = props
+  console.log(data)
   const classes = useStyles()
   const handleBlogPaginate = (event, value) => {
     navigate(`/${value == 1 ? '' : value}#blog-posts`)
@@ -49,7 +50,7 @@ const BlogIndex = props => {
   const siteTitle = data.site.siteMetadata.title
   const posts = data.allMdx.edges
   return (
-    <Layout location={props.location} title={siteTitle}>
+    <Layout location={props.location} title={siteTitle} data={data}>
       <SEO
         title="Start"
         keywords={[
@@ -173,6 +174,11 @@ export const pageQuery = graphql`
           }
         }
       }
+    }
+    license: mdx( fileAbsolutePath: { regex: "/blog/content/license/license/" }) {
+      id
+      body
+      slug
     }
   }
 `

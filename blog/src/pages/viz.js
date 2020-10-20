@@ -13,7 +13,7 @@ const Contact = ({ data }) => {
   const image = data.image ? data.image.childImageSharp.resize : null
 
   return (
-    <Layout>
+    <Layout data={data}>
       <SEO
         title="Visualizations"
         description="An overview of Kristoffer Magnusson's interactive statistical visualizations. Free and open source teaching tools."
@@ -98,6 +98,11 @@ export const imgQuery = graphql`
           width
         }
       }
+    }
+    license: mdx( fileAbsolutePath: { regex: "/blog/content/license/license/" }) {
+      id
+      body
+      slug
     }
   }
 `

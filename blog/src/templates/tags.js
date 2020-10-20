@@ -34,7 +34,7 @@ const Tags = ({ pageContext, data }) => {
     totalCount === 1 ? '' : 's'
   } tagged with "${tag}"`
   return (
-    <Layout>
+    <Layout data={data}>
       <Container maxWidth="md">
         <Typography variant="h1" component="h1" align="center">
           {tagHeader}
@@ -135,6 +135,11 @@ export const pageQuery = graphql`
           }
         }
       }
+    }
+    license: mdx( fileAbsolutePath: { regex: "/blog/content/license/license/" }) {
+      id
+      body
+      slug
     }
   }
 `

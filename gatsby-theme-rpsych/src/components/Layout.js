@@ -13,7 +13,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 const Layout = props => {
-  const { blogPost, children, License } = props
+  const { blogPost, children, data } = props
   const classes = useStyles()
 
   return (
@@ -23,7 +23,7 @@ const Layout = props => {
       <main style={{ maxWidth: '100vw', minHeight: '100vh', flexGrow: 1 }}>
         {children}
       </main>
-      <Footer License />
+      <Footer data={data} />
     </div>
   )
 }

@@ -260,7 +260,7 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
   const siteTitle = data.site.siteMetadata.title
   const { previous, next } = pageContext
   return (
-    <Layout location={location} title={siteTitle} blogPost={true}>
+    <Layout location={location} title={siteTitle} data={data}>
       {post.frontmatter.include_toc && <Toc post={post} />}
       <SEO title={post.frontmatter.title} description={post.excerpt} />
       <div className={post.frontmatter.include_toc && classes.root}>
@@ -397,6 +397,13 @@ export const pageQuery = graphql`
           relativePath
         }
       }
+    }
+    license: mdx(
+      fileAbsolutePath: { regex: "/blog/content/license/license-post/" }
+    ) {
+      id
+      body
+      slug
     }
   }
 `

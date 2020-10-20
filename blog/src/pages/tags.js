@@ -10,19 +10,19 @@ import InternalLink from 'gatsby-theme-rpsych/src/utils/InternalLink'
 
 let currentLetter = ``
 
-const TagsPage = ({
-  data: {
+const TagsPage = ({ data }) => {
+  const {
     allMdx: { group },
     site: {
       siteMetadata: { title },
     },
-  },
-}) => {
+  } = data
+
   const result = group.sort((tagA, tagB) =>
     tagA.fieldValue.localeCompare(tagB.fieldValue)
   )
   return (
-    <Layout>
+    <Layout data={data}>
       <Helmet title={title} />
       <Container maxWidth="sm">
         <Typography variant="h1" component="h1" align="center">
@@ -107,6 +107,13 @@ export const pageQuery = graphql`
         fieldValue
         totalCount
       }
+    }
+    license: mdx(
+      fileAbsolutePath: { regex: "/blog/content/license/license/" }
+    ) {
+      id
+      body
+      slug
     }
   }
 `

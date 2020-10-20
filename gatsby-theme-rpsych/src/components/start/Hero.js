@@ -28,6 +28,7 @@ const useStyles = makeStyles(theme => ({
 const Hero = props => {
   const { location, title, children } = props
   const data = useStaticQuery(bioQuery)
+  console.log(data)
   const { social } = data.site.siteMetadata
 
   const classes = useStyles()

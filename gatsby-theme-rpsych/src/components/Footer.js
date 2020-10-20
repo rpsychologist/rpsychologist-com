@@ -14,6 +14,7 @@ import HomeIcon from "@material-ui/icons/Home";
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import logo from "../../assets/rpsychologist-logo.svg";
+import { MDXRenderer } from "gatsby-plugin-mdx";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -45,7 +46,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Footer = React.memo(({ blogPost, License }) => {
+const Footer = React.memo(({ blogPost, data }) => {
+  console.log(data)
   const classes = useStyles();
   return (
     <footer className={classes.footer}>
@@ -147,7 +149,9 @@ const Footer = React.memo(({ blogPost, License }) => {
               License
             </Typography>
             <Typography variant="subtitle1" align="center" paragraph>
-              {License}
+              <MDXRenderer>
+                {data.license.body}
+              </MDXRenderer>
             </Typography>
             <Typography variant="subtitle1" align="center" paragraph>
               © {new Date().getFullYear()} Kristoffer Magnusson.

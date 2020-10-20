@@ -24,7 +24,7 @@ const PostList = ({ data }) => {
   const classes = useStyles()
   const posts = data.allMdx.edges
   return (
-    <Layout>
+    <Layout data={data}>
       <SEO title="Blog Archive" />
       <Container maxWidth="sm">
         <Typography variant="h1" component="h1" align="center">
@@ -104,6 +104,11 @@ export const pageQuery = graphql`
           }
         }
       }
+    }
+    license: mdx( fileAbsolutePath: { regex: "/blog/content/license/license/" }) {
+      id
+      body
+      slug
     }
   }
 `
