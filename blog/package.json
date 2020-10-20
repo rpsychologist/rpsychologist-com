@@ -1,0 +1,45 @@
+{
+  "name": "blog",
+  "private": true,
+  "description": "R Psychologist - Kristoffer Magnusson's blog",
+  "version": "0.2.0",
+  "author": "Kristoffer Magnusson <hello@kristoffer.email>",
+  "bugs": {
+    "url": "https://github.com/rpsychologist/rpsychologist-com/issues"
+  },
+  "dependencies": {
+    "gatsby": "^2.18.2",
+    "gatsby-plugin-manifest": "^2.0.5",
+    "gatsby-theme-rpsych": "0.1.0",
+    "gatsby-theme-rpsych-cohend": "*",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  },
+  "devDependencies": {
+    "eslint": "^6.2.2",
+    "eslint-plugin-react": "^7.11.1",
+    "prettier": "^1.14.2"
+  },
+  "homepage": "https://github.com/rpsychologist/rpsychologist-com/",
+  "keywords": [
+    "gatsby"
+  ],
+  "license": "MIT",
+  "main": "n/a",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rpsychologist/rpsychologist-com/"
+  },
+  "scripts": {
+    "dev": "gatsby develop -H 172.16.0.116",
+    "lint": "eslint --ext .js,.jsx --ignore-pattern public .",
+    "test": "echo \"Write tests! -> https://gatsby.app/unit-testing\"",
+    "format": "prettier --trailing-comma es5 --no-semi --single-quote --write 'src/**/*.js' 'src/**/*.md'",
+    "develop": "gatsby develop",
+    "start": "npm run develop",
+    "build": "gatsby build",
+    "serve": "gatsby serve -H 172.16.0.116",
+    "fix-semi": "eslint --quiet --ignore-pattern node_modules --ignore-pattern public --parser babel-eslint --no-eslintrc --rule '{\"semi\": [2, \"never\"], \"no-extra-semi\": [2]}' --fix gatsby-node.js",
+    "clean": "gatsby clean"
+  }
+}

@@ -1,0 +1,313 @@
+.MuiLink-root {
+  font-weight: 600;
+}
+
+@keyframes rotate {
+  0% {
+	transform: rotate(0deg);
+  }
+  100% {
+	transform: rotate(180deg);
+  }
+}
+
+
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.gatsby-highlight pre code {
+  display: block;
+  line-height: 1.5;
+  min-width: 100%;
+  padding: 0px 1.5rem;
+}
+
+/* @media screen and (max-width: 959.95px) {
+  code[class*='language-'] > * {
+    font-size: 1em !important;
+  }
+}
+ */
+
+.gatsby-highlight {
+  position: relative;
+}
+.gatsby-highlight pre[class*='language-'] {
+  border-width: 0px;
+  border-style: initial;
+  border-color: initial;
+  border-image: initial;
+  padding: 1.5rem 0px;
+  margin: 0;
+}
+
+.code--label.language-jsx {
+  color: #ffffff;
+  background: rgb(255, 152, 0);
+}
+.code--label.language-jsx::after {
+  content: 'jsx';
+  color: #ffffff;
+  background: rgb(255, 152, 0);
+}
+.code--label.language-r {
+  color: #ffffff;
+  background: rgb(66, 196, 248);
+}
+body.dark-mode .code--label.language-r {
+  color: #ffffff;
+  background: rgb(39, 116, 146);
+}
+.code--label.language-r::after {
+  content: 'R';
+}
+.code--label.language-BibTex {
+  color: #ffffff;
+  background: rgb(248, 66, 121);
+}
+.code--label.language-BibTex::after {
+  content: 'BibTex';
+}
+.code--label.language-output {
+  color: #ffffff;
+  background: rgb(189, 192, 192);
+}
+
+body.dark-mode .code--label.language-output {
+  color: #ffffff;
+  background: rgb(66, 66, 66);
+}
+.code--label.language-output::after {
+  content: 'Output';
+}
+.code--label {
+  color: #232129;
+  font-size: 0.75rem;
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
+  letter-spacing: 0.075em;
+  line-height: 1;
+  position: absolute;
+  left: 1.5rem;
+  text-align: right;
+  text-transform: uppercase;
+  top: 0px;
+  border-radius: 0px 0px 4px 4px;
+  padding: 0.25rem 0.5rem;
+}
+.gatsby-highlight-code-line {
+  background-color: rgb(187, 245, 255);
+  margin-right: -1.25em;
+  margin-left: -1.25em;
+  padding-right: 1.5em;
+  padding-left: 1em;
+  border-left: 0.25em solid rgb(153, 209, 255);
+}
+
+/* PRISM JS */
+code[class*='language-'],
+pre[class*='language-'] {
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  color: #586268;
+  background: #fafafa;
+  font-family: Roboto Mono, monospace;
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  tab-size: 4;
+
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+body.dark-mode code[class*='language-'],
+body.dark-mode pre[class*='language-'] {
+  color: #878787;
+  background: #171717;
+}
+
+code[class*='language-']::-moz-selection,
+pre[class*='language-']::-moz-selection,
+code[class*='language-'] ::-moz-selection,
+pre[class*='language-'] ::-moz-selection {
+  background: #cceae7;
+  color: #263238;
+}
+
+code[class*='language-']::selection,
+pre[class*='language-']::selection,
+code[class*='language-'] ::selection,
+pre[class*='language-'] ::selection {
+  background: #cceae7;
+  color: #263238;
+}
+
+:not(pre) > code[class*='language-'] {
+  white-space: normal;
+}
+
+pre[class*='language-'] {
+   overflow: auto; 
+  position: relative;
+}
+
+.language-css > code,
+.language-sass > code,
+.language-scss > code {
+  color: #f76d47;
+}
+
+[class*='language-'] .namespace {
+  opacity: 0.7;
+}
+
+.token.atrule {
+  color: #7c4dff;
+}
+
+.token.attr-name {
+  color: #39adb5;
+}
+
+.token.attr-value {
+  color: #f6a434;
+}
+
+.token.attribute {
+  color: #f6a434;
+}
+
+.token.boolean {
+  color: #7c4dff;
+}
+
+.token.builtin {
+  color: #39adb5;
+}
+
+.token.cdata {
+  color: #39adb5;
+}
+
+.token.char {
+  color: #39adb5;
+}
+
+.token.class {
+  color: #39adb5;
+}
+
+.token.class-name {
+  color: #6182b8;
+}
+
+.token.comment {
+  color: #aabfc9;
+}
+
+.token.constant {
+  color: #7c4dff;
+}
+
+.token.deleted {
+  color: #e53935;
+}
+
+.token.doctype {
+  color: #aabfc9;
+}
+
+.token.entity {
+  color: #e53935;
+}
+
+.token.function {
+  color: #7c4dff;
+}
+
+.token.hexcode {
+  color: #f76d47;
+}
+
+.token.id {
+  color: #7c4dff;
+  font-weight: bold;
+}
+
+.token.important {
+  color: #7c4dff;
+  font-weight: bold;
+}
+
+.token.inserted {
+  color: #39adb5;
+}
+
+.token.keyword {
+  color: #7c4dff;
+}
+
+.token.number {
+  color: #f76d47;
+}
+
+.token.operator {
+  color: #39adb5;
+}
+
+.token.prolog {
+  color: #aabfc9;
+}
+
+.token.property {
+  color: #39adb5;
+}
+
+.token.pseudo-class {
+  color: #f6a434;
+}
+
+.token.pseudo-element {
+  color: #f6a434;
+}
+
+.token.punctuation {
+  color: #39adb5;
+}
+
+.token.regex {
+  color: #6182b8;
+}
+
+.token.selector {
+  color: #e53935;
+}
+
+.token.string {
+  color: #f6a434;
+}
+
+.token.symbol {
+  color: #7c4dff;
+}
+
+.token.tag {
+  color: #e53935;
+}
+
+.token.unit {
+  color: #f76d47;
+}
+
+.token.url {
+  color: #e53935;
+}
+
+.token.variable {
+  color: #e53935;
+}

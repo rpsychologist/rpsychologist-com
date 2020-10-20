@@ -72,8 +72,11 @@ Makefile
 netlify.toml
 
 # Large binary assets
-content/assets/Posters/
-content/assets/profile.jpg
+*/assets/Posters/
+*/assets/profile.jpg
 
 # Other
 TODO.md
+
+#vscode
+.vscode
