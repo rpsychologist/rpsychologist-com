@@ -164,7 +164,7 @@ const Viz = ({ openSettings, toggleDrawer, handleHelpTour }) => {
               </Paper>
             </Grid>
           </Grid>
-          <Typography variant="h4" component="h2" align="center" gutterBottom>
+          <Typography variant="h3" component="h2" align="center" gutterBottom>
             A Common Language Explanation
           </Typography>
           <CommonLanguage vizState={state} />
