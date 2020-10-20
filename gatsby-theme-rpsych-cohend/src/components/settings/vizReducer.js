@@ -46,7 +46,8 @@ export const vizReducer = (state, action) => {
           M0: value.M0,
           M1: value.M1,
           SD: value.SD,
-          preset: value.preset
+          preset: value.preset,
+          immediate: false
         };
       }
       case "xLabel":
