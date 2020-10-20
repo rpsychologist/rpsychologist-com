@@ -17,9 +17,6 @@ import clsx from "clsx";
 import svgSaver from "svgsaver";
 import { SettingsContext } from "../../Viz";
 import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
-import Select from '@material-ui/core/Select';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 
 
@@ -61,18 +58,9 @@ const InputCohen = ({ cohend, sliderStep, sliderMax }) => {
     dispatch({ name: "cohend", value: inputVal, immediate: false });
     setSubmitted(true)
   }
-  const [age, setAge] = React.useState('');
-
-  const handleChange = (event) => {
-    setAge(event.target.value);
+   const handleChange = (event) => {
     dispatch({ name: "cohend", value: 1, immediate: false });
   };
-  // I don't like this re-render
-  // better way to allow input to be controlled by 'cohend' state?
-  // useEffect(() => {
-  //   setInputVal(cohend)
-  //   setSubmitted(true)
-  // }, [cohend]);
 
   return (
     <>
@@ -100,16 +88,6 @@ const InputCohen = ({ cohend, sliderStep, sliderMax }) => {
         </form>
         </FormControl >
         <FormControl >
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={age}
-          onChange={handleChange}
-        >
-          <MenuItem value={10}>Ten</MenuItem>
-          <MenuItem value={20}>Twenty</MenuItem>
-          <MenuItem value={30}>Thirty</MenuItem>
-        </Select>
       </FormControl >
       </>
   );

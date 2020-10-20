@@ -39,6 +39,16 @@ export const vizReducer = (state, action) => {
           ...updateDonutData(cohend, state.CER / 100),
         };
       }
+      case "preset": {
+        return {
+        ...state,
+          cohend: value.d,
+          M0: value.M0,
+          M1: value.M1,
+          SD: value.SD,
+          preset: value.preset
+        };
+      }
       case "xLabel":
       case "muZeroLabel":
       case "muOneLabel":

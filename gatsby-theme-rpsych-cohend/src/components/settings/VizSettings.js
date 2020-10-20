@@ -10,15 +10,20 @@ import { makeStyles, useTheme } from "@material-ui/core/styles";
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { SketchPicker, HuePicker } from "react-color";
 import reactCSS from "reactcss";
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
 import DarkModeToggle from 'gatsby-theme-rpsych/src/components/DarkModeToggle'
+import Select from '@material-ui/core/Select';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
 
 const useStyles = makeStyles(theme => ({
   container: {
     paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(1),
     width: "100%"
+  },
+  formControl: {
+    minWidth: "100%"
   }
 }));
 
@@ -95,6 +100,34 @@ const ColorPicker = ({ dist }) => {
   );
 };
 
+const presetList = [
+  {
+    preset: "small",
+    label: "Small",
+    M0: 100,
+    M1: 103,
+    SD: 15,
+    d: 0.2,
+  },
+  {
+    preset: "medium",
+    label: "Medium",
+    M0: 100,
+    M1: 107.5,
+    SD: 15,
+    d: 0.5,
+  },
+  {
+    preset: "large",
+    label: "Large",
+    M0: 100,
+    M1: 112,
+    SD: 15,
+    d: 0.8,
+  },
+];
+
+
 const VizSettings = () => {
   const classes = useStyles();
   const { state, dispatch } = useContext(SettingsContext);
@@ -107,11 +140,17 @@ const VizSettings = () => {
     muZeroLabel,
     muOneLabel,
     sliderMax,
-    sliderStep
+    sliderStep,
+    preset
   } = state;
   const handleSubmit = e => {
     e.preventDefault();
   };
+  const handlePreset = e => {
+    const selected = e.target.value
+    const preset = presetList.filter(d => d.preset === selected)
+    dispatch({name: "preset", value: preset[0]})
+  }
   const handleChange = e => {
     e.preventDefault();
     dispatch(e);
@@ -156,6 +195,21 @@ const VizSettings = () => {
         <Typography align="center" variant="h6" component="h3">
           Parameters
         </Typography>
+        <FormControl variant="filled" className={classes.formControl}>
+        <InputLabel id="select-preset-label">
+          Preset
+        </InputLabel>
+        <Select
+          labelId="select-preset-label"
+          id="select-preset"
+          value={preset}
+          MenuProps={{ disableScrollLock: true }}
+          onChange={handlePreset}
+        >
+          {presetList.map(item => <MenuItem value={item.preset} key={`select-${item.preset}`}>{item.label}</MenuItem>)}
+          
+        </Select>
+        </FormControl>
         <SettingsInput
           label="Mean 1"
           type="number"

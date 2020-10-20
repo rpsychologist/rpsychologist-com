@@ -18,4 +18,5 @@ export let defaultState = {
     colorDistOverlap: { r: 0, g: 0, b: 0, a: 1 },
     colorDist2: { r: 106, g: 206, b: 235, a: 1 },
     immediate: false,
+    preset: "large"
   };
