@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "gatsby"
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import List from "@material-ui/core/List";
@@ -47,7 +48,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Footer = React.memo(({ blogPost, data }) => {
-  console.log(data)
   const classes = useStyles();
   return (
     <footer className={classes.footer}>
@@ -103,8 +103,8 @@ const Footer = React.memo(({ blogPost, data }) => {
               </ListItem>
               <ListItem
                 button
-                component="a"
-                href="https://www.rpsychologist.com"
+                component={Link}
+                to="/"
               >
                 <ListItemIcon>
                   <HomeIcon className={classes.icon} />
