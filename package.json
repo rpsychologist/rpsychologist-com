@@ -12,9 +12,9 @@
     },
     "workspaces": [
       "blog",
-      "rpsych-cohend",
       "gatsby-theme-rpsych",
-      "gatsby-theme-rpsych-viz"
+      "gatsby-theme-rpsych-viz",
+      "gatsby-theme-rpsych-cohend"
     ]
   }
   
