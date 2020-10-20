@@ -6,11 +6,15 @@ import Container from "@material-ui/core/Container";
 import { makeStyles } from "@material-ui/core/styles";
 import IntroText from "./components/content/Intro";
 import Button from "@material-ui/core/Button";
+import Link from "@material-ui/core/Link";
+import TwitterIcon from "@material-ui/icons/Twitter";
 import Viz from "./Viz";
 import Tour from "./components/content/HelpTour";
 import VizLayout from "gatsby-theme-rpsych-viz/src/components/Layout";
 import SEO from "gatsby-theme-rpsych/src/components/seo";
-import { version, lastUpdated } from "../package.json";
+import SocialShare from 'gatsby-theme-rpsych/src/components/SocialShare'
+import Bio from 'gatsby-theme-rpsych/src/components/Bio'
+
 import License from "./components/License"
 
 const drawerWidth = 240;
@@ -30,7 +34,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const App = (props) => {
-  console.log(props)
   const classes = useStyles();
   const [openHelpTour, setHelpTour] = useState(false);
   const toggleDrawer = (open) => (event) => {
@@ -88,17 +91,14 @@ const App = (props) => {
           </Typography>
           <Typography align="center" gutterBottom>
             Created by{" "}
-            <a href="https://rpsychologist.com/">Kristoffer Magnusson</a>
-            <br />
-            <a href="https://twitter.com/krstoffr">
-              <Button className={classes.twitter}>
-                {/* <TwitterIcon /> */}
-                krstoffr
-              </Button>
-            </a>
+            <Link href="https://rpsychologist.com/">Kristoffer Magnusson</Link>
           </Typography>
         </Container>
         <Container className={classes.textContent}>
+        <SocialShare
+                  slug={"cohend"}
+                  title={"Interpreting Cohen's d - an interactive visualization by @krstoffr"}
+                />
           <IntroText />
         </Container>
         <Viz
@@ -107,6 +107,9 @@ const App = (props) => {
           handleHelpTour={setHelpTour}
         />
       </main>
+      <Container className={classes.textContent} style={{paddingTop: "2em"}}>
+      <Bio></Bio>
+      </Container>
     </VizLayout>
   );
 };
