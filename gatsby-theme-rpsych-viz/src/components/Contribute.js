@@ -3,6 +3,8 @@ import Typography from "@material-ui/core/Typography";
 import { withStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
+import Link from "@material-ui/core/Link";
+
 
 const CoffeButton = withStyles((theme) => ({
   root: {
@@ -57,10 +59,9 @@ const Contribute = React.memo(() => {
         </Grid>
       </Grid>
       <Typography variant="body1" paragraph style={{ marginTop: '1em' }}>
-        Finacial support is not the only way to contribute. Other ways to
-        contribute is to suggest new features, contribute useful references,
+        Pull requests are also welcome, or you can contribute by suggesting new features, add useful references,
         or help fix typos. Just open a issues on{" "}
-        <a href="https://github.com/rpsychologist/likelihood">GitHub</a>.
+        <Link href="https://github.com/rpsychologist/rpsychologist-com">GitHub</Link>.
       </Typography>
     </div>
   );
