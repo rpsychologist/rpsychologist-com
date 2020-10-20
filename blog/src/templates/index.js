@@ -42,7 +42,6 @@ const useStyles = makeStyles(theme => ({
 
 const BlogIndex = props => {
   const { data, pageContext } = props
-  console.log(data)
   const classes = useStyles()
   const handleBlogPaginate = (event, value) => {
     navigate(`/${value == 1 ? '' : value}#blog-posts`)
