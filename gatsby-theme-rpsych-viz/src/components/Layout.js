@@ -67,7 +67,7 @@ const VizLayout = ({ openSettings, children, path, data }) => {
           <Contribute />
         </Container>
         <Container maxWidth="lg">
-          <Typography variant="h4" component="h2" align="center" gutterBottom>
+          <Typography variant="h2" component="h2" align="center" gutterBottom>
             More Visualizations
           </Typography>
           <MoreViz explanation={true} path={path} />
@@ -77,32 +77,3 @@ const VizLayout = ({ openSettings, children, path, data }) => {
   );
 };
 export default VizLayout;
-
-// export const pageQuery = graphql`
-//   query($slug: String!) {
-//     site {
-//       siteMetadata {
-//         title
-//         author
-//       }
-//     }
-//     mdx(fields: { slug: { eq: $slug } }) {
-//       id
-//       excerpt(pruneLength: 160)
-//       tableOfContents
-//       frontmatter {
-//         title
-//         include_toc
-//         slug
-//         tags
-//         date(formatString: "MMMM DD, YYYY")
-//       }
-//       body
-//       parent {
-//         ... on File {
-//           relativePath
-//         }
-//       }
-//     }
-//   }
-// `

@@ -16,10 +16,6 @@ const useStyles = makeStyles((theme) => ({
       margin: "0 -16px 0 -16px",
       padding: "0 1em",
       overflow: "auto",
-      backgroundColor: theme.palette.type === "light" ? "#fdf6e3" : "#151618",
-    },
-    '& :not(pre) > code[class*="language-"], pre[class*="language-"]': {
-      backgroundColor: theme.palette.type === "light" ? "#fdf6e3" : "#151618",
     },
   },
   heading: {
@@ -37,34 +33,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const FaqPage = React.memo(({data}) => {
-  console.log(data)
   const classes = useStyles();
-  // const data = useStaticQuery(
-  //   graphql`
-  //     query FAQ {
-  //       allMdx(
-  //         filter: { fileAbsolutePath: { regex: "/FAQ/" } }
-  //         sort: { fields: frontmatter___order, order: ASC }
-  //       ) {
-  //         edges {
-  //           node {
-  //             id
-  //             body
-  //             frontmatter {
-  //               title
-  //               order
-  //             }
-  //           }
-  //         }
-  //         totalCount
-  //       }
-  //     }
-  //   `
-  // );
-
   return (
     <div className={classes.root}>
-      <Typography variant="h4" component="h2" align="center" gutterBottom>
+      <Typography variant="h2" component="h2" align="center" gutterBottom>
         FAQ
       </Typography>
       {data.edges.map(({ node }) => (
