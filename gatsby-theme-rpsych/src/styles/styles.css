@@ -62,6 +62,13 @@ body.dark-mode .code--label.language-r {
 .code--label.language-r::after {
   content: 'R';
 }
+.code--label.language-BibTex {
+  color: #ffffff;
+  background: rgb(248, 66, 121);
+}
+.code--label.language-BibTex::after {
+  content: 'BibTex';
+}
 .code--label.language-output {
   color: #ffffff;
   background: rgb(189, 192, 192);

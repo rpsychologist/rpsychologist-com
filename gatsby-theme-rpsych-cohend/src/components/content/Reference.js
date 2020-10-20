@@ -1,20 +1,22 @@
 import React from "react";
-
+import CodeBlock from "gatsby-theme-rpsych/src/components/code/code-block";
 import { useSiteMetadata } from "gatsby-theme-rpsych-viz/src/hooks/useSiteMetaData";
 
-export const BibTex = ({lastUpdated, version}) => {
+export const BibTex = ({ lastUpdated, version }) => {
   const date = new Date(lastUpdated);
   const year = date.getFullYear();
   return (
-    <p>
-      {`@software{magnussonCohend,
+    <CodeBlock>
+      <code className="BibTex">
+        {`@software{magnussonCohend,
     author = {Kristoffer Magnusson},
     title = {Interpreting Cohen's d Effect Size: An Interactive Visualization},
     url = {https://rpsychologist.com/d3/cohend/},
     version = {${version}},
     date = {${year}},
   }`}
-    </p>
+      </code>
+    </CodeBlock>
   );
 };
 
