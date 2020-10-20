@@ -152,7 +152,7 @@ const VizSettings = () => {
     dispatch({name: "preset", value: preset[0]})
   }
   const handleChange = e => {
-    e.preventDefault();
+    //e.preventDefault();
     dispatch(e);
   };
   const onClick = () => {
