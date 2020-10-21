@@ -1,14 +1,4 @@
 module.exports = {
-  siteMetadata: {
-    title: `blog`,
-    description: `blog`,
-    author: `Kristoffer Magnusson`,
-    twitter: `@krstoffr`,
-    version: '2.3.0',
-    lastUpdated: `2020-10-04`,
-    github: 'https://github.com/rpsychologist/cohend',
-    url: 'https://rpsychologist.com/d3/cohend/'
-  },
   plugins: [
     `gatsby-theme-rpsych`,
     `gatsby-theme-rpsych-cohend`,
