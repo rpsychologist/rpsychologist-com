@@ -4,7 +4,7 @@ import Grid from "@material-ui/core/Grid";
 import Slider from "@material-ui/core/Slider";
 import Input from "@material-ui/core/Input";
 import ButtonMLE from "./ButtonMLE";
-import { VizDispatch } from "../../App";
+import { VizDispatch } from "../../Viz";
 
 const useStyles = makeStyles({
   root: {

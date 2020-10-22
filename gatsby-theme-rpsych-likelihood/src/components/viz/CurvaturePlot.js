@@ -11,7 +11,7 @@ const CurvatureChart = props => {
   const vizRef = useRef(null);
 
   // Stuff
-  const margin = { top: 20, right: 20, bottom: 30, left: 50 };
+  const margin = { top: 20, right: 20, bottom: 35, left: 50 };
   const durationTime = 200;
   const w = props.width - margin.left - margin.right;
   const h = props.width * 0.5 - margin.top - margin.bottom;
@@ -90,45 +90,45 @@ const CurvatureChart = props => {
 
     // x Axis
     gOuter
-      .selectAll("g.xAxis")
+      .selectAll("g.likelihood--xAxis")
       .data([0])
       .enter()
       .append("g")
-      .attr("class", "xAxis");
+      .attr("class", "likelihood--xAxis");
 
     select(node)
-      .select("g.xAxis")
+      .select("g.likelihood--xAxis")
       .attr("transform", "translate(" + 0 + "," + h + ")")
       .call(xAxis);
 
     // x label
     gOuter
-      .selectAll("#x-label")
+      .selectAll(".likelihood--x-label")
       .data([0])
       .enter()
       .append("text")
       .style("text-anchor", "middle")
-      .attr("class", "x-label");
+      .attr("class", "likelihood--x-label");
 
     select(node)
-      .selectAll(".x-label")
+      .selectAll(".likelihood--x-label")
       .attr(
         "transform",
-        "translate(" + w / 2 + " ," + (h + margin.bottom) + ")"
+        "translate(" + w / 2 + " ," + (h + margin.bottom - 5) + ")"
       )
       .text("μ");
 
     // y label
     gOuter
-      .selectAll("#y-label")
+      .selectAll("#likelihood--y-label")
       .data([0])
       .enter()
       .append("text")
       .style("text-anchor", "middle")
-      .attr("id", "y-label");
+      .attr("id", "likelihood--y-label");
 
     select(node)
-      .selectAll("#y-label")
+      .selectAll("#likelihood--y-label")
       .attr("transform", "rotate(-90)")
       .attr("text-anchor", "middle")
       .attr("x", -(h / 2))

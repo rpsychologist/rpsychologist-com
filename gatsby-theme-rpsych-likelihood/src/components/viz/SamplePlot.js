@@ -36,7 +36,7 @@ const SampleChart = props => {
   const vizRef = useRef(null);
 
   // Stuff
-  const margin = { top: 60, right: 20, bottom: 30, left: 50 };
+  const margin = { top: 60, right: 20, bottom: 30, left: 55 };
  
   const durationTime = 200;
   const w = props.width - margin.left - margin.right;
@@ -131,14 +131,14 @@ const SampleChart = props => {
 
     // x Axis
     select(node)
-      .selectAll("g.xAxis")
+      .selectAll("g.likelihood--xAxis")
       .data([0])
       .enter()
       .append("g")
-      .attr("class", "xAxis");
+      .attr("class", "likelihood--xAxis");
 
     select(node)
-      .select("g.xAxis")
+      .select("g.likelihood--xAxis")
       .attr(
         "transform",
         "translate(" + margin.left + "," + (h + margin.top) + ")"
@@ -147,14 +147,14 @@ const SampleChart = props => {
 
     // y Axis
     select(node)
-      .selectAll("g.yAxis")
+      .selectAll("g.likelihood--yAxis")
       .data([0])
       .enter()
       .append("g")
-      .attr("class", "yAxis");
+      .attr("class", "likelihood--yAxis");
 
     select(node)
-      .select("g.yAxis")
+      .select("g.likelihood--yAxis")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
       .call(yAxis);
 
@@ -168,15 +168,15 @@ const SampleChart = props => {
 
     // x label
     gViz
-      .selectAll(".x-label")
+      .selectAll(".likelihood--x-label")
       .data([0])
       .enter()
       .append("text")
       .style("text-anchor", "middle")
-      .attr("class", "x-label");
+      .attr("class", "likelihood--x-label");
 
     select(node)
-      .selectAll(".x-label")
+      .selectAll(".likelihood--x-label")
       .attr(
         "transform",
         "translate(" + w / 2 + " ," + (h + margin.bottom) + ")"
@@ -185,15 +185,15 @@ const SampleChart = props => {
 
     // y label
     gViz
-      .selectAll("#y-label")
+      .selectAll(".likelihood--y-label")
       .data([0])
       .enter()
       .append("text")
       .style("text-anchor", "middle")
-      .attr("id", "y-label");
+      .attr("class", "likelihood--y-label");
 
     select(node)
-      .selectAll("#y-label")
+      .selectAll(".likelihood--y-label")
       .attr("transform", "rotate(-90)")
       .attr("text-anchor", "middle")
       .attr("x", -(h / 2))
@@ -204,15 +204,15 @@ const SampleChart = props => {
 
     // DIST1
     gViz
-      .selectAll("#dist1")
+      .selectAll("#likelihoodDist")
       .data([data1.data])
       .enter()
       .append("svg:path")
       .attr("d", linex)
-      .attr("id", "dist1");
+      .attr("id", "likelihoodDist");
 
     select(node)
-      .selectAll("#dist1")
+      .selectAll("#likelihoodDist")
       .data([data1.data])
       .attr("d", linex);
 
@@ -252,7 +252,7 @@ const SampleChart = props => {
         .data(sample)
         .attr("cy", d => yScale(normal.pdf(d, props.mu, sigma)))
         .attr("cx", d => xScale(d))
-        .attr("class", "sampleCircles")
+        .attr("class", "likelihood--sampleCircles")
         .on("mouseover", function(d, i) {
           props.setHighlight(i);
           select(this).attr("r", 10)

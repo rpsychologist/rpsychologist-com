@@ -18,7 +18,7 @@ const useStyles = makeStyles(theme => ({
   },
   logLikSpan: {
     display: "inline-block",
-    background: "#f1f2f6",
+    background: theme.palette.type === 'dark' ? "#33353d":"#f1f2f6",
     borderRadius: "5px",
     padding: "5px",
     margin: "2px",

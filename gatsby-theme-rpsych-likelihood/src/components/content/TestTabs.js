@@ -7,7 +7,7 @@ import Box from "@material-ui/core/Box";
 import { chisquare, normal } from "jstat";
 import { format } from "d3-format";
 import katex from "katex";
-import { VizDispatch } from "../../App";
+import { VizDispatch } from "../../Viz";
 
 const f2n = format(".2n");
 const f3n = format(".3n");
@@ -157,23 +157,22 @@ function TabPanel(props) {
   );
 }
 
-const TestTabs = withStyles({
+const TestTabs = withStyles((theme) => ({
   root: {
-    borderBottom: "1px solid #e8e8e8",
-    backgroundColor: "#ccdae3"
+    borderBottom: theme.palette.type === 'dark' ? "1px solid #303334":"1px solid #e8e8e8",
+    backgroundColor: theme.palette.type === 'dark' ? "#303334":"#ccdae3"
   },
   indicator: {
     backgroundColor: "#0984e3"
   }
-})(Tabs);
+}))(Tabs);
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1
   },
   panel: {
-    backgroundColor: "#f1f7f9",
-    color: "#425358"
+    backgroundColor: theme.palette.type === 'dark' ? "#182529":"#f1f7f9",
   }
 }));
 const TestTab = withStyles(theme => ({

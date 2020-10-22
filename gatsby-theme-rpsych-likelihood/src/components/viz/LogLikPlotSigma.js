@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useMemo, useContext } from "react";
 import { useSpring, animated } from "react-spring";
 import { useDrag } from "react-use-gesture";
-import { VizDispatch } from "../../App";
+import { VizDispatch } from "../../Viz";
 import { scaleLinear } from "d3-scale";
 import { axisBottom, axisLeft } from "d3-axis";
 import { select } from "d3-selection";
@@ -39,13 +39,11 @@ const OverlapChart = props => {
     props.sample
   ]);
 
-  const [spring, set] = useSpring(() => ({
+  const {xy} = useSpring({
     xy: [props.mu, props.sigma2],
-    immediate: false,
+    immediate: !props.animating,
     config: { duration: 500 }
-  }));
-
-  set({ xy: [props.mu, props.sigma2], immediate: !props.animating });
+  });
 
   const bind = useDrag(({ movement: [mx, my], first, memo }) => {
     const muStart = first ? props.mu : memo[0];
@@ -143,14 +141,14 @@ const OverlapChart = props => {
 
     // x Axis
     select(node)
-      .selectAll("g.xAxis")
+      .selectAll("g.likelihood--xAxis")
       .data([0])
       .enter()
       .append("g")
-      .attr("class", "xAxis");
+      .attr("class", "likelihood--xAxis");
 
     select(node)
-      .select("g.xAxis")
+      .select("g.likelihood--xAxis")
       .attr(
         "transform",
         "translate(" + margin.left + "," + (h + margin.top) + ")"
@@ -159,14 +157,14 @@ const OverlapChart = props => {
 
     // y Axis
     select(node)
-      .selectAll("g.yAxis")
+      .selectAll("g.likelihood--yAxis")
       .data([0])
       .enter()
       .append("g")
-      .attr("class", "yAxis");
+      .attr("class", "likelihood--yAxis");
 
     select(node)
-      .select("g.yAxis")
+      .select("g.likelihood--yAxis")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
       .call(yAxis);
 
@@ -177,15 +175,15 @@ const OverlapChart = props => {
 
     // x label
     gViz
-      .selectAll(".x-label")
+      .selectAll(".likelihood--x-label")
       .data([0])
       .enter()
       .append("text")
       .style("text-anchor", "middle")
-      .attr("class", "x-label MuiTypography-body2");
+      .attr("class", "likelihood--x-label MuiTypography-body2");
 
     select(node)
-      .selectAll(".x-label")
+      .selectAll(".likelihood--x-label")
       .attr(
         "transform",
         "translate(" + w / 2 + " ," + (h + margin.bottom - 5) + ")"
@@ -194,15 +192,15 @@ const OverlapChart = props => {
 
     // y label
     gViz
-      .selectAll(".y-label")
+      .selectAll(".likelihood--y-label")
       .data([0])
       .enter()
       .append("text")
       .style("text-anchor", "middle")
-      .attr("class", "y-label MuiTypography-body2");
+      .attr("class", "likelihood--y-label MuiTypography-body2");
 
     select(node)
-      .selectAll(".y-label")
+      .selectAll(".likelihood--y-label")
       .attr("transform", "rotate(-90)")
       .attr("text-anchor", "middle")
       .attr("x", -(h / 2))
@@ -265,7 +263,7 @@ const OverlapChart = props => {
         <g clipPath="url(#clipSigma2)">
           <animated.g
             {...bind()}
-            transform={spring.xy.interpolate(
+            transform={xy.to(
               (x, y) =>
                 `translate(${xScale(logLikSum(sample, x, y))}, ${yScale(y)})`
             )}
@@ -274,11 +272,11 @@ const OverlapChart = props => {
             <circle cx={margin.left} cy={0} r="5" className="logLikX" />
             <animated.line
               className="deriv"
-              x1={spring.xy.interpolate(
+              x1={xy.to(
                 (x, y) =>
                   margin.left + xScale(xMin - delta * dSigma2(sample, x, y))
               )}
-              x2={spring.xy.interpolate(
+              x2={xy.to(
                 (x, y) =>
                   margin.left + xScale(xMin + delta * dSigma2(sample, x, y))
               )}

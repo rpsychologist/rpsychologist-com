@@ -46,11 +46,6 @@ const useStyles = makeStyles(theme => ({
     marginLeft: 'auto',
     marginRight: 'auto',
     position: 'relative',
-    [theme.breakpoints.down('xs')]: {
-      width: '100vw',
-      marginLeft: -16,
-      marginRight: -16,
-    },
     '& > * .gatsby-highlight pre code': {
       fontSize: '1rem',
       [theme.breakpoints.down('sm')]: {
@@ -119,7 +114,7 @@ const CodeBlock = ({
     setExpanded(!expanded)
   }
   return (
-    <div className={clsx(classes.codeBlock, {[classes.codeOutput]: language === "output"})}>
+    <div className={ clsx(classes.codeBlock, {[classes.codeOutput]: language === "output"})}>
       <LazyHighlight code={content} language={language} theme={undefined}>
         {({ tokens, getLineProps, getTokenProps }) => (
           <div>

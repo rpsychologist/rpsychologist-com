@@ -1,11 +1,9 @@
 import React, { useEffect } from "react";
-import { useSpring, animated, interpolate } from "react-spring";
+import { useSpring, animated } from "react-spring";
 import { logLikSum } from "../utils";
 
 const AnimatedPath = ({ data, x, sigma2, xScale, yScale, linex, mu, sample, animating }) => {
-  const [val, set] = useSpring(() =>  ({value: mu, immediate: false, config: {duration: 500}} ));
-
-  set({value: mu, immediate: !animating})
+  const {val} = useSpring({val: mu, immediate: !animating, config: {duration: 500}});
 
   const interp = (mu) => {
     const interpLine = data.map(d => ([d[0], logLikSum(sample, mu, d[0])]));
@@ -13,7 +11,7 @@ const AnimatedPath = ({ data, x, sigma2, xScale, yScale, linex, mu, sample, anim
   }
 
   return (
-    <animated.path d={val.value.interpolate(mu => interp(mu))} className="LogLikSigma" />
+    <animated.path d={val.to(mu => interp(mu))} className="LogLikSigma" />
   );
 };
 export default AnimatedPath;

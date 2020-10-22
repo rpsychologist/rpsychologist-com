@@ -1,6 +1,7 @@
 import React from 'react'
 import { graphql } from 'gatsby'
 import { MDXRenderer } from 'gatsby-plugin-mdx'
+import { MDXProvider } from "@mdx-js/react";
 import Typography from '@material-ui/core/Typography'
 import Divider from '@material-ui/core/Divider'
 import { makeStyles } from '@material-ui/styles'
@@ -22,6 +23,17 @@ import Link from '@material-ui/core/Link'
 import InternalLink from 'gatsby-theme-rpsych/src/utils/InternalLink'
 import { withStyles } from '@material-ui/core/styles'
 import TableContainer from '@material-ui/core/TableContainer'
+import CodeBlock from "gatsby-theme-rpsych/src/components/code/code-block";
+
+const PostCodeBlock = withStyles((theme) => ({
+  root: {
+    [theme.breakpoints.down('xs')]: {
+      width: '100vw',
+      marginLeft: -16,
+      marginRight: -16,
+    }
+  }
+}))(CodeBlock);
 
 const StyledTableContainer = withStyles(() => ({
   root: {
@@ -138,10 +150,17 @@ const useStyles = makeStyles(theme => ({
       borderLeft: '4px solid',
     },
   },
+  '& > .codeBlock': {
+    backgroundColor: "red",
+  }
 }))
 
 const ListItemLink = props => {
   return <ListItem disableRipple button component="a" {...props} />
+}
+
+const components = { 
+  pre: ({ children }) => <PostCodeBlock>{children}</PostCodeBlock>
 }
 
 const createTocLevel = (i, nested) => {
@@ -239,7 +258,10 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
                 />
               </Grid>
             </Grid>
-            <MDXRenderer>{post.body}</MDXRenderer>
+            <MDXProvider components={components}>
+              <MDXRenderer>{post.body}</MDXRenderer>
+            </MDXProvider>
+
             <div className={classes.articleInner}>
               <Divider style={{ marginBottom: '1em', marginTop: '1em' }} />
               <Bio />

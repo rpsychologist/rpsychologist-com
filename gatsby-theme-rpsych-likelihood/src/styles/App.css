@@ -1,29 +1,16 @@
-a {
-  text-decoration: none;
-  color: #428bca;
-}
-a:hover {
-  text-decoration: underline;
-}
-footer a {
-  text-decoration: none;
-  color: white;
-}
-.gatsby-highlight {
-  background-color: #fdf6e3;
-  border-radius: 0;
-  margin: 0 -24px 0 -24px;
-  padding: 0 1em;
-  overflow: auto;
-}
 
 /* VIZ */
-path#dist1 {
+path#likelihoodDist {
   fill: none;
   stroke:#2f3640;
   stroke-width: 4px;
 }
-.sampleCircles {
+body.dark-mode path#likelihoodDist {
+  fill: none;
+  stroke:#9ab1d1;
+  stroke-width: 4px;
+}
+.likelihood--sampleCircles {
   fill:#00b894;
 }
 .LogLikMu {
@@ -31,7 +18,7 @@ path#dist1 {
   stroke: #00b894;
   stroke-width: 4px;
 }
-.animated--path {
+.likelihood--animated--path {
   fill: none;
   stroke: #069419;
   stroke-width: 4px;
@@ -86,10 +73,18 @@ path#logLikNCurve {
   stroke: #30394F;
   stroke-width: 4px;
 }
+body.dark-mode path#logLikNCurve, body.dark-mode path#logLikReferenceCurve {
+  stroke: #b4b9c4;
+}
 line.logLikLines {
+  stroke-width: 2px;
   stroke-dasharray: 5 2;
   stroke: black;
   stroke-opacity: 0.2;
+}
+body.dark-mode line.logLikLines {
+  stroke: white;
+  stroke-opacity: 0.33;
 }
 .gradientDescent {
 
@@ -110,10 +105,24 @@ line.LRT, line.wald, line.score {
   stroke-dasharray: 2 2;
   transition: stroke-opacity 0.5s, stroke 0.5s, stroke-width 0.5s, stroke-dasharray 0.5s;
 }
-
+body.dark-mode line.LRT, 
+body.dark-mode line.wald, 
+body.dark-mode line.score {
+  stroke-opacity: 0.1;
+  stroke: #ffffff;
+}
 line.LRT.highlight,
 line.wald.highlight,
 line.score.highlight  {
+  stroke-dasharray: none;
+  stroke: #0984e3;
+  stroke-opacity: 1;
+  stroke-width: 2px;
+  z-index: -9999;
+}
+body.dark-mode line.LRT.highlight,
+body.dark-mode line.wald.highlight,
+body.dark-mode line.score.highlight  {
   stroke-dasharray: none;
   stroke: #0984e3;
   stroke-opacity: 1;
@@ -150,19 +159,38 @@ line.score.highlight  {
   stroke-width: 2px;
 }
 
-.xAxis, .yAxis {
+body.dark-mode .polygonTip {
+  fill:#282828;
+  stroke: #282828;
+  stroke-width: 2px;
+}
+
+.likelihood--xAxis, .likelihood--yAxis {
   opacity: 0.33;
   user-select: none;
 }
-.y-label, .x-label {
+.likelihood--y-label, .likelihood--x-label {
   user-select: none;
 }
-line.deriv {
+
+body.dark-mode .likelihood--y-label, 
+body.dark-mode .likelihood--x-label  {
+  fill: white;
+}
+
+line.likelihood--deriv {
   stroke: #000000;
   stroke-width: 2px;
 }
+body.dark-mode line.likelihood--deriv {
+  stroke: #fff;
+  stroke-opacity: 0.5;
+}
 circle.logLikX {
   fill: #000000;
+}
+body.dark-mode circle.logLikX {
+  fill: #4b4b4b;
 }
 
 g.draggable {
@@ -170,4 +198,9 @@ g.draggable {
 }
 g.draggable:active {
   cursor: -webkit-grabbing;
+}
+#contour-clip-rect {
+  fill: none;
+  stroke: none;
+  stroke-width: 3px;
 }

@@ -1,7 +1,7 @@
 - title: "Maximum Likelihood"
   excerpt: "An interactive post covering various aspects of maximum likelihood estimation."
   image: "MoreViz/likelihood.png"
-  url: "https://rpsychologist.com/d3/likelihood/"
+  url: "/likelihood/"
 
 - title: "Cohen's d"
   excerpt: "An interactive app to visualize and understand standardized effect sizes."

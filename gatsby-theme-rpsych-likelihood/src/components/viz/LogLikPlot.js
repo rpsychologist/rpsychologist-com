@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useMemo, useContext } from "react";
 import { useSpring, animated } from "react-spring";
 import { useDrag } from "react-use-gesture";
 import { scaleLinear } from "d3-scale";
-import { VizDispatch } from "../../App";
+import { VizDispatch } from "../../Viz";
 import { range } from "d3-array";
 import { axisBottom, axisLeft } from "d3-axis";
 import { select } from "d3-selection";
@@ -17,7 +17,7 @@ const logLikCart = props => {
   const vizRef = useRef(null);
   const dispatch = useContext(VizDispatch);
   // Stuff
-  const margin = { top: 60, right: 20, bottom: 40, left: 50 };
+  const margin = { top: 60, right: 20, bottom: 40, left: 55 };
   const durationTime = 200;
   const w = props.width - margin.left - margin.right;
   const h = props.width * 0.4 - margin.top - margin.bottom;
@@ -58,14 +58,8 @@ const logLikCart = props => {
   });
   const yMin = -100;
   const yMax = -20;
+  const {xy} = useSpring({xy: [props.mu, props.sigma2], immediate: !props.animating, config: {duration: 500}});
 
-  const [spring, set] = useSpring(() => ({
-    xy: [props.mu, props.sigma2],
-    immediate: false,
-    config: { duration: 500 }
-  }));
-
-  set({ xy: [props.mu, props.sigma2], immediate: !props.animating });
 
   const bind = useDrag(({ movement: [mx, my], first, memo }) => {
     const muStart = first ? props.mu : memo[0];
@@ -157,14 +151,14 @@ const logLikCart = props => {
 
     // x Axis
     select(node)
-      .selectAll("g.xAxis")
+      .selectAll("g.likelihood--xAxis")
       .data([0])
       .enter()
       .append("g")
-      .attr("class", "xAxis");
+      .attr("class", "likelihood--xAxis");
 
     select(node)
-      .select("g.xAxis")
+      .select("g.likelihood--xAxis")
       .attr(
         "transform",
         "translate(" + margin.left + "," + (h + margin.top) + ")"
@@ -173,14 +167,14 @@ const logLikCart = props => {
 
     // y Axis
     select(node)
-      .selectAll("g.yAxis")
+      .selectAll("g.likelihood--yAxis")
       .data([0])
       .enter()
       .append("g")
-      .attr("class", "yAxis");
+      .attr("class", "likelihood--yAxis");
 
     select(node)
-      .select("g.yAxis")
+      .select("g.likelihood--yAxis")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
       .call(yAxis);
 
@@ -191,15 +185,15 @@ const logLikCart = props => {
 
     // x label
     gViz
-      .selectAll(".x-label")
+      .selectAll("likelihood--x-label")
       .data([0])
       .enter()
       .append("text")
       .style("text-anchor", "middle")
-      .attr("class", "x-label MuiTypography-body1");
+      .attr("class", "likelihood--x-label MuiTypography-body1");
 
     select(node)
-      .selectAll(".x-label")
+      .selectAll(".likelihood--x-label")
       .attr(
         "transform",
         "translate(" + w / 2 + " ," + (h + margin.bottom - 5) + ")"
@@ -208,15 +202,15 @@ const logLikCart = props => {
 
     // y label
     gViz
-      .selectAll(".y-label")
+      .selectAll(".likelihood--y-label")
       .data([0])
       .enter()
       .append("text")
       .style("text-anchor", "middle")
-      .attr("class", "y-label MuiTypography-body2");
+      .attr("class", "likelihood--y-label MuiTypography-body2");
 
     select(node)
-      .selectAll(".y-label")
+      .selectAll(".likelihood--y-label")
       .attr("transform", "rotate(-90)")
       .attr("text-anchor", "middle")
       .attr("x", -(h / 2))
@@ -240,8 +234,8 @@ const logLikCart = props => {
               sample={sample}
               animating={props.animating}
               className="LogLikMu"
-            />
-            {props.algo == "newtonRaphson" && (
+            /> 
+         {props.algo == "newtonRaphson" && (
               <AnimatedPath
                 data={newtonParabola}
                 x={100}
@@ -278,9 +272,12 @@ const logLikCart = props => {
       <g clipPath="url(#clipMu2)">
         <animated.g
           {...bind()}
-          transform={spring.xy.interpolate(
-            (x, y) =>
-              `translate(${xScale(x)}, ${yScale(logLikSum(sample, x, y))})`
+          transform={xy.to(
+            (x, y) => {
+              return  `translate(${xScale(x)}, ${yScale(logLikSum(sample, x, y))})`
+            }
+
+             
           )}
           className="draggable"
         >
@@ -292,17 +289,17 @@ const logLikCart = props => {
           />
           <animated.line
             className="deriv"
-            y1={spring.xy.interpolate(
+            y1={xy.to(
               (x, y) =>
                 margin.top + yScale(yMax - delta * dMu(10, x, props.muHat, y))
             )}
-            y2={spring.xy.interpolate(
+            y2={xy.to(
               (x, y) =>
                 margin.top + yScale(yMax + delta * dMu(10, x, props.muHat, y))
             )}
             x1={margin.left + xScale(xMin - delta)}
             x2={margin.left + xScale(xMin + delta)}
-          />
+          /> 
 
           <Tooltip
             theta={props.theta}

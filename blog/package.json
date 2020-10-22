@@ -12,6 +12,7 @@
     "gatsby-plugin-manifest": "^2.0.5",
     "gatsby-theme-rpsych": "0.1.0",
     "gatsby-theme-rpsych-cohend": "*",
+    "gatsby-theme-rpsych-likelihood": "*",
     "react": "^16.12.0",
     "react-dom": "^16.12.0"
   },

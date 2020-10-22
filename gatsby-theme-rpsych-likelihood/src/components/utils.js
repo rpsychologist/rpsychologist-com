@@ -1,4 +1,5 @@
 import { range } from "d3-array";
+import { randomNormal } from "d3-random";
 
 export const logLik = (y, mu, sigma2) => {
   const LL =
@@ -132,3 +133,8 @@ export const gradientStep = ({
   const convergence = Math.abs(gradientSigma2) < TOOL && Math.abs(gradientMu) < TOOL
   return { points: points, converged: convergence };
 };
+
+export const drawSample = (n, M, sigma2) =>
+  [...Array(n)]
+    .map(() => randomNormal(M, Math.sqrt(sigma2))())
+    .sort((a, b) => a - b);

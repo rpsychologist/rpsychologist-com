@@ -1,12 +1,13 @@
 import React, { useContext, useState, useCallback } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
+import Link from "@material-ui/core/Link";
 import Collapse from "@material-ui/core/Collapse";
 import Typography from "@material-ui/core/Typography";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
-import { VizDispatch } from "../../App";
+import { VizDispatch } from "../../Viz";
 import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
@@ -29,9 +30,8 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(2)
   },
   eqCard: {
-    backgroundColor: "#f1f7f9",
+    backgroundColor: theme.palette.type === 'dark' ? "#182529" :"#f1f7f9",
     "& a": {
-      color: "#000",
       fontWeight: "bold"
     }
   }
@@ -130,7 +130,7 @@ const CardGradient = React.memo(({ toggle }) => {
           Gradient Ascent
         </Typography>
         <Typography variant="body2" component="p">
-          <a href="https://en.wikipedia.org/wiki/Gradient_descent">Gradient descent</a> is a simple iterative algorithm that uses the <a href="https://en.wikipedia.org/wiki/Gradient">gradient</a> (the vector of partial derivatives) to find the local minima. In our example, we
+          <Link href="https://en.wikipedia.org/wiki/Gradient_descent">Gradient descent</Link> is a simple iterative algorithm that uses the <Link href="https://en.wikipedia.org/wiki/Gradient">gradient</Link> (the vector of partial derivatives) to find the local minima. In our example, we
           look for the maxima, so we are doing gradient ascent. In both cases, we
           start with an initial guess for what the parameters' values are and
           iteratively update the values until convergence. Each update is

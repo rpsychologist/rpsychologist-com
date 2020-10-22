@@ -21,7 +21,7 @@ const NotFoundPage = props => {
 export default NotFoundPage
 export const pageQuery = graphql`
   query{
-    license: mdx( fileAbsolutePath: { regex: "/blog/content/license/license/" }) {
+    license: mdx( fileAbsolutePath: { regex: "/assets/license/license/" }) {
       id
       body
       slug

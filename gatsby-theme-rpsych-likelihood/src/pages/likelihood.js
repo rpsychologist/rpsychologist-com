@@ -7,9 +7,9 @@ export default (props) => {
 };
 
 export const pageQuery = graphql`
-  query cohend {
+  query likelihood {
     FAQ: allMdx(
-      filter: { fileAbsolutePath: { regex: "/cohend/FAQ/" } }
+      filter: { fileAbsolutePath: { regex: "/likelihood/FAQ/" } }
       sort: { fields: frontmatter___order, order: ASC }
     ) {
       edges {
@@ -25,12 +25,12 @@ export const pageQuery = graphql`
       }
       totalCount
     }
-    license: mdx(slug: { eq: "cohend/license" }) {
+    license: mdx(slug: { eq: "likelihood/license" }) {
       id
       body
       slug
     }
-    image: file(absolutePath: { regex: "/cohend_SEO.png/" }) {
+    image: file(absolutePath: { regex: "/likelihood_meta.png/" }) {
       childImageSharp {
         resize(width: 1200) {
           src

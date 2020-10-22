@@ -109,66 +109,6 @@ module.exports = {
         trackingId: `UA-47065595-1`,
       },
     },
-    {
-      resolve: `gatsby-plugin-feed`,
-      options: {
-        query: `
-          {
-            site {
-              siteMetadata {
-                title
-                description
-                siteUrl
-                site_url: siteUrl
-              }
-            }
-          }
-        `,
-        feeds: [
-          {
-            serialize: ({ query: { site, allMdx } }) => {
-              return allMdx.edges.map(edge => {
-                return Object.assign({}, edge.node.frontmatter, {
-                  description: edge.node.excerpt,
-                  data: edge.node.frontmatter.date,
-                  url: site.siteMetadata.siteUrl + edge.node.fields.slug,
-                  guid: site.siteMetadata.siteUrl + edge.node.fields.slug,
-                 /*  custom_elements: [{ 'content:encoded': edge.node.html }], */
-                })
-              })
-            },
-            query: `
-            {
-              allMdx(
-                filter: { fileAbsolutePath: { regex: "/content/blog/" } }
-                limit: 10,
-                sort: { order: DESC, fields: [frontmatter___date] },
-              ) {
-                edges {
-                  node {
-                    fields { slug }
-                    frontmatter {
-                      title
-                      date
-                    }
-                    excerpt
-                  }
-                }
-              }
-            }
-            `,
-            output: '/rss.xml',
-            title: 'R Psychologist RSS feed (last 10 posts)',
-          },
-        ],
-      },
-    },
-    {
-      resolve: 'gatsby-plugin-zopfli',
-      options: {
-        extensions: ['css', 'html', 'js', 'svg', 'json', 'xml']
-      }
-    },
     `gatsby-plugin-offline`,
     `gatsby-plugin-react-helmet`,
   ],

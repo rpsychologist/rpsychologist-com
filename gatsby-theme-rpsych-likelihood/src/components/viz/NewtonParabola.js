@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { useSpring, animated, interpolate, useChain } from "react-spring";
+import { useSpring, animated, useChain } from "react-spring";
 import { range } from "d3-array";
 import { logLikSum, quadraticApprox } from "../utils";
 

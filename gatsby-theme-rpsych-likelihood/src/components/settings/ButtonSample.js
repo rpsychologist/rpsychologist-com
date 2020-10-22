@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import Button from '@material-ui/core/Button';
-import { VizDispatch } from "../../App";
-import { drawSample } from "../../App";
+import { VizDispatch } from "../../Viz";
+import { drawSample } from "../utils";
 
 export default function SampleButton({M, sigma2}) {
   const dispatch = useContext(VizDispatch);

@@ -2,7 +2,7 @@ import React, { useRef, useMemo, useContext } from "react";
 import { useSpring, animated } from "react-spring";
 import { useDrag } from "react-use-gesture";
 import useInterval from "@use-it/interval";
-import { VizDispatch } from "../../App";
+import { VizDispatch } from "../../Viz";
 import { scaleLinear } from "d3-scale";
 import { max, range } from "d3-array";
 import { geoPath } from "d3-geo";
@@ -60,11 +60,11 @@ const ContourChart = props => {
   const sigma2Min = 1;
 
   // For gradient ascent illustration
-  const [spring, set] = useSpring(() => ({
+  const {xy} = useSpring({
     xy: [props.mu, props.sigma2],
-    immediate: false,
+    immediate: !props.animating,
     config: { duration: 500 }
-  }));
+  });
 
   const bind = useDrag(({ movement: [mx, my], first, memo }) => {
     const muStart = first ? props.mu : memo[0];
@@ -90,8 +90,6 @@ const ContourChart = props => {
   useInterval(() => {
     iterate();
   }, props.algoDelay);
-
-  set({ xy: [props.mu, props.sigma2], immediate: !props.animating });
 
   const llMin = -300;
   const llMax = -20;
@@ -187,7 +185,7 @@ const ContourChart = props => {
             y1={0}
             y2={0}
             className="LogLikMu"
-            transform={spring.xy.interpolate(
+            transform={xy.to(
               (x, y) => `translate(0, ${yScale(y)})`
             )}
           />
@@ -196,7 +194,7 @@ const ContourChart = props => {
             y2={yScale(sigma2Max)}
             x1={0}
             x2={0}
-            transform={spring.xy.interpolate(
+            transform={xy.to(
               (x, y) => `translate(${xScale(x)}, 0)`
             )}
             className="LogLikSigma"
@@ -204,7 +202,7 @@ const ContourChart = props => {
 
           <animated.g
             {...bind()}
-            transform={spring.xy.interpolate(
+            transform={xy.to(
               (x, y) => `translate(${xScale(x)}, ${yScale(y)})`
             )}
             className="draggable"
@@ -214,14 +212,11 @@ const ContourChart = props => {
           </animated.g>
           <path d={linex(props.drawGradientPath)} className="gradientDescent" />
           <rect
-            id="clip-rect"
+            id="contour-clip-rect"
             x="0"
             y="0"
             width={w}
             height={h}
-            fill="none"
-            stroke="#fff"
-            strokeWidth="3px"
           />
         </g>
       </g>
