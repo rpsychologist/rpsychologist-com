@@ -3,7 +3,7 @@
   "description": "A tool to understand Cohen's d standardized effect size",
   "author": "Kristoffer Magnusson",
   "license": "MIT",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "lastUpdated": "2020-10-20",
   "private": true,
   "dependencies": {
