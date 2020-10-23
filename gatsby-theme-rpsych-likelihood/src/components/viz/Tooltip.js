@@ -2,7 +2,7 @@ import React from "react";
 import { topTooltipPath } from "../utils";
 
 const Tooltip = ({ x, y, ll, equation, margin }) => {
-    const width = 100;
+    const width = ll < -100 ? 130 : 110;
     const path = topTooltipPath(width, 40, 10, 10);
     return (
       <g>
