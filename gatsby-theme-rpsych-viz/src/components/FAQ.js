@@ -11,12 +11,6 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
     paddingBottom: "2em",
-    "& .gatsby-highlight": {
-      borderRadius: 0,
-      margin: "0 -16px 0 -16px",
-      padding: "0 1em",
-      overflow: "auto",
-    },
   },
   heading: {
     fontSize: theme.typography.pxToRem(20),
