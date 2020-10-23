@@ -1,7 +1,7 @@
 import React from 'react'
 import { graphql } from 'gatsby'
 import { MDXRenderer } from 'gatsby-plugin-mdx'
-import { MDXProvider } from "@mdx-js/react";
+import { MDXProvider } from '@mdx-js/react'
 import Typography from '@material-ui/core/Typography'
 import Divider from '@material-ui/core/Divider'
 import { makeStyles } from '@material-ui/styles'
@@ -23,17 +23,20 @@ import Link from '@material-ui/core/Link'
 import InternalLink from 'gatsby-theme-rpsych/src/utils/InternalLink'
 import { withStyles } from '@material-ui/core/styles'
 import TableContainer from '@material-ui/core/TableContainer'
-import CodeBlock from "gatsby-theme-rpsych/src/components/code/code-block";
+import CodeBlock from 'gatsby-theme-rpsych/src/components/code/code-block'
 
-const PostCodeBlock = withStyles((theme) => ({
-  root: {
-    [theme.breakpoints.down('xs')]: {
-      width: '100vw',
-      marginLeft: -16,
-      marginRight: -16,
-    }
-  }
-}))(CodeBlock);
+const PostCodeBlock = withStyles(
+  theme => ({
+    codeBlock: {
+      [theme.breakpoints.down('xs')]: {
+        width: '100vw',
+        marginLeft: -16,
+        marginRight: -16,
+      },
+    },
+  }),
+  { name: 'CodeBlock--post' }
+)(CodeBlock)
 
 const StyledTableContainer = withStyles(() => ({
   root: {
@@ -151,16 +154,16 @@ const useStyles = makeStyles(theme => ({
     },
   },
   '& > .codeBlock': {
-    backgroundColor: "red",
-  }
+    backgroundColor: 'red',
+  },
 }))
 
 const ListItemLink = props => {
   return <ListItem disableRipple button component="a" {...props} />
 }
 
-const components = { 
-  pre: ({ children }) => <PostCodeBlock>{children}</PostCodeBlock>
+const components = {
+  pre: ({ children }) => <PostCodeBlock>{children}</PostCodeBlock>,
 }
 
 const createTocLevel = (i, nested) => {
@@ -218,7 +221,6 @@ const Toc = ({ post }) => {
 }
 
 const BlogPostTemplate = ({ data, pageContext, location }) => {
-
   const classes = useStyles()
   const post = data.mdx
   const siteTitle = data.site.siteMetadata.title
