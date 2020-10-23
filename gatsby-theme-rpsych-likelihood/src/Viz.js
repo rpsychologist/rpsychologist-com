@@ -232,7 +232,8 @@ const Viz = () => {
                 label="Mean (μ)"
                 thetaHat={vizState.muHat}
                 value={vizState.mu}
-                max={vizState.sliderMax}
+                min={ vizState.muTheta - Math.sqrt(vizState.sigma2Theta) * 5}
+                max={vizState.muTheta + Math.sqrt(vizState.sigma2Theta) * 5}
                 step={vizState.sliderStep}
               />
               <Slider
@@ -241,7 +242,7 @@ const Viz = () => {
                 thetaHat={vizState.sigma2Hat}
                 value={vizState.sigma2}
                 min={1}
-                max={vizState.sigma2Max}
+                max={1500}
                 step={vizState.sliderStep}
               />
             </Grid>

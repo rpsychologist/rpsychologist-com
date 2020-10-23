@@ -49,7 +49,9 @@ const OverlapChart = props => {
     const muStart = first ? props.mu : memo[0];
     const sigma2Start = first ? props.sigma2 : memo[1];
     const mu = xScale.invert(xScale(muStart) + mx);
-    const sigma2 = yScale.invert(yScale(sigma2Start) + my);
+    var sigma2 = yScale.invert(yScale(sigma2Start) + my);
+    sigma2 = sigma2 < yMin ? yMin : sigma2
+    sigma2 = sigma2 > yMax ? yMax : sigma2
     dispatch({
       name: "contourDrag",
       value: { mu: props.mu, sigma2: sigma2 }

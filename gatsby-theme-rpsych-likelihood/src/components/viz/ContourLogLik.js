@@ -66,11 +66,20 @@ const ContourChart = props => {
     config: { duration: 500 }
   });
 
+  const yScale = scaleLinear([sigma2Min, sigma2Max], [h, 0]);
+
+  const xScale = scaleLinear([muMin, muMax], [0, w]);
+  const bounds = {left: xScale(muMin), right: xScale(muMax), bottom: yScale(sigma2Min), top: yScale(sigma2Max) }
+
   const bind = useDrag(({ movement: [mx, my], first, memo }) => {
     const muStart = first ? props.mu : memo[0];
     const sigma2Start = first ? props.sigma2 : memo[1];
-    const mu = xScale.invert(xScale(muStart) + mx);
-    const sigma2 = yScale.invert(yScale(sigma2Start) + my);
+    var mu = xScale.invert(xScale(muStart) + mx);
+    var sigma2 = yScale.invert(yScale(sigma2Start) + my);
+    mu = mu < muMin ? muMin : mu
+    mu = mu > muMax ? muMax : mu
+    sigma2 = sigma2 < sigma2Min ? sigma2Min : sigma2
+    sigma2 = sigma2 > sigma2Max ? sigma2Max : sigma2
     dispatch({
       name: "contourDrag",
       value: { mu: mu, sigma2: sigma2 }
@@ -97,10 +106,6 @@ const ContourChart = props => {
     () => range(llMin, llMax, (llMax - llMin) / 100),
     []
   );
-
-  const yScale = scaleLinear([sigma2Min, sigma2Max], [h, 0]);
-
-  const xScale = scaleLinear([muMin, muMax], [0, w]);
 
   const linex = useMemo(
     () =>
@@ -208,7 +213,7 @@ const ContourChart = props => {
             className="draggable"
           >
             <circle cx={0} cy={0} r="5" className="logLikX" />
-            <Tooltip x={0} y={0} equation={eqLogLik(ll)} margin={margin} />
+            <Tooltip x={0} y={0} ll={ll} equation={eqLogLik(ll)} margin={margin} />
           </animated.g>
           <path d={linex(props.drawGradientPath)} className="gradientDescent" />
           <rect

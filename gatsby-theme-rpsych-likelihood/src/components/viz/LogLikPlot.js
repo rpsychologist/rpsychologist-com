@@ -64,8 +64,10 @@ const logLikCart = props => {
   const bind = useDrag(({ movement: [mx, my], first, memo }) => {
     const muStart = first ? props.mu : memo[0];
     const sigma2Start = first ? props.sigma2 : memo[1];
-    const mu = xScale.invert(xScale(muStart) + mx);
-    const sigma2 = yScale.invert(yScale(sigma2Start) + my);
+    var mu = xScale.invert(xScale(muStart) + mx);
+    var sigma2 = yScale.invert(yScale(sigma2Start) + my);
+    mu = mu < xMin ? xMin : mu
+    mu = mu > xMax ? xMax : mu
     dispatch({
       name: "contourDrag",
       value: { mu: mu, sigma2: props.sigma2 }
