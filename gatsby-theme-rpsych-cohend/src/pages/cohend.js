@@ -25,11 +25,6 @@ export const pageQuery = graphql`
       }
       totalCount
     }
-    license: mdx(slug: { eq: "cohend/license" }) {
-      id
-      body
-      slug
-    }
     image: file(absolutePath: { regex: "/cohend_SEO.png/" }) {
       childImageSharp {
         resize(width: 1200) {

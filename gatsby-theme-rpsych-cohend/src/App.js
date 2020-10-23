@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { version, lastUpdated } from "gatsby-theme-rpsych-cohend/package.json"
+
 import { graphql, useStaticQuery } from "gatsby";
 import "./styles/App.css";
 import Typography from "@material-ui/core/Typography";
@@ -54,7 +56,7 @@ const App = (props) => {
     [openHelpTour]
   );
   return (
-    <VizLayout openSettings={openSettings} License={License} {...props}>
+    <VizLayout openSettings={openSettings} License={<License />} {...props}>
       <SEO
         keywords={[
           `Cohen's d`,

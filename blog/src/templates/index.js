@@ -11,6 +11,7 @@ import MoreViz from 'gatsby-theme-rpsych/src/components/MoreViz'
 import Powerlmm from 'gatsby-theme-rpsych/src/components/start/Powerlmm'
 import InternalLink from 'gatsby-theme-rpsych/src/utils/InternalLink'
 import { makeStyles } from '@material-ui/core'
+import License from '../License'
 
 const useStyles = makeStyles(theme => ({
   post: {
@@ -49,7 +50,7 @@ const BlogIndex = props => {
   const siteTitle = data.site.siteMetadata.title
   const posts = data.allMdx.edges
   return (
-    <Layout location={props.location} title={siteTitle} data={data}>
+    <Layout location={props.location} title={siteTitle} data={data} license={<License/>}>
       <SEO
         title="Start"
         keywords={[
@@ -173,11 +174,6 @@ export const pageQuery = graphql`
           }
         }
       }
-    }
-    license: mdx( fileAbsolutePath: { regex: "/blog/content/license/license/" }) {
-      id
-      body
-      slug
     }
   }
 `

@@ -12,13 +12,6 @@ module.exports = {
       },
     },
     {
-      resolve: `gatsby-source-filesystem`,
-      options: {
-        name: `license`,
-        path: `${__dirname}/content/license/`
-      }
-    },
-    {
       resolve: `gatsby-plugin-manifest`,
       options: {
         name: `R Psychologist - Kristoffer Magnusson`,

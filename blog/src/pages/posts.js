@@ -9,6 +9,7 @@ import Button from '@material-ui/core/Button'
 import LocalOfferIcon from '@material-ui/icons/LocalOffer'
 import InternalLink from 'gatsby-theme-rpsych/src/utils/InternalLink'
 import { makeStyles } from '@material-ui/core'
+import License from '../License'
 
 const useStyles = makeStyles(theme => ({
   post: {
@@ -24,7 +25,7 @@ const PostList = ({ data }) => {
   const classes = useStyles()
   const posts = data.allMdx.edges
   return (
-    <Layout data={data}>
+    <Layout data={data} license={<License/>}>
       <SEO title="Blog Archive" />
       <Container maxWidth="sm">
         <Typography variant="h1" component="h1" align="center">
@@ -104,11 +105,6 @@ export const pageQuery = graphql`
           }
         }
       }
-    }
-    license: mdx( fileAbsolutePath: { regex: "/blog/content/license/license/" }) {
-      id
-      body
-      slug
     }
   }
 `

@@ -12,13 +12,14 @@ import LinkedInIcon from '@material-ui/icons/LinkedIn'
 import EmailIcon from '@material-ui/icons/Email'
 import AlternateEmailIcon from '@material-ui/icons/AlternateEmail'
 import SEO from 'gatsby-theme-rpsych/src/components/seo'
+import License from '../License'
 
 const Contact = props => {
   const { data } = props
   const { social } = data.site.siteMetadata
 
   return (
-    <Layout data={data}>
+    <Layout data={data} license={<License/>}>
       <SEO title="About Kristoffer" />
       <Container maxWidth="sm">
         <Typography variant="h1" component="h1" align="center">
@@ -155,11 +156,6 @@ export const bioQuery = graphql`
           linkedin
         }
       }
-    }
-    license: mdx( fileAbsolutePath: { regex: "/blog/content/license/license/" }) {
-      id
-      body
-      slug
     }
   }
 `

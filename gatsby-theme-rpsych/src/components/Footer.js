@@ -47,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Footer = React.memo(({ blogPost, data }) => {
+const Footer = React.memo(({ blogPost, license }) => {
   const classes = useStyles();
   return (
     <footer className={classes.footer}>
@@ -149,9 +149,7 @@ const Footer = React.memo(({ blogPost, data }) => {
               License
             </Typography>
             <Typography component="div" align="center" paragraph>
-              <MDXRenderer>
-                {data.license.body}
-              </MDXRenderer>
+              {license}
             </Typography>
             <Typography variant="subtitle1" align="center" paragraph>
               © {new Date().getFullYear()} Kristoffer Magnusson.

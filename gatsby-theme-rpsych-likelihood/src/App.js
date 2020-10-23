@@ -9,6 +9,7 @@ import Viz from "./Viz";
 import SEO from "gatsby-theme-rpsych/src/components/seo";
 import SocialShare from 'gatsby-theme-rpsych/src/components/SocialShare'
 import Bio from 'gatsby-theme-rpsych/src/components/Bio'
+import License from "./components/License"
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -36,7 +37,7 @@ const App = (props) => {
   const seoImage = data.image ? data.image.childImageSharp.resize : null;
 
   return (
-    <VizLayout {...props}>
+    <VizLayout {...props} license={<License />}>
       <SEO
         keywords={[
           `Maximum likelihood`,

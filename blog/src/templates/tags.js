@@ -10,6 +10,7 @@ import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import LocalOfferIcon from '@material-ui/icons/LocalOffer'
+import License from '../License'
 
 const Link = React.forwardRef(function Link(props, ref) {
   return <MuiLink component={GatsbyLink} ref={ref} {...props} />
@@ -34,7 +35,7 @@ const Tags = ({ pageContext, data }) => {
     totalCount === 1 ? '' : 's'
   } tagged with "${tag}"`
   return (
-    <Layout data={data}>
+    <Layout data={data} license={<License/>}>
       <Container maxWidth="md">
         <Typography variant="h1" component="h1" align="center">
           {tagHeader}
@@ -135,11 +136,6 @@ export const pageQuery = graphql`
           }
         }
       }
-    }
-    license: mdx( fileAbsolutePath: { regex: "/blog/content/license/license/" }) {
-      id
-      body
-      slug
     }
   }
 `

@@ -7,6 +7,7 @@ import kebabCase from 'lodash/kebabCase'
 import { Helmet } from 'react-helmet'
 import { graphql } from 'gatsby'
 import InternalLink from 'gatsby-theme-rpsych/src/utils/InternalLink'
+import License from '../License'
 
 let currentLetter = ``
 
@@ -22,7 +23,7 @@ const TagsPage = ({ data }) => {
     tagA.fieldValue.localeCompare(tagB.fieldValue)
   )
   return (
-    <Layout data={data}>
+    <Layout data={data} license={<License/>}>
       <Helmet title={title} />
       <Container maxWidth="sm">
         <Typography variant="h1" component="h1" align="center">
@@ -107,13 +108,6 @@ export const pageQuery = graphql`
         fieldValue
         totalCount
       }
-    }
-    license: mdx(
-      fileAbsolutePath: { regex: "/blog/content/license/license/" }
-    ) {
-      id
-      body
-      slug
     }
   }
 `

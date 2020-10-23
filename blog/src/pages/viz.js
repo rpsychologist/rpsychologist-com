@@ -8,13 +8,14 @@ import SEO from 'gatsby-theme-rpsych/src/components/seo'
 import MoreViz from 'gatsby-theme-rpsych/src/components/MoreViz'
 import Posters from 'gatsby-theme-rpsych/src/components/Posters'
 import SocialShare from 'gatsby-theme-rpsych/src/components/SocialShare'
+import License from '../License'
 
 
 const Contact = ({ data }) => {
   const image = data.image ? data.image.childImageSharp.resize : null
 
   return (
-    <Layout data={data}>
+    <Layout data={data} license={<License/>}>
       <SEO
         title="Visualizations"
         description="An overview of Kristoffer Magnusson's interactive statistical visualizations. Free and open source teaching tools."
@@ -84,11 +85,6 @@ export const imgQuery = graphql`
           width
         }
       }
-    }
-    license: mdx( fileAbsolutePath: { regex: "/blog/content/license/license/" }) {
-      id
-      body
-      slug
     }
   }
 `

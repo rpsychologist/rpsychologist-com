@@ -24,6 +24,7 @@ import InternalLink from 'gatsby-theme-rpsych/src/utils/InternalLink'
 import { withStyles } from '@material-ui/core/styles'
 import TableContainer from '@material-ui/core/TableContainer'
 import CodeBlock from 'gatsby-theme-rpsych/src/components/code/code-block'
+import License from '../License'
 
 const PostCodeBlock = withStyles(
   theme => ({
@@ -226,7 +227,7 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
   const siteTitle = data.site.siteMetadata.title
   const { previous, next } = pageContext
   return (
-    <Layout location={location} title={siteTitle} data={data}>
+    <Layout location={location} title={siteTitle} data={data} license={<License blogPost={true}/>}>
       {post.frontmatter.include_toc && <Toc post={post} />}
       <SEO title={post.frontmatter.title} description={post.excerpt} />
       <div className={post.frontmatter.include_toc && classes.root}>
@@ -362,13 +363,6 @@ export const pageQuery = graphql`
           relativePath
         }
       }
-    }
-    license: mdx(
-      fileAbsolutePath: { regex: "/blog/content/license/license-post/" }
-    ) {
-      id
-      body
-      slug
     }
   }
 `

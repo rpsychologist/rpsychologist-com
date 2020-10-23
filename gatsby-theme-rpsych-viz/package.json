@@ -13,8 +13,8 @@
     "jstat": "^1.9.2",
     "react-color": "^2.18.0",
     "react-joyride": "^2.2.1",
-    "react-spring": "^9.0.0-beta.34",
-    "react-use-gesture": "^7.0.5",
+    "react-spring": "^9.0.0-rc.3",
+    "react-use-gesture": "7.0.16",
     "svgsaver": "^0.9.0"
   },
   "scripts": {
