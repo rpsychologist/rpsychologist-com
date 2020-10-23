@@ -1,6 +1,7 @@
 //import { jsx } from "theme-ui"
 import React, { useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
+import { withStyles } from '@material-ui/core/styles'
 import clsx from 'clsx'
 import PropTypes from 'prop-types'
 import Copy from './copy'
@@ -13,10 +14,7 @@ import Button from '@material-ui/core/Button'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { Typography } from '@material-ui/core'
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    maxWidth: 345,
-  },
+export const styles = (theme) => ({
   expand: {
     transform: 'rotate(0deg)',
     marginLeft: 'auto',
@@ -59,7 +57,7 @@ const useStyles = makeStyles(theme => ({
     borderWidth: '1px',
     borderColor: theme.palette.type === 'dark' ? '#000':'#e7e7e7',
   }
-}))
+})
 
 const splitParam = param =>
   param.split(`&`).reduce((merged, param) => {
@@ -97,6 +95,7 @@ const getParams = (name = ``) => {
 const CodeBlock = ({
   children,
   className = children.props ? children.props.className : ``,
+  classes,
   copy,
 }) => {
   const [language, { title }, { collapsed }] = getParams(className)
@@ -107,7 +106,6 @@ const CodeBlock = ({
       : children,
     className
   )
-  const classes = useStyles()
   const [expanded, setExpanded] = useState(collapsed === 'false')
 
   const handleExpandClick = () => {
@@ -198,4 +196,4 @@ CodeBlock.defaultProps = {
   copy: true,
 }
 
-export default CodeBlock
+export default withStyles(styles, { name: 'CodeBlock' })(CodeBlock);
