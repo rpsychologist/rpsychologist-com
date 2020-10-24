@@ -212,7 +212,7 @@ const ContourChart = props => {
             )}
             className="draggable"
           >
-            <circle cx={0} cy={0} r="5" className="logLikX" />
+            <circle cx={0} cy={0} r="5" className="logLik--contour--circle" />
             <Tooltip x={0} y={0} ll={ll} equation={eqLogLik(ll)} margin={margin} />
           </animated.g>
           <path d={linex(props.drawGradientPath)} className="gradientDescent" />

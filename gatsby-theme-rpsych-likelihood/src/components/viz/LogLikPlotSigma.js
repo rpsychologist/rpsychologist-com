@@ -273,7 +273,7 @@ const OverlapChart = props => {
           >
             <circle cx={margin.left} cy={0} r="5" className="logLikX" />
             <animated.line
-              className="deriv"
+              className="likelihood--deriv"
               x1={xy.to(
                 (x, y) =>
                   margin.left + xScale(xMin - delta * dSigma2(sample, x, y))

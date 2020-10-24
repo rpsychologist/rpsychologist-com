@@ -290,7 +290,7 @@ const logLikCart = props => {
             className="logLikX"
           />
           <animated.line
-            className="deriv"
+            className="likelihood--deriv"
             y1={xy.to(
               (x, y) =>
                 margin.top + yScale(yMax - delta * dMu(10, x, props.muHat, y))

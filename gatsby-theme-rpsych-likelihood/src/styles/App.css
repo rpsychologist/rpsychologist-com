@@ -184,13 +184,17 @@ line.likelihood--deriv {
 }
 body.dark-mode line.likelihood--deriv {
   stroke: #fff;
-  stroke-opacity: 0.5;
+  stroke-opacity: 0.75;
 }
-circle.logLikX {
+circle.logLikX, .logLik--contour--circle {
   fill: #000000;
 }
 body.dark-mode circle.logLikX {
-  fill: #4b4b4b;
+  fill: #fff;
+  fill-opacity: 0.75;
+}
+body.dark-mode .logLik--contour--circle {
+  fill: #000000;
 }
 
 g.draggable {
