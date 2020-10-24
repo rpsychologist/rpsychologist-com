@@ -343,9 +343,6 @@ const Viz = () => {
                   thetaLab="sigma"
                   deriv={derivSigma2}
                 />
-                <Typography align="right" variant="caption" component="p">
-                  Tip: You can move the values around by dragging them.
-                </Typography>
               </Paper>
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -373,6 +370,9 @@ const Viz = () => {
                 />
               </Paper>
             </Grid>
+            <Typography align="center" variant="caption" component="p">
+                  Tip: You can move the values around by dragging them.
+                </Typography>
           </Grid>
           <Typography
             variant="h2"
