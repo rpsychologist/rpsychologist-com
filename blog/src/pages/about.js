@@ -45,7 +45,7 @@ const Contact = props => {
             <Typography variant="body1" paragraph>
               I also have a background in web development, and I still dabble
               with JavaScript and I have created various interactive
-              visualziation of statistical concepts.
+              visualizations of statistical concepts.
             </Typography>
             <Typography variant="body1" paragraph>
               You can find a list of my publications at{' '}
