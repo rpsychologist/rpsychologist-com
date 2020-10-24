@@ -1,7 +1,7 @@
 {
   "name": "gatsby-theme-rpsych-likelihood",
-  "version": "0.1.0",
-  "lastUpdated": "2020-10-22",
+  "version": "0.1.1",
+  "lastUpdated": "2020-10-24",
   "private": true,
   "dependencies": {
     "@use-it/interval": "^0.1.3",
