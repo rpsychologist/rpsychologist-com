@@ -8,7 +8,7 @@ const License = () => {
     <div>
          Version {version}, last updated{" "}
               {lastUpdated}. License MIT (
-              <Link href={"https://github/rpsychologist/rpsychologist-com/"}>source code</Link>).
+              <Link href={"https://github.com/rpsychologist/rpsychologist-com/"}>source code</Link>).
               Visualization is CC0. 
     </div>
   )
