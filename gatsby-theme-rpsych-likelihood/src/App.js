@@ -3,7 +3,7 @@ import VizLayout from "gatsby-theme-rpsych-viz/src/components/Layout";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
-import Link from "@material-ui/core/Link";
+import InternalLink from "gatsby-theme-rpsych/src/utils/InternalLink";
 import IntroText from "./components/content/Intro";
 import Viz from "./Viz";
 import SEO from "gatsby-theme-rpsych/src/components/seo";
@@ -76,7 +76,7 @@ const App = (props) => {
               </Typography>
               <Typography align="center" gutterBottom>
             Created by{" "}
-            <Link to="https://rpsychologist.com/">Kristoffer Magnusson</Link>
+            <InternalLink to="/">Kristoffer Magnusson</InternalLink>
           </Typography>
             </Container>
             <Container className={classes.textContent}>
