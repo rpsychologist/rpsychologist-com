@@ -1,0 +1,42 @@
+{
+  "name": "gatsby-theme-rpsych-correlation",
+  "description": "A tool to understand correlations",
+  "author": "Kristoffer Magnusson",
+  "license": "MIT",
+  "version": "0.0.1",
+  "lastUpdated": "2020-10-20",
+  "private": true,
+  "dependencies": {
+    "gatsby-theme-rpsych": "*",
+    "gatsby-theme-rpsych-viz": "*"
+  },
+  "peerDependencies": {
+    "gatsby": "^2.18.2",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  },
+  "devDependencies": {
+    "eslint": "^6.2.2",
+    "eslint-plugin-react": "^7.11.1",
+    "gatsby": "^2.18.2",
+    "prettier": "^1.14.2",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  },
+  "scripts": {
+    "build-production": "gatsby build --prefix-paths",
+    "build-serve": "gatsby build && gatsby serve -H 172.16.0.116",
+    "develop": "gatsby develop -H 172.16.0.116",
+    "develop-local": "gatsby develop",
+    "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
+    "start": "npm run develop",
+    "serve": "gatsby serve -H 172.16.0.116",
+    "clean": "gatsby clean"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "resolutions": {
+    "webpack": "~4.43.0"
+  }
+}

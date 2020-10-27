@@ -15,7 +15,8 @@
       "gatsby-theme-rpsych",
       "gatsby-theme-rpsych-viz",
       "gatsby-theme-rpsych-cohend",
-      "gatsby-theme-rpsych-likelihood"
+      "gatsby-theme-rpsych-likelihood",
+      "gatsby-theme-rpsych-correlation"
     ]
   }
   
