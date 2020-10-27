@@ -122,6 +122,16 @@ const Footer = React.memo(({ blogPost, license }) => {
               Donate
             </Typography>
             <List component="nav" aria-label="donate">
+            <ListItem
+                button
+                component="a"
+                href="https://github.com/sponsors/rpsychologist"
+              >
+                <ListItemIcon>
+                  <FavoriteIcon className={classes.icon} />
+                </ListItemIcon>
+                <ListItemText primary="GitHub Sponsors" />
+              </ListItem>
               <ListItem
                 button
                 component="a"
@@ -130,7 +140,7 @@ const Footer = React.memo(({ blogPost, license }) => {
                 <ListItemIcon>
                   <FavoriteIcon className={classes.icon} />
                 </ListItemIcon>
-                <ListItemText primary="Buy Me a Coffe" />
+                <ListItemText primary="Buy Me a Coffee" />
               </ListItem>
               <ListItem
                 button
