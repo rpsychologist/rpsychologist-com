@@ -83,7 +83,7 @@ const Contribute = React.memo(() => {
       <Typography variant="body1" paragraph>
         You can sponsor my open source work using <Link href="https://github.com/sponsors/rpsychologist" >GitHub Sponsors</Link> and have your name shown here.
       </Typography>
-      <Typography variant="subtitle" paragraph align="center">
+      <Typography variant="body2" paragraph align="center">
        Backers ✨
       </Typography>
       <Grid className={classes.sponsors}>
