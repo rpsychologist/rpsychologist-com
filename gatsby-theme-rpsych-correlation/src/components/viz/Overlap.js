@@ -13,8 +13,8 @@ const AnimatedAxis = animated(AxisBottom);
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    '&:hover $hidden, &:active $hidden': {
-        opacity:1,
+    "&:hover $hidden, &:active $hidden": {
+      opacity: 1,
     },
   },
   hidden: {
@@ -22,7 +22,27 @@ const useStyles = makeStyles((theme) => ({
     opacity: 0,
     fill: "aliceblue",
   },
-
+  circle: {
+    fill: "#30394F",
+    fillOpacity: 0.9,
+    touchAction: "none",
+    cursor: "grab",
+    cursor: "-moz-grab",
+    cursor: "-webkit-grab",
+    "&:active": {
+      cursor: "grabbing",
+      cursor: "-moz-grabbing",
+      cursor: "-webkit-grabbing",
+    }
+  },
+  regLine: {
+    stroke: "#2980b9",
+    strokeWidth: "4px",
+  },
+  residuals: {
+    stroke: "black",
+    strokeDasharray: "1 1",
+  },
 }));
 const DraggableCircle = ({ d, index, xScale, yScale }) => {
   const { state, dispatch } = useContext(SettingsContext);
@@ -30,27 +50,27 @@ const DraggableCircle = ({ d, index, xScale, yScale }) => {
   const to = (d) => [xScale(d[0]), yScale(d[1])];
   const { offset } = useSpring({
     offset: [xScale(d[0]), yScale(d[1])],
+    immediate: state.immediate
   });
   const bind = useDrag(
     ({ movement: [mx, my] }) => {
-      console.log(mx);
-      //set({ offset: [mx, my], immediate: false,  config:{ mass: 1, tension: 200, friction: 20 } });
       dispatch({
         name: "drag",
         value: { i: index, xy: [xScale.invert(mx), yScale.invert(my)] },
+        immediate: true
       });
     },
     { initial: () => offset.get() }
   );
   return (
     <g {...bind()} className={classes.root}>
-      <animated.circle
+      {/* <animated.circle
         className={classes.hidden}
         r="20"
         cx={offset.to((x, y) => x)}
         cy={offset.to((x, y) => y)}
         key={`circle--data--${index}--hidden`}
-      />
+      /> */}
       <animated.circle
         className={classes.circle}
         r="5"
@@ -62,18 +82,49 @@ const DraggableCircle = ({ d, index, xScale, yScale }) => {
   );
 };
 
+const ResidualLine = ({ d, index, xScale, yScale, intercept, slope }) => {
+  const classes = useStyles();
+  const to = (d) => [d[0], d[1]];
+  const { offset } = useSpring({
+    offset: to(d),
+  });
+  return (
+    <animated.line
+      className={classes.residuals}
+      x1={offset.to((x, y) => xScale(x))}
+      x2={offset.to((x, y) => xScale(x))}
+      y1={offset.to((x, y) => yScale(y))}
+      y2={offset.to((x, y) => yScale(intercept + slope * x))}
+    />
+  );
+};
+
 const margin = { top: 70, right: 20, bottom: 35, left: 30 };
 
 const OverlapChart = (props) => {
+  const classes = useStyles();
   // Clear loading spinner
   useEffect(() => {
     document.getElementById("__loader").style.display = "none";
     return;
   }, []);
 
-  const { width, height, rho, data } = props;
+  const {
+    width,
+    height,
+    rho,
+    data,
+    yMin,
+    yMax,
+    xMin,
+    xMax,
+    intercept,
+    slope,
+    residuals,
+    regressionLine,
+  } = props;
   const w = width - margin.left - margin.right;
-  const aspect = width < 450 ? 0.6 : 0.4;
+  const aspect = width < 450 ? 1 : 1;
   const h = width * aspect - margin.top - margin.bottom;
 
   // Data
@@ -82,12 +133,12 @@ const OverlapChart = (props) => {
   const xScale = useMemo(
     () =>
       scaleLinear()
-        .domain([-4, 4])
+        .domain([xMin, xMax])
         .range([0, w]),
-    [w]
+    [w, xMin, xMax]
   );
   const yScale = scaleLinear()
-    .domain([-4, 4])
+    .domain([yMin, yMax])
     .range([h, 0]);
 
   return (
@@ -99,9 +150,31 @@ const OverlapChart = (props) => {
       style={{ touchAction: "pan-y" }}
     >
       <g transform={`translate(${margin.left}, ${margin.top})`}>
+        {regressionLine && (
+          <line
+            className={classes.regLine}
+            x1={xScale(xMin)}
+            x2={xScale(xMax)}
+            y1={yScale(xMin * slope + intercept)}
+            y2={yScale(xMax * slope + intercept)}
+          />
+        )}
         {data.map((d, i) => (
-          <DraggableCircle d={d} index={i} xScale={xScale} yScale={yScale} />
+          <>
+            {residuals && (
+              <ResidualLine
+                d={d}
+                index={i}
+                xScale={xScale}
+                yScale={yScale}
+                intercept={intercept}
+                slope={slope}
+              />
+            )}
+            <DraggableCircle d={d} index={i} xScale={xScale} yScale={yScale} />
+          </>
         ))}
+
         <AxisLeft ticks={10} scale={yScale} />
         <AxisBottom top={h} ticks={10} scale={xScale} />
       </g>

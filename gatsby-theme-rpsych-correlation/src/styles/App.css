@@ -12,7 +12,6 @@ footer a {
 
 /* VIZ */
 svg#overlapChart {
-  cursor: -webkit-grab;
   user-select: none;
 }
 svg#overlapChart:active {

@@ -82,7 +82,10 @@ const Viz = ({ openSettings, toggleDrawer, handleHelpTour }) => {
             handleDrawer={toggleDrawer}
             handleHelpTour={handleHelpTour}
           />
+          <Grid sm={6} md={6}>
           <ResponsiveChart chart={Cohend} {...state} />
+          </Grid>
+
           <Grid container justify="center" spacing={3} id="__loader">
             <Paper className={classes.loading}>
               <CircularProgress />

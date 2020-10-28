@@ -8,6 +8,7 @@ import Grid from "@material-ui/core/Grid";
 import Slider from "@material-ui/core/Slider";
 import Input from "@material-ui/core/Input";
 import IconButton from "@material-ui/core/IconButton";
+import Button from "@material-ui/core/Button";
 import SettingsIcon from "@material-ui/icons/Settings";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import HelpIcon from "@material-ui/icons/Help";
@@ -180,6 +181,9 @@ const InputSlider = ({ handleDrawer, openSettings, handleHelpTour }) => {
           justify="flex-end"
         ></Grid>
       </Grid>
+      <Button onClick={() => dispatch({"name": "sample"})}>Sample</Button>
+      <Button onClick={() => dispatch({"name": "rescale"})}>Rescale</Button>
+  <Typography>{state.cor}</Typography>
     </div>
   );
 };

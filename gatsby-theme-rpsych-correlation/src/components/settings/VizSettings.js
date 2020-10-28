@@ -15,6 +15,8 @@ import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
+import Switch from '@material-ui/core/Switch';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -104,26 +106,17 @@ const presetList = [
   {
     preset: "small",
     label: "Small",
-    M0: 100,
-    M1: 103,
-    SD: 15,
-    d: 0.2,
+    rho: 0.1,
   },
   {
     preset: "medium",
     label: "Medium",
-    M0: 100,
-    M1: 107.5,
-    SD: 15,
-    d: 0.5,
+    rho: 0.3,
   },
   {
     preset: "large",
     label: "Large",
-    M0: 100,
-    M1: 112,
-    SD: 15,
-    d: 0.8,
+    rho: 0.5,
   },
 ];
 
@@ -132,16 +125,19 @@ const VizSettings = () => {
   const classes = useStyles();
   const { state, dispatch } = useContext(SettingsContext);
   const {
+    n,
     M0,
     M1,
-    SD,
-    CER,
+    SD0,
+    SD1,
     xLabel,
     muZeroLabel,
     muOneLabel,
     sliderMax,
     sliderStep,
-    preset
+    preset,
+    regressionLine,
+    residuals
   } = state;
   const handleSubmit = e => {
     e.preventDefault();
@@ -210,6 +206,30 @@ const VizSettings = () => {
           
         </Select>
         </FormControl>
+        <FormControlLabel
+          checked={residuals}
+          control={<Switch color="primary" />}
+          label="Show residuals"
+          labelPlacement="start"
+          onChange={() => dispatch({name: "toggleResiduals"})}
+        />
+                <FormControlLabel
+          checked={regressionLine}
+          control={<Switch color="primary" />}
+          label="Show regression line"
+          labelPlacement="start"
+          onChange={() => dispatch({name: "toggleRegressionLine"})}
+        />
+        <SettingsInput
+          label="Sample size"
+          type="number"
+          name="n"
+          value={n}
+          max={n}
+          min={1}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+        />
         <SettingsInput
           label="Mean 1"
           type="number"
@@ -230,22 +250,20 @@ const VizSettings = () => {
           handleSubmit={handleSubmit}
         />
         <SettingsInput
-          label="SD"
+          label="SD0"
           type="number"
-          name="SD"
-          value={SD}
+          name="SD0"
+          value={SD0}
           min={0}
           handleChange={handleChange}
           handleSubmit={handleSubmit}
-          helperText="Tip: double-click chart to rescale"
         />
-        <SettingsInput
-          label="CER"
+               <SettingsInput
+          label="SD1"
           type="number"
-          name="CER"
-          value={CER}
+          name="SD1"
+          value={SD1}
           min={0}
-          max={100}
           handleChange={handleChange}
           handleSubmit={handleSubmit}
         />
