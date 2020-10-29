@@ -56,7 +56,7 @@ const App = (props) => {
     [openHelpTour]
   );
   return (
-    <VizLayout openSettings={openSettings} License={<License />} {...props}>
+    <VizLayout openSettings={openSettings} license={<License />} {...props}>
       <SEO
         keywords={[
           `Cohen's d`,

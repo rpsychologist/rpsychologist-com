@@ -7,7 +7,7 @@ export default (props) => {
 };
 
 export const pageQuery = graphql`
-  query cohend {
+  query correlation {
     FAQ: allMdx(
       filter: { fileAbsolutePath: { regex: "/correlation/FAQ/" } }
       sort: { fields: frontmatter___order, order: ASC }
@@ -25,7 +25,7 @@ export const pageQuery = graphql`
       }
       totalCount
     }
-    image: file(absolutePath: { regex: "/cohend_SEO.png/" }) {
+    image: file(absolutePath: { regex: "/correlation_SEO.png/" }) {
       childImageSharp {
         resize(width: 1200) {
           src

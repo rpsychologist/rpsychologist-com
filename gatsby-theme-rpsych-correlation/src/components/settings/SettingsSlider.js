@@ -8,7 +8,6 @@ import Grid from "@material-ui/core/Grid";
 import Slider from "@material-ui/core/Slider";
 import Input from "@material-ui/core/Input";
 import IconButton from "@material-ui/core/IconButton";
-import Button from "@material-ui/core/Button";
 import SettingsIcon from "@material-ui/icons/Settings";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import HelpIcon from "@material-ui/icons/Help";
@@ -43,7 +42,7 @@ const saveSvg = () => {
 };
 
 
-const InputCohen = ({ rho, sliderStep }) => {
+const InputCohen = ({ rho }) => {
   const { state, dispatch } = useContext(SettingsContext);
   const classes = useStyles();
   const [inputVal, setInputVal] = useState(rho);
@@ -76,7 +75,7 @@ const InputCohen = ({ rho, sliderStep }) => {
         margin="dense"
         onChange={handleInputChange}
         inputProps={{
-          step: `${sliderStep}`,
+          step: 0.1,
           min: -1,
           max: 1,
           type: "number",
@@ -97,7 +96,7 @@ const InputCohen = ({ rho, sliderStep }) => {
 const InputSlider = ({ handleDrawer, openSettings, handleHelpTour }) => {
   const classes = useStyles();
   const { state, dispatch } = useContext(SettingsContext);
-  const { rho, sliderMax, sliderStep } = state;
+  const { rho } = state;
   const [immediate, setImmediate] = useState(false);
 
   const handleSliderChange = (event, newVal) => {
@@ -122,7 +121,7 @@ const InputSlider = ({ handleDrawer, openSettings, handleHelpTour }) => {
           rho={rho} 
           sliderMin={-1}
           sliderMax={1}
-          sliderStep={sliderStep}
+          sliderStep={0.1}
         />
         </Grid>
         <Grid item>
@@ -168,7 +167,7 @@ const InputSlider = ({ handleDrawer, openSettings, handleHelpTour }) => {
             onChange={handleSliderChange}
             min={-1}
             max={1}
-            step={sliderStep}
+            step={0.01}
             aria-labelledby="input-slider"
             classes={{ root: "main--slider" }}
           />
@@ -181,9 +180,6 @@ const InputSlider = ({ handleDrawer, openSettings, handleHelpTour }) => {
           justify="flex-end"
         ></Grid>
       </Grid>
-      <Button onClick={() => dispatch({"name": "sample"})}>Sample</Button>
-      <Button onClick={() => dispatch({"name": "rescale"})}>Rescale</Button>
-  <Typography>{state.cor}</Typography>
     </div>
   );
 };

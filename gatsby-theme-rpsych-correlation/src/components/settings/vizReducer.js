@@ -1,14 +1,6 @@
 import { randomNormal } from "d3-random";
 import { mean, variance, deviation } from "d3-array";
 import jstat from "jstat";
-import {
-  round,
-  calcGaussOverlap,
-  calcCL,
-  calcNNT,
-  calcCohend,
-  updateDonutData,
-} from "../viz/utils";
 
 const drawGaussian = (n, M, SD) => {
   return [...Array(n)].map(() => randomNormal(M, SD)());
@@ -113,10 +105,6 @@ const createBivariateData = (state) => {
   const slope = covNew / (sigmaHatNewX*sigmaHatNewX)
   const intercept = muHatNewY - slope*muHatNewX
   return {
-    L: L,
-    cov: cov,
-    L2: L2,
-    invL2: invL2,
     muHatX: muHatX,
     muHatY: muHatY,
     sigmaHatX: sigmaHatX,
@@ -138,7 +126,6 @@ const getSampleCorrelation = (data) => {
   const x = data.map(d => d[0])
   const cov = jstat.covariance(y, x)
   const sigmaX = deviation(x)
-  console.log(sigmaX)
   const cor =  cov / (deviation(y) * sigmaX)
 
   const slope = cov / (sigmaX * sigmaX)
@@ -147,7 +134,11 @@ const getSampleCorrelation = (data) => {
   return ({
     cor: cor,
     intercept: intercept,
-    slope: slope
+    slope: slope,
+    muHatNewX: mean(x),
+    muHatNewY: mean(y),
+    sigmaHatNewX: deviation(x),
+    sigmaHatNewY: deviation(y),
   })
     
 }
@@ -172,6 +163,7 @@ export const vizReducer = (state, action) => {
       return {
         ...state,
         rho: value,
+        immediate: immediate,
         ...setCorrelation({
           ...state,
           rho: value,
@@ -184,6 +176,7 @@ export const vizReducer = (state, action) => {
         ...state,
         y: y,
         x: x,
+        immediate: immediate,
         muHatX: mean(x),
         muHatY: mean(y),
         sigmaHatX: deviation(x),
@@ -205,6 +198,7 @@ export const vizReducer = (state, action) => {
     case "rescale":
       return {
         ...state,
+        immediate: immediate,
         ...rescale(state),
       };
     case "SD0":
@@ -237,6 +231,7 @@ export const vizReducer = (state, action) => {
         immediate: false,
         ...setCorrelation({
           ...state,
+          immediate: immediate,
           rho: value.rho,
         }),
       };
@@ -252,10 +247,7 @@ export const vizReducer = (state, action) => {
         regressionLine: !state.regressionLine
       };  
     case "xLabel":
-    case "muZeroLabel":
-    case "muOneLabel":
-    case "sliderMax":
-    case "sliderStep":
+    case "yLabel":
     case "colorDist1":
     case "colorDistOverlap":
     case "colorDist2":

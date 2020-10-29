@@ -5,7 +5,7 @@ import { format } from "d3-format";
 import { range } from "d3-array";
 import { line } from "d3-shape";
 import { useDrag } from "react-use-gesture";
-import { useSpring, animated, to } from "react-spring";
+import { useSpring, useSprings, animated, to } from "react-spring";
 import { AxisBottom, AxisLeft } from "@vx/axis";
 import { SettingsContext } from "../../Viz";
 
@@ -23,8 +23,6 @@ const useStyles = makeStyles((theme) => ({
     fill: "aliceblue",
   },
   circle: {
-    fill: "#2980b9",
-    fillOpacity: 0.5,
     stroke: "#2980b9",
     strokeWidth: "2px",
     strokeOpacity: 0.75,
@@ -43,46 +41,16 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   regLine: {
-    stroke: "#133246",
+    stroke: theme.palette.type === 'dark' ? 'white' : '#133246',
     strokeWidth: "2px",
   },
   residuals: {
-    stroke: "black",
-    strokeDasharray: "1 1",
+    stroke: theme.palette.type === 'dark' ? '#f18686' : '#f18686',
+    strokeWidth: "1.5px"
   },
 }));
-const DraggableCircle = ({ d, index, xScale, yScale }) => {
-  const { state, dispatch } = useContext(SettingsContext);
-  const classes = useStyles();
-  // const to = (d) => [xScale(d[0]), yScale(d[1])];
-  // const { offset } = useSpring({
-  //   offset: [xScale(d[0]), yScale(d[1])],
-  //   immediate: state.immediate
-  // });
-  // const bind = useDrag(
-  //   ({ movement: [mx, my] }) => {
-  //     dispatch({
-  //       name: "drag",
-  //       value: { i: index, xy: [xScale.invert(mx), yScale.invert(my)] },
-  //       immediate: true
-  //     });
-  //   },
-  //   { initial: () => offset.get() }
-  // );
-  return (
-   
-  
-      <circle
-        className={classes.circle}
-        r="10"
-        cx={xScale(d[0])}
-        cy={yScale(d[1])}
-        key={`circle--data--${index}`}
-      />
-
-  );
-};
-
+const toColorString = (color) =>
+  `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`;
 const ResidualLine = ({ d, index, xScale, yScale, intercept, slope }) => {
   const classes = useStyles();
   const to = (d) => [d[0], d[1]];
@@ -100,11 +68,12 @@ const ResidualLine = ({ d, index, xScale, yScale, intercept, slope }) => {
   );
 };
 
-const margin = { top: 70, right: 20, bottom: 35, left: 30 };
+const margin = { top: 20, right: 20, bottom: 45, left: 60 };
 
 const OverlapChart = (props) => {
   const classes = useStyles();
   const { state, dispatch } = useContext(SettingsContext);
+  const to = (d) => [xScale(d[0]), yScale(d[1])];
   // Clear loading spinner
   useEffect(() => {
     document.getElementById("__loader").style.display = "none";
@@ -131,10 +100,14 @@ const OverlapChart = (props) => {
     yMax,
     xMin,
     xMax,
+    xLabel,
+    yLabel,
     intercept,
     slope,
     residuals,
     regressionLine,
+    immediate,
+    colorDist1
   } = props;
   const w = width - margin.left - margin.right;
   const aspect = width < 450 ? 1 : 1;
@@ -142,6 +115,8 @@ const OverlapChart = (props) => {
 
   // Data
   const n = 100;
+  const fillColor = useMemo(() => toColorString(colorDist1), [colorDist1]);
+
   // Scales and Axis
   const xScale = useMemo(
     () =>
@@ -153,37 +128,73 @@ const OverlapChart = (props) => {
   const yScale = scaleLinear()
     .domain([yMin, yMax])
     .range([h, 0]);
+  const springs = useSprings(data.length, data.map(d => ({
+    offset: [xScale(d[0]), yScale(d[1])],
+    resid: [d[0], d[1], intercept, slope],
+    immediate: immediate
+  })))
+  const regression = useSpring({beta: [intercept, slope], immediate: immediate})
 
   return (
     <svg
-      id="overlapChart"
+      id="scatterChart"
       width={props.width}
       height={props.width * aspect}
       viewBox={`0,0, ${props.width}, ${props.width * aspect}`}
-      style={{ touchAction: "pan-y" }}
+      style={{ touchAction: "pan-y",  userSelect: 'none' }}
     >
       <g transform={`translate(${margin.left}, ${margin.top})`}>
         {regressionLine && (
-          <line
+          <animated.line
             className={classes.regLine}
             x1={xScale(xMin)}
             x2={xScale(xMax)}
-            y1={yScale(xMin * slope + intercept)}
-            y2={yScale(xMax * slope + intercept)}
+            y1={regression.beta.to((b0, b1) => yScale(b0 + xMin * b1))}
+            y2={regression.beta.to((b0, b1) => yScale(b0 + xMax * b1))}
           />
         )}
-        {data.map((d, i) => (
-                  <circle
-                  {...bind(i)}
-                  className={classes.circle}
-                  r="7.5"
-                  cx={xScale(d[0])}
-                  cy={yScale(d[1])}
-                  key={`circle--data--${i}`}
-                />
-
-        ))}
-
+        {springs.map(({offset, resid}, i) => {
+          return(
+            <React.Fragment key={i}>
+                   {residuals && 
+                 <animated.line
+          className={classes.residuals}
+          x1={resid.to((x, y) => xScale(x))}
+          x2={resid.to((x, y) => xScale(x))}
+          y1={resid.to((x, y) => yScale(y))}
+          y2={resid.to((x, y, b0, b1) => yScale(b0 + b1 * x))}
+          key={`circle--resid--${i}`}
+        />}
+            <animated.circle
+            {...bind(i)}
+            className={classes.circle}
+            style={{ 
+              transform: offset.to((x,y) => `translate(${x}px, ${y}px)`) 
+            }}
+            r="7.5"
+            fill= {fillColor}
+            cx={0}
+            cy={0}
+            key={`circle--data--${i}`}
+          />
+          </React.Fragment>
+          )
+        }
+        )}
+        <text
+            textAnchor="middle"
+            id="x-label"
+            transform={`translate(${w / 2}, ${h + margin.bottom - 5})`}
+          >
+            {xLabel}
+          </text>
+          <text
+            textAnchor="middle"
+            id="x-label"
+            transform={`translate(${-margin.left + 20}, ${h/2}) rotate(-90)`}
+          >
+            {yLabel}
+          </text>
         <AxisLeft ticks={10} scale={yScale} />
         <AxisBottom top={h} ticks={10} scale={xScale} />
       </g>

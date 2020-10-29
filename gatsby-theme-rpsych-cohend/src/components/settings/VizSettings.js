@@ -301,7 +301,7 @@ const VizSettings = () => {
           handleSubmit={handleSubmit}
         />
         <Divider />
-        <SaveButton data={state} />
+        <SaveButton data={state} localStorageName="cohendState"/>
       </Container>
     </div>
   );

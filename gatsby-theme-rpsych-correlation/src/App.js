@@ -1,8 +1,4 @@
 import React, { useState } from "react";
-import { version, lastUpdated } from "gatsby-theme-rpsych-cohend/package.json"
-
-import { graphql, useStaticQuery } from "gatsby";
-import "./styles/App.css";
 import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
 import { makeStyles } from "@material-ui/core/styles";
@@ -16,7 +12,6 @@ import VizLayout from "gatsby-theme-rpsych-viz/src/components/Layout";
 import SEO from "gatsby-theme-rpsych/src/components/seo";
 import SocialShare from 'gatsby-theme-rpsych/src/components/SocialShare'
 import Bio from 'gatsby-theme-rpsych/src/components/Bio'
-
 import License from "./components/License"
 
 const drawerWidth = 240;
@@ -56,10 +51,14 @@ const App = (props) => {
     [openHelpTour]
   );
   return (
-    <VizLayout openSettings={openSettings} License={<License />} {...props}>
+    <VizLayout openSettings={openSettings} license={<License />} {...props}>
       <SEO
         keywords={[
-          `Cohen's d`,
+          `Correlation`,
+          `Regression`,
+          `Pearson`,
+          `Bivariate`,
+          `Normal distribution`, 
           `Effect size`,
           `Interactive`,
           `Visualization`,
@@ -67,8 +66,8 @@ const App = (props) => {
           `Science`,
           `Psychology`,
         ]}
-        description={"A tool to understand Cohen's d standardized effect size"}
-        title={"Understanding Cohen's d"}
+        description={"A tool to understand Correlations"}
+        title={"Understanding Correlations"}
         image={seoImage}
       />
       <main>

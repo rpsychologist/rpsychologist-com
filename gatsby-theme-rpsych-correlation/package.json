@@ -3,8 +3,8 @@
   "description": "A tool to understand correlations",
   "author": "Kristoffer Magnusson",
   "license": "MIT",
-  "version": "0.0.1",
-  "lastUpdated": "2020-10-20",
+  "version": "0.1.0",
+  "lastUpdated": "2020-10-29",
   "private": true,
   "dependencies": {
     "gatsby-theme-rpsych": "*",

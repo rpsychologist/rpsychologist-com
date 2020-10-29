@@ -17,7 +17,7 @@ const steps = [
     target: ".main--slider",
     content: (
       <div>
-        Use this <strong>slider</strong> to change Cohen's <em>d</em>. Try
+        Use this <strong>slider</strong> to change the correlation <em>d</em>. Try
         dragging it!
       </div>
     ),
@@ -57,58 +57,29 @@ const steps = [
     placement: "top",
   },
   {
-    target: "#overlapChart",
+    target: "#scatterChart",
     content: (
       <div>
-        You can move the visualization by <strong>clicking and dragging</strong>
-        . Center and rescale by <strong>double clicking</strong> the
-        visualization.
+        You can move the data points by <strong>clicking and dragging</strong>
       </div>
     ),
     placement: "auto",
     spotlightClicks: true,
   },
   {
-    target: "#donut--cohen--u3",
+    target: "#venn",
     content: (
       <div>
-        Cohen's U<sub>3</sub> is the proportion of the group to the right that is above the
-        mean of the group to the left.
+        This show the amount of shared variance, i.e. R<sup>2</sup> (the coefficient of determination).
       </div>
     ),
     placement: "auto",
     spotlightClicks: true,
   },
   {
-    target: "#donut--prop-overlap",
+    target: "#correlation--descriptive--stats",
     content:
-      "This shows the percentage of the total number of scores that overlap.",
-    placement: "auto",
-    spotlightClicks: true,
-  },
-  {
-    target: "#donut--CL",
-    content:
-      "This is probability that a person picked at random from the treatment group will have a higher score than a person picked at random from the control group.",
-    placement: "auto",
-    spotlightClicks: true,
-  },
-  {
-    target: "#donut--NNT",
-    content: (
-      <div>
-        <p>
-          This is the number of patients, on average, that we need to treat in
-          order to have one more favorable outcome in the treatment group
-          compared to the control group.
-        </p>
-        <p>
-          NNT depends on the <strong>control event rate (CER)</strong>, which is
-          represented by the darker path in this figure. This can be changed in
-          the settings.
-        </p>
-      </div>
-    ),
+      "Here you can see the regression formula and descriptive statistics for the current sample.",
     placement: "auto",
     spotlightClicks: true,
   },

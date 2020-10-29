@@ -27,7 +27,8 @@
 - title: "Correlations"
   excerpt: "Interactive scatterplot that let's you visualize correlations of various magnitudes."
   image: "MoreViz/correlation.png"
-  url: "https://rpsychologist.com/d3/correlation/"
+  internal_link: true
+  url: "/correlation/"
 
 - title: "Equivalence and Non-Inferiority Testing"
   excerpt: "Explore how superiority, non-inferiority, and equivalence testing relates to a confidence interval"

@@ -50,7 +50,6 @@ const SettingsInput = ({
       autoComplete="off"
       onSubmit={handleSubmit}
     >
-      <div>
         <TextField
           error={error}
           id={`input-${name}`}
@@ -68,7 +67,6 @@ const SettingsInput = ({
           value={input}
           helperText={helperText}
         />
-      </div>
     </form>
   );
 };

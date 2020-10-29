@@ -3,6 +3,7 @@ module.exports = {
     `gatsby-theme-rpsych`,
     `gatsby-theme-rpsych-cohend`,
     `gatsby-theme-rpsych-likelihood`,
+    `gatsby-theme-rpsych-correlation`,
     {
       resolve: `gatsby-source-filesystem`,
       options: {

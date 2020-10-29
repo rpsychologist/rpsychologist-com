@@ -1,6 +1,6 @@
 import React from "react";
 import { Typography } from "@material-ui/core";
-import { version, lastUpdated } from "gatsby-theme-rpsych-cohend/package.json"
+import { version, lastUpdated } from "gatsby-theme-rpsych-correlation/package.json"
 import Link from '@material-ui/core/Link'
 
 const License = () => {

@@ -43,7 +43,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function SaveButton({data}) {
+export default function SaveButton({data, localStorageName}) {
   const classes = useStyles();
   const [loading, setLoading] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
@@ -65,8 +65,8 @@ export default function SaveButton({data}) {
       setLoading(true);
       timer.current = setTimeout(() => {
         const dJSON = JSON.stringify(data);
-        localStorage.setItem("cohendState", dJSON);
-        const dLocal = JSON.stringify(JSON.parse(localStorage.getItem("cohendState")));
+        localStorage.setItem(localStorageName, dJSON);
+        const dLocal = JSON.stringify(JSON.parse(localStorage.getItem(localStorageName)));
         if(dJSON == dLocal) {
           setSuccess(true);
           setLoading(false);
@@ -98,7 +98,7 @@ export default function SaveButton({data}) {
         <Button
           variant="contained"
           disabled={loading}
-          onClick={() => localStorage.removeItem("cohendState")}
+          onClick={() => localStorage.removeItem(localStorageName)}
         >
           Clear
         </Button>

@@ -6,7 +6,7 @@ const drawGaussian = (n, M, SD) => {
   return [...Array(n)].map(() => randomNormal(M, SD)());
 };
 
-const n = 100;
+const n = 50;
 const M0 = 100
 const M1 = 100
 const SD0 = 5
@@ -23,27 +23,34 @@ export let defaultState = {
     SD0: SD0,
     SD1: SD1,
     rho: 0,
+    cor: 0,
     n: n,
-    xLabel: "Outcome",
-    muZeroLabel: "Control",
-    muOneLabel: "Treatment",
-    sliderMax: 2,
-    sliderStep: 0.01,
-    colorDist1: { r: 48, g: 57, b: 79, a: 1 },
+    xLabel: "x",
+    yLabel: "y",
+    data: {},
+    colorDist1: { r: 74, g: 144, b: 226, a: 0.5 },
     colorDistOverlap: { r: 0, g: 0, b: 0, a: 1 },
     colorDist2: { r: 106, g: 206, b: 235, a: 1 },
     immediate: false,
     preset: "large",
     y:  y,
     x:  x,
+    newY: [],
+    newX: [],
     muHatY: muHatY,
+    muHatNewX: [],
+    muHatNewY: [],
     muHatX: muHatX,
     sigmaHatY: sigmaHatY,
     sigmaHatX: sigmaHatX,
+    sigmaHatNewY: [],
+    sigmaHatNewX: [],
     yMin: muHatY - 4 * sigmaHatY,
     yMax: muHatY + 4 * sigmaHatY,
     xMin: muHatX - 4 * sigmaHatX,
     xMax: muHatX + 4 * sigmaHatX,
     regressionLine: true,
+    intercept: [],
+    slope: [],
     residuals: false
   };
