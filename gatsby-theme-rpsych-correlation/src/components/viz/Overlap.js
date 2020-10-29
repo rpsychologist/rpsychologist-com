@@ -47,38 +47,32 @@ const useStyles = makeStyles((theme) => ({
 const DraggableCircle = ({ d, index, xScale, yScale }) => {
   const { state, dispatch } = useContext(SettingsContext);
   const classes = useStyles();
-  const to = (d) => [xScale(d[0]), yScale(d[1])];
-  const { offset } = useSpring({
-    offset: [xScale(d[0]), yScale(d[1])],
-    immediate: state.immediate
-  });
-  const bind = useDrag(
-    ({ movement: [mx, my] }) => {
-      dispatch({
-        name: "drag",
-        value: { i: index, xy: [xScale.invert(mx), yScale.invert(my)] },
-        immediate: true
-      });
-    },
-    { initial: () => offset.get() }
-  );
+  // const to = (d) => [xScale(d[0]), yScale(d[1])];
+  // const { offset } = useSpring({
+  //   offset: [xScale(d[0]), yScale(d[1])],
+  //   immediate: state.immediate
+  // });
+  // const bind = useDrag(
+  //   ({ movement: [mx, my] }) => {
+  //     dispatch({
+  //       name: "drag",
+  //       value: { i: index, xy: [xScale.invert(mx), yScale.invert(my)] },
+  //       immediate: true
+  //     });
+  //   },
+  //   { initial: () => offset.get() }
+  // );
   return (
-    <g {...bind()} className={classes.root}>
-      {/* <animated.circle
-        className={classes.hidden}
-        r="20"
-        cx={offset.to((x, y) => x)}
-        cy={offset.to((x, y) => y)}
-        key={`circle--data--${index}--hidden`}
-      /> */}
-      <animated.circle
+   
+  
+      <circle
         className={classes.circle}
         r="5"
-        cx={offset.to((x, y) => x)}
-        cy={offset.to((x, y) => y)}
+        cx={xScale(d[0])}
+        cy={yScale(d[1])}
         key={`circle--data--${index}`}
       />
-    </g>
+
   );
 };
 
@@ -160,19 +154,14 @@ const OverlapChart = (props) => {
           />
         )}
         {data.map((d, i) => (
-          <>
-            {residuals && (
-              <ResidualLine
-                d={d}
-                index={i}
-                xScale={xScale}
-                yScale={yScale}
-                intercept={intercept}
-                slope={slope}
-              />
-            )}
-            <DraggableCircle d={d} index={i} xScale={xScale} yScale={yScale} />
-          </>
+                  <circle
+                  className={classes.circle}
+                  r="5"
+                  cx={xScale(d[0])}
+                  cy={yScale(d[1])}
+                  key={`circle--data--${i}`}
+                />
+
         ))}
 
         <AxisLeft ticks={10} scale={yScale} />
