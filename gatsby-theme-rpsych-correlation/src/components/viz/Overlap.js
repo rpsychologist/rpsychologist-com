@@ -23,12 +23,19 @@ const useStyles = makeStyles((theme) => ({
     fill: "aliceblue",
   },
   circle: {
-    fill: "#30394F",
-    fillOpacity: 0.9,
+    fill: "#2980b9",
+    fillOpacity: 0.5,
+    stroke: "#2980b9",
+    strokeWidth: "2px",
+    strokeOpacity: 0.75,
     touchAction: "none",
     cursor: "grab",
     cursor: "-moz-grab",
     cursor: "-webkit-grab",
+    "&:hover": {
+      fillOpacity: 1,
+      strokeWidth: "5px",
+    },
     "&:active": {
       cursor: "grabbing",
       cursor: "-moz-grabbing",
@@ -36,8 +43,8 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   regLine: {
-    stroke: "#2980b9",
-    strokeWidth: "4px",
+    stroke: "#133246",
+    strokeWidth: "2px",
   },
   residuals: {
     stroke: "black",
@@ -67,7 +74,7 @@ const DraggableCircle = ({ d, index, xScale, yScale }) => {
   
       <circle
         className={classes.circle}
-        r="5"
+        r="10"
         cx={xScale(d[0])}
         cy={yScale(d[1])}
         key={`circle--data--${index}`}
@@ -97,11 +104,23 @@ const margin = { top: 70, right: 20, bottom: 35, left: 30 };
 
 const OverlapChart = (props) => {
   const classes = useStyles();
+  const { state, dispatch } = useContext(SettingsContext);
   // Clear loading spinner
   useEffect(() => {
     document.getElementById("__loader").style.display = "none";
     return;
   }, []);
+    const bind = useDrag(
+    ({ args: [index], movement: [mx, my], memo, first }) => {
+      const xy = first ? data[index] : memo
+      dispatch({
+        name: "drag",
+        value: { i: index, xy: [xScale.invert(xScale(xy[0]) + mx), yScale.invert(yScale(xy[1]) + my)] },
+        immediate: true
+      });
+      return (xy)
+    }
+  )
 
   const {
     width,
@@ -155,8 +174,9 @@ const OverlapChart = (props) => {
         )}
         {data.map((d, i) => (
                   <circle
+                  {...bind(i)}
                   className={classes.circle}
-                  r="5"
+                  r="7.5"
                   cx={xScale(d[0])}
                   cy={yScale(d[1])}
                   key={`circle--data--${i}`}
