@@ -11,8 +11,8 @@ const M0 = 100
 const M1 = 100
 const SD0 = 5
 const SD1 = 3
-const y = drawGaussian(n, M0, SD0)
-const x = drawGaussian(n, M1, SD1)
+const y = drawGaussian(n, M1, SD1)
+const x = drawGaussian(n, M0, SD0)
 const muHatY = mean(y)
 const muHatX = mean(x)
 const sigmaHatY = deviation(y)
@@ -52,5 +52,6 @@ export let defaultState = {
     regressionLine: true,
     intercept: [],
     slope: [],
-    residuals: false
+    residuals: false,
+    ellipses: true
   };

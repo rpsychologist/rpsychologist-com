@@ -75,7 +75,7 @@ const InputCohen = ({ rho }) => {
         margin="dense"
         onChange={handleInputChange}
         inputProps={{
-          step: 0.1,
+          step: 0.001,
           min: -1,
           max: 1,
           type: "number",

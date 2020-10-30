@@ -89,9 +89,9 @@ const createBivariateData = (state) => {
     (y, i) => xNormalized[i] * invL2[1][0] + y * invL2[1][1]
   );
   const newY = yIndep.map(
-    (y, i) => (xNormalized[i] * L[1][0] + y * L[1][1]) * SD0 + M0
+    (y, i) => (xNormalized[i] * L[1][0] + y * L[1][1]) * SD1 + M1
   );
-  const newX = xNormalized.map((x) => x * SD1 + M1);
+  const newX = xNormalized.map((x) => x * SD0 + M0);
 
 
   const sigmaHatNewY = deviation(newY);
@@ -170,8 +170,8 @@ export const vizReducer = (state, action) => {
         }),
       };
     case "sample":
-      const y = drawGaussian(state.n, state.M0, state.SD0);
-      const x = drawGaussian(state.n, state.M1, state.SD1);
+      const y = drawGaussian(state.n, state.M1, state.SD1);
+      const x = drawGaussian(state.n, state.M0, state.SD0);
       const props = {
         ...state,
         y: y,
@@ -245,7 +245,12 @@ export const vizReducer = (state, action) => {
       return {
         ...state,
         regressionLine: !state.regressionLine
-      };  
+      };
+    case "toggleEllipses":
+      return {
+        ...state,
+        ellipses: !state.ellipses
+      };
     case "xLabel":
     case "yLabel":
     case "colorDist1":

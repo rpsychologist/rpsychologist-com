@@ -38,7 +38,6 @@ const calcOverlapDistance = (rho, r) => {
     }
     k = (1 - Math.cos(t1 / 2)) / 2;
   }
-  console.log(k);
   return 2 * r * k;
 };
 

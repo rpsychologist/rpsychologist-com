@@ -138,7 +138,8 @@ const VizSettings = () => {
     yLabel,
     preset,
     regressionLine,
-    residuals
+    residuals,
+    ellipses
   } = state;
   const handleSubmit = e => {
     e.preventDefault();
@@ -206,24 +207,24 @@ const VizSettings = () => {
           <SettingsInput
             label="y Mean"
             type="number"
-            name="M0"
-            value={M0}
-            handleChange={handleChange}
-            handleSubmit={handleSubmit}
-          />
-          <SettingsInput
-            label="x Mean"
-            type="number"
             name="M1"
             value={M1}
             handleChange={handleChange}
             handleSubmit={handleSubmit}
           />
           <SettingsInput
+            label="x Mean"
+            type="number"
+            name="M0"
+            value={M0}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+          />
+          <SettingsInput
             label="sd Y"
             type="number"
-            name="SD0"
-            value={SD0}
+            name="SD1"
+            value={SD1}
             min={0}
             handleChange={handleChange}
             handleSubmit={handleSubmit}
@@ -231,8 +232,8 @@ const VizSettings = () => {
           <SettingsInput
             label="sd X"
             type="number"
-            name="SD1"
-            value={SD1}
+            name="SD0"
+            value={SD0}
             min={0}
             handleChange={handleChange}
             handleSubmit={handleSubmit}
@@ -294,6 +295,14 @@ const VizSettings = () => {
           onChange={() => dispatch({ name: "toggleRegressionLine" })}
         />
         </Tooltip>
+        <FormControlLabel
+          className={classes.formControl}
+          checked={ellipses}
+          control={<Switch color="primary" />}
+          label="Show ellipses"
+          labelPlacement="start"
+          onChange={() => dispatch({ name: "toggleEllipses" })}
+        />
         <Grid item xs={12}>
           <Divider />
           <Typography align="center" variant="h6" component="h3">
