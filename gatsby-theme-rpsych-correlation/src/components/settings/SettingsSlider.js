@@ -22,7 +22,8 @@ import MenuItemDownloadCsv from "./DownloadCsv";
 import { SettingsContext } from "../../Viz";
 import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
 import FormControl from '@material-ui/core/FormControl';
-
+import {saveSvgAsPng, svgAsDataUri} from 'save-svg-as-png'
+import { saveAs } from 'file-saver';
 
 const useStyles = makeStyles({
   root: {
@@ -33,20 +34,18 @@ const useStyles = makeStyles({
   },
 });
 
+const saveSvgToPng = () => {
+  saveSvgAsPng(document.getElementById("scatterChart"), "rpsychologist-correlation.png");
+};
 const saveSvg = () => {
-  var svgsaver = new svgSaver();
-  var svg = document.querySelector("#scatterChart");
-  //const height = svg.getAttribute("height");
-  //const width = svg.getAttribute("width");
-  // Increase top&bottom margins so chart isn't cropped in some viewers
-  //const marg = 20;
-  //svg.setAttribute("viewBox", `0, -${marg/2}, ${width}, ${Number(height) + marg}`);
-  svgsaver.asSvg(svg, "rpsychologist-correlation.svg");
-  //svg.setAttribute("viewBox", `0, 0, ${width}, ${height}`);
+  const promise = svgAsDataUri(document.getElementById("scatterChart"), {
+    excludeUnusedCss: true,
+    fonts: "",
+  }).then((uri) => saveAs(uri, "rpsychologist-correlation.svg"));
 };
 
 const DownloadSelect = ({ data }) => {
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -60,9 +59,13 @@ const DownloadSelect = ({ data }) => {
     saveSvg();
     setAnchorEl(null);
   };
-
+  const handleSVGtoPNG = () => {
+    saveSvgToPng();
+    setAnchorEl(null);
+  };
   return (
     <>
+    <Tooltip title="Download SVG/CSV">
       <IconButton
         color="inherit"
         aria-label="save svg"
@@ -74,6 +77,7 @@ const DownloadSelect = ({ data }) => {
       >
         <SaveAltIcon />
       </IconButton>
+      </Tooltip>
       <Menu
         id="simple-menu"
         anchorEl={anchorEl}
@@ -81,6 +85,7 @@ const DownloadSelect = ({ data }) => {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
+        <MenuItem onClick={handleSVGtoPNG}>PNG</MenuItem>
         <MenuItem onClick={handleSVG}>SVG</MenuItem>
         <MenuItemDownloadCsv
           data={data}
@@ -90,7 +95,7 @@ const DownloadSelect = ({ data }) => {
           CSV
         </MenuItemDownloadCsv>
       </Menu>
-    </>
+  </>
   );
 };
 
@@ -190,9 +195,7 @@ const InputSlider = ({ handleDrawer, openSettings, handleHelpTour }) => {
               <SettingsIcon />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Download SVG/csv">
-            <DownloadSelect data={state.data}/>
-          </Tooltip>
+          <DownloadSelect data={state.data} />
           <Tooltip title="Start guided help">
             <IconButton
               color="inherit"
