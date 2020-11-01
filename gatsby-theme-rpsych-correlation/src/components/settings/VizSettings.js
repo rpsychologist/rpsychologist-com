@@ -226,7 +226,7 @@ const VizSettings = () => {
           </Grid>
           <Grid item xs={12}>
           <SettingsInput
-            label="y Mean"
+            label="Mean Y"
             type="number"
             name="M1"
             value={M1}
@@ -234,7 +234,7 @@ const VizSettings = () => {
             handleSubmit={handleSubmit}
           />
           <SettingsInput
-            label="x Mean"
+            label="Mean X"
             type="number"
             name="M0"
             value={M0}
@@ -242,7 +242,7 @@ const VizSettings = () => {
             handleSubmit={handleSubmit}
           />
           <SettingsInput
-            label="sd Y"
+            label="SD Y"
             type="number"
             name="SD1"
             value={SD1}
@@ -251,7 +251,7 @@ const VizSettings = () => {
             handleSubmit={handleSubmit}
           />
           <SettingsInput
-            label="sd X"
+            label="SD X"
             type="number"
             name="SD0"
             value={SD0}
