@@ -8,6 +8,9 @@ import Grid from "@material-ui/core/Grid";
 import Slider from "@material-ui/core/Slider";
 import Input from "@material-ui/core/Input";
 import IconButton from "@material-ui/core/IconButton";
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+
 import SettingsIcon from "@material-ui/icons/Settings";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import HelpIcon from "@material-ui/icons/Help";
@@ -15,6 +18,7 @@ import Tooltip from "@material-ui/core/Tooltip";
 import { Typography } from "@material-ui/core";
 import clsx from "clsx";
 import svgSaver from "svgsaver";
+import MenuItemDownloadCsv from "./DownloadCsv";
 import { SettingsContext } from "../../Viz";
 import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
 import FormControl from '@material-ui/core/FormControl';
@@ -31,7 +35,7 @@ const useStyles = makeStyles({
 
 const saveSvg = () => {
   var svgsaver = new svgSaver();
-  var svg = document.querySelector("#overlapChart");
+  var svg = document.querySelector("#scatterChart");
   //const height = svg.getAttribute("height");
   //const width = svg.getAttribute("width");
   // Increase top&bottom margins so chart isn't cropped in some viewers
@@ -39,6 +43,55 @@ const saveSvg = () => {
   //svg.setAttribute("viewBox", `0, -${marg/2}, ${width}, ${Number(height) + marg}`);
   svgsaver.asSvg(svg, "rpsychologist-correlation.svg");
   //svg.setAttribute("viewBox", `0, 0, ${width}, ${height}`);
+};
+
+const DownloadSelect = ({ data }) => {
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleSVG = () => {
+    saveSvg();
+    setAnchorEl(null);
+  };
+
+  return (
+    <>
+      <IconButton
+        color="inherit"
+        aria-label="save svg"
+        edge="end"
+        onClick={handleClick}
+        id="button--save-svg"
+        aria-controls="download-menu"
+        aria-haspopup="true"
+      >
+        <SaveAltIcon />
+      </IconButton>
+      <Menu
+        id="simple-menu"
+        anchorEl={anchorEl}
+        keepMounted
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
+      >
+        <MenuItem onClick={handleSVG}>SVG</MenuItem>
+        <MenuItemDownloadCsv
+          data={data}
+          onClick={handleClose}
+          filename={"rpschologist-correlation.csv"}
+        >
+          CSV
+        </MenuItemDownloadCsv>
+      </Menu>
+    </>
+  );
 };
 
 
@@ -137,16 +190,8 @@ const InputSlider = ({ handleDrawer, openSettings, handleHelpTour }) => {
               <SettingsIcon />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Download SVG">
-            <IconButton
-              color="inherit"
-              aria-label="save svg"
-              edge="end"
-              onClick={() => saveSvg()}
-              id="button--save-svg"
-            >
-              <SaveAltIcon />
-            </IconButton>
+          <Tooltip title="Download SVG/csv">
+            <DownloadSelect data={state.data}/>
           </Tooltip>
           <Tooltip title="Start guided help">
             <IconButton
