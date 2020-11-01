@@ -51,8 +51,6 @@ if (typeof localStorage !== `undefined`) {
   const keysLocalStorage = Object.keys(initialState);
   // use default if keys don't match with localStorage
   // avoids breaking the app
-  console.log(JSON.stringify(keysDefault.sort()))
-  console.log(JSON.stringify(keysLocalStorage.sort()))
   if (
     JSON.stringify(keysDefault.sort()) !=
     JSON.stringify(keysLocalStorage.sort())

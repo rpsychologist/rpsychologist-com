@@ -135,8 +135,8 @@ const getSampleCorrelation = (data) => {
     cor: cor,
     intercept: intercept,
     slope: slope,
-    y: y,
-    x: x,
+    yNew: y,
+    xNew: x,
     muHatNewX: mean(x),
     muHatNewY: mean(y),
     sigmaHatNewX: deviation(x),
@@ -360,6 +360,8 @@ const presetData = (data, value, state) => {
     data: data,
     ...rescale(desc),
     ...desc,
+    x: desc.xNew,
+    y: desc.yNew,
     M0: desc.muHatNewX,
     muHatX: desc.muHatNewX,
     M1: desc.muHatNewY,
@@ -373,8 +375,6 @@ const presetData = (data, value, state) => {
 }
 
 const setPreset = (value, state) => {
-  console.log(value);
-
   if (["small", "medium", "large"].includes(value.preset)) {
     return {
       ...state,

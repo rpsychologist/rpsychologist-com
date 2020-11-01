@@ -124,8 +124,6 @@ const Ellipse = ({
 }) => {
   const classes = useStyles();
   const chi = chisquare.inv(level, 2);
-  console.log(cor);
-
   return (
     <>
     <g
@@ -360,7 +358,7 @@ const OverlapChart = (props) => {
                   style={{
                     transform: offset.to((x, y) => `translate(${x}px, ${y}px)`),
                   }}
-                  r="7.5"
+                  r="5"
                   fill={fillColor}
                   cx={0}
                   cy={0}
