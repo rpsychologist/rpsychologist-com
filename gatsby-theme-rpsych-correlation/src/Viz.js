@@ -2,6 +2,7 @@ import React, { useReducer, useState, createContext, useMemo } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import Paper from "@material-ui/core/Paper";
+import Link from "@material-ui/core/Link";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
@@ -69,6 +70,20 @@ if (typeof localStorage !== `undefined`) {
   });
 }
 
+const DataSource = ({preset}) => {
+
+  let source
+  if(['anscombe1', 'anscombe2', 'anscombe3', 'anscombe4'].includes(preset)) {
+    source = <Link href="https://doi.org/10.1080%2F00031305.1973.10478966">Anscombe, F. J. (1973)</Link>
+  } else if (preset === 'anscombosaurus') {
+    source = <Link href="http://www.thefunctionalart.com/2016/08/download-datasaurus-never-trust-summary.html">Alberto Cairo</Link>
+  } else source = false
+
+  return (
+    source && <Typography variant="body2" align="right">Data source: {source}</Typography>
+  )
+} 
+
 const Viz = ({ openSettings, toggleDrawer, handleHelpTour }) => {
   const [state, dispatch] = useReducer(vizReducer, initialState);
   const contextValue = useMemo(() => {
@@ -122,6 +137,9 @@ const Viz = ({ openSettings, toggleDrawer, handleHelpTour }) => {
               </Typography>
               </div>
               </Grid>
+            </Grid>
+            <Grid item xs={12} sm={6} md={7}>
+              <DataSource preset={state.preset}/>
             </Grid>
           </Grid>
           <Grid container justify="center" spacing={3} id="__loader">
