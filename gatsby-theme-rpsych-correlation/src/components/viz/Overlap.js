@@ -249,7 +249,6 @@ const OverlapChart = (props) => {
   const w = width - margin.left - margin.right;
   const aspect = width < 450 ? 1 : 1;
   const h = width * aspect - margin.top - margin.bottom;
-
   // Data
   const n = 100;
   const fillColor = useMemo(() => toColorString(colorDist1), [colorDist1]);

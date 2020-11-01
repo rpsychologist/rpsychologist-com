@@ -122,7 +122,28 @@ const presetList = [
     label: "Large",
     rho: 0.5,
   },
+  {
+    preset: 'anscombe1',
+    label: 'Anscombe I'
+  },
+  {
+    preset: 'anscombe2',
+    label: 'Anscombe II'
+  },
+  {
+    preset: 'anscombe3',
+    label: 'Anscombe III'
+  },
+  {
+    preset: 'anscombe4',
+    label: 'Anscombe IV'
+  },
+  {
+    preset: 'anscombosaurus',
+    label: 'Anscombosaurus'
+  }
 ];
+
 
 
 const VizSettings = () => {
