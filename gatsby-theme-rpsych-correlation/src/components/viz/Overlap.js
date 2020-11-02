@@ -69,13 +69,13 @@ const useStyles = makeStyles((theme) => ({
   },
   ellipse: {
     stroke: "gray",
-    fill: "white",
+    fill: theme.palette.background.default,
     fillOpacity: 0.5,
   },
   ellipseNoHover: {
     '&:hover': {
-      fill: "white",
-      strokeWidth: "1px",
+      fill: theme.palette.background.default,
+  
     }
   },
   ellipseHover: {
@@ -89,7 +89,7 @@ const useStyles = makeStyles((theme) => ({
   },
   ellipseAxis: {
     strokeWidth: '1px',
-    stroke: 'black',
+    stroke: theme.palette.type === "dark" ? 'white':'black',
     strokeOpacity: 0.5,
   },
   ellipseAxisHoverY: {
@@ -131,7 +131,7 @@ const Ellipse = ({
   return (
     <>
     <g
-
+      onClick={() => handleEllipse(level)}
       transform={`translate(${xScale(meanX)}, ${yScale(meanY)}) scale(${xScale(
         0
       ) - xScale(SDX * Math.sqrt(chi))}, ${yScale(0) -
