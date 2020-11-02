@@ -28,11 +28,18 @@ const useStyles = makeStyles((theme) => ({
     stroke: "#2980b9",
     strokeWidth: "2px",
     strokeOpacity: 0.75,
+    transitionProperty: 'transform',
+    transitionDuration: '.2s',
+    transitionTimingFunction: 'linear',
+    transitionDelay: '0s',
     touchAction: "none",
     "&:hover": {
       fillOpacity: 1,
       strokeWidth: "5px",
     },
+  },
+  noTransition: {
+    transition: 'none !important',
   },
   circleDrag: {
     cursor: "grab",
@@ -64,6 +71,10 @@ const useStyles = makeStyles((theme) => ({
     strokeWidth: "2px",
   },
   residuals: {
+    transitionProperty: 'transform',
+    transitionDuration: '.2s',
+    transitionTimingFunction: 'linear',
+    transitionDelay: '0s',
     stroke: theme.palette.type === "dark" ? "#f18686" : "#f18686",
     strokeWidth: "1.5px",
   },
@@ -197,7 +208,7 @@ const OverlapChart = (props) => {
   const [ellipseState, setEllipse] = useState({ toggle: false, level: [] });
   const handleEllipse = (level) => {
     const toggle = level === ellipseState.level ? !ellipseState.toggle : true;
-    setEllipse({ toggle: toggle, level: level });
+    !state.pointEdit && setEllipse({ toggle: toggle, level: level });
   };
   const to = (d) => [xScale(d[0]), yScale(d[1])];
   // Clear loading spinner
@@ -278,14 +289,14 @@ const OverlapChart = (props) => {
   const yScale = scaleLinear()
     .domain([yMin, yMax])
     .range([h, 0]);
-  const springs = useSprings(
-    data.length,
-    data.map((d) => ({
-      offset: [xScale(d[0]), yScale(d[1])],
-      resid: [d[0], d[1], intercept, slope],
-      immediate: immediate,
-    }))
-  );
+  // const springs = useSprings(
+  //   data.length,
+  //   data.map((d) => ({
+  //     offset: [xScale(d[0]), yScale(d[1])],
+  //     resid: [d[0], d[1], intercept, slope],
+  //     immediate: immediate,
+  //   }))
+  // );
   const regression = useSpring({
     beta: [intercept, slope],
     immediate: immediate,
@@ -312,7 +323,7 @@ const OverlapChart = (props) => {
       width={props.width}
       height={props.width * aspect}
       viewBox={`0,0, ${props.width}, ${props.width * aspect}`}
-      style={{ touchAction: "pan-y", userSelect: "none" }}
+      style={{ userSelect: "none" }}
       onMouseDown={(e) => {
         let svg = document.querySelector('#scatterChart')
         var p = svg.createSVGPoint();
@@ -371,29 +382,36 @@ const OverlapChart = (props) => {
               y2={regression.beta.to((b0, b1) => yScale(b0 + xMax * b1))}
             />
           )}
-          {springs.map(({ offset, resid }, i) => {
+          {data.map(([x,y], i) => {
             return (
               <React.Fragment key={i}>
                 {residuals && (
-                  <animated.line
-                    className={classes.residuals}
-                    x1={resid.to((x, y) => xScale(x))}
-                    x2={resid.to((x, y) => xScale(x))}
-                    y1={resid.to((x, y) => yScale(y))}
-                    y2={resid.to((x, y, b0, b1) => yScale(b0 + b1 * x))}
+                  <line
+                    className={clsx({
+                      [classes.residuals]: true,
+                      [classes.noTransition]: state.immediate
+                    })}
+                    x1={0}
+                    x2={0}
+                    y1={0}
+                    y2={1}
+                    style={{
+                      transform: `translate(${xScale(x)}px, ${yScale(y)}px) scaleY(${yScale(intercept + slope * x) - yScale(y)})`,
+                    }}
                     key={`circle--resid--${i}`}
                   />
                 )}
-                <animated.circle
+                <circle
                   {...bind(i)}
                   className={clsx({
                     [classes.circle]: true,
+                    [classes.noTransition]: state.immediate,
                     [classes.circleDrag]: state.pointEdit === 'drag',
                     [classes.circleDelete]: state.pointEdit === 'delete',
                     [classes.circleAdd]: state.pointEdit === 'add',
                   })}
                   style={{
-                    transform: offset.to((x, y) => `translate(${x}px, ${y}px)`),
+                    transform: `translate(${xScale(x)}px, ${yScale(y)}px)`,
                   }}
                   r="5"
                   fill={fillColor}

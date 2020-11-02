@@ -158,20 +158,21 @@ const InputSlider = ({ handleDrawer, openSettings, handleHelpTour }) => {
   const classes = useStyles();
   const { state, dispatch } = useContext(SettingsContext);
   const { rho } = state;
-  const [immediate, setImmediate] = useState(false);
+  //const [immediate, setImmediate] = useState(false);
 
   const handleSliderChange = (event, newVal) => {
     // We want to animate if we click on the slider,
     // but no animation when dragging (immediate: true)
-    if(event.type === 'mousedown' || event.type === 'touchstart') {
-      setImmediate(false)
-      setTimeout(() => {
-        setImmediate(true)
-      }, 100);
-      dispatch({ name: "rho", value: newVal, immediate: false });
-    } else {
-      dispatch({ name: "rho", value: newVal, immediate: immediate });
-    }
+    // if(event.type === 'mousedown' || event.type === 'touchstart') {
+    //   setImmediate(false)
+    //   setTimeout(() => {
+    //     setImmediate(true)
+    //   }, 100);
+    //   dispatch({ name: "rho", value: newVal, immediate: false });
+    // } else {
+    //   dispatch({ name: "rho", value: newVal, immediate: immediate });
+    // }
+    dispatch({ name: "rho", value: newVal, immediate: true });
   };
 
   return (
