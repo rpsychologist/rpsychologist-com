@@ -10,7 +10,6 @@ import Input from "@material-ui/core/Input";
 import IconButton from "@material-ui/core/IconButton";
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-
 import SettingsIcon from "@material-ui/icons/Settings";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import HelpIcon from "@material-ui/icons/Help";
@@ -24,6 +23,8 @@ import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
 import FormControl from '@material-ui/core/FormControl';
 import {saveSvgAsPng, svgAsDataUri} from 'save-svg-as-png'
 import { saveAs } from 'file-saver';
+import ImageIcon from '@material-ui/icons/Image';
+import GridOnIcon from '@material-ui/icons/GridOn';
 
 const useStyles = makeStyles({
   root: {
@@ -31,7 +32,7 @@ const useStyles = makeStyles({
   },
   input: {
     width: 60,
-  },
+  }
 });
 
 const saveSvgToPng = () => {
@@ -43,6 +44,8 @@ const saveSvg = () => {
     fonts: "",
   }).then((uri) => saveAs(uri, "rpsychologist-correlation.svg"));
 };
+
+
 
 const DownloadSelect = ({ data }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -85,14 +88,14 @@ const DownloadSelect = ({ data }) => {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        <MenuItem onClick={handleSVGtoPNG}>PNG</MenuItem>
-        <MenuItem onClick={handleSVG}>SVG</MenuItem>
+        <MenuItem onClick={handleSVGtoPNG}><ImageIcon fontSize="small" style={{marginRight: '0.5em'}}/> PNG</MenuItem>
+        <MenuItem onClick={handleSVG}><ImageIcon fontSize="small" style={{marginRight: '0.5em'}}/> SVG</MenuItem>
         <MenuItemDownloadCsv
           data={data}
           onClick={handleClose}
           filename={"rpschologist-correlation.csv"}
         >
-          CSV
+          <GridOnIcon fontSize="small" style={{marginRight: '0.5em'}}/> CSV
         </MenuItemDownloadCsv>
       </Menu>
   </>
