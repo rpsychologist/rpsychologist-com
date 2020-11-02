@@ -160,7 +160,8 @@ const VizSettings = () => {
     preset,
     regressionLine,
     residuals,
-    ellipses
+    ellipses,
+    showPointEdit
   } = state;
   const handleSubmit = e => {
     e.preventDefault();
@@ -298,32 +299,46 @@ const VizSettings = () => {
           Dark mode: <DarkModeToggle />
         </Typography>
         <Divider style={{width: '100%'}} />
-        <FormControlLabel
-          className={classes.formControl}
-          checked={residuals}
-          control={<Switch color="primary" />}
-          label="Show residuals"
-          labelPlacement="start"
-          onChange={() => dispatch({ name: "toggleResiduals" })}
-        />
-         <Tooltip title="Toggle the regression line" enterDelay={500}>
+        <Tooltip title="Toggle the regression line" enterDelay={500}>
         <FormControlLabel
           className={classes.formControl}
           checked={regressionLine}
           control={<Switch color="primary" />}
-          label="Show regression"
+          label="Regression"
           labelPlacement="start"
           onChange={() => dispatch({ name: "toggleRegressionLine" })}
         />
         </Tooltip>
+        <Tooltip title="Toggle residuals" enterDelay={500}>
+        <FormControlLabel
+          className={classes.formControl}
+          checked={residuals}
+          control={<Switch color="primary" />}
+          label="Residuals"
+          labelPlacement="start"
+          onChange={() => dispatch({ name: "toggleResiduals" })}
+        />
+        </Tooltip>
+        <Tooltip title="Toggle normal probability ellipses" enterDelay={500}>
         <FormControlLabel
           className={classes.formControl}
           checked={ellipses}
           control={<Switch color="primary" />}
-          label="Show ellipses"
+          label="Ellipses"
           labelPlacement="start"
           onChange={() => dispatch({ name: "toggleEllipses" })}
         />
+        </Tooltip>
+        <Tooltip title="Make data points editable" enterDelay={500}>
+        <FormControlLabel
+          className={classes.formControl}
+          checked={showPointEdit}
+          control={<Switch color="primary" />}
+          label="Edit points"
+          labelPlacement="start"
+          onChange={() => dispatch({ name: "togglePointEdit" })}
+        />
+        </Tooltip>
         <Grid item xs={12}>
           <Divider />
           <Typography align="center" variant="h6" component="h3">

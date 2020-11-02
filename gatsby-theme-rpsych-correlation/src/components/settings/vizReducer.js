@@ -404,7 +404,7 @@ export const vizReducer = (state, action) => {
   let { name, value, immediate } = action;
   immediate = typeof immediate === "undefined" ? false : immediate;
   value = value === "" ? "" : action.value;
-
+  let data, x, y, desc
   switch (name) {
     case "rho":
       return {
@@ -417,8 +417,8 @@ export const vizReducer = (state, action) => {
         }),
       };
     case "sample":
-      const y = drawGaussian(state.n, state.M1, state.SD1);
-      const x = drawGaussian(state.n, state.M0, state.SD0);
+      y = drawGaussian(state.n, state.M1, state.SD1);
+      x = drawGaussian(state.n, state.M0, state.SD0);
       const props = {
         ...state,
         y: y,
@@ -442,12 +442,73 @@ export const vizReducer = (state, action) => {
         immediate: immediate,
         data: z,
       };
+    case "addPoint":
+      data = state.data
+      x = state.x
+      y = state.y
+      x.push(value[0])
+      y.push(value[1])
+      data.push(value)
+      desc = getSampleCorrelation(data)
+      return {
+        ...state,
+        ...desc,
+        M0: desc.muHatNewX,
+        muHatX: desc.muHatNewX,
+        M1: desc.muHatNewY,
+        muHatY: desc.muHatNewY,
+        SD0: desc.sigmaHatNewX,
+        sigmaHatX: desc.sigmaHatNewX,
+        SD1: desc.sigmaHatNewY,
+        sigmaHatY: desc.sigmaHatNewY,
+        n: data.length,
+        x: x,
+        y: y,
+        data: data
+      };  
+    case "deletePoint":
+      data = state.data
+      x = state.x
+      y = state.y
+      x.splice(value, 1)
+      y.splice(value, 1)
+      data.splice(value, 1)
+      desc = getSampleCorrelation(data)
+      return {
+        ...state,
+        ...desc,
+        M0: desc.muHatNewX,
+        muHatX: desc.muHatNewX,
+        M1: desc.muHatNewY,
+        muHatY: desc.muHatNewY,
+        SD0: desc.sigmaHatNewX,
+        sigmaHatX: desc.sigmaHatNewX,
+        SD1: desc.sigmaHatNewY,
+        sigmaHatY: desc.sigmaHatNewY,
+        n: data.length,
+        immediate: true,
+        x: x,
+        y: y,
+        data: data
+      };   
     case "rescale":
       return {
         ...state,
         immediate: immediate,
         ...rescale(state),
       };
+    case "pointEdit":
+      return {
+        ...state,
+        pointEdit: value
+      };
+    case "togglePointEdit": {
+      return {
+        ...state,
+        pointEdit: false,
+        showPointEdit: !state.showPointEdit
+      }
+    }
     case "SD0":
     case "SD1":
     case "M0":

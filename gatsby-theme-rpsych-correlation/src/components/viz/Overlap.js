@@ -5,7 +5,7 @@ import clsx from "clsx";
 import { format } from "d3-format";
 import { range, min, max } from "d3-array";
 import { line } from "d3-shape";
-import { useDrag } from "react-use-gesture";
+import { useGesture } from "react-use-gesture";
 import { useSpring, useSprings, animated, to } from "react-spring";
 import { AxisBottom, AxisLeft } from "@vx/axis";
 import { SettingsContext } from "../../Viz";
@@ -29,18 +29,35 @@ const useStyles = makeStyles((theme) => ({
     strokeWidth: "2px",
     strokeOpacity: 0.75,
     touchAction: "none",
-    cursor: "grab",
-    cursor: "-moz-grab",
-    cursor: "-webkit-grab",
     "&:hover": {
       fillOpacity: 1,
       strokeWidth: "5px",
     },
+  },
+  circleDrag: {
+    cursor: "grab",
+    cursor: "-moz-grab",
+    cursor: "-webkit-grab",
     "&:active": {
       cursor: "grabbing",
       cursor: "-moz-grabbing",
       cursor: "-webkit-grabbing",
     },
+  },
+  circleDelete: {
+    '&:hover': {
+      cursor: "pointer",
+      fill: 'white',
+      stroke: 'red',
+    }
+  },
+  circleAdd: {
+    '&:hover': {
+      strokeWidth: "2px",
+    },
+  },
+  svgAdd: {
+    cursor: 'copy'
   },
   regLine: {
     stroke: theme.palette.type === "dark" ? "white" : "#133246",
@@ -54,10 +71,12 @@ const useStyles = makeStyles((theme) => ({
     stroke: "gray",
     fill: "white",
     fillOpacity: 0.5,
-    "&:hover": {
-      fill: "#8080801c",
-      strokeWidth: "2px",
-    },
+  },
+  ellipseNoHover: {
+    '&:hover': {
+      fill: "white",
+      strokeWidth: "1px",
+    }
   },
   ellipseHover: {
     stroke: "#9fdfff",
@@ -91,28 +110,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 const toColorString = (color) =>
   `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`;
-const ResidualLine = ({ d, index, xScale, yScale, intercept, slope }) => {
-  const classes = useStyles();
-  const to = (d) => [d[0], d[1]];
-  const { offset } = useSpring({
-    offset: to(d),
-  });
-  return (
-    <animated.line
-      className={classes.residuals}
-      x1={offset.to((x, y) => xScale(x))}
-      x2={offset.to((x, y) => xScale(x))}
-      y1={offset.to((x, y) => yScale(y))}
-      y2={offset.to((x, y) => yScale(intercept + slope * x))}
-    />
-  );
-};
 
-const margin = { top: 20, right: 20, bottom: 45, left: 60 };
+  const margin = { top: 20, right: 20, bottom: 45, left: 60 };
 
 const Ellipse = ({
   level,
   handleEllipse,
+  pointEdit,
   state,
   xScale,
   yScale,
@@ -127,7 +131,7 @@ const Ellipse = ({
   return (
     <>
     <g
-      onClick={() => handleEllipse(level)}
+
       transform={`translate(${xScale(meanX)}, ${yScale(meanY)}) scale(${xScale(
         0
       ) - xScale(SDX * Math.sqrt(chi))}, ${yScale(0) -
@@ -136,6 +140,7 @@ const Ellipse = ({
       <ellipse
         className={clsx({
           [classes.ellipse]: true,
+          [classes.ellipseNoHover]: pointEdit,
           [classes.ellipseHover]: state.level === level && state.toggle,
         })}
         transform={`rotate(${45})`}
@@ -200,21 +205,32 @@ const OverlapChart = (props) => {
     document.getElementById("__loader").style.display = "none";
     return;
   }, []);
-  const bind = useDrag(({ args: [index], movement: [mx, my], memo, first }) => {
-    const xy = first ? data[index] : memo;
-    dispatch({
-      name: "drag",
-      value: {
-        i: index,
-        xy: [
-          xScale.invert(xScale(xy[0]) + mx),
-          yScale.invert(yScale(xy[1]) + my),
-        ],
-      },
-      immediate: true,
-    });
-    return xy;
-  });
+  const bind = useGesture({
+    onDrag: ({ args: [index], movement: [mx, my], memo, first }) => {
+      const xy = first ? data[index] : memo;
+      dispatch({
+        name: "drag",
+        value: {
+          i: index,
+          xy: [
+            xScale.invert(xScale(xy[0]) + mx),
+            yScale.invert(yScale(xy[1]) + my),
+          ],
+        },
+        immediate: true,
+      });
+      return xy;
+    },
+    onMouseDown: ({args: [index], event}) => {
+      if(state.pointEdit === 'delete') {
+        dispatch({name: 'deletePoint', value: index})
+      }
+    },
+  },
+  {
+    drag: {enabled: state.pointEdit === 'drag'}
+  }
+  );
 
   const {
     width,
@@ -284,17 +300,33 @@ const OverlapChart = (props) => {
     SDY: sigmaHatNewY,
     cor: cor,
     handleEllipse: handleEllipse,
+    pointEdit: state.pointEdit,
     state: ellipseState,
   };
   return (
     <svg
       id="scatterChart"
+      className={clsx({
+        [classes.svgAdd]: state.pointEdit === 'add'
+      })}
       width={props.width}
       height={props.width * aspect}
       viewBox={`0,0, ${props.width}, ${props.width * aspect}`}
       style={{ touchAction: "pan-y", userSelect: "none" }}
+      onMouseDown={(e) => {
+        let svg = document.querySelector('#scatterChart')
+        var p = svg.createSVGPoint();
+      p.x = e.clientX;
+      p.y = e.clientY;
+      var ctm = svg.getScreenCTM().inverse();
+      var p =  p.matrixTransform(ctm);
+      const x = xScale.invert(p.x - margin.left)
+      const y = yScale.invert(p.y - margin.top)
+      state.pointEdit === 'add' && dispatch({name: 'addPoint', value: [x,y]})
+
+      }}
     >
-      <g transform={`translate(${margin.left}, ${margin.top})`}>
+      <g id='scatterArea' transform={`translate(${margin.left}, ${margin.top})`}>
         <g clipPath="url(#svg--overlap--clip)">
           {ellipses && (
             <>
@@ -354,7 +386,12 @@ const OverlapChart = (props) => {
                 )}
                 <animated.circle
                   {...bind(i)}
-                  className={classes.circle}
+                  className={clsx({
+                    [classes.circle]: true,
+                    [classes.circleDrag]: state.pointEdit === 'drag',
+                    [classes.circleDelete]: state.pointEdit === 'delete',
+                    [classes.circleAdd]: state.pointEdit === 'add',
+                  })}
                   style={{
                     transform: offset.to((x, y) => `translate(${x}px, ${y}px)`),
                   }}

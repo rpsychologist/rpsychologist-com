@@ -16,6 +16,7 @@ import { defaultState } from "./components/settings/defaultSettings";
 import { vizReducer } from "./components/settings/vizReducer";
 import VizSettings from "./components/settings/VizSettings";
 import { format } from "d3-format";
+import PointEditSettings from './components/settings/PointEditSettings'
 
 export const SettingsContext = createContext(null);
 
@@ -84,6 +85,8 @@ const DataSource = ({preset}) => {
   )
 } 
 
+
+
 const Viz = ({ openSettings, toggleDrawer, handleHelpTour }) => {
   const [state, dispatch] = useReducer(vizReducer, initialState);
   const contextValue = useMemo(() => {
@@ -99,47 +102,55 @@ const Viz = ({ openSettings, toggleDrawer, handleHelpTour }) => {
             handleDrawer={toggleDrawer}
             handleHelpTour={handleHelpTour}
           />
+                        
+
           <Grid container alignItems="center">
-            <Grid item xs={12} sm={6} md={7}>
+            <Grid item xs={12} sm={6} md={7} style={{position: 'relative'}}>
+              {state.showPointEdit && <PointEditSettings state={state} dispatch={dispatch} />}
               <ResponsiveChart chart={ScatterPlot} {...state} />
             </Grid>
             <Grid item xs={12} sm={6} md={5}>
-              <Grid direction = "column" container alignItems="center" justify="center">
+              <Grid
+                direction="column"
+                container
+                alignItems="center"
+                justify="center"
+              >
                 <Grid item>
-              <Typography component="p" variant="h5">
-                Correlation: {format(".2f")(state.cor)}
-              </Typography>
-              </Grid>
-              <Grid item>
-              <Typography>
-                Shared variance: {format(".0%")(Math.pow(state.cor, 2))}
-              </Typography>
-              </Grid>
-              <Grid item xs={12} style={{minWidth: "100%"}}>
-              <ResponsiveChart chart={Venn} {...state} />
-              </Grid>
-              <div id="correlation--descriptive--stats">
-              <Typography>
-                y = {format(".2f")(state.intercept, 2)} +{" "}
-                {format(".2f")(state.slope, 2)}*x
-              </Typography>
-              <Typography>
-                Mean(y) = {format(".2f")(state.muHatNewY, 2)}
-              </Typography>
-              <Typography>
-                Mean(x) = {format(".2f")(state.muHatNewX, 2)}
-              </Typography>
-              <Typography>
-                SD(y) = {format(".2f")(state.sigmaHatNewY, 2)}
-              </Typography>
-              <Typography>
-                SD(x) = {format(".2f")(state.sigmaHatNewX, 2)}
-              </Typography>
-              </div>
+                  <Typography component="p" variant="h5">
+                    Correlation: {format(".2f")(state.cor)}
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Typography>
+                    Shared variance: {format(".0%")(Math.pow(state.cor, 2))}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} style={{ minWidth: "100%" }}>
+                  <ResponsiveChart chart={Venn} {...state} />
+                </Grid>
+                <div id="correlation--descriptive--stats">
+                  <Typography>
+                    y = {format(".2f")(state.intercept, 2)} +{" "}
+                    {format(".2f")(state.slope, 2)}*x
+                  </Typography>
+                  <Typography>
+                    Mean(y) = {format(".2f")(state.muHatNewY, 2)}
+                  </Typography>
+                  <Typography>
+                    Mean(x) = {format(".2f")(state.muHatNewX, 2)}
+                  </Typography>
+                  <Typography>
+                    SD(y) = {format(".2f")(state.sigmaHatNewY, 2)}
+                  </Typography>
+                  <Typography>
+                    SD(x) = {format(".2f")(state.sigmaHatNewX, 2)}
+                  </Typography>
+                </div>
               </Grid>
             </Grid>
             <Grid item xs={12} sm={6} md={7}>
-              <DataSource preset={state.preset}/>
+              <DataSource preset={state.preset} />
             </Grid>
           </Grid>
           <Grid container justify="center" spacing={3} id="__loader">
