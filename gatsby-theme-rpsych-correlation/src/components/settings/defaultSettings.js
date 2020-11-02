@@ -53,7 +53,7 @@ export let defaultState = {
     intercept: [],
     slope: [],
     residuals: false,
-    ellipses: true,
+    ellipses: false,
     pointEdit: 'drag',
     showPointEdit: true
   };
