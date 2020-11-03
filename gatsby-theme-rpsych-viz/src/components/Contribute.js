@@ -88,7 +88,7 @@ const Contribute = React.memo(() => {
       </Typography>
       <Grid className={classes.sponsors}>
         <Chip label="Your Name" />
-        <Chip label="Your Name" color="primary" icon={<HomeRoundedIcon fontSize="small" color="primary" />} clickable/>
+        <Chip label="Your Name" color="primary" icon={<HomeRoundedIcon fontSize="small" color="primary" />} clickable component={Link} href="https://github.com/sponsors/rpsychologist"/>
         </Grid>
       </div>
 
