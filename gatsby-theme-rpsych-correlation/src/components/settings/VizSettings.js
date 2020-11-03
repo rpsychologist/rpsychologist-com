@@ -87,13 +87,13 @@ const DesktopColor = ({color, handleChange}) => {
 
 const ColorPicker = ({ dist }) => {
   const { state, dispatch } = useContext(SettingsContext);
-  const [color, setColor] = useState(state[`color${dist}`]);
+  const [color, setColor] = useState(state[`color${dist}`].rgb);
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.down("xs"));
 
-  const handleChange = ({ rgb }) => {
-    setColor(rgb);
-    dispatch({ name: `color${dist}`, value: rgb });
+  const handleChange = (color) => {
+    setColor(color.rgb);
+    dispatch({ name: `color${dist}`, value: color });
   };
   const mobile = useMediaQuery(theme.breakpoints.down("xs"));
 
