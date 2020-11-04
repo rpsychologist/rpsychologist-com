@@ -119,14 +119,18 @@ const OverlapChart = (props) => {
   const bind = useGesture({
     onDrag: ({ args: [index], movement: [mx, my], memo, first }) => {
       const xy = first ? data[index] : memo;
+      let x = xScale.invert(xScale(xy[0]) + mx)
+      x = x < xMin ? xMin : x
+      x = x > xMax ? xMax : x
+      let y = yScale.invert(yScale(xy[1]) + my)
+      y = y < yMin ? yMin : y
+      y = y > yMax ? yMax : y
+      
       dispatch({
         name: "drag",
         value: {
           i: index,
-          xy: [
-            xScale.invert(xScale(xy[0]) + mx),
-            yScale.invert(yScale(xy[1]) + my),
-          ],
+          xy: [x, y],
         },
         immediate: true,
       });
