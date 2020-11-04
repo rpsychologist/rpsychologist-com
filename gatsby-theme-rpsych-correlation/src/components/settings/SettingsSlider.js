@@ -16,7 +16,6 @@ import HelpIcon from "@material-ui/icons/Help";
 import Tooltip from "@material-ui/core/Tooltip";
 import { Typography } from "@material-ui/core";
 import clsx from "clsx";
-import svgSaver from "svgsaver";
 import MenuItemDownloadCsv from "./DownloadCsv";
 import { SettingsContext } from "../../Viz";
 import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';

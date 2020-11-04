@@ -505,7 +505,6 @@ export const vizReducer = (state, action) => {
     case "togglePointEdit": {
       return {
         ...state,
-        pointEdit: false,
         showPointEdit: !state.showPointEdit
       }
     }

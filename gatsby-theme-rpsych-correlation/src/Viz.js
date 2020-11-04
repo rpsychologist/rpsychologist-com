@@ -106,7 +106,7 @@ const Viz = ({ openSettings, toggleDrawer, handleHelpTour }) => {
 
           <Grid container alignItems="center">
             <Grid item xs={12} sm={6} md={7} style={{position: 'relative'}}>
-              {state.showPointEdit && <PointEditSettings state={state} dispatch={dispatch} />}
+              <PointEditSettings state={state} dispatch={dispatch} />
               <ResponsiveChart chart={ScatterPlot} {...state} />
             </Grid>
             <Grid item xs={12} sm={6} md={5}>
