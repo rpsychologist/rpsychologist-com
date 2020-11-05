@@ -424,7 +424,7 @@ Now let's run a small simulation to show the consequences of this random-slope d
 -   JM: A joint model that correctly allowed the dropout to be related to the random slopes.
 -   LMM with complete data: an LMM fit to the complete data without any missingness.
 
-I will not post all code here; [the complete code for this post can be found on GitHub](https://github.com/rpsychologist/rpsychologist-com/blob/master/content/blog/2020-07-08-lmm-slope-missingness). Here's a snippet showing the code that was used to fit the models.
+I will not post all code here; [the complete code for this post can be found on GitHub](https://github.com/rpsychologist/rpsychologist-com/blob/master/blog/content/blog/2020-07-08-lmm-slope-missingness). Here's a snippet showing the code that was used to fit the models.
 
 ``` r:collapsed=true
 post_test <- function(fit, d = NULL) {
