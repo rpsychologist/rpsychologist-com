@@ -133,6 +133,7 @@ const getSampleCorrelation = (data) => {
 
   return ({
     cor: cor,
+    rho: cor,
     intercept: intercept,
     slope: slope,
     yNew: y,
@@ -400,6 +401,20 @@ const setPreset = (value, state) => {
   
 };
 
+const editParamUpdate = (desc) => {
+  return ({
+    M0: desc.muHatNewX,
+    muHatX: desc.muHatNewX,
+    M1: desc.muHatNewY,
+    muHatY: desc.muHatNewY,
+    SD0: desc.sigmaHatNewX,
+    sigmaHatX: desc.sigmaHatNewX,
+    SD1: desc.sigmaHatNewY,
+    sigmaHatY: desc.sigmaHatNewY,
+  }
+  )
+}
+
 export const vizReducer = (state, action) => {
   let { name, value, immediate } = action;
   immediate = typeof immediate === "undefined" ? false : immediate;
@@ -436,9 +451,13 @@ export const vizReducer = (state, action) => {
     case "drag":
       const z = state.data;
       z[value.i] = value.xy;
+      desc = getSampleCorrelation(z)
       return {
         ...state,
-        ...getSampleCorrelation(z),
+        ...desc,
+        ...editParamUpdate(desc),
+        x: desc.xNew,
+        y: desc.yNew,
         immediate: immediate,
         data: z,
       };
@@ -453,14 +472,7 @@ export const vizReducer = (state, action) => {
       return {
         ...state,
         ...desc,
-        M0: desc.muHatNewX,
-        muHatX: desc.muHatNewX,
-        M1: desc.muHatNewY,
-        muHatY: desc.muHatNewY,
-        SD0: desc.sigmaHatNewX,
-        sigmaHatX: desc.sigmaHatNewX,
-        SD1: desc.sigmaHatNewY,
-        sigmaHatY: desc.sigmaHatNewY,
+        ...editParamUpdate(desc),
         n: data.length,
         x: x,
         y: y,
@@ -477,14 +489,7 @@ export const vizReducer = (state, action) => {
       return {
         ...state,
         ...desc,
-        M0: desc.muHatNewX,
-        muHatX: desc.muHatNewX,
-        M1: desc.muHatNewY,
-        muHatY: desc.muHatNewY,
-        SD0: desc.sigmaHatNewX,
-        sigmaHatX: desc.sigmaHatNewX,
-        SD1: desc.sigmaHatNewY,
-        sigmaHatY: desc.sigmaHatNewY,
+        ...editParamUpdate(desc),
         n: data.length,
         immediate: true,
         x: x,

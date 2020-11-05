@@ -3,8 +3,8 @@
   "description": "A tool to understand correlations",
   "author": "Kristoffer Magnusson",
   "license": "MIT",
-  "version": "0.4.2",
-  "lastUpdated": "2020-11-04",
+  "version": "0.4.3",
+  "lastUpdated": "2020-11-05",
   "private": true,
   "dependencies": {
     "file-saver": "^2.0.2",
