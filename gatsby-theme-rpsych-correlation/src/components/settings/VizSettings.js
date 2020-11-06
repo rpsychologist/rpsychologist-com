@@ -89,8 +89,6 @@ const ColorPicker = ({ dist }) => {
   const { state, dispatch } = useContext(SettingsContext);
   const [color, setColor] = useState(state[`color${dist}`].rgb);
   const theme = useTheme();
-  const matches = useMediaQuery(theme.breakpoints.down("xs"));
-
   const handleChange = (color) => {
     setColor(color.rgb);
     dispatch({ name: `color${dist}`, value: color });
@@ -98,11 +96,11 @@ const ColorPicker = ({ dist }) => {
   const mobile = useMediaQuery(theme.breakpoints.down("xs"));
 
   return mobile ? (
-    <div style={{touchAction: "none"}}>
-    <HuePicker color={color} onChange={handleChange} width="100%" />
+    <div style={{ touchAction: "none" }}>
+      <HuePicker color={color} onChange={handleChange} width="100%" />
     </div>
   ) : (
-    <DesktopColor color={color} handleChange={handleChange} state={state}/>
+    <DesktopColor color={color} handleChange={handleChange} state={state} />
   );
 };
 
