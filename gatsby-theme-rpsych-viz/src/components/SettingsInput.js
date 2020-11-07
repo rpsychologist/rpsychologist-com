@@ -4,7 +4,7 @@ import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles(() => ({
   textField: {
-    width: "100%"
+    minWidth: "100%"
   }
 }));
 
@@ -44,15 +44,11 @@ const SettingsInput = ({
     setInput(value)
   };
   return (
-    <form
-      className={classes.container}
-      noValidate
-      autoComplete="off"
-      onSubmit={handleSubmit}
-    >
+
         <TextField
           error={error}
           id={`input-${name}`}
+          fullWidth
           label={label}
           name={name}
           type={type}
@@ -67,7 +63,6 @@ const SettingsInput = ({
           value={input}
           helperText={helperText}
         />
-    </form>
   );
 };
 export default SettingsInput;

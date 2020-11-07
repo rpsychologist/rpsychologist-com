@@ -91,6 +91,7 @@ const DownloadSelect = ({ data }) => {
         <MenuItem onClick={handleSVG}><ImageIcon fontSize="small" style={{marginRight: '0.5em'}}/> SVG</MenuItem>
         <MenuItemDownloadCsv
           data={data}
+
           onClick={handleClose}
           filename={"rpschologist-correlation.csv"}
         >
@@ -198,7 +199,7 @@ const InputSlider = ({ handleDrawer, openSettings, handleHelpTour }) => {
               <SettingsIcon />
             </IconButton>
           </Tooltip>
-          <DownloadSelect data={state.data} />
+          <DownloadSelect data={{ data: state.data, xLabel: state.xLabel, yLabel: state.yLabel }} />
           <Tooltip title="Start guided help">
             <IconButton
               color="inherit"

@@ -6,60 +6,76 @@ import SaveButton from "gatsby-theme-rpsych-viz/src/components/SaveButton";
 import { Typography } from "@material-ui/core";
 import { SettingsContext } from "../../Viz";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { SketchPicker, HuePicker } from "react-color";
 import Button from "@material-ui/core/Button";
 import reactCSS from "reactcss";
-import AspectRatioIcon from '@material-ui/icons/AspectRatio';
-import RepeatIcon from '@material-ui/icons/Repeat';
-import DarkModeToggle from 'gatsby-theme-rpsych/src/components/DarkModeToggle'
-import Select from '@material-ui/core/Select';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Switch from '@material-ui/core/Switch';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+import AspectRatioIcon from "@material-ui/icons/AspectRatio";
+import RepeatIcon from "@material-ui/icons/Repeat";
+import DarkModeToggle from "gatsby-theme-rpsych/src/components/DarkModeToggle";
+import Select from "@material-ui/core/Select";
+import InputLabel from "@material-ui/core/InputLabel";
+import MenuItem from "@material-ui/core/MenuItem";
+import FormControl from "@material-ui/core/FormControl";
+import Switch from "@material-ui/core/Switch";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Tooltip from "@material-ui/core/Tooltip";
+import CsvLoad from "./CsvLoad";
+import FormGroup from "@material-ui/core/FormGroup";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   container: {
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1),
     width: "100%",
-    justifyContent: 'center'
+    justifyContent: "center",
+  },
+  setting: {
+    paddingRight: theme.spacing(2),
+    paddingLeft: theme.spacing(2),
+    width: "100%",
+  },
+  button: {
+    width: "100%",
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(2),
+  },
+  root: {
+    flexGrow: 1,
   },
   formControl: {
     minWidth: "100%",
-  }
+  },
+  labelPlacementStart: {
+    marginRight: 0,
+  },
 }));
 
-const DesktopColor = ({color, handleChange}) => {
+const DesktopColor = ({ color, handleChange }) => {
   const theme = useTheme();
   const [toggle, setToggle] = useState(false);
   const handleClick = () => setToggle(!toggle);
   const handleClose = () => setToggle(false);
   const styles = reactCSS({
-    'default': {
+    default: {
       color: {
         width: "36px",
         height: "14px",
         borderRadius: "2px",
-        background: `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`
+        background: `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`,
       },
       swatch: {
         padding: "5px",
-        background: theme.palette.type === 'dark' ? '#272727':'#fff',
+        background: theme.palette.type === "dark" ? "#272727" : "#fff",
         borderRadius: "1px",
         boxShadow: "0 0 0 1px rgba(0,0,0,.1)",
         display: "inline-block",
-        cursor: "pointer"
+        cursor: "pointer",
       },
       popover: {
         backgroundColor: "green",
         position: "absolute",
-        left:"10px",
+        left: "10px",
         touchAction: "none",
-        zIndex: 2
+        zIndex: 2,
       },
       cover: {
         position: "fixed",
@@ -68,7 +84,7 @@ const DesktopColor = ({color, handleChange}) => {
         bottom: "0px",
         left: "0px",
       },
-      },
+    },
   });
   return (
     <>
@@ -83,7 +99,7 @@ const DesktopColor = ({color, handleChange}) => {
       ) : null}
     </>
   );
-  }
+};
 
 const ColorPicker = ({ dist }) => {
   const { state, dispatch } = useContext(SettingsContext);
@@ -121,28 +137,26 @@ const presetList = [
     rho: 0.5,
   },
   {
-    preset: 'anscombe1',
-    label: 'Anscombe I'
+    preset: "anscombe1",
+    label: "Anscombe I",
   },
   {
-    preset: 'anscombe2',
-    label: 'Anscombe II'
+    preset: "anscombe2",
+    label: "Anscombe II",
   },
   {
-    preset: 'anscombe3',
-    label: 'Anscombe III'
+    preset: "anscombe3",
+    label: "Anscombe III",
   },
   {
-    preset: 'anscombe4',
-    label: 'Anscombe IV'
+    preset: "anscombe4",
+    label: "Anscombe IV",
   },
   {
-    preset: 'anscombosaurus',
-    label: 'Anscombosaurus'
-  }
+    preset: "anscombosaurus",
+    label: "Anscombosaurus",
+  },
 ];
-
-
 
 const VizSettings = () => {
   const classes = useStyles();
@@ -159,17 +173,17 @@ const VizSettings = () => {
     regressionLine,
     residuals,
     ellipses,
-    showPointEdit
+    showPointEdit,
   } = state;
-  const handleSubmit = e => {
+  const handleSubmit = (e) => {
     e.preventDefault();
   };
-  const handlePreset = e => {
-    const selected = e.target.value
-    const preset = presetList.filter(d => d.preset === selected)
-    dispatch({name: "preset", value: preset[0]})
-  }
-  const handleChange = e => {
+  const handlePreset = (e) => {
+    const selected = e.target.value;
+    const preset = presetList.filter((d) => d.preset === selected);
+    dispatch({ name: "preset", value: preset[0] });
+  };
+  const handleChange = (e) => {
     //e.preventDefault();
     dispatch(e);
   };
@@ -177,32 +191,33 @@ const VizSettings = () => {
     localStorage.setItem("correlationState", JSON.stringify(vizState));
   };
   return (
-    <div>
-      <Grid
-        container
-        justify="center"
-        className={classes.container}
-      >
-        <Typography align="center" variant="h6" component="h3">
-          Parameters
-        </Typography>
-        <FormControl variant="filled" className={classes.formControl}>
-          <InputLabel id="select-preset-label">Preset</InputLabel>
-          <Select
-            labelId="select-preset-label"
-            id="select-preset"
-            value={preset}
-            MenuProps={{ disableScrollLock: true }}
-            onChange={handlePreset}
-          >
-            {presetList.map((item) => (
-              <MenuItem value={item.preset} key={`select-${item.preset}`}>
-                {item.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <Grid item xs={12}>
+    <div className={classes.root}>
+      <Grid container spacing={0} alignItems="center" direction="column">
+        <Grid item xs={12} className={classes.setting}>
+          <Typography align="center" variant="h6" component="h3">
+            Parameters
+          </Typography>
+        </Grid>
+        <Grid item xs={12} className={classes.setting}>
+          <FormControl variant="filled" className={classes.formControl}>
+            <InputLabel id="select-preset-label">Preset</InputLabel>
+            <Select
+              labelId="select-preset-label"
+              id="select-preset"
+              value={preset}
+              fullWidth
+              MenuProps={{ disableScrollLock: true }}
+              onChange={handlePreset}
+            >
+              {presetList.map((item) => (
+                <MenuItem value={item.preset} key={`select-${item.preset}`}>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} className={classes.setting}>
           <SettingsInput
             label="Sample size"
             type="number"
@@ -213,25 +228,27 @@ const VizSettings = () => {
             handleChange={handleChange}
             handleSubmit={handleSubmit}
           />
-          </Grid>
-          <Grid item>
-          <Button
-            onClick={() => dispatch({ name: "sample", immediate: false })}
-            variant="contained" color="primary"
-            startIcon={<RepeatIcon />}
+        </Grid>
+        <Grid item xs={12} className={classes.setting}>
+          <Tooltip
+            title="Simulate a new sample"
+            enterDelay={500}
+            className={classes.button}
           >
-            New Sample
-          </Button>
-          </Grid>
-          <Grid item xs={12}>
-          <SettingsInput
-            label="Mean Y"
-            type="number"
-            name="M1"
-            value={M1}
-            handleChange={handleChange}
-            handleSubmit={handleSubmit}
-          />
+            <Button
+              onClick={() => dispatch({ name: "sample", immediate: false })}
+              variant="contained"
+              color="primary"
+              startIcon={<RepeatIcon />}
+            >
+              New Sample
+            </Button>
+          </Tooltip>
+        </Grid>
+        <Grid item xs={12} className={classes.setting}>
+          <CsvLoad dispatch={dispatch} />
+        </Grid>
+        <Grid item xs={12} className={classes.setting}>
           <SettingsInput
             label="Mean X"
             type="number"
@@ -240,15 +257,8 @@ const VizSettings = () => {
             handleChange={handleChange}
             handleSubmit={handleSubmit}
           />
-          <SettingsInput
-            label="SD Y"
-            type="number"
-            name="SD1"
-            value={SD1}
-            min={0}
-            handleChange={handleChange}
-            handleSubmit={handleSubmit}
-          />
+        </Grid>
+        <Grid item xs={12} className={classes.setting}>
           <SettingsInput
             label="SD X"
             type="number"
@@ -259,89 +269,125 @@ const VizSettings = () => {
             handleSubmit={handleSubmit}
           />
         </Grid>
-        <Grid item>
-        <Tooltip title="Rescale plot using the current parameters" enterDelay={500}>
-          <Button
-            startIcon={<AspectRatioIcon />}
-            variant="contained"
-            color="primary"
-            style={{marginBottom: '1em'}}
-            onClick={() => dispatch({ name: "rescale", immediate: false })}
+        <Grid item xs={12} className={classes.setting}>
+          <SettingsInput
+            label="Mean Y"
+            type="number"
+            name="M1"
+            value={M1}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+          />
+        </Grid>
+        <Grid item xs={12} className={classes.setting}>
+          <SettingsInput
+            label="SD Y"
+            type="number"
+            name="SD1"
+            value={SD1}
+            min={0}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+          />
+        </Grid>
+        <Grid item xs={12} className={classes.setting}>
+          <Tooltip
+            title="Rescale plot using the current parameters"
+            enterDelay={500}
+            className={classes.button}
           >
-            Rescale
-          </Button>
+            <Button
+              startIcon={<AspectRatioIcon />}
+              variant="contained"
+              color="primary"
+              onClick={() => dispatch({ name: "rescale", immediate: false })}
+            >
+              Rescale
+            </Button>
           </Tooltip>
-
         </Grid>
-        <Divider style={{width: '100%'}} />
-
-        <Grid item xs={12}>
-        <Typography align="center" variant="h6" component="h3">
-          Colors
-        </Typography>
-        <Grid container justify="space-around" alignItems="center">
-          <Grid xs={12} sm={4} item align="center">
-            <Typography variant="caption" component="p">
-              Circles
-            </Typography>
-            <ColorPicker dist="Dist1" />
-          </Grid>
-        </Grid>
-        <Typography align="center" variant="caption" component="p">
-          Click to change colors.
-        </Typography>
-        </Grid>
-        <Divider style={{width: '100%'}} />
-
-        <Typography align="center" variant="body2" component="p">
-          Dark mode: <DarkModeToggle />
-        </Typography>
-        <Divider style={{width: '100%'}} />
-        <Tooltip title="Toggle the regression line" enterDelay={500}>
-        <FormControlLabel
-          className={classes.formControl}
-          checked={regressionLine}
-          control={<Switch color="primary" />}
-          label="Regression"
-          labelPlacement="start"
-          onChange={() => dispatch({ name: "toggleRegressionLine" })}
-        />
-        </Tooltip>
-        <Tooltip title="Toggle residuals" enterDelay={500}>
-        <FormControlLabel
-          className={classes.formControl}
-          checked={residuals}
-          control={<Switch color="primary" />}
-          label="Residuals"
-          labelPlacement="start"
-          onChange={() => dispatch({ name: "toggleResiduals" })}
-        />
-        </Tooltip>
-        <Tooltip title="Toggle normal probability ellipses" enterDelay={500}>
-        <FormControlLabel
-          className={classes.formControl}
-          checked={ellipses}
-          control={<Switch color="primary" />}
-          label="Ellipses"
-          labelPlacement="start"
-          onChange={() => dispatch({ name: "toggleEllipses" })}
-        />
-        </Tooltip>
-        <Tooltip title="Make data points editable" enterDelay={500}>
-        <FormControlLabel
-          className={classes.formControl}
-          checked={showPointEdit}
-          control={<Switch color="primary" />}
-          label="Edit points"
-          labelPlacement="start"
-          onChange={() => dispatch({ name: "togglePointEdit" })}
-        />
-        </Tooltip>
-        <Grid item xs={12}>
+        <Grid item style={{ minWidth: "100%" }}>
           <Divider />
+        </Grid>
+        <Grid item xs={12} className={classes.setting}>
+          <Typography align="center" variant="h6" component="h3">
+            Colors
+          </Typography>
+          <Grid container justify="space-around" alignItems="center">
+            <Grid xs={12} sm={4} item align="center">
+              <Typography variant="caption" component="p" align="center">
+                Circles
+              </Typography>
+              <ColorPicker dist="Dist1" />
+            </Grid>
+          </Grid>
+          <Typography align="center" variant="caption" component="p">
+            Click to change colors.
+          </Typography>
+          <Divider />
+        </Grid>
+        <Grid item xs={12} className={classes.setting}>
+          <Typography align="center" variant="body2" component="p">
+            Dark mode: <DarkModeToggle />
+          </Typography>
+        </Grid>
+        <Grid item xs={12} className={classes.setting}>
+          <Divider />
+          <FormGroup>
+            <Tooltip title="Toggle the regression line" enterDelay={500}>
+              <FormControlLabel
+                className={classes.labelPlacementStart}
+                checked={regressionLine}
+                control={<Switch color="primary" />}
+                label="Regression"
+                labelPlacement="start"
+                onChange={() => dispatch({ name: "toggleRegressionLine" })}
+              />
+            </Tooltip>
+            <Tooltip title="Toggle residuals" enterDelay={500}>
+              <FormControlLabel
+                className={classes.labelPlacementStart}
+                checked={residuals}
+                control={<Switch color="primary" />}
+                label="Residuals"
+                labelPlacement="start"
+                onChange={() => dispatch({ name: "toggleResiduals" })}
+              />
+            </Tooltip>
+            <Tooltip
+              title="Toggle normal probability ellipses"
+              enterDelay={500}
+            >
+              <FormControlLabel
+                className={classes.labelPlacementStart}
+                checked={ellipses}
+                control={<Switch color="primary" />}
+                label="Ellipses"
+                labelPlacement="start"
+                onChange={() => dispatch({ name: "toggleEllipses" })}
+              />
+            </Tooltip>
+            <Tooltip title="Make data points editable" enterDelay={500}>
+              <FormControlLabel
+                className={classes.labelPlacementStart}
+                checked={showPointEdit}
+                control={<Switch color="primary" />}
+                label="Edit points"
+                labelPlacement="start"
+                onChange={() => dispatch({ name: "togglePointEdit" })}
+              />
+            </Tooltip>
+          </FormGroup>
+        </Grid>
+        <Grid item style={{ minWidth: "100%" }}>
+          <Divider />
+        </Grid>
+        <Grid item xs={12} className={classes.setting}>
           <Typography align="center" variant="h6" component="h3">
             Labels
           </Typography>
+        </Grid>
+        <Grid item xs={12} className={classes.setting}>
           <SettingsInput
             label="x-axis"
             type="text"
@@ -350,6 +396,8 @@ const VizSettings = () => {
             handleChange={handleChange}
             handleSubmit={handleSubmit}
           />
+        </Grid>
+        <Grid item xs={12} className={classes.setting}>
           <SettingsInput
             label="y-axis"
             type="text"
@@ -358,7 +406,11 @@ const VizSettings = () => {
             handleChange={handleChange}
             handleSubmit={handleSubmit}
           />
+        </Grid>
+        <Grid item style={{ minWidth: "100%" }}>
           <Divider />
+        </Grid>
+        <Grid item xs={12} className={classes.setting}>
           <SaveButton data={state} localStorageName="correlationState" />
         </Grid>
       </Grid>

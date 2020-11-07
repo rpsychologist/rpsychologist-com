@@ -541,6 +541,21 @@ export const vizReducer = (state, action) => {
         immediate: immediate,
       };
     }
+    case "loadCsv": {
+      data = value.map(d => [ +d[value.columns[0]], +d[value.columns[1]] ])
+      desc = getSampleCorrelation(data)
+      return {
+        ...state,
+        ...rescale(desc),
+        ...desc,
+        ...editParamUpdate(desc),
+        data: data,
+        x: desc.xNew,
+        y: desc.yNew,
+        xLabel: value.columns[0],
+        yLabel: value.columns[1]
+      }
+    }
     case "toggleResiduals":
       return {
         ...state,

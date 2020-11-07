@@ -7,12 +7,11 @@ import MenuItem from '@material-ui/core/MenuItem';
 const isSafari = () => /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
 const toCSV = (data) => {
-    const csv = [['x', 'y'], ...data]
+    const csv = [[`"${data.xLabel}"`, `"${data.yLabel}"`], ...data.data]
     .filter(e => e)
     .map(
       row => row
         .map((element) => element)
-        .map(column => `${column}`)
         .join(',')
     )
     .join(`\n`)
@@ -32,7 +31,7 @@ const buildURI = (data, uFEFF) => {
     : URL.createObjectURL(blob);
 };
 
-export const MenuItemDownloadCsv = ({ data, filename, children }) => {
+export const MenuItemDownloadCsv = ({ data, xLabel, yLabel, filename, children }) => {
   const href = buildURI(data);
 
   return (
