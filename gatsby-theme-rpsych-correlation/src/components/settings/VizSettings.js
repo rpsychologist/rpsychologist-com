@@ -335,7 +335,7 @@ const VizSettings = () => {
         <Grid item xs={12} className={classes.setting}>
           <Divider />
           <FormGroup>
-          <Tooltip title="Toggle the regression line" enterDelay={500}>
+          <Tooltip title="Toggle slope chart" enterDelay={500}>
               <FormControlLabel
                 className={classes.labelPlacementStart}
                 checked={plotType === 'slope'}
