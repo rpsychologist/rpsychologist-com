@@ -174,6 +174,7 @@ const VizSettings = () => {
     residuals,
     ellipses,
     showPointEdit,
+    plotType,
   } = state;
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -334,6 +335,16 @@ const VizSettings = () => {
         <Grid item xs={12} className={classes.setting}>
           <Divider />
           <FormGroup>
+          <Tooltip title="Toggle the regression line" enterDelay={500}>
+              <FormControlLabel
+                className={classes.labelPlacementStart}
+                checked={plotType === 'slope'}
+                control={<Switch color="primary" />}
+                label="Slope chart"
+                labelPlacement="start"
+                onChange={() => dispatch({ name: "plotType", value: plotType === 'slope' ? 'scatter': 'slope' })}
+              />
+            </Tooltip>
             <Tooltip title="Toggle the regression line" enterDelay={500}>
               <FormControlLabel
                 className={classes.labelPlacementStart}
@@ -346,6 +357,7 @@ const VizSettings = () => {
             </Tooltip>
             <Tooltip title="Toggle residuals" enterDelay={500}>
               <FormControlLabel
+                disabled={plotType === 'slope'}
                 className={classes.labelPlacementStart}
                 checked={residuals}
                 control={<Switch color="primary" />}
@@ -359,6 +371,7 @@ const VizSettings = () => {
               enterDelay={500}
             >
               <FormControlLabel
+                disabled={plotType === 'slope'}
                 className={classes.labelPlacementStart}
                 checked={ellipses}
                 control={<Switch color="primary" />}

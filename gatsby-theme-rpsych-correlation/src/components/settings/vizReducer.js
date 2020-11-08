@@ -1,5 +1,5 @@
 import { randomNormal } from "d3-random";
-import { mean, variance, deviation } from "d3-array";
+import { mean, variance, deviation, min, max } from "d3-array";
 import jstat from "jstat";
 
 const drawGaussian = (n, M, SD) => {
@@ -147,12 +147,18 @@ const getSampleCorrelation = (data) => {
 }
 
 const rescale = (state) => {
-  const { muHatNewY, muHatNewX, sigmaHatNewY, sigmaHatNewX } = state;
+  const { muHatNewY, muHatNewX, sigmaHatNewY, sigmaHatNewX, plotType } = state;
+  const xMin = muHatNewX - 4 * sigmaHatNewX
+  const xMax = muHatNewX + 4 * sigmaHatNewX
+  let yMin = muHatNewY - 4 * sigmaHatNewY
+  let yMax = muHatNewY + 4 * sigmaHatNewY
+  yMin = min([yMin, xMin])
+  yMax = max([yMax, xMax])
   return {
-    yMin: muHatNewY - 4 * sigmaHatNewY,
-    yMax: muHatNewY + 4 * sigmaHatNewY,
-    xMin: muHatNewX - 4 * sigmaHatNewX,
-    xMax: muHatNewX + 4 * sigmaHatNewX,
+    yMin: yMin,
+    yMax: yMax,
+    xMin: xMin,
+    xMax: xMax,
   };
 };
 
@@ -570,6 +576,12 @@ export const vizReducer = (state, action) => {
       return {
         ...state,
         ellipses: !state.ellipses
+      };
+    case "plotType":
+      return {
+        ...state,
+        immediate: false,
+        plotType: value,
       };
     case "xLabel":
     case "yLabel":

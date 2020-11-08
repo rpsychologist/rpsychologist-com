@@ -26,6 +26,8 @@ export let defaultState = {
     cor: 0,
     n: n,
     xLabel: "x",
+    xLabCondA: "Pre",
+    xLabCondB: "Post",
     yLabel: "y",
     data: {},
     colorDist1: { rgb: {r: 74, g: 144, b: 226, a: 0.5}, hex: '#4a90e2' },
@@ -53,5 +55,6 @@ export let defaultState = {
     residuals: false,
     ellipses: false,
     pointEdit: 'drag',
-    showPointEdit: true
+    showPointEdit: true,
+    plotType: 'scatter',
   };
