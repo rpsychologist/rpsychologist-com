@@ -1,4 +1,4 @@
-import React, { useMemo, useContext, useEffect, useState } from "react";
+import React, { useMemo, useContext, useEffect, useState, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { scaleLinear, scaleBand } from "d3-scale";
 import { min, max } from "d3-array";
@@ -14,11 +14,6 @@ const useStyles = makeStyles((theme) => ({
     "&:hover $hidden, &:active $hidden": {
       opacity: 1,
     },
-  },
-  hidden: {
-    transition: "opacity 0.33s",
-    opacity: 0,
-    fill: "aliceblue",
   },
   circle: {
     stroke: "#2980b9",
@@ -37,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   slopes: {
-    transitionProperty: "transform",
+    transitionProperty: "transform opacity",
     transitionDuration: "0.2s",
     transitionTimingFunction: "linear",
     transitionDelay: "0s",
@@ -45,6 +40,11 @@ const useStyles = makeStyles((theme) => ({
     vectorEffect: "non-scaling-stroke",
     stroke: theme.palette.type === "dark" ? "white" : "#133246",
     strokeWidth: "1.5px",
+  },
+  hidden: {
+    transition: "opacity 0.33s",
+    opacity: 0,
+    fill: "aliceblue",
   },
   noTransition: {
     transition: "none !important",
@@ -180,7 +180,6 @@ const ScatterPoints = (props) => {
       drag: { enabled: pointEdit === "drag" },
     }
   );
-
   const [ellipseState, setEllipse] = useState({ toggle: false, level: [] });
   const handleEllipse = (level) => {
     const toggle = level === ellipseState.level ? !ellipseState.toggle : true;
@@ -268,7 +267,8 @@ const ScatterPoints = (props) => {
 
 const SlopeChart = ({
   data,
-  xScale,
+  xScaleLinear,
+  xScaleBand,
   yScale,
   calcXY,
   xLabCondA,
@@ -276,11 +276,19 @@ const SlopeChart = ({
   colorDist1,
   pointEdit,
   immediate,
+  plotType,
   yMin,
   yMax,
 }) => {
   const classes = useStyles(colorDist1);
   const { state, dispatch } = useContext(SettingsContext);
+  // this is only used to transition the y var
+  // from scatter to slope chart
+  const [show, setShow] = useState(!plotType === 'slope');
+  const timeoutRef = useRef(null);
+  useEffect(() => {
+    timeoutRef.current = setTimeout(() => setShow(true), 0);
+  }, [])
   const bind = useGesture(
     {
       onDrag: ({ args: [index, cond], movement: [mx, my], memo, first }) => {
@@ -306,8 +314,8 @@ const SlopeChart = ({
       drag: { enabled: pointEdit === "drag" },
     }
   );
-
   return data.map(([x, y], i) => {
+    const xVal = show ? xScaleBand(xLabCondB) : xScaleLinear(x)
     return (
       <React.Fragment key={i}>
         <circle
@@ -319,7 +327,7 @@ const SlopeChart = ({
             [classes.circleDelete]: pointEdit === "delete",
             [classes.circleAdd]: pointEdit === "add",
           })}
-          transform={`translate(${xScale(xLabCondB)}, ${yScale(y)})`}
+          transform={`translate(${xVal}, ${yScale(y)})`}
           r="5"
           cx={0}
           cy={0}
@@ -328,14 +336,15 @@ const SlopeChart = ({
         <line
           className={clsx({
             [classes.slopes]: true,
+            [classes.hidden]: !show,
             [classes.noTransition]: immediate,
           })}
-          x1={xScale(xLabCondA)}
-          x2={xScale(xLabCondB)}
+          x1={xScaleBand(xLabCondA)}
+          x2={xScaleBand(xLabCondB)}
           y1={yScale(x)}
           y2={yScale(x)}
           transform={`skewY(${(Math.atan(
-            (yScale(y) - yScale(x)) / xScale.bandwidth()
+            (yScale(y) - yScale(x)) / xScaleBand.bandwidth()
           ) *
             180) /
             Math.PI} )`}
@@ -373,16 +382,16 @@ const OverlapChart = (props) => {
   const aspect = width < 450 ? 1 : 1;
   const h = width * aspect - margin.top - margin.bottom;
   // Scales and Axis
-  const xScale = useMemo(() => {
-    if (plotType === "scatter") {
-      return scaleLinear()
-        .domain([xMin, xMax])
-        .range([0, w]);
-    } else if (plotType === "slope") {
+  const xScaleLinear = useMemo(() => {
+    return scaleLinear()
+      .domain([xMin, xMax])
+      .range([0, w]);
+  }, [w, plotType, xMin, xMax]);
+
+  const xScaleBand = useMemo(() => {
       return scaleBand()
         .domain([xLabCondA, xLabCondB])
         .range([0, w]);
-    }
   }, [w, plotType, xMin, xMax]);
 
   const yScale = useMemo(() => {
@@ -406,7 +415,7 @@ const OverlapChart = (props) => {
         x = xy[0];
       }
     } else if (plotType === "scatter") {
-      x = xScale.invert(xScale(xy[0]) + mx);
+      x = xScaleLinear.invert(xScaleLinear(xy[0]) + mx);
       x = x < xMin ? xMin : x;
       x = x > xMax ? xMax : x;
       y = yScale.invert(yScale(xy[1]) + my);
@@ -426,7 +435,7 @@ const OverlapChart = (props) => {
       var p = p.matrixTransform(ctm);
       const y = yScale.invert(p.y - margin.top);
       const x =
-        state.plotType === "slope" ? y : xScale.invert(p.x - margin.left);
+        state.plotType === "slope" ? y : xScaleLinear.invert(p.x - margin.left);
       dispatch({ name: "addPoint", value: [x, y] });
     }
   };
@@ -450,18 +459,19 @@ const OverlapChart = (props) => {
         <g clipPath="url(#svg--overlap--clip)">
           <g
             transform={
-              plotType === "slope" ? `translate(${xScale.bandwidth() / 2}, 0)` : undefined
+              plotType === "slope" ? `translate(${xScaleBand.bandwidth() / 2}, 0)` : undefined
             }
           >
             <ScatterPoints
-              xScale={xScale}
+              xScale={plotType ==='scatter' ? xScaleLinear : xScaleBand}
               yScale={yScale}
               calcXY={calcXY}
               {...state}
             />
             {plotType === "slope" && (
               <SlopeChart
-                xScale={xScale}
+                xScaleLinear={xScaleLinear}
+                xScaleBand={xScaleBand}
                 yScale={yScale}
                 calcXY={calcXY}
                 {...state}
@@ -486,8 +496,8 @@ const OverlapChart = (props) => {
         <AxisLeft ticks={10} scale={yScale} />
         <AxisBottom
           top={h}
-          ticks={plotType === "slope" ? 2 : 10}
-          scale={xScale}
+          ticks={plotType === 'slope' ? 2 : 10}
+          scale={plotType === 'slope' ? xScaleBand : xScaleLinear}
         />
       </g>
       <defs>
