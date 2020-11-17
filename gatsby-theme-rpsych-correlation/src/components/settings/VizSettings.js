@@ -218,13 +218,17 @@ const VizSettings = () => {
             </Select>
           </FormControl>
         </Grid>
+        <form onSubmit={(e) => {
+          e.preventDefault()
+          const n = e.target['n'].value
+          dispatch({ name: "sample", value: n, immediate: false })
+        }} >
         <Grid item xs={12} className={classes.setting}>
           <SettingsInput
             label="Sample size"
             type="number"
             name="n"
             value={n}
-            max={n}
             min={1}
             handleChange={handleChange}
             handleSubmit={handleSubmit}
@@ -237,7 +241,7 @@ const VizSettings = () => {
             className={classes.button}
           >
             <Button
-              onClick={() => dispatch({ name: "sample", immediate: false })}
+              type="submit"
               variant="contained"
               color="primary"
               startIcon={<RepeatIcon />}
@@ -246,6 +250,7 @@ const VizSettings = () => {
             </Button>
           </Tooltip>
         </Grid>
+        </form>
         <Grid item xs={12} className={classes.setting}>
           <CsvLoad dispatch={dispatch} />
         </Grid>

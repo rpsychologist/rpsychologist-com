@@ -43,16 +43,15 @@ const SettingsInput = ({
   const [error, setError] = useState(false);
   const [submitted, setSubmitted] = useState(true);
   const [input, setInput] = useState(value);
-
   useEffect(() => {
     setInput(value);
+    setSubmitted(true)
   }, [value]);
 
   const onChange = e => {
     const value = e.target.type === "number" ? e.target.value : e.target.value;
     const checkInput = (name === "M0") | (name === "M1") | name === "CER" | name === "SD";
     if (!((value > max) & checkInput) & !((value < min) & checkInput)) {
-
       setError(false);
     } else {
       setError(true);

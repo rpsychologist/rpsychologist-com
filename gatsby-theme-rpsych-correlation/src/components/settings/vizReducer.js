@@ -438,8 +438,9 @@ export const vizReducer = (state, action) => {
         }),
       };
     case "sample":
-      y = drawGaussian(state.n, state.M1, state.SD1);
-      x = drawGaussian(state.n, state.M0, state.SD0);
+      let n = typeof value === "undefined" ? state.n : Number(value)
+      y = drawGaussian(n, state.M1, state.SD1);
+      x = drawGaussian(n, state.M0, state.SD0);
       const props = {
         ...state,
         y: y,
@@ -447,6 +448,7 @@ export const vizReducer = (state, action) => {
         immediate: immediate,
         muHatX: mean(x),
         muHatY: mean(y),
+        n: n,
         sigmaHatX: deviation(x),
         sigmaHatY: deviation(y),
       };
