@@ -19,7 +19,7 @@ const Contact = props => {
   const { social } = data.site.siteMetadata
 
   return (
-    <Layout data={data} license={<License/>}>
+    <Layout data={data} license={<License />}>
       <SEO title="About Kristoffer" />
       <Container maxWidth="sm">
         <Typography variant="h1" component="h1" align="center">
@@ -89,19 +89,34 @@ const Contact = props => {
             </Box>
 
             <Typography variant="h4" gutterBottom>
+              Questions
+            </Typography>
+            <Typography variant="body1" paragraph>
+              Please use{' '}
+              <MuiLink href="https://github.com/rpsychologist/rpsychologist-com/discussions">
+                GitHub Discussions{' '}
+              </MuiLink>
+              for any questions related to this site, or{' '}
+              <MuiLink href="https://github.com/rpsychologist/rpsychologist-com/issues">
+                open an issue on GitHub
+              </MuiLink>{' '}
+              if you've found a bug or wan't to make a feature request.
+            </Typography>
+            <Typography variant="h4" gutterBottom>
               Contact
             </Typography>
             <Typography variant="body1" paragraph>
-              You can get in contact with via
-              hello <AlternateEmailIcon fontSize="inherit" /> rpsychologist.com
-              or on <MuiLink href={`https://twitter.com/${social.twitter}`}>
+              You can get in contact with via hello{' '}
+              <AlternateEmailIcon fontSize="inherit" /> rpsychologist.com or on{' '}
+              <MuiLink href={`https://twitter.com/${social.twitter}`}>
                 Twitter @{social.twitter}
               </MuiLink>
               , and feel free to add me on{' '}
               <MuiLink href={social.linkedin}>LinkedIn</MuiLink>.
             </Typography>
             <Typography variant="body1" paragraph>
-              You can also come hang out and chat with me on the open science discord{' '}
+              You can also come hang out and chat with me on the open science
+              discord{' '}
               <MuiLink href="https://discord.gg/8DZmg2g">
                 Git Gud Science
               </MuiLink>

@@ -267,7 +267,7 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
 
             <div className={classes.articleInner}>
               <Divider style={{ marginBottom: '1em', marginTop: '1em' }} />
-              <Bio />
+                <Bio />
               <Divider style={{ marginTop: '1em', marginBottom: '1em' }} />
               <div
                 style={{
@@ -301,6 +301,21 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
                   (View on GitHub)
                 </Link>
               </Typography>
+              <Typography variant="h4" align="center" gutterBottom style={{ marginTop: '1em' }}>
+              Questions & Comments
+            </Typography>
+            <Typography variant="body2" paragraph>
+              Please use{' '}
+              <Link href="https://github.com/rpsychologist/rpsychologist-com/discussions">
+                GitHub Discussions{' '}
+              </Link>
+              for any questions related to this post, or{' '}
+              <Link href="https://github.com/rpsychologist/rpsychologist-com/issues">
+                open an issue on GitHub
+              </Link>{' '}
+              if you've found a bug or wan't to make a feature request.
+            </Typography>
+   
 
               <Divider style={{ marginBottom: '1em' }} />
 
