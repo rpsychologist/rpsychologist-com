@@ -16,6 +16,13 @@ module.exports = {
       },
     },
     {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        path: `${__dirname}/content/coffee-supporters`,
+        name: `coffeSupporters`,
+      },
+    },
+    {
       resolve: `gatsby-plugin-manifest`,
       options: {
         name: `R Psychologist - Kristoffer Magnusson`,
