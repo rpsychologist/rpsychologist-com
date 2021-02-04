@@ -27,6 +27,7 @@ import TableContainer from '@material-ui/core/TableContainer'
 import CodeBlock from 'gatsby-theme-rpsych/src/components/code/code-block'
 import License from '../License'
 import Webmentions from 'gatsby-theme-rpsych/src/components/Webmentions'
+import ArchivedComments from 'gatsby-theme-rpsych/src/components/ArchivedComments'
 
 const PostCodeBlock = withStyles(
   theme => ({
@@ -228,8 +229,18 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
   const post = data.mdx
   const siteTitle = data.site.siteMetadata.title
   const { previous, next } = pageContext
+  const comments = data.disqusThread
+    ? data.disqusThread.comments.sort(
+        (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)
+      )
+    : []
   return (
-    <Layout location={location} title={siteTitle} data={data} license={<License blogPost={true}/>}>
+    <Layout
+      location={location}
+      title={siteTitle}
+      data={data}
+      license={<License blogPost={true} />}
+    >
       {post.frontmatter.include_toc && <Toc post={post} />}
       <SEO title={post.frontmatter.title} description={post.excerpt} />
       <div className={post.frontmatter.include_toc && classes.root}>
@@ -259,7 +270,7 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
                     className="dt-published"
                     dateTime={post.frontmatter.dateISO}
                   >
-                  {post.frontmatter.date}
+                    {post.frontmatter.date}
                   </time>
                 </Typography>
               </Grid>
@@ -271,13 +282,13 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
               </Grid>
             </Grid>
             <div className="e-content">
-            <MDXProvider components={components}>
-              <MDXRenderer>{post.body}</MDXRenderer>
-            </MDXProvider>
+              <MDXProvider components={components}>
+                <MDXRenderer>{post.body}</MDXRenderer>
+              </MDXProvider>
             </div>
             <div className={classes.articleInner}>
               <Divider style={{ marginBottom: '1em', marginTop: '1em' }} />
-                <Bio />
+              <Bio />
               <Divider style={{ marginTop: '1em', marginBottom: '1em' }} />
               <div
                 style={{
@@ -317,19 +328,19 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
                 gutterBottom
                 style={{ marginTop: '1em' }}
               >
-              Questions & Comments
-            </Typography>
-            <Typography variant="body2" paragraph>
-              Please use{' '}
-              <Link href="https://github.com/rpsychologist/rpsychologist-com/discussions">
-                GitHub Discussions{' '}
-              </Link>
-              for any questions related to this post, or{' '}
-              <Link href="https://github.com/rpsychologist/rpsychologist-com/issues">
-                open an issue on GitHub
-              </Link>{' '}
-              if you've found a bug or wan't to make a feature request.
-            </Typography>
+                Questions & Comments
+              </Typography>
+              <Typography variant="body2" paragraph>
+                Please use{' '}
+                <Link href="https://github.com/rpsychologist/rpsychologist-com/discussions">
+                  GitHub Discussions{' '}
+                </Link>
+                for any questions related to this post, or{' '}
+                <Link href="https://github.com/rpsychologist/rpsychologist-com/issues">
+                  open an issue on GitHub
+                </Link>{' '}
+                if you've found a bug or wan't to make a feature request.
+              </Typography>
               <Webmentions  edges={data.webmentions.edges}/>
               {comments.length > 0 && <ArchivedComments comments={comments} />}
               <Divider style={{ marginBottom: '1em' }} />
@@ -413,5 +424,18 @@ export const pageQuery = graphql`
         }
       }
     }
+    disqusThread(link: {regex: $permalinkRegEx}) {
+      id
+      comments {
+        id
+        parentId
+        message
+        author {
+          name
+        }
+        createdAt
+      }
+    }
+    ...webmentionQuery
   }
 `
