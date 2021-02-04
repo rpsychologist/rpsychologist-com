@@ -3,6 +3,7 @@ import { graphql } from 'gatsby'
 import Layout from 'gatsby-theme-rpsych/src/components/Layout'
 import Container from '@material-ui/core/Container'
 import MuiLink from '@material-ui/core/Link'
+import Grid from "@material-ui/core/Grid";
 import Typography from '@material-ui/core/Typography'
 import SEO from 'gatsby-theme-rpsych/src/components/seo'
 import MoreViz from 'gatsby-theme-rpsych/src/components/MoreViz'
@@ -10,6 +11,7 @@ import Posters from 'gatsby-theme-rpsych/src/components/Posters'
 import SocialShare from 'gatsby-theme-rpsych/src/components/SocialShare'
 import License from '../License'
 import Webmentions from 'gatsby-theme-rpsych/src/components/Webmentions'
+import BuyMeACoffee from 'gatsby-theme-rpsych-viz/src/components/BuyMeACoffee'
 
 const Viz = ({ data, pageContext }) => {
   const image = data.image ? data.image.childImageSharp.resize : null
@@ -70,6 +72,16 @@ const Viz = ({ data, pageContext }) => {
         <Posters explanation={true} />
       </Container>
       <Container maxWidth="sm" style={{ paddingBottom: '2em' }}>
+      <Grid
+        container
+        spacing={2}
+        direction="column"
+        justify="center"
+        alignItems="center"
+      >
+        <BuyMeACoffee />
+        </Grid>
+      </Container>
       <Container maxWidth="sm" style={{ paddingBottom: '2em' }}>
         <Webmentions edges={data.webmentions.edges}/>
       </Container>

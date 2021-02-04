@@ -1,0 +1,13 @@
+{
+  "name": "coffee-supporters",
+  "description": "Download supporters from Buy Me a Coffee API",
+  "version": "0.1.0",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "Download": "node src/getCoffeeSupporters.js"
+  },
+  "dependencies": {
+    "axios": "^0.21.1"
+  }
+}

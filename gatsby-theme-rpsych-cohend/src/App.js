@@ -110,7 +110,7 @@ const App = (props) => {
         />
       </main>
       <Container className={classes.textContent} style={{paddingTop: "2em"}}>
-      <Bio></Bio>
+      <Bio />
       </Container>
     </VizLayout>
   );

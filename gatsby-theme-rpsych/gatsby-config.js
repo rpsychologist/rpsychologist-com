@@ -101,6 +101,7 @@ module.exports = {
       }
     },
     `gatsby-transformer-yaml`,
+    `gatsby-transformer-json`,
     `gatsby-transformer-sharp`,
     `gatsby-plugin-sharp`,
     {

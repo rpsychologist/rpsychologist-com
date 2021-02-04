@@ -26,10 +26,8 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 const Hero = props => {
-  const { location, title, children } = props
   const data = useStaticQuery(bioQuery)
   const { social } = data.site.siteMetadata
-
   const classes = useStyles()
   return (
     <div className={classes.root}>
@@ -125,6 +123,7 @@ const bioQuery = graphql`
     site {
       siteMetadata {
         author
+        siteUrl
         social {
           twitter
           github
