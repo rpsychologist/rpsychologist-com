@@ -8,6 +8,7 @@
         "dev": "yarn workspace blog develop -H 172.16.0.116",
         "clean": "yarn workspace blog clean",
         "build": "yarn workspace blog build",
+        "build-deploy-preview": "yarn workspace blog build && netlify deploy",
         "serve": "yarn workspace blog serve"
     },
     "workspaces": [
