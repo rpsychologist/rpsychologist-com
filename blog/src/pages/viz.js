@@ -9,9 +9,9 @@ import MoreViz from 'gatsby-theme-rpsych/src/components/MoreViz'
 import Posters from 'gatsby-theme-rpsych/src/components/Posters'
 import SocialShare from 'gatsby-theme-rpsych/src/components/SocialShare'
 import License from '../License'
+import Webmentions from 'gatsby-theme-rpsych/src/components/Webmentions'
 
-
-const Contact = ({ data }) => {
+const Viz = ({ data, pageContext }) => {
   const image = data.image ? data.image.childImageSharp.resize : null
 
   return (
@@ -69,14 +69,18 @@ const Contact = ({ data }) => {
       <Container maxWidth="md" style={{ paddingBottom: '2em' }}>
         <Posters explanation={true} />
       </Container>
+      <Container maxWidth="sm" style={{ paddingBottom: '2em' }}>
+      <Container maxWidth="sm" style={{ paddingBottom: '2em' }}>
+        <Webmentions edges={data.webmentions.edges}/>
+      </Container>
     </Layout>
   )
 }
 
-export default Contact
+export default Viz
 
 export const imgQuery = graphql`
-  query {
+  query($permalinkRegEx: String) {
     image: file(absolutePath: { regex: "/viz-card.png/" }) {
       childImageSharp {
         resize(width: 1200) {
@@ -86,5 +90,6 @@ export const imgQuery = graphql`
         }
       }
     }
+  ...webmentionQuery
   }
 `

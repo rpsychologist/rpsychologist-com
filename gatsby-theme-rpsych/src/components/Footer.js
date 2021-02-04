@@ -75,6 +75,7 @@ const Footer = React.memo(({ blogPost, license }) => {
                 button
                 component="a"
                 href="https://www.twitter.com/krstoffr"
+                rel="me"
               >
                 <ListItemIcon>
                   <TwitterIcon className={classes.icon} />
@@ -101,11 +102,7 @@ const Footer = React.memo(({ blogPost, license }) => {
                 </ListItemIcon>
                 <ListItemText primary="LinkedIn" />
               </ListItem>
-              <ListItem
-                button
-                component={Link}
-                to="/"
-              >
+              <ListItem button component={Link} to="/">
                 <ListItemIcon>
                   <HomeIcon className={classes.icon} />
                 </ListItemIcon>
@@ -122,7 +119,7 @@ const Footer = React.memo(({ blogPost, license }) => {
               Donate
             </Typography>
             <List component="nav" aria-label="donate">
-            <ListItem
+              <ListItem
                 button
                 component="a"
                 href="https://github.com/sponsors/rpsychologist"
@@ -167,6 +164,18 @@ const Footer = React.memo(({ blogPost, license }) => {
           </Grid>
         </Grid>
       </Container>
+      <div style={{ display: "none" }}>
+        <p className="h-card">
+          <a
+            className="p-name u-url"
+            rel="author"
+            href="https://rpsychologist.com"
+          >
+            Kristoffer Magnusson
+          </a>
+          {/* <img className="u-photo" src={`https://rpsychologist.com${data.avatar.childImageSharp.fixed.src}`} /> */}
+        </p>
+      </div>
     </footer>
   );
 });

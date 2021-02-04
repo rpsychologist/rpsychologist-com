@@ -30,6 +30,16 @@ const SEO = ({
             }}
             title={title}
             titleTemplate={`%s | ${data.site.siteMetadata.title}`}
+            link={[
+              {
+                rel: `webmention`,
+                href: `https://webmention.io/rpsychologist.com/webmention`
+              },
+              {
+                rel: `pingback`,
+                href: `https://webmention.io/rpsychologist.com/xmlrpc`
+              },
+            ]}
             meta={[
               {
                 name: `description`,

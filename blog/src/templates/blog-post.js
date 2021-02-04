@@ -2,6 +2,7 @@ import React from 'react'
 import { graphql } from 'gatsby'
 import { MDXRenderer } from 'gatsby-plugin-mdx'
 import { MDXProvider } from '@mdx-js/react'
+import clsx from 'clsx'
 import Typography from '@material-ui/core/Typography'
 import Divider from '@material-ui/core/Divider'
 import { makeStyles } from '@material-ui/styles'
@@ -25,6 +26,7 @@ import { withStyles } from '@material-ui/core/styles'
 import TableContainer from '@material-ui/core/TableContainer'
 import CodeBlock from 'gatsby-theme-rpsych/src/components/code/code-block'
 import License from '../License'
+import Webmentions from 'gatsby-theme-rpsych/src/components/Webmentions'
 
 const PostCodeBlock = withStyles(
   theme => ({
@@ -231,12 +233,13 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
       {post.frontmatter.include_toc && <Toc post={post} />}
       <SEO title={post.frontmatter.title} description={post.excerpt} />
       <div className={post.frontmatter.include_toc && classes.root}>
-        <div className={post.frontmatter.include_toc && classes.content}>
+        <div className={clsx(post.frontmatter.include_toc && classes.content, 'h-entry')}>
           <Container maxWidth="md">
             <Typography
               variant="h1"
               align="center"
               style={{ fontWeight: 700, marginBottom: '2.5rem' }}
+              className='p-name'
             >
               {post.frontmatter.title}
             </Typography>
@@ -251,7 +254,13 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
             >
               <Grid item>
                 <Typography variant="subtitle2" component="span">
+                  <time
+                    itemProp="datepublished"
+                    className="dt-published"
+                    dateTime={post.frontmatter.dateISO}
+                  >
                   {post.frontmatter.date}
+                  </time>
                 </Typography>
               </Grid>
               <Grid item>
@@ -261,10 +270,11 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
                 />
               </Grid>
             </Grid>
+            <div className="e-content">
             <MDXProvider components={components}>
               <MDXRenderer>{post.body}</MDXRenderer>
             </MDXProvider>
-
+            </div>
             <div className={classes.articleInner}>
               <Divider style={{ marginBottom: '1em', marginTop: '1em' }} />
                 <Bio />
@@ -301,7 +311,12 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
                   (View on GitHub)
                 </Link>
               </Typography>
-              <Typography variant="h4" align="center" gutterBottom style={{ marginTop: '1em' }}>
+              <Typography
+                variant="h4"
+                align="center"
+                gutterBottom
+                style={{ marginTop: '1em' }}
+              >
               Questions & Comments
             </Typography>
             <Typography variant="body2" paragraph>
@@ -315,8 +330,8 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
               </Link>{' '}
               if you've found a bug or wan't to make a feature request.
             </Typography>
-   
-
+              <Webmentions  edges={data.webmentions.edges}/>
+              {comments.length > 0 && <ArchivedComments comments={comments} />}
               <Divider style={{ marginBottom: '1em' }} />
 
               <ul
@@ -344,6 +359,24 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
                 </li>
               </ul>
             </div>
+            <div style={{ display: 'none' }}>
+            <a
+                  className="u-url"
+                  href={`https://rpsychologist.com/${post.frontmatter.slug}`}
+                >
+                  {post.frontmatter.title}
+                </a>
+              <p className="h-card p-author">
+                <a
+                  className="p-name u-url"
+                  rel="author"
+                  href="https://rpsychologist.com"
+                >
+                  Kristoffer Magnusson
+                </a>
+                {/* <img className="u-photo" src={`https://rpsychologist.com${data.avatar.childImageSharp.fixed.src}`} /> */}
+              </p>
+            </div>
           </Container>
         </div>
       </div>
@@ -354,7 +387,7 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
 export default BlogPostTemplate
 
 export const pageQuery = graphql`
-  query($slug: String!) {
+  query($slug: String!, $permalinkRegEx: String) {
     site {
       siteMetadata {
         title
@@ -370,7 +403,8 @@ export const pageQuery = graphql`
         include_toc
         slug
         tags
-        date(formatString: "MMMM DD, YYYY")
+        date: date(formatString: "MMMM DD, YYYY")
+        dateISO: date(formatString: "YYYY-MM-DDTHH:mm:ss.sssZ")
       }
       body
       parent {

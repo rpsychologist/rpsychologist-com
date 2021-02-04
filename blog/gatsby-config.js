@@ -1,3 +1,6 @@
+require("dotenv").config({
+  path: '.env',
+})
 module.exports = {
   plugins: [
     `gatsby-theme-rpsych`,
@@ -23,6 +26,19 @@ module.exports = {
         display: `minimal-ui`,
         icon: `assets/rpsych-favicon.png`,
       },
+    },
+    {
+      resolve: `gatsby-plugin-webmention`,
+      options: {
+        username: process.env.WEBMENTIONS_USERNAME, // webmention.io username
+        identity: {
+          twitter: 'krstoffr' // no @
+        },
+        mentions: true,
+        pingbacks: true,
+        domain: 'rpsychologist.com',
+        token: process.env.WEBMENTIONS_TOKEN
+      }
     },
     {
       resolve: `gatsby-plugin-feed`,

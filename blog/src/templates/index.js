@@ -12,6 +12,7 @@ import Powerlmm from 'gatsby-theme-rpsych/src/components/start/Powerlmm'
 import InternalLink from 'gatsby-theme-rpsych/src/utils/InternalLink'
 import { makeStyles } from '@material-ui/core'
 import License from '../License'
+import Webmentions from 'gatsby-theme-rpsych/src/components/Webmentions'
 
 const useStyles = makeStyles(theme => ({
   post: {
@@ -65,7 +66,7 @@ const BlogIndex = props => {
           'Research',
         ]}
       />
-      <Hero />
+      <Hero/>
       <Container maxWidth="sm">
         <InternalLink to="/posts">
           <Typography
@@ -142,6 +143,7 @@ const BlogIndex = props => {
           R Software
         </Typography>
         <Powerlmm />
+        <Webmentions edges={data.webmentions.edges}/>
       </Container>
     </Layout>
   )
@@ -150,7 +152,7 @@ const BlogIndex = props => {
 export default BlogIndex
 
 export const pageQuery = graphql`
-  query($skip: Int!, $limit: Int!) {
+  query($skip: Int!, $limit: Int!, $permalinkRegEx: String) {
     site {
       siteMetadata {
         title
@@ -175,5 +177,6 @@ export const pageQuery = graphql`
         }
       }
     }
+    ...webmentionQuery
   }
 `

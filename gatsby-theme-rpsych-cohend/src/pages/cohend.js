@@ -7,7 +7,7 @@ export default (props) => {
 };
 
 export const pageQuery = graphql`
-  query cohend {
+  query cohend($permalinkRegEx: String) {
     FAQ: allMdx(
       filter: { fileAbsolutePath: { regex: "/cohend/FAQ/" } }
       sort: { fields: frontmatter___order, order: ASC }
@@ -34,5 +34,6 @@ export const pageQuery = graphql`
         }
       }
     }
+    ...webmentionQuery
   }
 `;

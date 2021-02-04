@@ -1,0 +1,188 @@
+import React from "react";
+import { graphql } from "gatsby";
+import Avatar from "@material-ui/core/Avatar";
+import MuiLink from "@material-ui/core/Link";
+import Grid from "@material-ui/core/Grid";
+import Typography from "@material-ui/core/Typography";
+import LinkIcon from "@material-ui/icons/Link";
+import { makeStyles } from "@material-ui/core/styles";
+import TwitterIcon from "@material-ui/icons/Twitter";
+import RepeatIcon from "@material-ui/icons/Repeat";
+import FavoriteIcon from "@material-ui/icons/Favorite";
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: "flex",
+    padding: "1em",
+  },
+  webmentions: {
+    marginBottom: "1em",
+  },
+  icon: {
+    paddingLeft: "1em",
+    paddingRight: "1em",
+    minWidth: "75px",
+  },
+  comment: {
+    padding: "0em",
+  },
+  likesAndRetweetsOuter: {
+    display: "flex",
+    alignItems: "center",
+    flexWrap: "wrap",
+    paddingLeft: "2em",
+  },
+  likesAndRetweetsText: {
+    display: "flex",
+    color: "#6e767d",
+    "& svg": {
+      marginRight: "5px",
+    },
+    "&:not(:first-child)": {
+      paddingLeft: "1em",
+    },
+  },
+}));
+
+const readablePublishDate = (published) => {
+  let postDate = new Date(published);
+  postDate = postDate.toLocaleDateString("sv-SE");
+
+  return postDate;
+};
+
+const TweetCard = ({ node }) => {
+  const classes = useStyles();
+
+  return (
+    <>
+      <div className={classes.icon}>
+        <MuiLink href={node.url} rel="nofollow noopener">
+          <Avatar alt={node.author.name} src={node.author.photo} />
+        </MuiLink>
+      </div>
+      <div className={classes.comment}>
+        <div>
+          <MuiLink href={node.url} rel="nofollow noopener">
+            {node.author.name}
+          </MuiLink>{" "}
+          <TwitterIcon fontSize="inherit" color="primary" />
+          <Typography variant="caption">
+            {" "}
+            {readablePublishDate(node.published)}
+          </Typography>
+        </div>
+        <div>{node.content !== null && node.content.text}</div>
+      </div>
+    </>
+  );
+};
+
+const WebCard = ({ node, domain }) => {
+  const classes = useStyles();
+  return (
+    <>
+      <div className={classes.icon}>
+        <MuiLink href={node.url}>
+          <Avatar alt={node.author.name} src={node.author.photo}>
+            <LinkIcon />
+          </Avatar>
+        </MuiLink>
+      </div>
+      <div className={classes.comment}>
+        <MuiLink href={node.url} rel="nofollow noopener">
+          {domain}
+        </MuiLink>
+        <Typography variant="body2">
+          {node.content !== null && node.content.text.substring(0, 100) + "..."}
+        </Typography>
+      </div>
+    </>
+  );
+};
+
+const Webmentions = ({ edges }) => {
+  const classes = useStyles();
+  const numLikes = edges.filter((d) => d.node.wmProperty == "like-of").length;
+  const numRetweets = edges.filter((d) => d.node.wmProperty == "repost-of")
+    .length;
+  const comments = edges.filter((d) => d.node.wmProperty == "mention-of");
+  return (
+    <div className={classes.webmentions}>
+      <Typography variant="h3" component="h2" align="center" gutterBottom>
+        Webmentions
+      </Typography>
+      <Grid
+        container
+        direction="row"
+        justify="space-between"
+        alignItems="center"
+      >
+        <Typography className={classes.likesAndRetweetsOuter} variant='body2' align="center">
+          <span className={classes.likesAndRetweetsText}>
+            <FavoriteIcon fontSize="small" />
+            {numLikes}{" "}
+          </span>
+          <span className={classes.likesAndRetweetsText}>
+            <RepeatIcon fontSize="small" /> {numRetweets}
+          </span>
+        </Typography>
+        <Typography variant="div" variant="body2">
+          <MuiLink href="https://indieweb.org/Webmention">What's this?</MuiLink>
+        </Typography>
+      </Grid>
+
+      {comments.length > 0 ? (
+        comments.map(({ node }, i) => {
+          const isTweet = node.url.includes("https://twitter.com");
+          const domain = new URL(node.url).origin;
+          return (
+            <div className={classes.root} key={i}>
+              {isTweet ? (
+                <TweetCard node={node} />
+              ) : (
+                <WebCard node={node} domain={domain} />
+              )}
+            </div>
+          );
+        })
+      ) : (
+        <Typography align="center" component="p" variant="body1" gutterBottom>
+          There are no webmentions for this page.
+        </Typography>
+      )}
+      <Typography align="center" component="p" variant="caption">
+        (Webmentions sent before 2021 will unfortunately not show up here.)
+      </Typography>
+    </div>
+  );
+};
+export default Webmentions;
+
+export const query = graphql`
+  fragment webmentionQuery on Query {
+    webmentions: allWebMentionEntry(
+      filter: { wmTarget: { regex: $permalinkRegEx } }
+    ) {
+      edges {
+        node {
+          id
+          wmTarget
+          wmSource
+          wmProperty
+          wmId
+          author {
+            name
+            photo
+            type
+            url
+          }
+          url
+          content {
+            text
+          }
+          published
+        }
+      }
+    }
+  }
+`;

@@ -10,6 +10,7 @@ import MoreViz from "gatsby-theme-rpsych/src/components/MoreViz";
 import Contribute from "./Contribute";
 import SEO from "gatsby-theme-rpsych/src/components/seo";
 import clsx from "clsx";
+import Webmentions from 'gatsby-theme-rpsych/src/components/Webmentions'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -65,6 +66,7 @@ const VizLayout = ({ openSettings, children, path, data, license }) => {
         <Container className={classes.textContent}>
           <Faq data={data.FAQ}/>
           <Contribute />
+          <Webmentions edges={data.webmentions.edges}/>
         </Container>
         <Container maxWidth="lg">
           <Typography variant="h2" component="h2" align="center" gutterBottom>
