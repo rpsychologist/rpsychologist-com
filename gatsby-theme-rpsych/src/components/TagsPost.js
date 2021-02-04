@@ -20,13 +20,14 @@ const Tags = ({ tags }) => {
 
   return (
     <div className={classes.root}>
-      {tags.map(t => {
+      {tags.map((t,i) => {
         return (
           <Chip
             component={Link}
             to={`/tags/${kebabCase(t)}/`}
             label={t}
             clickable
+            key={i}
           />
         )
       })}
