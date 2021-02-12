@@ -12,12 +12,14 @@
         "serve": "yarn workspace blog serve"
     },
     "workspaces": [
-      "blog",
-      "gatsby-theme-rpsych",
-      "gatsby-theme-rpsych-viz",
-      "gatsby-theme-rpsych-cohend",
-      "gatsby-theme-rpsych-likelihood",
-      "gatsby-theme-rpsych-correlation"
-    ]
-  }
-  
+        "blog",
+        "gatsby-theme-rpsych",
+        "gatsby-theme-rpsych-viz",
+        "gatsby-theme-rpsych-cohend",
+        "gatsby-theme-rpsych-likelihood",
+        "gatsby-theme-rpsych-correlation"
+    ],
+    "dependencies": {
+        "netlify-cli": "^3.7.1"
+    }
+}

@@ -1,4 +1,5 @@
 import React from "react";
+import { useStaticQuery, graphql } from "gatsby";
 import Typography from "@material-ui/core/Typography";
 import { withStyles, makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
@@ -7,6 +8,7 @@ import Link from "@material-ui/core/Link";
 import Chip from "@material-ui/core/Chip";
 import HomeRoundedIcon from "@material-ui/icons/HomeRounded";
 import BuyMeACoffee from "./BuyMeACoffee";
+import Avatar from '@material-ui/core/Avatar';
 import { useTranslation, Trans } from "react-i18next";
 
 const useStyles = makeStyles((theme) => ({
@@ -22,7 +24,9 @@ const useStyles = makeStyles((theme) => ({
 
 const Contribute = React.memo(() => {
   const classes = useStyles();
+  const data = useStaticQuery(gitHubQuery);
   const { t } = useTranslation("blog");
+  const gitHubSponsors = data.allGithubData.nodes[0].data.user.sponsorshipsAsMaintainer.nodes
   return (
     <div>
       <Typography variant="h3" component="h2" align="center" gutterBottom>
@@ -68,18 +72,56 @@ const Contribute = React.memo(() => {
           {t("Backers")} ✨
         </Typography>
         <Grid className={classes.sponsors}>
-          <Chip label={t("Your Name")} />
-          <Chip
-            label={t("Your Name")}
+          {gitHubSponsors.map(({tier, sponsor}) => (
+            <Chip
+            label={sponsor.name}
+            avatar={<Avatar alt={sponsor.name} src={sponsor.avatarUrl} />}
             color="primary"
+            icon={<HomeRoundedIcon fontSize="small" color="primary" />}
+            clickable
+            component={Link}
+            href={sponsor.url}
+          />
+          ))}
+           <Chip
+            label={t("Your Name")}
+            color="default"
             icon={<HomeRoundedIcon fontSize="small" color="primary" />}
             clickable
             component={Link}
             href="https://github.com/sponsors/rpsychologist"
           />
+  
         </Grid>
       </div>
     </div>
   );
 });
 export default Contribute;
+
+const gitHubQuery = graphql`
+  {
+    allGithubData {
+      nodes {
+        id
+        data {
+          user {
+            sponsorshipsAsMaintainer {
+              nodes {
+                tier {
+                  monthlyPriceInDollars
+                  createdAt
+                }
+                sponsor {
+                  name
+                  avatarUrl
+                  url
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
