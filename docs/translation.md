@@ -75,6 +75,14 @@ If you are unfamiliar with git then you can download the files, add your transla
 ## Preview your translations
 If you don't want to/don't know how to preview the site locally, then just ask me to send you a preview link after you've added your translation.
 
+The easiest way to start a local development copy is to use `docker-compose`:
+
+```
+docker-compose build
+docker-compose run
+```
+Then you can view the page at `http://localhost:8000/cohend`
+
 ## Attribution
 The translation will be attributed to you on the translated page, e.g. "translated by Your Name". I can link to your webpage and/or Twitter if you'd like.
 
