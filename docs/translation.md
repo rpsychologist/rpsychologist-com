@@ -34,7 +34,7 @@ The translations are identified using the keys in the JSON files. You can copy t
 }
 ```
 
-There are also keys in `gatsby-theme-rpsych-cohend\i18n\react-i18next`, that need to be translated
+There are also keys in `gatsby-theme-rpsych-cohend/i18n/react-i18next`, that need to be translated
 
 ```
 .
