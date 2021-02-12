@@ -16,6 +16,7 @@ import DarkModeToggle from "../DarkModeToggle";
 import Logo from "./Logo";
 import TranslateIcon from "@material-ui/icons/Translate";
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
+import Divider from "@material-ui/core/Divider";
 import { useLocalization } from "gatsby-theme-i18n";
 
 const useStyles = makeStyles((theme) => ({
@@ -129,6 +130,17 @@ const LangMenu = ({ langCode, originalPath }) => {
             {lang.localName}
           </MenuItem>
         ))}
+        <Divider />
+        <MenuItem
+          onClick={handleClose}
+          component="a"
+          hrefLang="en"
+          rel="noopener nofollow"
+          target="_blank"
+          href="https://github.com/rpsychologist/rpsychologist-com/blob/master/docs/translation.md"
+        >
+          Help to translate
+        </MenuItem>
       </Menu>
     </>
   );
