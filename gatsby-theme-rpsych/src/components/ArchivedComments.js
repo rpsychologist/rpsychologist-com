@@ -101,8 +101,8 @@ const CommentCard = ({ comment, replies }) => {
           </div>
           <div dangerouslySetInnerHTML={{ __html: comment.message }} />
         </div>
-        {x.map((r) => (
-          <div style={{ paddingLeft: "0em" }}>
+        {x.map((r, i) => (
+          <div style={{ paddingLeft: "0em" }} key={i}>
             <Typography
               component="span"
               color="primary"
@@ -149,7 +149,7 @@ const ArchivedComments = ({ comments }) => {
         })}
       >
         {commentsFiltered.map((comment, i) => (
-          <CommentCard comment={comment} replies={replies} />
+          <CommentCard comment={comment} replies={replies} key={i} />
         ))}
       </div>
       <div

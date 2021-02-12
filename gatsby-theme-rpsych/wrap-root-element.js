@@ -134,10 +134,12 @@ const components = {
   },
 };
 
-export const wrapRootElement = ({ element }) => {
+const wrapRootElement = ({ element }) => {
   return (
       <ThemeProvider>
         <MDXProvider components={components}>{element}</MDXProvider>
       </ThemeProvider>
   );
 };
+
+export {wrapRootElement}

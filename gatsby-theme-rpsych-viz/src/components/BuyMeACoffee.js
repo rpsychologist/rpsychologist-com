@@ -9,6 +9,7 @@ import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import MuiLink from "@material-ui/core/Link";
 import FavoriteIcon from "@material-ui/icons/Favorite";
+import { useTranslation, Trans } from "react-i18next"
 
 const useStyles = makeStyles((theme) => ({
   note: {
@@ -59,11 +60,13 @@ const PayPalButton = withStyles(() => ({
 const BuyMeACoffee = React.memo(() => {
   const classes = useStyles();
   const [showAllComments, setShowAllComments] = useState(false);
+  const { t } = useTranslation("blog")
   const ref = createRef();
   const { allCoffeeSupportersJson } = useStaticQuery(coffeeSupportersQuery);
   const totalNumCoffees = allCoffeeSupportersJson.edges
     .map((c) => c.node.support_coffees)
     .reduce((total, x) => total + x);
+  const numSupporters = allCoffeeSupportersJson.edges.length
   return (
     <>
       <Grid item xs={12}>
@@ -73,25 +76,32 @@ const BuyMeACoffee = React.memo(() => {
           href="https://www.buymeacoffee.com/krstoffr"
           size="large"
         >
-          Buy Me a Coffee ☕
+          {t("Buy Me a Coffee")} ☕
         </CoffeButton>
       </Grid>
       <Grid item xs={12}>
         <PayPalButton color="primary" href="https://www.paypal.me/krstoffr">
-          (or use PayPal)
+          {t("(or use PayPal)")}
         </PayPalButton>
       </Grid>
       <Grid item xs={12}>
         <Typography variand="body1" align="center">
-          A huge thanks to the{" "}
-          <Typography component="span" color="primary">
-            <strong>{allCoffeeSupportersJson.edges.length}</strong>
-          </Typography>{" "}
-          supporters who've bought me a{" "}
-          <Typography component="span" color="primary">
-            <strong>{totalNumCoffees}</strong>
-          </Typography>{" "}
-          coffees!
+          <Trans
+            i18nKey="coffeSupportersThanks"
+            t={t}
+            numSupporters={numSupporters}
+            totalNumCoffees={totalNumCoffees}
+          >
+            A huge thanks to the{" "}
+            <Typography component="span" color="primary">
+              <strong>{{ numSupporters }}</strong>
+            </Typography>{" "}
+            supporters who've bought me a{" "}
+            <Typography component="span" color="primary">
+              <strong>{{ totalNumCoffees }}</strong>
+            </Typography>{" "}
+            coffees!
+          </Trans>
         </Typography>
         <div
           ref={ref}
@@ -116,6 +126,7 @@ const BuyMeACoffee = React.memo(() => {
                       "Someone"
                     ) : hasTwitter ? (
                       <MuiLink
+                      tabIndex={!showAllComments && "-1"}
                         href={`https://twitter.com/${name.substring(1)}`}
                         rel="nofollow noopener"
                       >
@@ -125,9 +136,9 @@ const BuyMeACoffee = React.memo(() => {
                       name
                     )}
                   </Typography>{" "}
-                  bought {"☕".repeat(c.node.support_coffees)} (
+                  {t("bought")} {"☕".repeat(c.node.support_coffees)} (
                   {c.node.support_coffees})
-                  {c.node.support_coffees == 1 ? " coffee" : " coffees"}
+                  {c.node.support_coffees == 1 ? ` ${t("coffee")}` : ` ${t("coffees")}`}
                 </p>
                 {c.node.support_note != null && c.node.support_note != "" && (
                   <Card
@@ -136,7 +147,7 @@ const BuyMeACoffee = React.memo(() => {
                     color="primary"
                   >
                     <CardContent>
-                      <Typography variant="body2">
+                      <Typography variant="body2" lang="en">
                         {c.node.support_note}
                       </Typography>
                     </CardContent>
@@ -151,7 +162,6 @@ const BuyMeACoffee = React.memo(() => {
             [classes.showMoreButton]: true,
             [classes.showMoreButtonExpanded]: showAllComments === true,
           })}
-          id="test"
         >
           <Button
             onClick={() => {
@@ -161,7 +171,7 @@ const BuyMeACoffee = React.memo(() => {
             variant="contained"
             color="primary"
           >
-            {showAllComments ? "Hide" : "Show all"}
+            {showAllComments ? t("Hide") : t("Show all")}
           </Button>
         </div>
       </Grid>

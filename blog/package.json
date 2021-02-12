@@ -8,7 +8,7 @@
     "url": "https://github.com/rpsychologist/rpsychologist-com/issues"
   },
   "dependencies": {
-    "gatsby": "^2.18.2",
+    "gatsby": "^2.32.1",
     "gatsby-plugin-manifest": "^2.0.5",
     "gatsby-theme-rpsych": "0.1.0",
     "gatsby-theme-rpsych-cohend": "*",

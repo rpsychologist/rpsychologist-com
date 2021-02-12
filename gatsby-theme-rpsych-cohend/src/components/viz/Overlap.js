@@ -7,6 +7,7 @@ import { normal } from "jstat";
 import { useGesture } from "react-use-gesture";
 import { useSpring, animated } from "react-spring";
 import { AxisBottom } from "@vx/axis";
+import { useTranslation } from "react-i18next"
 
 const AnimatedAxis = animated(AxisBottom);
 
@@ -34,6 +35,7 @@ const AnimatedVerticalLine = animated(VerticalLine)
 const margin = { top: 70, right: 20, bottom: 35, left: 20 };
 
 const OverlapChart = (props) => {
+  const { t } = useTranslation('cohend')
   const [{ xOffset }, set] = useSpring(() => ({ xOffset: 0 }));
   const [reset, setReset] = useState(false);
   const bind = useGesture(
@@ -192,7 +194,7 @@ const OverlapChart = (props) => {
             id="x-label"
             transform={`translate(${w / 2}, ${h + margin.bottom - 2.5})`}
           >
-            {xLabel}
+            {xLabel }
           </text>
           <animated.line
             x1={xScaleM0}
@@ -212,7 +214,7 @@ const OverlapChart = (props) => {
             textAnchor="middle"
             id="cohend_float"
           >
-            {aniProps.d.to(d => `Cohen's d: ${format(".2n")(d)}`)}
+            {aniProps.d.to(d => `${t("Cohen's")} d: ${format(".2n")(d)}`)}
           </animated.text>
           <animated.text
             x={aniProps.x.to(calcCenter)}
@@ -222,7 +224,7 @@ const OverlapChart = (props) => {
             textAnchor="middle"
             id="diff_float"
           >
-            {aniProps.x.to(x => `(Diff: ${format(".3n")(x - M0)})`)}
+            {aniProps.x.to(x => `(${t("Diff")}: ${format(".3n")(x - M0)})`)}
           </animated.text>
           <text
             x={xScaleM0 - labMargin}
@@ -232,7 +234,7 @@ const OverlapChart = (props) => {
             textAnchor={cohend >= 0 ? "end" : "start"}
             id="mu0Label"
           >
-            {muZeroLabel}
+            {muZeroLabel }
           </text>
           <animated.text
             x={aniProps.x.to(x => xScale(x) + labMargin)}

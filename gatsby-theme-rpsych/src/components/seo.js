@@ -25,9 +25,6 @@ const SEO = ({
 
         return (
           <Helmet
-            htmlAttributes={{
-              lang,
-            }}
             title={title}
             titleTemplate={`%s | ${data.site.siteMetadata.title}`}
             link={[

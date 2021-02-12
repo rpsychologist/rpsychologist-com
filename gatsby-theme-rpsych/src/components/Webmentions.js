@@ -9,6 +9,9 @@ import { makeStyles } from "@material-ui/core/styles";
 import TwitterIcon from "@material-ui/icons/Twitter";
 import RepeatIcon from "@material-ui/icons/Repeat";
 import FavoriteIcon from "@material-ui/icons/Favorite";
+import { useTranslation } from "react-i18next";
+
+
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
@@ -106,6 +109,7 @@ const Webmentions = ({ edges }) => {
   const numRetweets = edges.filter((d) => d.node.wmProperty == "repost-of")
     .length;
   const comments = edges.filter((d) => d.node.wmProperty == "mention-of");
+  const { t } = useTranslation("blog")
   return (
     <div className={classes.webmentions}>
       <Typography variant="h3" component="h2" align="center" gutterBottom>
@@ -127,7 +131,7 @@ const Webmentions = ({ edges }) => {
           </span>
         </Typography>
         <Typography variant="div" variant="body2">
-          <MuiLink href="https://indieweb.org/Webmention">What's this?</MuiLink>
+          <MuiLink href="https://indieweb.org/Webmention">{t("What's this?")}</MuiLink>
         </Typography>
       </Grid>
 
@@ -147,11 +151,11 @@ const Webmentions = ({ edges }) => {
         })
       ) : (
         <Typography align="center" component="p" variant="body1" gutterBottom>
-          There are no webmentions for this page.
+          {t("There are no webmentions for this page")}
         </Typography>
       )}
       <Typography align="center" component="p" variant="caption">
-        (Webmentions sent before 2021 will unfortunately not show up here.)
+        {t("Webmentions sent before 2021")}
       </Typography>
     </div>
   );

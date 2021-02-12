@@ -8,7 +8,7 @@ import Fab from '@material-ui/core/Fab';
 import CheckIcon from '@material-ui/icons/Check';
 import SaveIcon from '@material-ui/icons/Save';
 import Tooltip from '@material-ui/core/Tooltip';
-
+import { useTranslation } from "react-i18next"
 
 
 const useStyles = makeStyles(theme => ({
@@ -48,7 +48,7 @@ export default function SaveButton({data, localStorageName}) {
   const [loading, setLoading] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
   const timer = React.useRef();
-
+  const { t } = useTranslation("blog")
   const buttonClassname = clsx({
     [classes.buttonSuccess]: success,
   });
@@ -72,7 +72,7 @@ export default function SaveButton({data, localStorageName}) {
           setLoading(false);
         } else {
           setLoading(false);
-          alert("Saving failed")
+          alert(t("Saving failed"))
         }
       }, 500);
     }
@@ -81,7 +81,7 @@ export default function SaveButton({data, localStorageName}) {
   return (
     <div className={classes.root}>
       <div className={classes.wrapper}>
-      <Tooltip title="Save settings in browser" aria-label="save">
+      <Tooltip title={t("Save settings in browser")} aria-label="save">
         <Fab
           aria-label="save"
           color="primary"
@@ -100,7 +100,7 @@ export default function SaveButton({data, localStorageName}) {
           disabled={loading}
           onClick={() => localStorage.removeItem(localStorageName)}
         >
-          Clear
+          {t("Clear")}
         </Button>
       </div>
     </div>

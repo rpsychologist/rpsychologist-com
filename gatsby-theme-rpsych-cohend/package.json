@@ -11,14 +11,16 @@
     "gatsby-theme-rpsych-viz": "*"
   },
   "peerDependencies": {
-    "gatsby": "^2.18.2",
+    "gatsby": "^2.32.1",
+
     "react": "^16.12.0",
-    "react-dom": "^16.12.0"
+    "react-dom": "^16.12.0",
+    "react-i18next": "^11.6.0"
   },
   "devDependencies": {
     "eslint": "^6.2.2",
     "eslint-plugin-react": "^7.11.1",
-    "gatsby": "^2.18.2",
+    "gatsby": "^2.32.1",
     "prettier": "^1.14.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0"

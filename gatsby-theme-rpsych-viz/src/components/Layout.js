@@ -11,6 +11,7 @@ import Contribute from "./Contribute";
 import SEO from "gatsby-theme-rpsych/src/components/seo";
 import clsx from "clsx";
 import Webmentions from 'gatsby-theme-rpsych/src/components/Webmentions'
+import { useTranslation } from "react-i18next"
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -53,10 +54,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 const drawerWidth = 240;
-const VizLayout = ({ openSettings, children, path, data, license }) => {
+const VizLayout = ({ openSettings, children, path, data, license, pageContext }) => {
   const classes = useStyles();
+  const { t } = useTranslation("blog")
   return (
-    <Layout data={data} license={license}>
+    <Layout data={data} license={license} pageContext={pageContext}>
       <div
         className={clsx(classes.content, {
           [classes.contentShift]: openSettings,
@@ -68,9 +70,9 @@ const VizLayout = ({ openSettings, children, path, data, license }) => {
           <Contribute />
           <Webmentions edges={data.webmentions.edges}/>
         </Container>
-        <Container maxWidth="lg">
+        <Container maxWidth="lg" lang="en">
           <Typography variant="h2" component="h2" align="center" gutterBottom>
-            More Visualizations
+            {t("More Visualizations")}
           </Typography>
           <MoreViz explanation={true} path={path} />
         </Container>

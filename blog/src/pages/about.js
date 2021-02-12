@@ -139,7 +139,6 @@ const Contact = props => {
           </Grid>
         </Grid>
       </Container>
-      <Container maxWidth="sm"></Container>
     </Layout>
   )
 }

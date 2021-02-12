@@ -241,6 +241,8 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
       data={data}
       license={<License blogPost={true} />}
     >
+      {post ? (
+      <>
       {post.frontmatter.include_toc && <Toc post={post} />}
       <SEO title={post.frontmatter.title} description={post.excerpt} />
       <div className={post.frontmatter.include_toc && classes.root}>
@@ -391,6 +393,10 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
           </Container>
         </div>
       </div>
+      </>
+      ) :
+      'not translated'}
+
     </Layout>
   )
 }

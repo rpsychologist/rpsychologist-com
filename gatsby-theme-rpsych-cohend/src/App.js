@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { version, lastUpdated } from "gatsby-theme-rpsych-cohend/package.json"
 
 import { graphql, useStaticQuery } from "gatsby";
+import { MDXRenderer } from "gatsby-plugin-mdx"
 import "./styles/App.css";
 import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
@@ -14,8 +15,11 @@ import Viz from "./Viz";
 import Tour from "./components/content/HelpTour";
 import VizLayout from "gatsby-theme-rpsych-viz/src/components/Layout";
 import SEO from "gatsby-theme-rpsych/src/components/seo";
+import SEOI18n from "./components/SeoI18n"
 import SocialShare from 'gatsby-theme-rpsych/src/components/SocialShare'
 import Bio from 'gatsby-theme-rpsych/src/components/Bio'
+import { useTranslation } from "react-i18next"
+import { Trans } from 'react-i18next'
 
 import License from "./components/License"
 
@@ -35,7 +39,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+
+const getTranslations = () => {
+  const { t } = useTranslation("cohend")
+
+}
+
 const App = (props) => {
+  const { intro, CL } = props.data
   const classes = useStyles();
   const [openHelpTour, setHelpTour] = useState(false);
   const toggleDrawer = (open) => (event) => {
@@ -50,6 +61,7 @@ const App = (props) => {
   };
   const [openSettings, setOpenSettings] = useState(false);
   const data = props.data
+  const { t } = useTranslation(["cohend", "blog"])
   const seoImage = data.image ? data.image.childImageSharp.resize : null;
   const tour = React.useMemo(
     () => <Tour openHelpTour={openHelpTour} handleHelpTour={setHelpTour} />,
@@ -59,18 +71,19 @@ const App = (props) => {
     <VizLayout openSettings={openSettings} license={<License />} {...props}>
       <SEO
         keywords={[
-          `Cohen's d`,
-          `Effect size`,
-          `Interactive`,
-          `Visualization`,
-          `Teaching`,
-          `Science`,
-          `Psychology`,
+          t("Cohen's d"),
+          t("effect size"),
+          t("Interactive"),
+          t("Visualization"),
+          t("Teaching"),
+          t("Science"),
+          t("Psychology"),
         ]}
-        description={"A tool to understand Cohen's d standardized effect size"}
-        title={"Understanding Cohen's d"}
+        description={t("A tool to understand Cohen's d standardized effect size")}
+        title={t("Interpreting Cohen's d")}
         image={seoImage}
       />
+      <SEOI18n location={props.location} pageContext={props.pageContext} />
       <main>
         <Container>
           {tour}
@@ -80,7 +93,7 @@ const App = (props) => {
             gutterBottom
             align="center"
           >
-            Interpreting Cohen's <em>d</em> Effect Size
+            <Trans i18nKey="blog:cohendTitle" t={t}/>
           </Typography>
           <Typography
             variant="h2"
@@ -89,24 +102,25 @@ const App = (props) => {
             className={classes.siteSubTitle}
             gutterBottom
           >
-            An Interactive Visualization
+            {t("blog:An Interactive Visualization")}
           </Typography>
           <Typography align="center" gutterBottom>
-            Created by{" "}
+            {t("Created by")}{" "}
             <Link href="https://rpsychologist.com/">Kristoffer Magnusson</Link>
           </Typography>
         </Container>
         <Container className={classes.textContent}>
         <SocialShare
-                  slug={"cohend"}
-                  title={"Interpreting Cohen's d - an interactive visualization by @krstoffr"}
+                  slug={props.path}
+                  title={t("twitterShareCohend")}
                 />
-          <IntroText />
+          <MDXRenderer>{intro.body}</MDXRenderer>
         </Container>
         <Viz
           openSettings={openSettings}
           toggleDrawer={toggleDrawer}
           handleHelpTour={setHelpTour}
+          commonLangText = {CL}
         />
       </main>
       <Container className={classes.textContent} style={{paddingTop: "2em"}}>
@@ -116,5 +130,6 @@ const App = (props) => {
   );
 };
 export default App;
+
 
 

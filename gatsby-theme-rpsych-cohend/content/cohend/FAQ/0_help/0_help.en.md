@@ -3,10 +3,10 @@ title: How do I use this visualization?
 order: 0
 ---
 
-## Change Cohen's *d*
+### Change Cohen's *d*
 Use the slider to change Cohen's *d*, or open the settings drawer and change the parameters. The inputs can also be controlled using the keyboard arrows.
 
-## Settings
+### Settings
 You can change the following settings by clicking on the settings icon to the right of the slider.
 
 * **Parameters**
@@ -22,12 +22,12 @@ You can change the following settings by clicking on the settings icon to the ri
     + Slider Max
     + Slider Step: Controls the step size of the slider
 
-### Save settings
+#### Save settings
 The settings can be saved in your browser's `localStorage` and will thus persist across visits.
 
-## Pan and rescale
+### Pan and rescale
 You can pan the x axis by clicking and dragging the visualization. **Double-click** the visualization to center and rescale it.
 
-## Offline use
+### Offline use
 This site is cached using a service worker and will work even when you are offline.
 

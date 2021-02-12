@@ -1,0 +1,12 @@
+---
+title: common-language
+---
+import Typography from "@material-ui/core/Typography"
+
+<Typography variant="body1" gutterBottom>
+Med en Cohens <em>d</em> på {props.cohend}, kommer {props.U3}% av "{props.muOneLabel}"-gruppen att vara över medelvärdet för "{props.muZeroLabel}"-gruppen (Cohens U<sub>3</sub>), {props.propOverlap}% av de två grupperna kommer överlappa, och det är en {props.CL}% chans att en slumpmässigt utvald person från "{props.muZeroLabel}"-gruppen kommer ha en högre poäng än en slumpmässigt utvald person från "{props.muOneLabel}"-gruppen (probability of superiority). För att få ett mer positivt utfall i "{props.muZeroLabel}"-gruppen jämfört med "{props.muOneLabel}"-gruppen behöver vi behandla {isFinite(props.NNT) ? props.NNT : "en oändlig mängd"} personer i genomsnitt. Detta innebär att om det är 100 personer i varje grupp, och om vi antar att {props.CER} personer har ett positivt utfall i "{props.muZeroLabel}"-gruppen, så kommer {props.CER} + {props.NNTPerc}{" "} personer i "{props.muOneLabel}"-gruppen ha positiva utfall.<sup>1</sup>
+</Typography>
+<Typography variant="body2" gutterBottom>
+<sup>1</sup>Värdena är genomsnitt, och det antas att {props.CER}% (CER)
+i "{props.muZeroLabel}"-gruppen har ett "positivt utfall", d.v.s. deras utfall hamnar under någon cut-off. Du kan ändra på detta värde i inställningspanel. Mer information uträkningarna finns i formel-delen i FAQ:n.
+</Typography>

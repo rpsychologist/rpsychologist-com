@@ -14,6 +14,7 @@ import SettingsDrawer from "gatsby-theme-rpsych-viz/src/components/SettingsDrawe
 import { defaultState } from "./components/settings/defaultSettings";
 import { vizReducer } from "./components/settings/vizReducer";
 import VizSettings from "./components/settings/VizSettings";
+import { useTranslation } from "react-i18next"
 
 export const SettingsContext = createContext(null);
 
@@ -74,8 +75,22 @@ const CreateNntFn = (x) => {
   return (NNT) => [CER / 100, 1 / NNT, 1 - (1 / NNT + CER / 100)];
 };
 
-const Viz = ({ openSettings, toggleDrawer, handleHelpTour }) => {
+const translateIfDefault = (label, value, t) => {
+  return label === value ? t(value) : label
+}
+
+const Viz = ({ openSettings, toggleDrawer, handleHelpTour, commonLangText }) => {
+  const { t } = useTranslation("cohend")
+  initialState = useMemo(() => {
+    return {
+    ...initialState, 
+    muZeroLabel: translateIfDefault(initialState.muZeroLabel, "default_control_translate", t),
+    muOneLabel: translateIfDefault(initialState.muOneLabel, "default_treatment_translate", t),
+    xLabel: translateIfDefault(initialState.xLabel, "default_outcome_translate", t),
+  }}, [])
   const [state, dispatch] = useReducer(vizReducer, initialState);
+
+
   const contextValue = useMemo(() => {
     return { state, dispatch };
   }, [state, dispatch]);
@@ -93,10 +108,10 @@ const Viz = ({ openSettings, toggleDrawer, handleHelpTour }) => {
           />
           <ResponsiveChart chart={Cohend} {...state} />
           <Grid container justify="center" spacing={3} id="__loader">
-            <Paper className={classes.loading}>
+            <Paper className={classes.loading} >
               <CircularProgress />
               <Typography align="center" variant="body1">
-                Loading visualization
+                {t("Loading visualization")}
               </Typography>
             </Paper>
           </Grid>
@@ -113,7 +128,7 @@ const Viz = ({ openSettings, toggleDrawer, handleHelpTour }) => {
                   className={"donut--two-arcs"}
                 />
                 <Typography align="center" variant="body1">
-                  Cohen's U<sub>3</sub>
+                  {t("Cohen's")} U<sub>3</sub>
                 </Typography>
               </Paper>
             </Grid>
@@ -128,7 +143,7 @@ const Viz = ({ openSettings, toggleDrawer, handleHelpTour }) => {
                   className={"donut--two-arcs"}
                 />
                 <Typography align="center" variant="body1">
-                  % Overlap
+                  % {t("Overlap")}
                 </Typography>
               </Paper>
             </Grid>
@@ -143,7 +158,7 @@ const Viz = ({ openSettings, toggleDrawer, handleHelpTour }) => {
                   className={"donut--two-arcs"}
                 />
                 <Typography align="center" variant="body1">
-                  Probability of Superiority
+                  {t("Probability of Superiority")}
                 </Typography>
               </Paper>
             </Grid>
@@ -159,15 +174,15 @@ const Viz = ({ openSettings, toggleDrawer, handleHelpTour }) => {
                   className={"donut--NNT"}
                 />
                 <Typography align="center" variant="body1">
-                  Number Needed to Treat
+                  {t("Number Needed to Treat")}
                 </Typography>
               </Paper>
             </Grid>
           </Grid>
           <Typography variant="h3" component="h2" align="center" gutterBottom>
-            A Common Language Explanation
+            {t("A Common Language Explanation")}
           </Typography>
-          <CommonLanguage vizState={state} />
+          <CommonLanguage vizState={state} commonLangText={commonLangText}/>
           <SettingsDrawer
             handleDrawer={toggleDrawer}
             open={openSettings}

@@ -16,6 +16,7 @@ import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import logo from "../../assets/rpsychologist-logo.svg";
 import { MDXRenderer } from "gatsby-plugin-mdx";
+import { useTranslation } from "react-i18next";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -49,6 +50,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Footer = React.memo(({ blogPost, license }) => {
   const classes = useStyles();
+  const { t } = useTranslation("blog")
   return (
     <footer className={classes.footer}>
       <Container maxWidth="sm">
@@ -61,14 +63,14 @@ const Footer = React.memo(({ blogPost, license }) => {
                 className={classes.logo}
               />
               <Typography variant="body2" align="left" gutterBottom>
-                Designed and built by Kristoffer Magnusson. Powered by{" "}
+                {t("Designed and built by")}{" "}
                 <a href="https://www.gatsbyjs.org">Gatsby</a>.
               </Typography>
             </Grid>
           </Grid>
           <Grid sm={6} key="2" item>
             <Typography variant="h6" align="left" gutterBottom>
-              Connect
+              {t("Connect")}
             </Typography>
             <List component="nav" aria-label="connect">
               <ListItem
@@ -116,7 +118,7 @@ const Footer = React.memo(({ blogPost, license }) => {
               </ListItem>
             </List>
             <Typography variant="h6" align="left" gutterBottom>
-              Donate
+              {t("Donate")}
             </Typography>
             <List component="nav" aria-label="donate">
               <ListItem
@@ -153,7 +155,7 @@ const Footer = React.memo(({ blogPost, license }) => {
           </Grid>
           <Grid item xs={12} className={classes.licenses}>
             <Typography variant="h6" align="center" gutterBottom>
-              License
+              {t("License")}
             </Typography>
             <Typography component="div" align="center" paragraph>
               {license}

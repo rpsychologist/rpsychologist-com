@@ -7,9 +7,9 @@ export default (props) => {
 };
 
 export const pageQuery = graphql`
-  query cohend($permalinkRegEx: String) {
+  query cohend($locale: String!, $originalPath: String!, $permalinkRegEx: String) {
     FAQ: allMdx(
-      filter: { fileAbsolutePath: { regex: "/cohend/FAQ/" } }
+      filter: { fileAbsolutePath: { regex: "/cohend/FAQ/" }, fields: {locale: {eq: $locale }} }
       sort: { fields: frontmatter___order, order: ASC }
     ) {
       edges {
@@ -24,6 +24,27 @@ export const pageQuery = graphql`
         }
       }
       totalCount
+    }
+    intro: mdx(fileAbsolutePath: { regex: "/cohend/intro/" }, fields: {locale: {eq: $locale }} 
+    ) {
+          id
+          body
+          frontmatter {
+            title
+          }
+          slug
+    }
+    CL: mdx(fileAbsolutePath: { regex: "/cohend/common-language/" }, fields: {locale: {eq: $locale }} 
+    ) {
+          id
+          body
+          frontmatter {
+            title
+          }
+          slug
+    }
+    allTranslations: availableTranslationsYaml(originalPath: {eq: $originalPath}) {
+      langCode
     }
     image: file(absolutePath: { regex: "/cohend_SEO.png/" }) {
       childImageSharp {

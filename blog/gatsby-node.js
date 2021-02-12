@@ -113,25 +113,25 @@ exports.onCreatePage = ({ page, actions }) => {
   })
 }
 
-exports.onCreateNode = ({ node, actions, getNode }) => {
-  const { createNodeField } = actions
+// exports.onCreateNode = ({ node, actions, getNode }) => {
+//   const { createNodeField } = actions
 
-  if (node.internal.type === `Mdx`) {
-    let value;
-    // use YAML slug if it exists
-    if (node.frontmatter && node.frontmatter.slug) {
-      value = `/${node.frontmatter.slug}`
-    } else {
-      value = createFilePath({ node, getNode });
-    }
+//   if (node.internal.type === `Mdx`) {
+//     let value;
+//     // use YAML slug if it exists
+//     if (node.frontmatter && node.frontmatter.slug) {
+//       value = `/${node.frontmatter.slug}`
+//     } else {
+//       value = createFilePath({ node, getNode });
+//     }
     
-    createNodeField({
-      name: `slug`,
-      node,
-      value,
-    })
-  }
-}
+//     createNodeField({
+//       name: `slug`,
+//       node,
+//       value,
+//     })
+//   }
+// }
 
 // Forked from `gatsby-source-disqus-xml`
 // by Chad Lee

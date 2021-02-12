@@ -2,6 +2,7 @@
 // MIT License
 // Copyright (c) 2019 react-csv
 
+import React from "react";
 import MenuItem from '@material-ui/core/MenuItem';
 
 const isSafari = () => /^((?!chrome|android).)*safari/i.test(navigator.userAgent);

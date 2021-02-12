@@ -78,7 +78,7 @@ netlify.toml
 # Other
 TODO.md
 blog/content/comments/rpsychologist-disqus-archive.xml
-blog/content/coffee-supporters/coffee-supporters.json
+coffee-supporters/
 
 #vscode
 .vscode

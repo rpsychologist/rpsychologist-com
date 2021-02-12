@@ -9,7 +9,7 @@ const useStyles = makeStyles(() => ({}))
 const MoreViz = ({ slug, title, via }) => {
   const classes = useStyles()
 
-  const url = `https://rpsychologist.com/${slug}`
+  const url = `https://rpsychologist.com/${slug.replace(/^\//g, '')}`
   const twitterText =
     title.length > 242 ? `${title.substring(0, 239)}...` : title
   const twitterVia = via ? '&via=krstoffr' : ''

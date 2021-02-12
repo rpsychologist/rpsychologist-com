@@ -1,4 +1,11 @@
+require("dotenv").config({
+  path: '/home/kris/rpsychologist-blog/.env',
+})
 module.exports = {
+  flags: {
+    PRESERVE_FILE_DOWNLOAD_CACHE: true,
+    PRESERVE_WEBPACK_CACHE: true
+  },
   siteMetadata: {
     title: `R Psychologist`,
     author: `Kristoffer Magnusson`,
@@ -19,6 +26,33 @@ module.exports = {
         name: `assets`,
       },
     },
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        path: `${__dirname}/assets/coffee-supporters`,
+        name: `coffeSupporters`,
+      },
+    },
+    {
+      resolve: `gatsby-plugin-webmention`,
+      options: {
+        username: process.env.WEBMENTIONS_USERNAME, // webmention.io username
+        identity: {
+          twitter: 'krstoffr' // no @
+        },
+        mentions: true,
+        pingbacks: true,
+        domain: 'rpsychologist.com',
+        token: process.env.WEBMENTIONS_TOKEN
+      }
+    },
+    // {
+    //   resolve: `gatsby-theme-i18n`,
+    //   options: {
+    //     defaultLang: `en`,
+    //     configPath: require.resolve(`./i18n/config.json`),
+    //   },
+    // },
     {
       resolve: `gatsby-plugin-mdx`,
       options: {

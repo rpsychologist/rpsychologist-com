@@ -18,6 +18,7 @@ import svgSaver from "svgsaver";
 import { SettingsContext } from "../../Viz";
 import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
 import FormControl from '@material-ui/core/FormControl';
+import { useTranslation } from "react-i18next"
 
 
 const useStyles = makeStyles({
@@ -47,7 +48,7 @@ const InputCohen = ({ cohend, sliderStep, sliderMax }) => {
   const classes = useStyles();
   const [inputVal, setInputVal] = useState(cohend);
   const [submitted, setSubmitted] = useState(true);
-
+  const { t } = useTranslation('cohend')
   const handleInputChange = (e) => {
     const newVal = e.target.value === "" ? "" : Number(e.target.value);
     setInputVal(newVal);
@@ -67,7 +68,7 @@ const InputCohen = ({ cohend, sliderStep, sliderMax }) => {
     <FormControl >
     <form id="cohend-input" onSubmit={handleSubmit}>
       <Typography display="inline" style={{ paddingRight: "10px" }}>
-        Cohen's d
+        {t("Cohen's")} <em>d</em>
       </Typography>
       <Input
         className={classes.input}
@@ -95,6 +96,7 @@ const InputCohen = ({ cohend, sliderStep, sliderMax }) => {
 
 const InputSlider = ({ handleDrawer, openSettings, handleHelpTour }) => {
   const classes = useStyles();
+  const {t} = useTranslation("cohend")
   const { state, dispatch } = useContext(SettingsContext);
   const { cohend, sliderMax, sliderStep } = state;
   const [immediate, setImmediate] = useState(false);
@@ -124,7 +126,7 @@ const InputSlider = ({ handleDrawer, openSettings, handleHelpTour }) => {
         />
         </Grid>
         <Grid item>
-          <Tooltip title="Settings">
+          <Tooltip title={t("Settings")}>
             <IconButton
               color="inherit"
               aria-label="open settings drawer"
@@ -136,7 +138,7 @@ const InputSlider = ({ handleDrawer, openSettings, handleHelpTour }) => {
               <SettingsIcon />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Download SVG">
+          <Tooltip title={t("Download SVG")}>
             <IconButton
               color="inherit"
               aria-label="save svg"
@@ -147,7 +149,7 @@ const InputSlider = ({ handleDrawer, openSettings, handleHelpTour }) => {
               <SaveAltIcon />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Start guided help">
+          <Tooltip title={t("Start guided help")}>
             <IconButton
               color="inherit"
               aria-label="start guided help"
