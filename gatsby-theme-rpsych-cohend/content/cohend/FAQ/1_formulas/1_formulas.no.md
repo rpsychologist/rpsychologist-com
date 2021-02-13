@@ -15,14 +15,14 @@ Cohen (1977) definerte U<sub>3</sub> som et mål på ikke-overlapp, der vi "tar 
 
 $$U_3 = \Phi(\delta)$$,
 
-der $\Phi$ er standardnormalfordelningens kumulative fordelningsfunksjon, og $\delta$ populationsverdien for Cohens <em>d</em>.
+der $\Phi$ er standardnormalfordelingens kumulative fordelningsfunksjon, og $\delta$ populationsverdien for Cohens <em>d</em>.
 
 ### Overlapp
 Kalles generelt for *overlapping coefficient* (OVL). Cohens <em>d</em> kan konverteres til OVL ved hjelp av følgende formel (Reiser and Faraggi, 1999),
 
 $$\text{OVL}=2\Phi(-|\delta|/2) $$
 
-der $\Phi$ standardnormalfordelningens kumulative fordelningsfunksjon, og $\delta$ populationsverdien for Cohens <em>d</em>.
+der $\Phi$ standardnormalfordelingens kumulative fordelningsfunksjon, og $\delta$ populationsverdien for Cohens <em>d</em>.
 
 ### Probability of superiority
 Dette er en effektstørrelse med mange navn: *common language effect size* (CL), *Area under the receiver operating characteristics* (AUROC) eller bare A for sin ikke-parametriske versjon (Ruscio & Mullen, 2012). Det er tenkt som en mer intuitiv effektstørrelse for personer uten statistikkutdanning. Effektstørrelsen gir sannsynligheten for at en tilfeldig utvalgt person fra tiltaksgruppa har større score enn en tilfeldig utvalgt person fra kontrollgruppa. Cohens *d* kan konverteres til CL ved hjelp av følgende formel (Ruscio, 2008),
@@ -32,11 +32,11 @@ $$\text{CL}=\Phi\left(\frac{\delta}{\sqrt{2}}\right)$$
 der $\Phi$ standardnormalfordelingens kumulative fordelningsfunksjon, og $\delta$ populasjonsverdien for Cohens <em>d</em>.
 
 ### Number Needed to Treat
-NNT er antallet pasienter vi vil trenge å behandle for å få 1 flere positive utfall i tiltaksgruppa sammenlignet med kontrollgruppen. Furukawa og Leucht (2011) gav følgende formel for å regne om Cohens *d* til NNT,
+NNT er antallet pasienter som må behandles for å få 1 flere positive utfall i tiltaksgruppa sammenlignet med kontrollgruppen. Furukawa og Leucht (2011) gav følgende formel for å regne om Cohens *d* til NNT,
 
 $$ \text{NNT} = \frac{1}{  \Phi(\delta + \Psi(CER))-CER}$$
 
-hvor $\Phi$ standardnormalfordelingens kumulative fordelningsfunksjon og $\Psi$ dens inverse, CER er kontrollsgruppa hendelsesfrekvens og $\delta$ populationsverdien for Cohens *d*. **OBS. CER er 20 % i visualiseringen. Du kan endra på dette ved å klikke på inställningsikonet til høyre om skjutreglaget**. Definitionen av en "händelse" eller "respons" är godtyckligt, og skulle kunne definieres som andelen pasienter i remission, for eksempel de som er under en viss terskelverdi med en standardiserat formel. Det er mulig å konvertere Cohens *d* til en versjon av NNT som ignorerer kontrollgruppas hendelsesfrekvens. Om du vil lesa mer om det kan du lese Furukawa & Leucht (2011), som presenterer overbevisende argument for hvorfor det kompliserer tolkninga av NNT.
+hvor $\Phi$ standardnormalfordelingens kumulative fordelningsfunksjon og $\Psi$ dens inverse, CER er kontrollsgruppa hendelsesfrekvens og $\delta$ populationsverdien for Cohens *d*. **OBS. CER er 20 % i visualiseringen. Du kan endre på dette ved å klikke på innstillingsikonet til høyre for skjutreglaget**. Definisjonen av en "hendelse" eller "respons" er godtyckligt, og skulle kunne definieres som andelen pasienter i remission, for eksempel de som er under en viss terskelverdi med en standardiserat formel. Det er mulig å konvertere Cohens *d* til en versjon av NNT som ignorerer kontrollgruppas hendelsesfrekvens. Om du vil lese mer om det kan du lese Furukawa & Leucht (2011), som presenterer overbevisende argument for hvorfor det kompliserer tolkninga av NNT.
 
 ### R-programmeringskode for å beregne NNT fra Cohens *d*
 Fordi mange har spurt om R-kode for formelen ovenfor så viser jeg den her:

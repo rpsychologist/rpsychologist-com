@@ -3,7 +3,7 @@ title: Hvordan bruker jeg denne visualiseringen?
 order: 0
 ---
 ### Endre Cohens *d*
-Anvend skyvebryteren (slider) for å endre Cohens *d*,  eller åpne kontrollpanelet og endre parameterne. Du kan også benytte piltastene på tastaturet for å endre.
+Bruk skyvebryteren (slider'en) for å endre Cohens *d*, eller åpne kontrollpanelet og endre parameterne. Du kan også endre ved hjelp av piltastene på tastaturet.
 
 ### Innstillinger
 Du kan endre følgende innstillinger ved å klikke på innstillingsikonene til høyre for skyvebryteren.
@@ -28,4 +28,4 @@ Innstillingene kan lagres i nettleserens `localStorage`, og kommer til å vedvar
 Du kan panorere langs x-aksen ved å klikke og dra på visualiseringen. **Dobbeltklikk** på visualiseringen for å sentrere og skalere.
 
 ### Offline-användning
-Denne nettsiden benytter en *service worker* og vil fungere selv når den er uten nett-tilgang.
+Denne nettsiden bruker en *service worker* og vil fungere selv når den er uten nett-tilgang.

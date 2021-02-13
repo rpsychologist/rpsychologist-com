@@ -1,5 +1,5 @@
 ---
-title: Jeg kommer til å anbefale en stor gruppe studenter gå inn på siden, vil det kræsje serveren?
+title: Jeg kommer til å anbefale en stor gruppe studenter besøke siden, vil det kræsje serveren?
 order: 4
 ---
 
