@@ -15,12 +15,13 @@ const SEOI18n = ({ location, pageContext }) => {
     }
   `)
   const defaultSiteUrl = data.site.siteMetadata.siteUrl
+  const { originalPath } = pageContext
   const { pathname } = location
 
   return (
     <Helmet>
       <html lang={pageContext.hrefLang} />
-      <link rel="alternate" hrefLang="x-default" href={`${defaultSiteUrl}${pathname}`} />
+      <link rel="alternate" hrefLang="x-default" href={`${defaultSiteUrl}${originalPath}`} />
       <link
         rel="alternate"
         hrefLang={pageContext.hrefLang}
