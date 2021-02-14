@@ -45,14 +45,14 @@ const GitHubSponsors = React.memo(() => {
         {t("Backers")} ✨❤️
       </Typography>
       <Grid className={classes.sponsors}>
-        {gitHubSponsors.map(({ tier, sponsor }) => {
+        {gitHubSponsors.map(({ tier, sponsor}, i) => {
           const name = sponsor.name ? sponsor.name : sponsor.login;
           return (
             <Chip
               label={name}
+              key={i}
               avatar={<Avatar alt={name} src={sponsor.avatarUrl} />}
               color="primary"
-              icon={<HomeRoundedIcon fontSize="small" color="primary" />}
               clickable
               component={Link}
               href={sponsor.url}
