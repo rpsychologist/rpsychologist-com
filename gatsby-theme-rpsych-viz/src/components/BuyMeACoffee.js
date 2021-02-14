@@ -83,14 +83,14 @@ const FormatedName = ({ children, showAllComments }) => {
   return name;
 };
 
-const CoffeeSupporter = ({ supporter, i, showAllComments }) => {
+const CoffeeSupporter = ({ supporter, showAllComments }) => {
   const { t } = useTranslation("blog");
   const classes = useStyles();
   const name = supporter.node.payer_name;
   const numCoffees = supporter.node.support_coffees;
   const coffeeSymbols = "☕".repeat(numCoffees);
   return (
-    <div key={i}>
+    <div>
       <p>
         <Trans t={t} count={numCoffees} i18nKey="coffeeSupporters">
           <FormatedName showAllComments={showAllComments}>
@@ -175,7 +175,7 @@ const BuyMeACoffee = React.memo(() => {
           {allCoffeeSupportersJson.edges.map((supporter, i) => (
             <CoffeeSupporter
               supporter={supporter}
-              i={i}
+              key={i}
               showAllComments={showAllComments}
             />
           ))}
