@@ -14,7 +14,7 @@ import SettingsDrawer from "gatsby-theme-rpsych-viz/src/components/SettingsDrawe
 import { defaultState } from "./components/settings/defaultSettings";
 import { vizReducer } from "./components/settings/vizReducer";
 import VizSettings from "./components/settings/VizSettings";
-import { useTranslation } from "react-i18next"
+import { useTranslation, Trans } from "react-i18next"
 
 export const SettingsContext = createContext(null);
 
@@ -128,7 +128,9 @@ const Viz = ({ openSettings, toggleDrawer, handleHelpTour, commonLangText }) => 
                   className={"donut--two-arcs"}
                 />
                 <Typography align="center" variant="body1">
-                  {t("Cohen's")} U<sub>3</sub>
+                  <Trans t={t} i18nKey="CohenU3">
+                    Cohen's U<sub>3</sub>
+                  </Trans>
                 </Typography>
               </Paper>
             </Grid>
