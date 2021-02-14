@@ -9,7 +9,7 @@ import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import MuiLink from "@material-ui/core/Link";
 import FavoriteIcon from "@material-ui/icons/Favorite";
-import { useTranslation, Trans } from "react-i18next"
+import { useTranslation, Trans } from "react-i18next";
 
 const useStyles = makeStyles((theme) => ({
   note: {
@@ -57,24 +57,80 @@ const PayPalButton = withStyles(() => ({
   },
 }))(Button);
 
+const formatName = (name, showAllComments) => {
+  const hasTwitter = name.charAt(0) == "@";
+  return (
+    <Typography component="span" variant="body1" style={{ fontWeight: 500 }}>
+      {hasTwitter ? (
+        <MuiLink
+          tabIndex={!showAllComments && "-1"}
+          href={`https://twitter.com/${name.substring(1)}`}
+          rel="nofollow noopener"
+        >
+          {name}
+        </MuiLink>
+      ) : (
+        name
+      )}
+    </Typography>
+  );
+};
+
+const FormatedName = ({ children, showAllComments }) => {
+  const name =
+    children == "" ? "Someone" : formatName(children[0], showAllComments);
+
+  return name;
+};
+
+const CoffeeSupporter = ({ supporter, i, showAllComments }) => {
+  const { t } = useTranslation("blog");
+  const classes = useStyles();
+  const name = supporter.node.payer_name;
+  const numCoffees = supporter.node.support_coffees;
+  const coffeeSymbols = "☕".repeat(numCoffees);
+  return (
+    <div key={i}>
+      <p>
+        <Trans t={t} count={numCoffees} i18nKey="coffeeSupporters">
+          <FormatedName showAllComments={showAllComments}>
+            {{ name }}
+          </FormatedName>{" "}
+          bought {{ coffeeSymbols }} ({{ count: numCoffees }}) coffees
+        </Trans>
+      </p>
+      {supporter.node.support_note != null &&
+        supporter.node.support_note != "" && (
+          <Card className={classes.note} variant="outlined" color="primary">
+            <CardContent>
+              <Typography variant="body2" lang="en">
+                {supporter.node.support_note}
+              </Typography>
+            </CardContent>
+          </Card>
+        )}
+    </div>
+  );
+};
+
 const BuyMeACoffee = React.memo(() => {
   const classes = useStyles();
   const [showAllComments, setShowAllComments] = useState(false);
-  const { t } = useTranslation("blog")
+  const { t } = useTranslation("blog");
   const ref = createRef();
   const { allCoffeeSupportersJson } = useStaticQuery(coffeeSupportersQuery);
   const totalNumCoffees = allCoffeeSupportersJson.edges
     .map((c) => c.node.support_coffees)
     .reduce((total, x) => total + x);
-  const numSupporters = allCoffeeSupportersJson.edges.length
+  const numSupporters = allCoffeeSupportersJson.edges.length;
   return (
     <Grid
-    container
-    spacing={2}
-    direction="column"
-    justify="center"
-    alignItems="center"
-  >
+      container
+      spacing={2}
+      direction="column"
+      justify="center"
+      alignItems="center"
+    >
       <Grid item xs={12}>
         <CoffeButton
           variant="contained"
@@ -116,52 +172,13 @@ const BuyMeACoffee = React.memo(() => {
             [classes.expandedArea]: showAllComments === true,
           })}
         >
-          {allCoffeeSupportersJson.edges.map((c, i) => {
-            const name = c.node.payer_name;
-            const hasTwitter = name.charAt(0) == "@";
-            return (
-              <div key={i}>
-                <p>
-                  <Typography
-                    component="span"
-                    variant="body1"
-                    style={{ fontWeight: 500 }}
-                  >
-                    {" "}
-                    {name == "" ? (
-                      "Someone"
-                    ) : hasTwitter ? (
-                      <MuiLink
-                      tabIndex={!showAllComments && "-1"}
-                        href={`https://twitter.com/${name.substring(1)}`}
-                        rel="nofollow noopener"
-                      >
-                        {name}
-                      </MuiLink>
-                    ) : (
-                      name
-                    )}
-                  </Typography>{" "}
-                  {t("bought")} {"☕".repeat(c.node.support_coffees)} (
-                  {c.node.support_coffees})
-                  {c.node.support_coffees == 1 ? ` ${t("coffee")}` : ` ${t("coffees")}`}
-                </p>
-                {c.node.support_note != null && c.node.support_note != "" && (
-                  <Card
-                    className={classes.note}
-                    variant="outlined"
-                    color="primary"
-                  >
-                    <CardContent>
-                      <Typography variant="body2" lang="en">
-                        {c.node.support_note}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            );
-          })}
+          {allCoffeeSupportersJson.edges.map((supporter, i) => (
+            <CoffeeSupporter
+              supporter={supporter}
+              i={i}
+              showAllComments={showAllComments}
+            />
+          ))}
         </div>
         <div
           className={clsx({

@@ -18,7 +18,7 @@ import svgSaver from "svgsaver";
 import { SettingsContext } from "../../Viz";
 import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
 import FormControl from '@material-ui/core/FormControl';
-import { useTranslation } from "react-i18next"
+import { useTranslation, Trans } from "react-i18next"
 
 
 const useStyles = makeStyles({
@@ -68,7 +68,9 @@ const InputCohen = ({ cohend, sliderStep, sliderMax }) => {
     <FormControl >
     <form id="cohend-input" onSubmit={handleSubmit}>
       <Typography display="inline" style={{ paddingRight: "10px" }}>
-        {t("Cohen's")} <em>d</em>
+        <Trans t={t} i18nKey="CohenLabelSlider" >
+          Cohen's d
+        </Trans>
       </Typography>
       <Input
         className={classes.input}
