@@ -12,6 +12,7 @@ import SocialShare from 'gatsby-theme-rpsych/src/components/SocialShare'
 import License from '../License'
 import Webmentions from 'gatsby-theme-rpsych/src/components/Webmentions'
 import BuyMeACoffee from 'gatsby-theme-rpsych-viz/src/components/BuyMeACoffee'
+import GitHubSponsors from 'gatsby-theme-rpsych-viz/src/components/GitHubSponsors'
 
 const Viz = ({ data, pageContext }) => {
   const image = data.image ? data.image.childImageSharp.resize : null
@@ -41,7 +42,7 @@ const Viz = ({ data, pageContext }) => {
         <MoreViz explanation={true} />
       </Container>
       <Container maxWidth="sm">
-        <Typography variant="h1" component="h1" align="center" id="posters">
+        <Typography variant="h1" component="h2" align="center" id="posters">
           Posters
         </Typography>
         <Typography variant="body1" paragraph>
@@ -72,6 +73,10 @@ const Viz = ({ data, pageContext }) => {
         <Posters explanation={true} />
       </Container>
       <Container maxWidth="sm" style={{ paddingBottom: '2em' }}>
+      <Typography variant="h2" component="h2" align="center" gutterBottom>
+        Sponsors
+      </Typography>
+      <GitHubSponsors />
       <Grid
         container
         spacing={2}
@@ -79,6 +84,9 @@ const Viz = ({ data, pageContext }) => {
         justify="center"
         alignItems="center"
       >
+        <Typography variant="h2" component="h2">
+          Buy Me A Coffee
+        </Typography>
         <BuyMeACoffee />
         </Grid>
       </Container>

@@ -68,7 +68,13 @@ const BuyMeACoffee = React.memo(() => {
     .reduce((total, x) => total + x);
   const numSupporters = allCoffeeSupportersJson.edges.length
   return (
-    <>
+    <Grid
+    container
+    spacing={2}
+    direction="column"
+    justify="center"
+    alignItems="center"
+  >
       <Grid item xs={12}>
         <CoffeButton
           variant="contained"
@@ -175,7 +181,7 @@ const BuyMeACoffee = React.memo(() => {
           </Button>
         </div>
       </Grid>
-    </>
+    </Grid>
   );
 });
 export default BuyMeACoffee;

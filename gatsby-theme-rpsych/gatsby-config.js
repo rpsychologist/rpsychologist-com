@@ -62,6 +62,7 @@ module.exports = {
                   twitterUsername
                   avatarUrl
                   url
+                  login
                 }
                  tier {
                   monthlyPriceInDollars
@@ -96,14 +97,6 @@ module.exports = {
             },
           },
           `gatsby-remark-images-zoom`,
-          //  {
-          //     resolve: 'gatsby-remark-prismjs',
-          //     options: {
-          //       classPrefix: 'language-',
-          //       aliases: {},
-          //       copy: true,
-          //     },
-          //   },
           {
             resolve: `gatsby-remark-autolink-headers`,
             options: {
@@ -144,14 +137,6 @@ module.exports = {
               offsetY: 104,
             },
           },
-          // {
-          //   resolve: 'gatsby-remark-prismjs',
-          //   options: {
-          //     classPrefix: 'language-',
-          //     aliases: {},
-          //     copy: true,
-          //   },
-          // },
         ],
       },
     },
