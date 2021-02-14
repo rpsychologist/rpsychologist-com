@@ -3,4 +3,4 @@ RUN yarn global add gatsby-cli
 WORKDIR /app
 COPY . ./
 RUN yarn --pure-lockfile
-CMD ["./docker-start.sh"]
+CMD ["./gatsby-start.sh"]
