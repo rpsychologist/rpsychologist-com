@@ -24,8 +24,9 @@ const GitHubSponsors = React.memo(() => {
   const classes = useStyles();
   const data = useStaticQuery(gitHubQuery);
   const { t } = useTranslation("blog");
-  const gitHubSponsors =
-    data.allGithubData.nodes[0].data.user.sponsorshipsAsMaintainer.nodes;
+  const gitHubSponsors = data.allGithubData
+    ? data.allGithubData.nodes[0].data.user.sponsorshipsAsMaintainer.nodes
+    : [];
 
   return (
     <div>
