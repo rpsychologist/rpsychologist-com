@@ -13,6 +13,8 @@ import InternalLink from 'gatsby-theme-rpsych/src/utils/InternalLink'
 import { makeStyles } from '@material-ui/core'
 import License from '../License'
 import Webmentions from 'gatsby-theme-rpsych/src/components/Webmentions'
+import BuyMeACoffee from 'gatsby-theme-rpsych-viz/src/components/BuyMeACoffee'
+import GitHubSponsors from 'gatsby-theme-rpsych-viz/src/components/GitHubSponsors'
 
 const useStyles = makeStyles(theme => ({
   post: {
@@ -23,7 +25,6 @@ const useStyles = makeStyles(theme => ({
   },
   heading: {
     color: theme.palette.type === 'dark' ? '#fff' : '#000',
-
   },
   postTitle: {
     color: theme.palette.type === 'dark' ? '#fff' : '#000',
@@ -51,7 +52,12 @@ const BlogIndex = props => {
   const siteTitle = data.site.siteMetadata.title
   const posts = data.allMdx.edges
   return (
-    <Layout location={props.location} title={siteTitle} data={data} license={<License/>}>
+    <Layout
+      location={props.location}
+      title={siteTitle}
+      data={data}
+      license={<License />}
+    >
       <SEO
         title="Start"
         keywords={[
@@ -66,7 +72,7 @@ const BlogIndex = props => {
           'Research',
         ]}
       />
-      <Hero/>
+      <Hero />
       <Container maxWidth="sm">
         <InternalLink to="/posts">
           <Typography
@@ -82,8 +88,12 @@ const BlogIndex = props => {
         {posts.map(({ node }) => {
           const title = node.frontmatter.title || node.fields.slug
           return (
-            <div key={node.fields.slug} style={{ paddingBottom: '2em'}}>
-              <InternalLink to={node.fields.slug} underline='none' className={classes.post}>
+            <div key={node.fields.slug} style={{ paddingBottom: '2em' }}>
+              <InternalLink
+                to={node.fields.slug}
+                underline="none"
+                className={classes.post}
+              >
                 <Typography
                   variant="h5"
                   component="h3"
@@ -92,20 +102,20 @@ const BlogIndex = props => {
                   {title}
                 </Typography>
                 <div className={classes.postMeta}>
-                <Typography
-                  variant="subtitle2"
-                  component="p"
-                  color="textSecondary"
-                  style={{ paddingBottom: '0.5em' }}
-                >
-                  {node.frontmatter.date}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  component="p"
-                  gutterBottom
-                  dangerouslySetInnerHTML={{ __html: node.excerpt }}
-                />
+                  <Typography
+                    variant="subtitle2"
+                    component="p"
+                    color="textSecondary"
+                    style={{ paddingBottom: '0.5em' }}
+                  >
+                    {node.frontmatter.date}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    component="p"
+                    gutterBottom
+                    dangerouslySetInnerHTML={{ __html: node.excerpt }}
+                  />
                 </div>
               </InternalLink>
             </div>
@@ -127,7 +137,12 @@ const BlogIndex = props => {
           Projects
         </Typography>
         <InternalLink to="/viz">
-          <Typography variant="h3" component="h3" align="center" className={classes.heading}>
+          <Typography
+            variant="h3"
+            component="h3"
+            align="center"
+            className={classes.heading}
+          >
             Interactive Visualizations
           </Typography>
         </InternalLink>
@@ -143,7 +158,15 @@ const BlogIndex = props => {
           R Software
         </Typography>
         <Powerlmm />
-        <Webmentions edges={data.webmentions.edges}/>
+        <Typography variant="h2" component="h2" align="center">
+          Sponsors
+        </Typography>
+        <GitHubSponsors />
+        <Typography variant="h3" component="h3" align="center">
+          Buy Me A Coffee
+        </Typography>
+        <BuyMeACoffee />
+        <Webmentions edges={data.webmentions.edges} />
       </Container>
     </Layout>
   )

@@ -4,7 +4,7 @@ require("dotenv").config({
 module.exports = {
   flags: {
     PRESERVE_FILE_DOWNLOAD_CACHE: true,
-    PRESERVE_WEBPACK_CACHE: true
+    PRESERVE_WEBPACK_CACHE: true,
   },
   siteMetadata: {
     title: `R Psychologist`,
@@ -38,31 +38,53 @@ module.exports = {
       options: {
         username: process.env.WEBMENTIONS_USERNAME, // webmention.io username
         identity: {
-          twitter: 'krstoffr' // no @
+          twitter: "krstoffr", // no @
         },
         mentions: true,
         pingbacks: true,
-        domain: 'rpsychologist.com',
-        token: process.env.WEBMENTIONS_TOKEN
-      }
+        domain: "rpsychologist.com",
+        token: process.env.WEBMENTIONS_TOKEN,
+      },
     },
-    // {
-    //   resolve: `gatsby-theme-i18n`,
-    //   options: {
-    //     defaultLang: `en`,
-    //     configPath: require.resolve(`./i18n/config.json`),
-    //   },
-    // },
+    {
+      resolve: `gatsby-source-github-api`,
+      options: {
+        token: process.env.GITHUB_TOKEN,
+        variables: {},
+        graphQLQuery: `
+        query {
+          user(login: "rpsychologist") {
+            sponsorshipsAsMaintainer(first: 100) {
+              nodes {
+                sponsor {
+                  name
+                  websiteUrl
+                  twitterUsername
+                  avatarUrl
+                  url
+                  login
+                }
+                 tier {
+                  monthlyPriceInDollars
+                  createdAt
+                }
+              }
+            }
+          }
+        }
+        `,
+      },
+    },
     {
       resolve: `gatsby-plugin-mdx`,
       options: {
-        extensions: ['.mdx', '.md'],
+        extensions: [".mdx", ".md"],
         // a workaround to solve mdx-remark plugin compat issue
         // https://github.com/gatsbyjs/gatsby/issues/15486
         plugins: [
           `gatsby-remark-images`,
           `gatsby-remark-images-zoom`,
-          'gatsby-plugin-use-dark-mode',
+          "gatsby-plugin-use-dark-mode",
         ],
         gatsbyRemarkPlugins: [
           {
@@ -70,19 +92,11 @@ module.exports = {
             options: {
               maxWidth: 960,
               linkImagesToOriginal: false,
-              showCaptions: ['title'],
+              showCaptions: ["title"],
               markdownCaptions: false,
             },
           },
           `gatsby-remark-images-zoom`,
-        //  {
-        //     resolve: 'gatsby-remark-prismjs',
-        //     options: {
-        //       classPrefix: 'language-',
-        //       aliases: {},
-        //       copy: true,
-        //     },
-        //   }, 
           {
             resolve: `gatsby-remark-autolink-headers`,
             options: {
@@ -123,16 +137,8 @@ module.exports = {
               offsetY: 104,
             },
           },
-          // {
-          //   resolve: 'gatsby-remark-prismjs',
-          //   options: {
-          //     classPrefix: 'language-',
-          //     aliases: {},
-          //     copy: true,
-          //   },
-          // },
-        ]
-      }
+        ],
+      },
     },
     `gatsby-transformer-yaml`,
     `gatsby-transformer-json`,
@@ -146,5 +152,11 @@ module.exports = {
     },
     `gatsby-plugin-offline`,
     `gatsby-plugin-react-helmet`,
+    {
+      resolve: `gatsby-plugin-sitemap`,
+      options: {
+        exclude: [`/tags/*`],
+      }
+    }
   ],
-}
+};

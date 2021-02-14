@@ -28,6 +28,9 @@ import CodeBlock from 'gatsby-theme-rpsych/src/components/code/code-block'
 import License from '../License'
 import Webmentions from 'gatsby-theme-rpsych/src/components/Webmentions'
 import ArchivedComments from 'gatsby-theme-rpsych/src/components/ArchivedComments'
+import BuyMeACoffee from 'gatsby-theme-rpsych-viz/src/components/BuyMeACoffee'
+import GitHubSponsors from 'gatsby-theme-rpsych-viz/src/components/GitHubSponsors'
+
 
 const PostCodeBlock = withStyles(
   theme => ({
@@ -242,161 +245,176 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
       license={<License blogPost={true} />}
     >
       {post ? (
-      <>
-      {post.frontmatter.include_toc && <Toc post={post} />}
-      <SEO title={post.frontmatter.title} description={post.excerpt} />
-      <div className={post.frontmatter.include_toc && classes.root}>
-        <div className={clsx(post.frontmatter.include_toc && classes.content, 'h-entry')}>
-          <Container maxWidth="md">
-            <Typography
-              variant="h1"
-              align="center"
-              style={{ fontWeight: 700, marginBottom: '2.5rem' }}
-              className='p-name'
+        <>
+          {post.frontmatter.include_toc && <Toc post={post} />}
+          <SEO title={post.frontmatter.title} description={post.excerpt} />
+          <div className={post.frontmatter.include_toc && classes.root}>
+            <div
+              className={clsx(
+                post.frontmatter.include_toc && classes.content,
+                'h-entry'
+              )}
             >
-              {post.frontmatter.title}
-            </Typography>
-          </Container>
-          <Container className={classes.article}>
-            <Grid
-              container
-              direction="row"
-              alignItems="center"
-              justify="space-between"
-              style={{ maxWidth: 650, margin: 'auto' }}
-            >
-              <Grid item>
-                <Typography variant="subtitle2" component="span">
-                  <time
-                    itemProp="datepublished"
-                    className="dt-published"
-                    dateTime={post.frontmatter.dateISO}
-                  >
-                    {post.frontmatter.date}
-                  </time>
-                </Typography>
-              </Grid>
-              <Grid item>
-                <Social
-                  slug={post.frontmatter.slug}
-                  title={post.frontmatter.title}
-                />
-              </Grid>
-            </Grid>
-            <div className="e-content">
-              <MDXProvider components={components}>
-                <MDXRenderer>{post.body}</MDXRenderer>
-              </MDXProvider>
-            </div>
-            <div className={classes.articleInner}>
-              <Divider style={{ marginBottom: '1em', marginTop: '1em' }} />
-              <Bio />
-              <Divider style={{ marginTop: '1em', marginBottom: '1em' }} />
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'flex-end',
-                }}
-              >
+              <Container maxWidth="md">
                 <Typography
-                  variant="subtitle2"
-                  component="span"
-                  color="textSecondary"
-                >
-                  Share:
-                </Typography>
-                <Social
-                  slug={post.frontmatter.slug}
-                  title={post.frontmatter.title}
-                />
-              </div>
-              <Tags tags={post.frontmatter.tags} />
-              <Typography
-                paragraph
-                variant="subtitle2"
-                style={{ marginTop: '1em' }}
-              >
-                Published {post.frontmatter.date}{' '}
-                <Link
-                  href={`https://github.com/rpsychologist/rpsychologist-com/blob/master/blog/content/blog/${post.parent.relativePath}`}
-                >
-                  (View on GitHub)
-                </Link>
-              </Typography>
-              <Typography
-                variant="h4"
-                align="center"
-                gutterBottom
-                style={{ marginTop: '1em' }}
-              >
-                Questions & Comments
-              </Typography>
-              <Typography variant="body2" paragraph>
-                Please use{' '}
-                <Link href="https://github.com/rpsychologist/rpsychologist-com/discussions">
-                  GitHub Discussions{' '}
-                </Link>
-                for any questions related to this post, or{' '}
-                <Link href="https://github.com/rpsychologist/rpsychologist-com/issues">
-                  open an issue on GitHub
-                </Link>{' '}
-                if you've found a bug or wan't to make a feature request.
-              </Typography>
-              <Webmentions  edges={data.webmentions.edges}/>
-              {comments.length > 0 && <ArchivedComments comments={comments} />}
-              <Divider style={{ marginBottom: '1em' }} />
-
-              <ul
-                style={{
-                  display: `flex`,
-                  flexWrap: `wrap`,
-                  justifyContent: `space-between`,
-                  listStyle: `none`,
-                  padding: 0,
-                }}
-              >
-                <li>
-                  {previous && (
-                    <InternalLink to={previous.fields.slug} rel="prev">
-                      ← {previous.frontmatter.title}
-                    </InternalLink>
-                  )}
-                </li>
-                <li>
-                  {next && (
-                    <InternalLink to={next.fields.slug} rel="next">
-                      {next.frontmatter.title} →
-                    </InternalLink>
-                  )}
-                </li>
-              </ul>
-            </div>
-            <div style={{ display: 'none' }}>
-            <a
-                  className="u-url"
-                  href={`https://rpsychologist.com/${post.frontmatter.slug}`}
+                  variant="h1"
+                  align="center"
+                  style={{ fontWeight: 700, marginBottom: '2.5rem' }}
+                  className="p-name"
                 >
                   {post.frontmatter.title}
-                </a>
-              <p className="h-card p-author">
-                <a
-                  className="p-name u-url"
-                  rel="author"
-                  href="https://rpsychologist.com"
+                </Typography>
+              </Container>
+              <Container className={classes.article}>
+                <Grid
+                  container
+                  direction="row"
+                  alignItems="center"
+                  justify="space-between"
+                  style={{ maxWidth: 650, margin: 'auto' }}
                 >
-                  Kristoffer Magnusson
-                </a>
-                {/* <img className="u-photo" src={`https://rpsychologist.com${data.avatar.childImageSharp.fixed.src}`} /> */}
-              </p>
-            </div>
-          </Container>
-        </div>
-      </div>
-      </>
-      ) :
-      'not translated'}
+                  <Grid item>
+                    <Typography variant="subtitle2" component="span">
+                      <time
+                        itemProp="datepublished"
+                        className="dt-published"
+                        dateTime={post.frontmatter.dateISO}
+                      >
+                        {post.frontmatter.date}
+                      </time>
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Social
+                      slug={post.frontmatter.slug}
+                      title={post.frontmatter.title}
+                    />
+                  </Grid>
+                </Grid>
+                <div className="e-content">
+                  <MDXProvider components={components}>
+                    <MDXRenderer>{post.body}</MDXRenderer>
+                  </MDXProvider>
+                </div>
+                <div className={classes.articleInner}>
+                  <Divider style={{ marginBottom: '1em', marginTop: '1em' }} />
+                  <Bio />
+                  <Divider style={{ marginTop: '1em', marginBottom: '1em' }} />
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'flex-end',
+                    }}
+                  >
+                    <Typography
+                      variant="subtitle2"
+                      component="span"
+                      color="textSecondary"
+                    >
+                      Share:
+                    </Typography>
+                    <Social
+                      slug={post.frontmatter.slug}
+                      title={post.frontmatter.title}
+                    />
+                  </div>
+                  <Tags tags={post.frontmatter.tags} />
+                  <Typography
+                    paragraph
+                    variant="subtitle2"
+                    style={{ marginTop: '1em' }}
+                  >
+                    Published {post.frontmatter.date}{' '}
+                    <Link
+                      href={`https://github.com/rpsychologist/rpsychologist-com/blob/master/blog/content/blog/${post.parent.relativePath}`}
+                    >
+                      (View on GitHub)
+                    </Link>
+                  </Typography>
+                  <Typography variant="h3" component="h3" align="center">
+                    Buy Me A Coffee
+                  </Typography>
+                  <BuyMeACoffee />
+                  <Typography variant="h2" component="h2" align="center">
+                    Sponsors
+                  </Typography>
+                  <GitHubSponsors />
+                  <Typography
+                    variant="h4"
+                    align="center"
+                    gutterBottom
+                    style={{ marginTop: '1em' }}
+                  >
+                    Questions & Comments
+                  </Typography>
+                  <Typography variant="body2" paragraph>
+                    Please use{' '}
+                    <Link href="https://github.com/rpsychologist/rpsychologist-com/discussions">
+                      GitHub Discussions{' '}
+                    </Link>
+                    for any questions related to this post, or{' '}
+                    <Link href="https://github.com/rpsychologist/rpsychologist-com/issues">
+                      open an issue on GitHub
+                    </Link>{' '}
+                    if you've found a bug or wan't to make a feature request.
+                  </Typography>
+                  <Webmentions edges={data.webmentions.edges} />
+                  {comments.length > 0 && (
+                    <ArchivedComments comments={comments} />
+                  )}
+                  <Divider style={{ marginBottom: '1em' }} />
 
+                  <ul
+                    style={{
+                      display: `flex`,
+                      flexWrap: `wrap`,
+                      justifyContent: `space-between`,
+                      listStyle: `none`,
+                      padding: 0,
+                    }}
+                  >
+                    <li>
+                      {previous && (
+                        <InternalLink to={previous.fields.slug} rel="prev">
+                          ← {previous.frontmatter.title}
+                        </InternalLink>
+                      )}
+                    </li>
+                    <li>
+                      {next && (
+                        <InternalLink to={next.fields.slug} rel="next">
+                          {next.frontmatter.title} →
+                        </InternalLink>
+                      )}
+                    </li>
+                  </ul>
+                </div>
+                <div style={{ display: 'none' }}>
+                  <a
+                    className="u-url"
+                    href={`https://rpsychologist.com/${post.frontmatter.slug}`}
+                  >
+                    {post.frontmatter.title}
+                  </a>
+                  <p className="h-card p-author">
+                    <a
+                      className="p-name u-url"
+                      rel="author"
+                      href="https://rpsychologist.com"
+                    >
+                      Kristoffer Magnusson
+                    </a>
+                    {/* <img className="u-photo" src={`https://rpsychologist.com${data.avatar.childImageSharp.fixed.src}`} /> */}
+                  </p>
+                </div>
+              </Container>
+            </div>
+          </div>
+        </>
+      ) : (
+        'not translated'
+      )}
     </Layout>
   )
 }
@@ -430,7 +448,7 @@ export const pageQuery = graphql`
         }
       }
     }
-    disqusThread(link: {regex: $permalinkRegEx}) {
+    disqusThread(link: { regex: $permalinkRegEx }) {
       id
       comments {
         id
