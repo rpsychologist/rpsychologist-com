@@ -80,26 +80,23 @@ The files in `FAQ` and `intro` also needs to be translated
 For a complete translation you will have the following modified (M) and added (A) files
 
 ```bash
-M        gatsby-theme-rpsych/assets/availableTranslations.yml
+# gatsby-theme-rpsych/
+M [] assets/availableTranslations.yml
+M [] i18n/config.json
+A [] i18n/react-i18next/<lang_code>/404.json
+A [] i18n/react-i18next/<lang_code>/blog.json
 
-M        gatsby-theme-rpsych/i18n/config.json
-
-A        gatsby-theme-rpsych/i18n/react-i18next/<lang_code>/404.json
-A        gatsby-theme-rpsych/i18n/react-i18next/<lang_code>/blog.json
-
-A        gatsby-theme-rpsych-cohend/i18n/react-i18next/<lang_code>/cohend.json
-
-A        gatsby-theme-rpsych-cohend/content/cohend/intro/intro.<lang_code>.mdx
-
-A        gatsby-theme-rpsych-cohend/content/cohend/FAQ/0_help/0_help.<lang_code>.md
-A        gatsby-theme-rpsych-cohend/content/cohend/FAQ/1_formulas/1_formulas.<lang_code>.md
-A        gatsby-theme-rpsych-cohend/content/cohend/FAQ/2_citation/2_citation.<lang_code>.mdx
-A        gatsby-theme-rpsych-cohend/content/cohend/FAQ/3_bug/3_bug.<lang_code>.md
-A        gatsby-theme-rpsych-cohend/content/cohend/FAQ/4_load/4_load.<lang_code>.md
-A        gatsby-theme-rpsych-cohend/content/cohend/FAQ/5_overlap/5_overlap.<lang_code>.md
-A        gatsby-theme-rpsych-cohend/content/cohend/FAQ/6_viz_license/6_viz_license.<lang_code>.md
-
-A        gatsby-theme-rpsych-cohend/content/cohend/common-language/common-language.<lang_code>.mdx
+# gatsby-theme-rpsych-cohend/
+A [] i18n/react-i18next/<lang_code>/cohend.json
+A [] content/cohend/intro/intro.<lang_code>.mdx
+A [] content/cohend/FAQ/0_help/0_help.<lang_code>.md
+A [] content/cohend/FAQ/1_formulas/1_formulas.<lang_code>.md
+A [] content/cohend/FAQ/2_citation/2_citation.<lang_code>.mdx
+A [] content/cohend/FAQ/3_bug/3_bug.<lang_code>.md
+A [] content/cohend/FAQ/4_load/4_load.<lang_code>.md
+A [] content/cohend/FAQ/5_overlap/5_overlap.<lang_code>.md
+A [] content/cohend/FAQ/6_viz_license/6_viz_license.<lang_code>.md
+A [] content/cohend/common-language/common-language.<lang_code>.mdx
 ```
 
 ## I want to help but I don't know how to use git
