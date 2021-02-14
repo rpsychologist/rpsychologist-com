@@ -15,4 +15,12 @@
     "langDir": "ltr",
     "dateFormat": "YYYY.MM.DD"
   }
+  {
+    "code": "es",
+    "hrefLang": "es-ES",
+    "name": "Spanish",
+    "localName": "Español",
+    "langDir": "ltr",
+    "dateFormat": "YYYY.MM.DD"
+  }
 ]
