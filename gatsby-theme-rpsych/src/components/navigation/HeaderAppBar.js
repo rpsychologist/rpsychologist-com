@@ -146,14 +146,14 @@ const LangMenu = ({ langCode, originalPath }) => {
   );
 };
 
-const MenuList = ({ translations, originalPath }) => {
+const MenuList = ({ langCode, originalPath }) => {
   const classes = useStyles();
 
   return (
     <>
       <div className={classes.sectionDesktop}>
-        {translations && (
-          <LangMenu {...translations} originalPath={originalPath} />
+        {langCode && (
+          <LangMenu langCode={langCode} originalPath={originalPath} />
         )}
       </div>
       <Button
@@ -212,9 +212,11 @@ const MenuList = ({ translations, originalPath }) => {
 
 const HeaderAppBar = React.memo(
   ({ translations, pageContext = { originalPath: null } }) => {
+
     const classes = useStyles();
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const { originalPath } = pageContext;
+    const langCode = translations && translations.nodes.map(t => t.lang)
     const handleDrawerToggle = () => {
       setMobileOpen(!mobileOpen);
     };
@@ -230,11 +232,11 @@ const HeaderAppBar = React.memo(
             </Link>
           </div>
           <div className={classes.sectionDesktop}>
-            <MenuList translations={translations} originalPath={originalPath} />
+            <MenuList langCode={langCode} originalPath={originalPath} />
           </div>
           <div className={classes.sectionMobile}>
-            {translations && (
-              <LangMenu {...translations} originalPath={originalPath} />
+            {langCode && (
+              <LangMenu langCode={langCode} originalPath={originalPath} />
             )}
             <IconButton
               color="inherit"
@@ -259,7 +261,7 @@ const HeaderAppBar = React.memo(
             keepMounted: true, // Better open performance on mobile.
           }}
         >
-          <MenuList translations={translations} originalPath={originalPath} />
+          <MenuList langCode={langCode} originalPath={originalPath} />
         </Drawer>
       </AppBar>
     );
