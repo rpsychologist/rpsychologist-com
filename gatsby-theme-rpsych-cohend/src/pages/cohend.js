@@ -7,7 +7,7 @@ export default (props) => {
 };
 
 export const pageQuery = graphql`
-  query cohend($locale: String!, $originalPath: String!, $permalinkRegEx: String) {
+  query cohend($locale: String!, $permalinkRegEx: String) {
     FAQ: allMdx(
       filter: { fileAbsolutePath: { regex: "/cohend/FAQ/" }, fields: {locale: {eq: $locale }} }
       sort: { fields: frontmatter___order, order: ASC }
@@ -43,8 +43,15 @@ export const pageQuery = graphql`
           }
           slug
     }
-    allTranslations: availableTranslationsYaml(originalPath: {eq: $originalPath}) {
-      langCode
+    allTranslations: allCohendTranslatorsYaml {
+      nodes {
+        lang
+        translator {
+          name
+          twitter
+          url
+        }
+      }
     }
     image: file(absolutePath: { regex: "/cohend_SEO.png/" }) {
       childImageSharp {

@@ -51,7 +51,7 @@ exports.createSchemaCustomization = ({ actions }) => {
       type GitHubUser {
         sponsorshipsAsMaintainer: GitHubSponsorshipsAsMaintainer
       }
-      type GitHubSponsorshipsAsMaintainer implements Node {
+      type GitHubSponsorshipsAsMaintainer {
         nodes: SponsorNode
       }
       type SponsorNode {
@@ -67,6 +67,9 @@ exports.createSchemaCustomization = ({ actions }) => {
         avatarUrl: String
         url: String
         login: String
+      }
+      type translations implements Node {
+        nodes: Node
       }
     `);
 };
