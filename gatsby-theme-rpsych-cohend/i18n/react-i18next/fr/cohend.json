@@ -1,8 +1,8 @@
 {
-  "Interpreting Cohen's": "Interpreting Cohen's",
   "effect size": "taille d'effet",
-  "Cohen's": "Cohen",
   "Cohen's d": "d de Cohen",
+  "CohenLabelSlider": "<i>d</i> de Cohen",
+  "CohenU3": "U<1>3</1> de Cohen",
   "Interactive": "Interactif",
   "Created by": "Créée par",
   "Visualization": "Visualisation",

@@ -1,16 +1,11 @@
 - lang: en
 - lang: se
+- lang: fr
   translator: 
     -
-      name: Translator Name SWE
-      url: https://translator-website.se
-      twitter: krs3
-- lang: es
-  translator: 
-    -
-      name: Translator Name ES
-      url: https://translator-website.se
-      twitter: krs3
+      name: tmp tmp
+      url: https://tmp.fr
+      twitter: tmp
 
 
 

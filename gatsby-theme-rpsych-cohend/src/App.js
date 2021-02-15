@@ -51,11 +51,10 @@ const App = (props) => {
   };
   const [openSettings, setOpenSettings] = useState(false);
   const { t } = useTranslation(["cohend", "blog"]);
-  const seoImage = image ? image.childImageSharp.resize : null;
   const { intro, CL, allTranslations, image } = props.data;
+  const seoImage = image ? image.childImageSharp.resize : null;
   const { locale } = props.pageContext
   const translators = allTranslations.nodes.find(t => t.lang == locale)
-  console.log(translators)
   const [openHelpTour, setHelpTour] = useState(false);
   const tour = React.useMemo(
     () => <Tour openHelpTour={openHelpTour} handleHelpTour={setHelpTour} />,
