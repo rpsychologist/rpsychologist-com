@@ -6,7 +6,7 @@ import IconButton from '@material-ui/core/IconButton'
 
 const useStyles = makeStyles(() => ({}))
 
-const MoreViz = ({ slug, title, via }) => {
+const Social = ({ slug, title, via }) => {
   const classes = useStyles()
 
   const url = `https://rpsychologist.com/${slug.replace(/^\//g, '')}`
@@ -32,4 +32,4 @@ const MoreViz = ({ slug, title, via }) => {
     </>
   )
 }
-export default MoreViz
+export default Social
