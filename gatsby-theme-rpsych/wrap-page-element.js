@@ -18,7 +18,7 @@ const wrapPageElement = ({ element, props }) => {
       transSupportBasicHtmlNodes: true, // allow <br/> and simple html elements in translations
       transKeepBasicHtmlNodesFor: ['br', 'strong', 'i'],
     },
-    debug: false,
+    debug: process.env.NODE_ENV == 'development',
     initImmediate: false,
   }
   let resources = {}
