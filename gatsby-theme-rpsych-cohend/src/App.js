@@ -1,8 +1,5 @@
 import React, { useState } from "react";
-import { version, lastUpdated } from "gatsby-theme-rpsych-cohend/package.json"
-
-import { graphql, useStaticQuery } from "gatsby";
-import { MDXRenderer } from "gatsby-plugin-mdx"
+import { MDXRenderer } from "gatsby-plugin-mdx";
 import "./styles/App.css";
 import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
@@ -10,18 +7,18 @@ import { makeStyles } from "@material-ui/core/styles";
 import IntroText from "./components/content/Intro";
 import Button from "@material-ui/core/Button";
 import Link from "@material-ui/core/Link";
-import TwitterIcon from "@material-ui/icons/Twitter";
 import Viz from "./Viz";
 import Tour from "./components/content/HelpTour";
 import VizLayout from "gatsby-theme-rpsych-viz/src/components/Layout";
 import SEO from "gatsby-theme-rpsych/src/components/seo";
-import SEOI18n from "./components/SeoI18n"
-import SocialShare from 'gatsby-theme-rpsych/src/components/SocialShare'
-import Bio from 'gatsby-theme-rpsych/src/components/Bio'
-import { useTranslation } from "react-i18next"
-import { Trans } from 'react-i18next'
+import SEOI18n from "./components/SeoI18n";
+import SocialShare from "gatsby-theme-rpsych/src/components/SocialShare";
+import Bio from "gatsby-theme-rpsych/src/components/Bio";
+import { useTranslation } from "react-i18next";
+import { Trans } from "react-i18next";
+import Translators from "gatsby-theme-rpsych-viz/src/components/Translators"
 
-import License from "./components/License"
+import License from "./components/License";
 
 const drawerWidth = 240;
 const useStyles = makeStyles((theme) => ({
@@ -36,19 +33,12 @@ const useStyles = makeStyles((theme) => ({
   },
   twitter: {
     textTransform: "none",
-  },
+  }
 }));
 
 
-const getTranslations = () => {
-  const { t } = useTranslation("cohend")
-
-}
-
 const App = (props) => {
-  const { intro, CL } = props.data
   const classes = useStyles();
-  const [openHelpTour, setHelpTour] = useState(false);
   const toggleDrawer = (open) => (event) => {
     if (
       event &&
@@ -60,9 +50,13 @@ const App = (props) => {
     setOpenSettings(open);
   };
   const [openSettings, setOpenSettings] = useState(false);
-  const data = props.data
-  const { t } = useTranslation(["cohend", "blog"])
-  const seoImage = data.image ? data.image.childImageSharp.resize : null;
+  const { t } = useTranslation(["cohend", "blog"]);
+  const seoImage = image ? image.childImageSharp.resize : null;
+  const { intro, CL, allTranslations, image } = props.data;
+  const { locale } = props.pageContext
+  const translators = allTranslations.nodes.find(t => t.lang == locale)
+  console.log(translators)
+  const [openHelpTour, setHelpTour] = useState(false);
   const tour = React.useMemo(
     () => <Tour openHelpTour={openHelpTour} handleHelpTour={setHelpTour} />,
     [openHelpTour]
@@ -79,7 +73,9 @@ const App = (props) => {
           t("Science"),
           t("Psychology"),
         ]}
-        description={t("A tool to understand Cohen's d standardized effect size")}
+        description={t(
+          "A tool to understand Cohen's d standardized effect size"
+        )}
         title={t("Interpreting Cohen's d")}
         image={seoImage}
       />
@@ -93,7 +89,7 @@ const App = (props) => {
             gutterBottom
             align="center"
           >
-            <Trans i18nKey="blog:cohendTitle" t={t}/>
+            <Trans i18nKey="blog:cohendTitle" t={t} />
           </Typography>
           <Typography
             variant="h2"
@@ -108,28 +104,27 @@ const App = (props) => {
             {t("Created by")}{" "}
             <Link href="https://rpsychologist.com/">Kristoffer Magnusson</Link>
           </Typography>
+          {translators.translator && (
+            <Typography align="center">
+              {t("blog:Translated by")} <Translators {...translators} />
+            </Typography>
+          )}
         </Container>
         <Container className={classes.textContent}>
-        <SocialShare
-                  slug={props.path}
-                  title={t("twitterShareCohend")}
-                />
+          <SocialShare slug={props.path} title={t("twitterShareCohend")} />
           <MDXRenderer>{intro.body}</MDXRenderer>
         </Container>
         <Viz
           openSettings={openSettings}
           toggleDrawer={toggleDrawer}
           handleHelpTour={setHelpTour}
-          commonLangText = {CL}
+          commonLangText={CL}
         />
       </main>
-      <Container className={classes.textContent} style={{paddingTop: "2em"}}>
-      <Bio />
+      <Container className={classes.textContent} style={{ paddingTop: "2em" }}>
+        <Bio />
       </Container>
     </VizLayout>
   );
 };
 export default App;
-
-
-
