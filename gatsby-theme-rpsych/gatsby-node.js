@@ -34,6 +34,40 @@ exports.createSchemaCustomization = ({ actions }) => {
         localName: String
         name: String
       }
+      type allGithubData implements Node {
+        filter: String
+        sort: String
+        skip: String
+        limit: String
+        nodes: GitHubNode
+      }
+      type GitHubNode {
+        id: String
+        data: GitHubData
+      }
+      type GitHubData {
+        user: GitHubUser
+      }
+      type GitHubUser {
+        sponsorshipsAsMaintainer: GitHubSponsorshipsAsMaintainer
+      }
+      type GitHubSponsorshipsAsMaintainer implements Node {
+        nodes: SponsorNode
+      }
+      type SponsorNode {
+        tier: GitHubTier
+        sponsor: GitHubSponsor
+      }
+      type GitHubTier {
+        monthlyPriceInDollars: Int
+        createdAt: Date
+      }
+      type GitHubSponsor {
+        name: String
+        avatarUrl: String
+        url: String
+        login: String
+      }
     `);
 };
 
