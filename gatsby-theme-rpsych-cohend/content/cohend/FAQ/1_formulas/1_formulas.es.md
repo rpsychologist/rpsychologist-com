@@ -25,7 +25,7 @@ $$\text{OVL}=2\Phi(-|\delta|/2) $$
 donde $\Phi$ es la función de distribución acumulada de la distribución normal estándar, y $\delta$ la <em>d</em> de Cohen poblacional. 
 
 ### Probabilidad de superioridad
-Se trata de una medida del tamaño del efecto con muchos nombres: el índice universal del tamaño del efecto (*common language effect size*; CL), área bajo la curva ROC (Característica Operativa del Receptor) o simplemente A para su versión no paramétrica (Ruscio y Mullen, 2012). Está pensado para ser más intuitivo para personas sin formación en estadística. Este tamaño del efecto proporciona la probabilidad de que una persona elegida al azar del grupo de tratamiento tenga una puntuación más alta que una persona elegida al azar del grupo control. La *d* de Cohen puede convertirse en CL mediante la siguiente fórmula (Ruscio, 2008)
+Se trata de una medida del tamaño del efecto con muchos nombres: índice universal del tamaño del efecto (*common language effect size*; CL), área bajo la curva ROC (Característica Operativa del Receptor) o simplemente A para su versión no paramétrica (Ruscio y Mullen, 2012). Está pensada para ser más intuitiva para personas sin formación en estadística. Este tamaño del efecto proporciona la probabilidad de que una persona elegida al azar del grupo de tratamiento tenga una puntuación más alta que una persona elegida al azar del grupo control. La *d* de Cohen puede convertirse en CL mediante la siguiente fórmula (Ruscio, 2008)
 
 $$\text{CL}=\Phi\left(\frac{\delta}{\sqrt{2}}\right)$$
 

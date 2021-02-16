@@ -26,7 +26,7 @@ Puedes configurar los siguientes ajustes haciendo click en el icono de ajustes a
 Los ajustes se pueden guardar en el `localStorage` del navegador y, por lo tanto, permanecerán en tus futuras visitas.
 
 ### Barrido y reescalado
-Puede hacer un barrido del eje X haciendo click en la visualización y arrastrándola. **Doble click** en la visualización para centrarla y reescalarla.
+Puedes hacer un barrido del eje X haciendo click en la visualización y arrastrándola. Haz **doble click** en la visualización para centrarla y reescalarla.
 
 ### Uso sin conexión
 Esta página se almacena en caché utilizando un Service Worker y funcionará incluso cuando estés sin conexión.
