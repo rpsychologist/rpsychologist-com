@@ -110,7 +110,7 @@ const App = (props) => {
           )}
         </Container>
         <Container className={classes.textContent}>
-          <SocialShare slug={props.path} title={t("twitterShareCohend")} />
+          <SocialShare slug={props.location.pathname} title={t("twitterShareCohend")} />
           <MDXRenderer>{intro.body}</MDXRenderer>
         </Container>
         <Viz

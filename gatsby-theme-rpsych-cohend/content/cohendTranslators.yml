@@ -1,15 +1,14 @@
 - lang: en
 - lang: se
+- lang: fr
   translator: 
     -
-      name: Translator Name SWE
-      url: https://translator-website.se
-      twitter: krs3
+      name: Romain Bechet
+      url: ""
+      twitter: romainBechet
 - lang: es
   translator: 
     -
       name: Daniel Alcalá
+      url: ""
       twitter: danalclop
-
-
-

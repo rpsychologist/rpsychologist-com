@@ -108,7 +108,7 @@ const Webmentions = ({ edges }) => {
   const numLikes = edges.filter((d) => d.node.wmProperty == "like-of").length;
   const numRetweets = edges.filter((d) => d.node.wmProperty == "repost-of")
     .length;
-  const comments = edges.filter((d) => d.node.wmProperty == "mention-of");
+  const comments = edges.filter((d) => ["mention-of", "in-reply-to"].includes(d.node.wmProperty));
   const { t } = useTranslation("blog")
   return (
     <div className={classes.webmentions}>

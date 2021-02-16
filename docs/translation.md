@@ -111,7 +111,10 @@ The easiest way to start a local development copy is to use `docker-compose`:
 docker-compose build
 docker-compose up
 ```
-Then you can view the page at `http://localhost:8000/cohend`
+Then you can view the page at `http://localhost:8000/cohend`.
+
+If the build process get stuck in an infinite loop with the error `System limit for number of file watchers reached, watch`,
+them the easiest solution is to increase this on the host, in Debian/Ubunt you could run `echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p`. 
 
 ## Attribution
 The translation will be attributed to you on the translated page, e.g., "translated by Your Name". I can link to your webpage and/or Twitter if you'd like.

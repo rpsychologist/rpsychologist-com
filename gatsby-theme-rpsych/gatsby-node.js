@@ -150,14 +150,15 @@ exports.onCreatePage = ({ page, actions }) => {
     });
   
     languages.forEach((locale) => {
+      const path = localizedPath({
+        defaultLang,
+        prefixDefault,
+        locale: locale.code,
+        path: originalPath,
+      })
       const newPage = {
         ...page,
-        path: localizedPath({
-          defaultLang,
-          prefixDefault,
-          locale: locale.code,
-          path: originalPath,
-        }),
+        path: path,
         matchPath: page.matchPath
           ? localizedPath({
               defaultLang,
@@ -172,7 +173,7 @@ exports.onCreatePage = ({ page, actions }) => {
           hrefLang: locale.hrefLang,
           originalPath,
           dateFormat: locale.dateFormat,
-          permalinkRegEx: createURLRegEx(page.path, (d3Slug = true)),
+          permalinkRegEx: createURLRegEx(path, d3Slug = true),
         },
       };
   

@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 
 const SocialShare = ({ slug, title }) => {
   const { t } = useTranslation("blog");
-
+  
   return (
     <div
       style={{

@@ -4,15 +4,7 @@ const xdom = require("xmldom")
 const path = require(`path`)
 const _ = require("lodash")
 const { createFilePath } = require(`gatsby-source-filesystem`)
-
-const createURLRegEx = (slug, d3Slug=false) => {
-  const isRoot = slug == "/"
-  const cleanedSlug = isRoot ? '' : slug.replace(/\//g, '') + '\/?'
-  const regex = d3Slug
-    ? `^https?:\/\/rpsychologist\.com\/?(d3\/)?${cleanedSlug}(index\.html)?\/?$/`
-    : `^https?:\/\/rpsychologist\.com\/?${cleanedSlug}(index\.html)?\/?$/`
-  return regex
-}
+const { createURLRegEx } = require(`gatsby-theme-rpsych/src/utils/helpers`);
 
 exports.createPages = async ({ graphql, actions }) => {
   const { createPage } = actions
