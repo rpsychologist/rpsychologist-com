@@ -1,9 +1,20 @@
 import React from "react";
 import { graphql } from "gatsby";
 import App from "../App";
+import { Location, globalHistory } from "@reach/router";
+import { QueryParamProvider } from "use-query-params";
 
 export default (props) => {
-  return <App {...props} />;
+  return (
+    <Location>
+    {({ location }) => (
+      <QueryParamProvider location={location} reachHistory={globalHistory}>
+     <App {...props} />
+    </QueryParamProvider>
+      )}
+    </Location>
+  )
+
 };
 
 export const pageQuery = graphql`
