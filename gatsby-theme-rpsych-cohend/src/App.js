@@ -71,6 +71,7 @@ const App = (props) => {
         handleHelpTour={setHelpTour}
         commonLangText={CL}
         embed={embed}
+        slug={props.location.pathname}
       />
     </>
   ) : (
