@@ -16,7 +16,7 @@ If you create a draft pull request as soon as you start working on a translation
 ## Which files to translate
 The translations are identified using the two-letter country code `lang_code`:
 
-- `lang_code`: The ISO 3166-1 alpha-2 two-letter country code, Wikipedia has a [list with country codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)
+- `lang_code`: this is the language code, e.g., "en" ([in ISO 639-1 format](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)), optionally you can also specify a region, e.g., "en-GB" (in [ISO 3166-1 Alpha 2 format](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)).
 
 ## JSON files
 There are some common UI elements that need to be translated in `gatsby-theme-rpsych/i18n/react-i18next`, 
@@ -114,12 +114,19 @@ docker-compose up
 Then you can view the page at `http://localhost:8000/cohend`.
 
 If the build process get stuck in an infinite loop with the error `System limit for number of file watchers reached, watch`,
-them the easiest solution is to increase this on the host, in Debian/Ubunt you could run `echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p`. 
-
+them the easiest solution is to increase this on the host, in Debian/Ubuntu you could run `echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p`. 
 ## Attribution
 The translation will be attributed to you on the translated page, e.g., "translated by Your Name". I can link to your webpage and/or Twitter if you'd like.
 
 Let me know if you don't want to be mentioned as a translator.
 
-## Other 
-The file `gatsby-theme-rpsych/assets/availableTranslations.yml` is sourced by the menu component to show the available translations, I can change this file.
+This info is added to `gatsby-theme-rpsych-cohend/content/cohendTranslators.yml`, you can add your title(s) to the `name` field if you want to.
+
+```yaml
+- lang: sv
+  translator: 
+    -
+      name: Kristoffer Magnusson 
+      url: https://rpsychologist.com # fully qualified URL
+      twitter: krstoffr # no @
+```
