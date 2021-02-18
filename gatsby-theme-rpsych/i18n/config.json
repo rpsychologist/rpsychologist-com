@@ -14,5 +14,13 @@
     "localName": "Svenska",
     "langDir": "ltr",
     "dateFormat": "YYYY.MM.DD"
+  },
+  {
+    "code": "de",
+    "hrefLang": "de-DE",
+    "name": "German",
+    "localName": "Deutsch",
+    "langDir": "ltr",
+    "dateFormat": "DD.MM.YYYY"
   }
 ]
