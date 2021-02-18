@@ -14,7 +14,12 @@ import SettingsDrawer from "gatsby-theme-rpsych-viz/src/components/SettingsDrawe
 import { defaultState } from "./components/settings/defaultSettings";
 import { vizReducer } from "./components/settings/vizReducer";
 import VizSettings from "./components/settings/VizSettings";
-import { useTranslation, Trans } from "react-i18next"
+import { useTranslation, Trans } from "react-i18next";
+import { useQueryParams } from "use-query-params";
+import { queryTypes } from "./components/settings/queryTypes";
+import IconButton from "@material-ui/core/IconButton";
+import TwitterIcon from "@material-ui/icons/Twitter";
+import Link from "@material-ui/core/Link";
 
 export const SettingsContext = createContext(null);
 
@@ -76,21 +81,69 @@ const CreateNntFn = (x) => {
 };
 
 const translateIfDefault = (label, value, t) => {
-  return label === value ? t(value) : label
-}
+  return label === value ? t(value) : label;
+};
 
-const Viz = ({ openSettings, toggleDrawer, handleHelpTour, commonLangText }) => {
-  const { t } = useTranslation("cohend")
+const EmbedAttribution = () => (
+  <Typography varient="subtitle" align="right">
+    Created by Kristoffer Magnusson
+    <IconButton
+      href={`https://twitter.com/krstoffr`}
+      target="_blank"
+      rel="nofollow noopener"
+      size="medium"
+    >
+      <TwitterIcon fontSize="inherit" />
+    </IconButton>
+    <Link href="https://rpsychologist.com/cohend">
+      https://rpsychologist.com/cohend
+    </Link>
+  </Typography>
+);
+
+const Viz = ({
+  openSettings,
+  toggleDrawer,
+  handleHelpTour,
+  commonLangText,
+  embed,
+  slug,
+}) => {
+  const { t } = useTranslation("cohend");
+  const [query] = useQueryParams(queryTypes);
+  const { slider: minimal, donuts = true } = query;
   initialState = useMemo(() => {
     return {
-    ...initialState, 
-    muZeroLabel: translateIfDefault(initialState.muZeroLabel, "default_control_translate", t),
-    muOneLabel: translateIfDefault(initialState.muOneLabel, "default_treatment_translate", t),
-    xLabel: translateIfDefault(initialState.xLabel, "default_outcome_translate", t),
-  }}, [])
+      ...initialState,
+      slug: slug,
+      cohend: query.d || initialState.cohend,
+      M0: query.M0 || initialState.M0,
+      M1: query.M1 || initialState.M1,
+      SD: query.SD || initialState.SD,
+      CER: query.CER || initialState.CER,
+      muZeroLabel:
+        query.M0lab ||
+        translateIfDefault(
+          initialState.muZeroLabel,
+          "default_control_translate",
+          t
+        ),
+      muOneLabel:
+        query.M1lab ||
+        translateIfDefault(
+          initialState.muOneLabel,
+          "default_treatment_translate",
+          t
+        ),
+      xLabel:
+        query.xlab ||
+        translateIfDefault(initialState.xLabel, "default_outcome_translate", t),
+      colorDist1: query.c0 || initialState.colorDist1,
+      colorDistOverlap: query.c1 || initialState.colorDistOverlap,
+      colorDist2: query.c2 || initialState.colorDist2,
+    };
+  }, []);
   const [state, dispatch] = useReducer(vizReducer, initialState);
-
-
   const contextValue = useMemo(() => {
     return { state, dispatch };
   }, [state, dispatch]);
@@ -99,98 +152,113 @@ const Viz = ({ openSettings, toggleDrawer, handleHelpTour, commonLangText }) => 
   const nntFn = CreateNntFn(CER);
   return (
     <div className={classes.root}>
-      <Container maxWidth="lg">
+      <Container maxWidth={embed && "lg"}>
         <SettingsContext.Provider value={contextValue}>
           <Slider
             openSettings={openSettings}
             handleDrawer={toggleDrawer}
             handleHelpTour={handleHelpTour}
+            minimal={minimal}
           />
           <ResponsiveChart chart={Cohend} {...state} />
           <Grid container justify="center" spacing={3} id="__loader">
-            <Paper className={classes.loading} >
+            <Paper className={classes.loading}>
               <CircularProgress />
               <Typography align="center" variant="body1">
                 {t("Loading visualization")}
               </Typography>
             </Paper>
           </Grid>
-
-          <Grid container justify="center" spacing={3}>
-            <Grid item xs={5} sm={3}>
-              <Paper className={classes.paper} id="donut--cohen--u3">
-                <ResponsiveChart
-                  chart={DonutChart}
-                  data={U3}
-                  dataFn={dataFn}
-                  immediate={immediate}
-                  formatType={".3p"}
-                  className={"donut--two-arcs"}
-                />
-                <Typography align="center" variant="body1">
-                  <Trans t={t} i18nKey="CohenU3">
-                    Cohen's U<sub>3</sub>
-                  </Trans>
-                </Typography>
-              </Paper>
+          {donuts && (
+            <Grid container justify="center" spacing={3}>
+              <Grid item xs={5} sm={3}>
+                <Paper className={classes.paper} id="donut--cohen--u3">
+                  <ResponsiveChart
+                    chart={DonutChart}
+                    data={U3}
+                    dataFn={dataFn}
+                    immediate={immediate}
+                    formatType={".3p"}
+                    className={"donut--two-arcs"}
+                  />
+                  <Typography align="center" variant="body1">
+                    <Trans t={t} i18nKey="CohenU3">
+                      Cohen's U<sub>3</sub>
+                    </Trans>
+                  </Typography>
+                </Paper>
+              </Grid>
+              <Grid item xs={5} sm={3}>
+                <Paper className={classes.paper} id="donut--prop-overlap">
+                  <ResponsiveChart
+                    chart={DonutChart}
+                    data={propOverlap}
+                    dataFn={dataFn}
+                    immediate={immediate}
+                    formatType={".3p"}
+                    className={"donut--two-arcs"}
+                  />
+                  <Typography align="center" variant="body1">
+                    % {t("Overlap")}
+                  </Typography>
+                </Paper>
+              </Grid>
+              <Grid item xs={5} sm={3}>
+                <Paper className={classes.paper} id="donut--CL">
+                  <ResponsiveChart
+                    chart={DonutChart}
+                    data={CL}
+                    dataFn={dataFn}
+                    immediate={immediate}
+                    formatType={".3p"}
+                    className={"donut--two-arcs"}
+                  />
+                  <Typography align="center" variant="body1">
+                    {t("Probability of Superiority")}
+                  </Typography>
+                </Paper>
+              </Grid>
+              <Grid item xs={5} sm={3}>
+                <Paper className={classes.paper} id="donut--NNT">
+                  <ResponsiveChart
+                    chart={DonutChart}
+                    data={NNT}
+                    dataFn={nntFn}
+                    immediate={immediate}
+                    label={NNT}
+                    formatType={".3n"}
+                    className={"donut--NNT"}
+                  />
+                  <Typography align="center" variant="body1">
+                    {t("Number Needed to Treat")}
+                  </Typography>
+                </Paper>
+              </Grid>
             </Grid>
-            <Grid item xs={5} sm={3}>
-              <Paper className={classes.paper} id="donut--prop-overlap">
-                <ResponsiveChart
-                  chart={DonutChart}
-                  data={propOverlap}
-                  dataFn={dataFn}
-                  immediate={immediate}
-                  formatType={".3p"}
-                  className={"donut--two-arcs"}
-                />
-                <Typography align="center" variant="body1">
-                  % {t("Overlap")}
-                </Typography>
-              </Paper>
-            </Grid>
-            <Grid item xs={5} sm={3}>
-              <Paper className={classes.paper} id="donut--CL">
-                <ResponsiveChart
-                  chart={DonutChart}
-                  data={CL}
-                  dataFn={dataFn}
-                  immediate={immediate}
-                  formatType={".3p"}
-                  className={"donut--two-arcs"}
-                />
-                <Typography align="center" variant="body1">
-                  {t("Probability of Superiority")}
-                </Typography>
-              </Paper>
-            </Grid>
-            <Grid item xs={5} sm={3}>
-              <Paper className={classes.paper} id="donut--NNT">
-                <ResponsiveChart
-                  chart={DonutChart}
-                  data={NNT}
-                  dataFn={nntFn}
-                  immediate={immediate}
-                  label={NNT}
-                  formatType={".3n"}
-                  className={"donut--NNT"}
-                />
-                <Typography align="center" variant="body1">
-                  {t("Number Needed to Treat")}
-                </Typography>
-              </Paper>
-            </Grid>
-          </Grid>
-          <Typography variant="h3" component="h2" align="center" gutterBottom>
-            {t("A Common Language Explanation")}
-          </Typography>
-          <CommonLanguage vizState={state} commonLangText={commonLangText}/>
-          <SettingsDrawer
+          )}
+          {!embed && (
+            <>
+              <Typography
+                variant="h3"
+                component="h2"
+                align="center"
+                gutterBottom
+              >
+                {t("A Common Language Explanation")}
+              </Typography>
+              <CommonLanguage
+                vizState={state}
+                commonLangText={commonLangText}
+              />
+            </>
+          )}
+          {embed && <EmbedAttribution />}
+          {!minimal && <SettingsDrawer
             handleDrawer={toggleDrawer}
             open={openSettings}
             vizState={state}
             vizSettings={<VizSettings />}
-          />
+          />}
         </SettingsContext.Provider>
       </Container>
     </div>
