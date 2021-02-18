@@ -31,4 +31,12 @@
     "langDir": "ltr",
     "dateFormat": "YYYY.MM.DD"
   }
+  {
+    "code": "vi",
+    "hrefLang": "vi-VN",
+    "name": "Vietnamese",
+    "localName": "Tiếng Việt",
+    "langDir": "ltr",
+    "dateFormat": "DD/MM/YYYY"
+  }
 ]
