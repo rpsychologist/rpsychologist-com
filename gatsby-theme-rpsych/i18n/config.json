@@ -30,5 +30,13 @@
     "localName": "Español",
     "langDir": "ltr",
     "dateFormat": "YYYY.MM.DD"
+  },
+  {
+    "code": "no",
+    "hrefLang": "nb-NO",
+    "name": "Norwegian (bokmål)",
+    "localName": "Norsk (bokmål)",
+    "langDir": "ltr",
+    "dateFormat": "YYYY.MM.DD"
   }
 ]
