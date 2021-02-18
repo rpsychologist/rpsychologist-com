@@ -120,9 +120,11 @@ const LangMenu = ({ langCode, originalPath }) => {
         {languages.map((lang) => (
           <MenuItem
             onClick={handleClose}
-            component="a"
+            component={Link}
             selected={lang.code === locale}
-            href={
+            hrefLang={lang.code}
+            lang={lang.code}
+            to={
               lang.code === "en" ? originalPath : `/${lang.code}${originalPath}`
             }
             key={lang.code}
