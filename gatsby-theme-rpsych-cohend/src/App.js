@@ -62,7 +62,7 @@ const App = (props) => {
     [openHelpTour]
   );
   return embed ? (
-    <div>
+    <>
       <CssBaseline />
       {tour}
       <Viz
@@ -72,7 +72,7 @@ const App = (props) => {
         commonLangText={CL}
         embed={embed}
       />
-    </div>
+    </>
   ) : (
     <VizLayout openSettings={openSettings} license={<License />} {...props}>
       <SEO
