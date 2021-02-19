@@ -1,15 +1,15 @@
 [
   {
     "code": "en",
-    "hrefLang": "en-US",
+    "hrefLang": "en",
     "name": "English",
     "localName": "English",
     "langDir": "ltr",
     "dateFormat": "MM/DD/YYYY"
   },
   {
-    "code": "se",
-    "hrefLang": "sv-SE",
+    "code": "sv",
+    "hrefLang": "sv",
     "name": "Swedish",
     "localName": "Svenska",
     "langDir": "ltr",
@@ -25,9 +25,17 @@
   },
   {
     "code": "es",
-    "hrefLang": "es-ES",
+    "hrefLang": "es",
     "name": "Spanish",
     "localName": "Español",
+    "langDir": "ltr",
+    "dateFormat": "YYYY.MM.DD"
+  },
+  {
+    "code": "no",
+    "hrefLang": "nb-NO",
+    "name": "Norwegian (bokmål)",
+    "localName": "Norsk (bokmål)",
     "langDir": "ltr",
     "dateFormat": "YYYY.MM.DD"
   }

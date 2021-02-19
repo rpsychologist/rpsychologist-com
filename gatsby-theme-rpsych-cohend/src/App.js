@@ -16,9 +16,10 @@ import SocialShare from "gatsby-theme-rpsych/src/components/SocialShare";
 import Bio from "gatsby-theme-rpsych/src/components/Bio";
 import { useTranslation } from "react-i18next";
 import { Trans } from "react-i18next";
-import Translators from "gatsby-theme-rpsych-viz/src/components/Translators"
-
+import Translators from "gatsby-theme-rpsych-viz/src/components/Translators";
 import License from "./components/License";
+import { useQueryParam, BooleanParam } from "use-query-params";
+import CssBaseline from "@material-ui/core/CssBaseline";
 
 const drawerWidth = 240;
 const useStyles = makeStyles((theme) => ({
@@ -33,9 +34,8 @@ const useStyles = makeStyles((theme) => ({
   },
   twitter: {
     textTransform: "none",
-  }
+  },
 }));
-
 
 const App = (props) => {
   const classes = useStyles();
@@ -49,18 +49,32 @@ const App = (props) => {
     }
     setOpenSettings(open);
   };
+  const [embed, setEmbed] = useQueryParam("embed", BooleanParam);
   const [openSettings, setOpenSettings] = useState(false);
   const { t } = useTranslation(["cohend", "blog"]);
   const { intro, CL, allTranslations, image } = props.data;
   const seoImage = image ? image.childImageSharp.resize : null;
-  const { locale } = props.pageContext
-  const translators = allTranslations.nodes.find(t => t.lang == locale)
+  const { locale } = props.pageContext;
+  const translators = allTranslations.nodes.find((t) => t.lang == locale);
   const [openHelpTour, setHelpTour] = useState(false);
   const tour = React.useMemo(
     () => <Tour openHelpTour={openHelpTour} handleHelpTour={setHelpTour} />,
     [openHelpTour]
   );
-  return (
+  return embed ? (
+    <>
+      <CssBaseline />
+      {tour}
+      <Viz
+        openSettings={openSettings}
+        toggleDrawer={toggleDrawer}
+        handleHelpTour={setHelpTour}
+        commonLangText={CL}
+        embed={embed}
+        slug={props.location.pathname}
+      />
+    </>
+  ) : (
     <VizLayout openSettings={openSettings} license={<License />} {...props}>
       <SEO
         keywords={[
@@ -110,7 +124,10 @@ const App = (props) => {
           )}
         </Container>
         <Container className={classes.textContent}>
-          <SocialShare slug={props.location.pathname} title={t("twitterShareCohend")} />
+          <SocialShare
+            slug={props.location.pathname}
+            title={t("twitterShareCohend")}
+          />
           <MDXRenderer>{intro.body}</MDXRenderer>
         </Container>
         <Viz
@@ -118,6 +135,7 @@ const App = (props) => {
           toggleDrawer={toggleDrawer}
           handleHelpTour={setHelpTour}
           commonLangText={CL}
+          slug={props.location.pathname}
         />
       </main>
       <Container className={classes.textContent} style={{ paddingTop: "2em" }}>

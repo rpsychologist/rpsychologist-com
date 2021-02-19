@@ -3,16 +3,18 @@
   "description": "A tool to understand Cohen's d standardized effect size",
   "author": "Kristoffer Magnusson",
   "license": "MIT",
-  "version": "2.4.2",
-  "lastUpdated": "2020-11-16",
+  "version": "2.5.0",
+  "lastUpdated": "2021-02-18",
   "private": true,
   "dependencies": {
     "gatsby-theme-rpsych": "*",
-    "gatsby-theme-rpsych-viz": "*"
+    "gatsby-theme-rpsych-viz": "*",
+    "query-string": "^6.14.0",
+    "react-copy-to-clipboard": "^5.0.3",
+    "use-query-params": "^1.1.9"
   },
   "peerDependencies": {
     "gatsby": "^2.32.1",
-
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-i18next": "^11.6.0"
@@ -27,7 +29,7 @@
   },
   "scripts": {
     "build-production": "gatsby build --prefix-paths",
-    "build-serve": "gatsby build && gatsby serve -H 172.16.0.116",
+    "build-serve": "gatsby build && gatsby serve",
     "develop": "gatsby develop -H 172.16.0.116",
     "develop-local": "gatsby develop",
     "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
