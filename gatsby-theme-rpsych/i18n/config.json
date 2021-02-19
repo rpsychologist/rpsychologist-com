@@ -38,10 +38,10 @@
     "localName": "Norsk (bokmål)",
     "langDir": "ltr",
     "dateFormat": "YYYY.MM.DD"
-  }
+  },
   {
     "code": "vi",
-    "hrefLang": "vi-VN",
+    "hrefLang": "vi",
     "name": "Vietnamese",
     "localName": "Tiếng Việt",
     "langDir": "ltr",
