@@ -53,10 +53,10 @@
   "guideSlider": "Hãy dùng <strong>thanh trượt</strong> để thay hệ số <3>d</3> của Cohen. Hãy thử thay đổi xem!",
   "guideSettings": "<0>Bạn có thể xem và thay đổi các <strong>cài đặt</strong> của đồ thị này bằng cách nhấp chuột vào biểu tượng này.</0><1>Mẹo: Bạn có thể lưu các cài đặt này cho các lần sử dụng trong tương lai. Chỉ cần nhấp chuột vào biểu tượng lưu trữ ở cuối bảng cài đặt.</1>",
   "guideSaveSVG": "<0><strong>Tải</strong> đồ thị về máy (định dạng SVG).</0><1>Hình ảnh này được nhận <strong>Bản Quyền CC0</strong> (\"Không có quyền bảo lưu\"), nghĩa là bạn có thể sao chép, thay đổi, và phân phát hình ảnh, kể cả cho mục đích thương mại, mà không cần hỏi sự cho phép (tuy nhiên sự trích nguồn sẽ được cảm kích!).</1>",
-  "guideDiff": "This is the difference between the groups on the unstandardized scale (the raw difference).",
-  "guideU3": "Cohen's U<1>3</1> is the proportion of the group to the right that is above the mean of the group to the left.",
-  "guidePropOverlap": "This shows the percentage of the total number of scores that overlap.",
-  "guideCL": "This is probability that a person picked at random from the treatment group will have a higher score than a person picked at random from the control group.",
-  "guideNNT": "<0>This is the number of patients, on average, that we need to treat in order to have one more favorable outcome in the treatment group compared to the control group.</0><1>NNT depends on the <strong>control event rate (CER)</strong>, which is represented by the darker path in this figure. This can be changed in the settings.</1>"
+  "guideDiff": "Đây là sự khác biệt (không tiêu chuẩn hóa) giữa các nhóm.",
+  "guideU3": "U<1>3</1> của Cohen là phần trăm tỷ lệ của nhóm bên phải mà ở dưới mức trung bình của nhóm bên trái.",
+  "guidePropOverlap": "Đây là phần trăm của tất cả số liệu trùng nhau giữa hai nhóm.",
+  "guideCL": "Đây là xác suất mà một người chọn ngẫu nhiên từ nhóm điều trị sẽ có giá trị điểm cao hơn một người chọn ngẫu nhiên từ nhóm chứng.",
+  "guideNNT": "<0>Đây là số lượng bệnh nhân trung bình cần được điều trị để nhóm điều trị có thêm một kết quả thuận lợi so với nhóm chứng.</0><1>NNT phụ thuộc vào <strong>tỷ lệ biến cố nhóm chứng (CER)</strong>, được thể hiện bằng phần tối trong biểu đồ này. Bạn có thể thay đổi cài đặt này.</1>"
 
 }
