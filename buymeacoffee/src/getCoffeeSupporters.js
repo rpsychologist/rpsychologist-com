@@ -4,7 +4,7 @@ require("dotenv").config({
   path: ".env",
 });
 
-const PATH = "../blog/content/coffee-supporters/coffee-supporters.json";
+const PATH = "../gatsby-theme-rpsych/assets/coffee-supporters/coffee-supporters.json";
 
 const isLastPage = (response, last_page_num) =>
   response.data.current_page == last_page_num;
