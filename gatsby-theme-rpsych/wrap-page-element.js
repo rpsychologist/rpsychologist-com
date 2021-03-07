@@ -6,7 +6,12 @@ import { LocaleProvider } from "gatsby-theme-i18n"
 const wrapPageElement = ({ element, props }) => {
   const { locale = 'en', originalPath } = props.pageContext
   const ns = ['blog']
-  originalPath === '/cohend/' && ns.push('cohend')
+  switch(originalPath) {
+    case '/cohend/':
+      ns[1] = 'cohend'
+      break;
+  }
+  //originalPath === '/cohend/' && ns.push('cohend')
   const i18nextOptions = {
     defaultNS: 'translation',
     ns: ns,
@@ -18,7 +23,8 @@ const wrapPageElement = ({ element, props }) => {
       transSupportBasicHtmlNodes: true, // allow <br/> and simple html elements in translations
       transKeepBasicHtmlNodesFor: ['br', 'strong', 'i'],
     },
-    debug: process.env.NODE_ENV == 'development',
+    //debug: process.env.NODE_ENV == 'development',
+    debug: false,
     initImmediate: false,
   }
   let resources = {}

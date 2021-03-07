@@ -1,0 +1,42 @@
+{
+  "name": "gatsby-theme-rpsych-pvalue",
+  "description": "A tool to understand p-values",
+  "author": "Kristoffer Magnusson",
+  "license": "MIT",
+  "version": "0.0.2",
+  "lastUpdated": "2021-03-06",
+  "private": true,
+  "dependencies": {
+    "gatsby-theme-rpsych": "*",
+    "gatsby-theme-rpsych-viz": "*",
+    "gsap": "^3.6.0",
+    "react-draggable": "^4.4.3"
+  },
+  "peerDependencies": {
+    "gatsby": "^2.32.1",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-i18next": "^11.6.0"
+  },
+  "devDependencies": {
+    "eslint": "^6.2.2",
+    "eslint-plugin-react": "^7.11.1",
+    "gatsby": "^2.32.1",
+    "prettier": "^1.14.2",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  },
+  "scripts": {
+    "build": "gatsby build",
+    "build-serve": "gatsby build && gatsby serve",
+    "develop": "gatsby develop -H 172.16.0.116",
+    "develop-local": "gatsby develop",
+    "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
+    "start": "npm run develop",
+    "serve": "gatsby serve -H 172.16.0.116",
+    "clean": "gatsby clean"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  }
+}
