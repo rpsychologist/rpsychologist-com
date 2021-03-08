@@ -184,7 +184,7 @@ export const vizReducer = (state, action) => {
       return {
         ...state,
         immediate: immediate,
-        xAxis: state.xAxis === 'mean' ? 'zValue' : 'mean'
+        xAxis: value
       }
     }
     case "INCREASE_N": {

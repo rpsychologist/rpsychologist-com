@@ -4,7 +4,6 @@ import { genData } from "./utils";
 import { scaleLinear } from "d3-scale";
 import { line } from "d3-shape";
 import { range } from "d3-array";
-import { AxisBottom } from "@vx/axis";
 import { normal } from "jstat";
 
 const useStyles = makeStyles(() => ({
@@ -100,12 +99,6 @@ const SampleDist = ({
 
   return (
     <>
-      <g transform={`translate(0, ${h})`}>
-        <AxisBottom ticks={10} scale={xScale} />
-        <text x={w / 2} y="40" textAnchor="middle">
-          {xAxis === "mean" ? "Mean (y)" : "Z"}
-        </text>
-      </g>
       <g transform={`translate(0, 0)`}>
         <path d={pathDist} className={classes.sampleDist} />
       </g>

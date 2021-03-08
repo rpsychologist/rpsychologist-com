@@ -41,6 +41,7 @@ const Circle = ({
   x: samples,
   xMean,
   xMeanOrigin,
+  pval,
   h,
   w,
   dodge,
@@ -53,12 +54,21 @@ const Circle = ({
   const classes = useStyles();
   const { state, dispatch } = useContext(SettingsContext);
   const { updateDodge, sliding, xAxis } = state;
-  const [observations, setObservations] = useState(samples, []);
+  const [observations, setObservations] = useState([samples[0]], []);
   const circles = React.useRef(new Map());
-  const tl = React.useRef();
+  const tl = React.useRef(gsap.timeline());
   const xMeanPx = useMemo(() => {
-    const xPos = xAxis === "mean" ? xScaleSampleDist(xMean) : xScaleSampleDist(Z);
-    return xPos;
+    switch (xAxis) {
+      case "mean":
+        return xScaleSampleDist(xMean);
+        break;
+      case "zValue":
+        return xScaleSampleDist(Z);
+        break;
+      case "pValue":
+        return xScaleSampleDist(pval);
+        break;
+    }
   }, [Z, xAxis, xScalePopDist, xScaleSampleDist, state.pHacked, state.n, w]);
   const cy = useMemo(() => h - dodge(xMeanPx), [
     state.pHacked,
@@ -67,7 +77,13 @@ const Circle = ({
     state.n,
   ]);
   const { Z: highlightZ } = state.highlight;
-  const prevPosition = usePrevious({ x: xMeanPx, y: cy, Z: Z, w: w });
+  const prevPosition = usePrevious({
+    x: xMeanPx,
+    xAxis: xAxis,
+    y: cy,
+    Z: Z,
+    w: w,
+  });
   React.useLayoutEffect(() => {
     let children = circles.current.children;
     const firstDrop = 50;
@@ -114,23 +130,6 @@ const Circle = ({
   }, [state.clear]);
 
   React.useLayoutEffect(() => {
-    if (
-      prevPosition != undefined &&
-      prevPosition.w === w &&
-      (Math.abs(cy - prevPosition.y) > 1 ||
-        Math.abs(xMeanPx - prevPosition.x) > 1) &&
-      !sliding
-    ) {
-      const circle = circles.current.children[0];
-      const translateX = prevPosition.x - xMeanPx;
-      const translateY = prevPosition.y - cy;
-      tl.current.to(circle, {
-        y: translateY,
-        x: translateX,
-        duration: 0.2,
-        ease: "ease-in",
-      });
-    }
     // Animate when sample goes from nonsig to sig
     if (
       prevPosition != undefined &&
@@ -173,6 +172,27 @@ const Circle = ({
       );
     }
   });
+  React.useLayoutEffect(() => {
+    if (prevPosition != undefined) {
+      const circle = circles.current.children[0];
+      const translateX = prevPosition.x - xMeanPx;
+      const translateY = prevPosition.y - cy;
+      tl.current.fromTo(
+        circle,
+        {
+          y: translateY,
+          x: translateX,
+        },
+        {
+          y: 0,
+          x: 0,
+          duration: 0.2,
+          ease: "ease-in",
+        }
+      );
+      return () => tl.current.clear();
+    }
+  }, [updateDodge, pHacked, state.n, xAxis]);
   const handleMouseOver = () => {
     clearTimeout(timerRef.current);
     const circle = circles.current.children[0];
@@ -210,13 +230,14 @@ const Circle = ({
                 [classes.phacked]: pHacked,
                 [classes.phackedSignificant]:
                   !state.higlight && Math.abs(Z) > 1.96 && pHacked,
-                [classes.highlightTails]: isInTails({
-                  cohend: state.cohend,
-                  Z: Z,
-                  highlightZ: highlightZ,
-                }),
+                [classes.highlightTails]:
+                  (state.cohend === 0 || xAxis === "pValue") &&
+                  isInTails({
+                    Z: Z,
+                    highlightZ: highlightZ,
+                  }),
                 [classes.highlightCenter]:
-                  state.cohend === 0 &&
+                  (state.cohend === 0 || xAxis === "pValue") &&
                   (highlightZ > 0
                     ? Z < highlightZ && Z > -highlightZ
                     : Z > highlightZ && Z < -highlightZ),

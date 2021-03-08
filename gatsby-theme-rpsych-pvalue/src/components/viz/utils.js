@@ -4,9 +4,8 @@ import { normal } from "jstat";
 import {bisector} from "d3-array"
 
 
-export const isInTails = ({ cohend, highlightZ, Z }) => {
+export const isInTails = ({ highlightZ, Z }) => {
   const check =
-    cohend === 0 &&
     (highlightZ > 0
       ? Z > highlightZ || Z < -highlightZ
       : Z < highlightZ || Z > -highlightZ);

@@ -38,11 +38,11 @@ const InputCohen = ({ cohend, sliderStep, sliderMax }) => {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch({ name: "cohend", value: inputVal, immediate: false });
+    dispatch({ name: "COHEND", value: inputVal, immediate: false });
     setSubmitted(true);
   };
   const handleChange = (event) => {
-    dispatch({ name: "cohend", value: 1, immediate: false });
+    dispatch({ name: "COHEND", value: 1, immediate: false });
   };
 
   return (

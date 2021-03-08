@@ -67,7 +67,7 @@ const Samples = ({
           meanShiftPx={meanShiftPx}
         />
       )),
-    [data.length, M1, updateDodge, pHacked, state.xAxis, state.n, w]
+    [data.length, M1, updateDodge, pHacked, state.xAxis, state.n, xScaleSampleDist, w]
   );
   return <>{samples}</>;
 };

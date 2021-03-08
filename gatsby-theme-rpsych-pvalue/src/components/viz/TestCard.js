@@ -36,6 +36,29 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
+const XAxisMenu = ({dispatch, xAxis}) => {
+  const classes = useStyles();
+  const handleChange = (event) => {
+    dispatch({name: "SWITCH_AXIS", value: event.target.value})
+  };
+  return (     
+    <FormControl className={classes.formControl}>
+    <InputLabel id="select-x-axis-label">Sample dist. statistic</InputLabel>
+    <Select
+      labelId="select-x-axis-label"
+      id="select-x-axis"
+      value={xAxis}
+      onChange={handleChange}
+    >
+      <MenuItem value={'mean'}>Mean</MenuItem>
+      <MenuItem value={'zValue'}>Z</MenuItem>
+      <MenuItem value={'pValue'}>p-value</MenuItem>
+    </Select>
+  </FormControl>
+  )
+
+}
+
 export default function TestCard() {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(true);
@@ -111,10 +134,7 @@ export default function TestCard() {
             color="default"
             style={{ width: "100%" }}
           >
-            <Button onClick={toggleAxis}>{state.xAxis === "mean" ? "Z" : "Mean"}</Button>
-            <Button onClick={clear}>Clear</Button>
-
-          </ButtonGroup>
+          <XAxisMenu dispatch={dispatch} xAxis={state.xAxis} />
         </CardContent>
         <CardActions disableSpacing>
           <Typography variant="body1">Stats</Typography>
