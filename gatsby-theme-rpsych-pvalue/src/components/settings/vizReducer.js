@@ -145,6 +145,7 @@ export const vizReducer = (state, action) => {
         ...state,
         updateDodge: !state.updateDodge,
         clear: !state.clear,
+        n: 5,
         data: []
       }
     }

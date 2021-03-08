@@ -5,8 +5,16 @@ import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
 import Collapse from "@material-ui/core/Collapse";
+import Grid from "@material-ui/core/Grid";
+import AddIcon from '@material-ui/icons/Add';
+import RemoveIcon from '@material-ui/icons/Remove';
 import IconButton from "@material-ui/core/IconButton";
+import Chip from '@material-ui/core/Chip';
 import ButtonGroup from "@material-ui/core/ButtonGroup";
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
@@ -33,6 +41,19 @@ const useStyles = makeStyles((theme) => ({
   expandOpen: {
     transform: "rotate(180deg)",
   },
+  formControl: {
+    margin: 0,
+    width: "100%",
+    minWidth: 120,
+  },
+  nLabel: {
+    fontWeight: 500,
+    minWidth: '65px',
+  },
+  clearButton: {
+    margin: '5px 0',
+    marginLeft: '5px'
+  }
 }));
 
 
@@ -94,46 +115,82 @@ export default function TestCard() {
     <Draggable handle="#handle">
       <Card
         className={classes.root}
-        style={{ position: "absolute", top: mobile ? "100px" : "0px", right: "0px" }}
+        style={{
+          position: "absolute",
+          top: mobile ? "100px" : "0px",
+          right: "0px",
+        }}
       >
-           <Typography variant="body2" align="right" color="textSecondary" id="handle" style={{paddingRight: '1em', cursor: 'move'}}>
-            Drag
+        <Typography
+          variant="body2"
+          align="right"
+          color="textSecondary"
+          id="handle"
+          style={{ paddingRight: "1em", cursor: "move" }}
+        >
+          Drag
+        </Typography>
+        <CardContent>
+          <Typography variant="body2" color="textPrimary">
+            Observations per sample
           </Typography>
-        <CardContent >
+          <IconButton
+            onClick={removeObservation}
+            disabled={state.n < 2}
+            aria-label="remove 1 observation to each sample"
+            component="span"
+            color="primary"
+          >
+            <RemoveIcon />
+          </IconButton>
+          <Chip className={classes.nLabel} label={'n=' + state.n} />
+          <IconButton
+            onClick={addObservation}
+            color="primary"
+            aria-label="add 1 observation to each sample"
+            component="span"
+          >
+            <AddIcon />
+          </IconButton>
+          <Button
+            variant="contained"
+            size="small"
+            color="default"
+            disableElevation
+            onClick={addObservationsPhack}
+          >
+            p Hack
+          </Button>
+
           <Typography variant="body2" color="textPrimary">
             Draw samples
           </Typography>
           <ButtonGroup
             disableElevation
             variant="contained"
-            color="default"
-            style={{ width: "100%" }}
+            color="primary"
+            fullWidth={true}
           >
             <Button onClick={() => addSample(1)}>+1</Button>
             <Button onClick={() => addSample(50)}>+50</Button>
             <Button onClick={() => addSample(500)}>+500</Button>
-          </ButtonGroup>
-          <Typography variant="body2" color="textPrimary">
-            Observations
-          </Typography>
-          <ButtonGroup
-            disableElevation
-            variant="contained"
-            color="default"
-            style={{ width: "100%" }}
-          >
-            <Button onClick={removeObservation} disabled={state.n < 2}>-1</Button>
-            <Button onClick={addObservation}>+1</Button>
-            <Button onClick={addObservationsPhack}>P Hack</Button>
 
           </ButtonGroup>
-          <Divider style={{marginTop: '5px', marginBottom: '5px'}}/>
-          <ButtonGroup
+          <Grid container justify="flex-end" alignItems="center">
+          <Typography align="right" component="p" variant="body2">
+              # Draws: {state.data.length}
+            </Typography>
+          <Button
+            className={classes.clearButton}
+            size="small"
+            color="secondary"
             disableElevation
-            variant="contained"
-            color="default"
-            style={{ width: "100%" }}
+            onClick={clear}
           >
+            Clear
+          </Button>
+          </Grid>
+          <Divider style={{ marginTop: "5px", marginBottom: "5px" }} />
           <XAxisMenu dispatch={dispatch} xAxis={state.xAxis} />
         </CardContent>
         <CardActions disableSpacing>
@@ -150,14 +207,13 @@ export default function TestCard() {
           </IconButton>
         </CardActions>
         <Collapse in={expanded} timeout="auto" unmountOnExit>
-          <CardContent style={{paddingTop: 0}}>
-          <Typography align="right" component="p" variant="body2">
-              # Draws: {state.data.length}
-            </Typography>
-            <Typography align="right" component="p" variant="body2">
-              n: {state.n}
-            </Typography>
-            <Typography align="right" component="p" variant="body2" style={{fontWeight: 700}}>
+          <CardContent style={{ paddingTop: 0 }}>
+            <Typography
+              align="right"
+              component="p"
+              variant="body2"
+              style={{ fontWeight: 700 }}
+            >
               {state.cohend > 0 ? "Power" : "Type I Error"}:{" "}
               {format(".2f")(propSignificant)}
             </Typography>
@@ -165,13 +221,13 @@ export default function TestCard() {
               Power (true): {format(".2f")(power)}
             </Typography>
             <Typography align="right" component="p" variant="body2">
-              ES (true): {format(".1f")(state.cohend)}
+              Effect size (true): {format(".1f")(state.cohend)}
             </Typography>
             <Typography align="right" component="p" variant="body2">
-              ES (sim): {format(".1f")(effectWholeSample)}
+            Effect size  (sim): {format(".1f")(effectWholeSample)}
             </Typography>
             <Typography align="right" component="p" variant="body2">
-              ES (pub. bias): {format(".1f")(effectOnlySignificantSample)}
+            Effect size  (pub. bias): {format(".1f")(effectOnlySignificantSample)}
             </Typography>
           </CardContent>
         </Collapse>
