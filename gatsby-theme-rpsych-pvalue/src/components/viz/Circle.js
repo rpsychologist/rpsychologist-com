@@ -54,7 +54,7 @@ const Circle = ({
   const classes = useStyles();
   const { state, dispatch } = useContext(SettingsContext);
   const { updateDodge, sliding, xAxis } = state;
-  const [observations, setObservations] = useState([samples[0]], []);
+  const [observations, setObservations] = useState(samples, []);
   const circles = React.useRef(new Map());
   const tl = React.useRef(gsap.timeline());
   const xMeanPx = useMemo(() => {
@@ -97,7 +97,7 @@ const Circle = ({
       // First drop
       tl.current.fromTo(
         circle,
-        { y: translateYStart, fill: dropColor },
+        { y: translateYStart, fill: dropColor},
         {
           y: translateYFirstDrop,
           duration: 0.5,
