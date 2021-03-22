@@ -163,7 +163,7 @@ const SimChart = ({
       criticalValueLwr: criticalValueLwr,
       criticalValueUpr: criticalValueUpr
     }
-  }, [SE, xAxis])
+  }, [SE, xAxis, w])
 
 
 
