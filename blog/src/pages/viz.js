@@ -16,7 +16,6 @@ import GitHubSponsors from 'gatsby-theme-rpsych-viz/src/components/GitHubSponsor
 
 const Viz = ({ data, pageContext }) => {
   const image = data.image ? data.image.childImageSharp.resize : null
-
   return (
     <Layout data={data} license={<License/>}>
       <SEO
@@ -91,7 +90,7 @@ const Viz = ({ data, pageContext }) => {
         </Grid>
       </Container>
       <Container maxWidth="sm" style={{ paddingBottom: '2em' }}>
-        <Webmentions edges={data.webmentions.edges}/>
+        <Webmentions data={data} /> 
       </Container>
     </Layout>
   )

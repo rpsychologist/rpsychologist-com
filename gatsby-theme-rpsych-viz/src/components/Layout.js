@@ -68,7 +68,7 @@ const VizLayout = ({ openSettings, children, path, data, license, pageContext })
         <Container className={classes.textContent}>
           <Faq data={data.FAQ}/>
           <Contribute />
-          <Webmentions edges={data.webmentions.edges}/>
+          <Webmentions data={data}/>
         </Container>
         <Container maxWidth="lg" lang="en">
           <Typography variant="h2" component="h2" align="center" gutterBottom>

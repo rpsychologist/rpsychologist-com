@@ -103,12 +103,9 @@ const WebCard = ({ node, domain }) => {
   );
 };
 
-const Webmentions = ({ edges }) => {
+const Webmentions = ({ data }) => {
   const classes = useStyles();
-  const numLikes = edges.filter((d) => d.node.wmProperty == "like-of").length;
-  const numRetweets = edges.filter((d) => d.node.wmProperty == "repost-of")
-    .length;
-  const comments = edges.filter((d) => ["mention-of", "in-reply-to"].includes(d.node.wmProperty));
+  const { comments, numLikes, numRetweets } = data
   const { t } = useTranslation("blog")
   return (
     <div className={classes.webmentions}>
@@ -124,10 +121,10 @@ const Webmentions = ({ edges }) => {
         <Typography className={classes.likesAndRetweetsOuter} variant='body2' align="center">
           <span className={classes.likesAndRetweetsText}>
             <FavoriteIcon fontSize="small" />
-            {numLikes}{" "}
+            {numLikes.totalCount}{" "}
           </span>
           <span className={classes.likesAndRetweetsText}>
-            <RepeatIcon fontSize="small" /> {numRetweets}
+            <RepeatIcon fontSize="small" /> {numRetweets.totalCount}
           </span>
         </Typography>
         <Typography variant="div" variant="body2">
@@ -135,8 +132,8 @@ const Webmentions = ({ edges }) => {
         </Typography>
       </Grid>
 
-      {comments.length > 0 ? (
-        comments.map(({ node }, i) => {
+      {comments.edges.length > 0 ? (
+        comments.edges.map(({ node }, i) => {
           const isTweet = node.url.includes("https://twitter.com");
           const domain = new URL(node.url).origin;
           return (
@@ -164,9 +161,12 @@ export default Webmentions;
 
 export const query = graphql`
   fragment webmentionQuery on Query {
-    webmentions: allWebMentionEntry(
-      filter: { wmTarget: { regex: $permalinkRegEx } }
-    ) {
+    comments: allWebMentionEntry(
+      filter: {
+        wmTarget: { regex: $permalinkRegEx } 
+        wmSource: {regex: "/^https:\/\/brid\\.gy\/"}, 
+        wmProperty: {in: ["mention-of", "in-reply-to"]}
+      }) {
       edges {
         node {
           id
@@ -187,6 +187,24 @@ export const query = graphql`
           published
         }
       }
+    }
+    numLikes: allWebMentionEntry(
+      filter: {
+        wmProperty: { eq: "like-of" }
+          wmTarget: { regex: $permalinkRegEx } 
+          wmSource: { regex: "/^https:\/\/brid\\.gy\/" },       
+      }
+      ) {
+      totalCount
+    }
+    numRetweets: allWebMentionEntry(
+      filter: {
+        wmProperty: { eq: "repost-of" }
+          wmTarget: { regex: $permalinkRegEx } 
+          wmSource: { regex: "/^https:\/\/brid\\.gy\/" },       
+      }
+      ) {
+      totalCount
     }
   }
 `;
