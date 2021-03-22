@@ -9,20 +9,22 @@ import Samples from "./Samples";
 import HighlightSample from "./HightlightSample";
 import { isInTails } from "./utils";
 import { AxisBottom } from "@vx/axis";
+import pvalueWorker from "../settings/pvalueWorker";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   testStatLine: {
     stroke: "#b7b7b7",
     strokeDasharray: "2 4",
     strokeWidth: "2",
   },
   critStatLine: {
-    stroke: "#0000007a",
+    stroke: theme.palette.type === 'dark' ? '#fff' : "#000",
+    strokeOpacity: 0.5,
     strokeDasharray: "2 2",
     strokeWidth: "2",
   },
   highlightLine: {
-    stroke: "#000000",
+    stroke: theme.palette.type === 'dark' ? '#fff' : "#000",
     strokeWidth: "2",
   },
 }));
@@ -72,8 +74,27 @@ const getHighlightProportionLabel = (xAxis, cohend) => {
 
 }
 
+const PValueSumCalculation = (props) => {
+  const [state, setState] = useState({ numZLarger: 0, pValFromSim: 0 }, []);
+  const { data, highlight, xAxis, cohend } = props;
+  useEffect(() => {
+    pvalueWorker.countSamplesInTails({ ...props }).then((result) => {
+      const pValFromSim = format(".2f")(result / data.length);
+      setState({ numZLarger: result, pValFromSim: pValFromSim });
+    });
+  }, [highlight]);
+
+  return (
+    <text x="0" y={25} style={{ fontWeight: 500 }}>
+      {getHighlightProportionLabel(xAxis, cohend)} = {state.numZLarger} /{" "}
+      {data.length} = {state.pValFromSim}
+    </text>
+  );
+};
+
 const SimChart = ({
   cohend,
+  shift,
   data,
   add,
   M0,
@@ -81,15 +102,16 @@ const SimChart = ({
   width,
   SD,
   highlight,
-  pHacked,
+  phacked,
+  nBeforePhack,
   xAxis,
+  SE,
   n,
 }) => {
   const { t } = useTranslation("cohend");
   const [reset, setReset] = useState(false);
   const classes = useStyles();
-  const { Z: highlightZ } = highlight;
-  const SE = 15 / Math.sqrt(n);
+  const { meanCentered: highlightM } = highlight;
   // Clear loading spinner
   useEffect(() => {
     document.getElementById("__loader").style.display = "none";
@@ -132,45 +154,37 @@ const SimChart = ({
     [w, reset, n, xAxis]
   );
   // Inference stats
-  const critVal = xAxis === "mean" ? M0 + 1.96 * SE : 1.97;
-  const critValLwr = xAxis === "mean" ? M0 - 1.96 * SE : -1.97;
-  const criticalValue = xScaleSampleDist(critVal);
-  const criticalValueLwr = xScaleSampleDist(critValLwr);
-  let numZLarger, pValFromSim;
-  numZLarger = useMemo(
-    () =>
-      data.filter((d) =>
-        isInTails({ cohend: 0, Z: d.Z, highlightZ: highlightZ })
-      ).length,
-    [highlight]
-  );
-  pValFromSim = useMemo(() => format(".2f")(numZLarger / data.length), [
-    highlight,
-  ]);
+  const critVals = useMemo(() => {
+    const critValLwr = xAxis === "mean" ? M0 - 1.96 * SE : -1.96;
+    const critValUpr = xAxis === "mean" ? M0 + 1.96 * SE : 1.96;
+    const criticalValueLwr = xScaleSampleDist(critValLwr);
+    const criticalValueUpr = xScaleSampleDist(critValUpr);
+    return {
+      criticalValueLwr: criticalValueLwr,
+      criticalValueUpr: criticalValueUpr
+    }
+  }, [SE, xAxis])
 
-  const meanShiftPx = useMemo(() => xScalePopDist(M1) - xScalePopDist(M0), [
+
+
+  const meanShiftPopPx = useMemo(() => {
+    return xScalePopDist(M1) - xScalePopDist(M0)
+  })
+  const meanShiftPx = useMemo(() => {
+    if(xAxis === "mean") {
+      return meanShiftPopPx
+    } else if(xAxis === "zValue") {
+        const shiftN = phacked ? nBeforePhack : n
+        return xScaleSampleDist(shift/(15 / Math.sqrt(shiftN))) - xScaleSampleDist(0)
+    } else if(xAxis === "pValue") {
+      return 0
+    }
+  }, [
     M1,
     M0,
+    xScaleSampleDist,
     xScalePopDist,
   ]);
-  const samples = useMemo(
-    () => (
-      <Samples
-        xScaleSampleDist={xScaleSampleDist}
-        xScalePopDist={xScalePopDist}
-        data={data}
-        add={add}
-        h={h}
-        M0={M0}
-        M1={M1}
-        w={w}
-        highlight={highlight}
-        pHacked={pHacked}
-        meanShiftPx={meanShiftPx}
-      />
-    ),
-    [data, M1, pHacked, xAxis, xSampleDist, highlight, n, w]
-  );
   return (
     <svg
       id="overlapChart"
@@ -209,20 +223,33 @@ const SimChart = ({
             className={classes.highlightLine}
           />
         )}
-        <g transform={`translate(0, 0)`}>{samples}</g>
+        <g transform={`translate(${meanShiftPx}, 0)`}>
+          <Samples
+            xScaleSampleDist={xScaleSampleDist}
+            xScalePopDist={xScalePopDist}
+            data={data}
+            add={add}
+            h={h}
+            M0={M0}
+            M1={M1}
+            w={w}
+            highlight={highlight}
+            phacked={phacked}
+            meanShiftPx={meanShiftPx}
+          />
+        </g>
         <text x="0" y={20}>
           1. Sample observations
         </text>
         <PopulationDist
           xScale={xScalePopDist}
           M0={M0}
-          M1={M1}
           SD={SD}
           w={w}
           h={h}
           reset={reset}
           margin={margin}
-          meanShiftPx={meanShiftPx}
+          meanShiftPx={meanShiftPopPx}
         >
           {highlight && (
             <HighlightSample
@@ -244,20 +271,15 @@ const SimChart = ({
             3. Calculate p-value
           </text>
           {(cohend === 0 || xAxis === "pValue") && highlight && (
-            <text x="0" y={25} style={{ fontWeight: 500 }}>
-              {getHighlightProportionLabel(xAxis, cohend)} = {numZLarger} / {data.length} = {pValFromSim}
-            </text>
+            <PValueSumCalculation
+              data={data}
+              xAxis={xAxis}
+              highlightM={highlightM}
+              highlight={highlight}
+              n={n}
+            />
           )}
         </g>
-        {/* {xAxis === "pValue" && (
-          <line
-            x1={0}
-            x2={w}
-            y1={h - data.length * 0.01 * radius * 2}
-            y2={h - data.length * 0.01 * radius * 2}
-            className={classes.critStatLine}
-          />
-        )} */}
         {xAxis === "pValue" && (
           <line
             x1={xScaleSampleDist(0.05)}
@@ -270,15 +292,15 @@ const SimChart = ({
         {["mean", "zValue"].includes(xAxis) && (
           <>
             <line
-              x1={criticalValue}
-              x2={criticalValue}
+              x1={critVals.criticalValueUpr}
+              x2={critVals.criticalValueUpr}
               y1={h / 2}
               y2={h}
               className={classes.critStatLine}
             />
             <line
-              x1={criticalValueLwr}
-              x2={criticalValueLwr}
+              x1={critVals.criticalValueLwr}
+              x2={critVals.criticalValueLwr}
               y1={h / 2}
               y2={h}
               className={classes.critStatLine}

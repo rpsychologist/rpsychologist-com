@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useMemo, useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
 import Card from "@material-ui/core/Card";
@@ -6,30 +6,40 @@ import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
 import Collapse from "@material-ui/core/Collapse";
 import Grid from "@material-ui/core/Grid";
-import AddIcon from '@material-ui/icons/Add';
-import RemoveIcon from '@material-ui/icons/Remove';
+import AddIcon from "@material-ui/icons/Add";
+import RemoveIcon from "@material-ui/icons/Remove";
 import IconButton from "@material-ui/core/IconButton";
-import Chip from '@material-ui/core/Chip';
+import Chip from "@material-ui/core/Chip";
 import ButtonGroup from "@material-ui/core/ButtonGroup";
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
+import FormControl from "@material-ui/core/FormControl";
+import InputLabel from "@material-ui/core/InputLabel";
+import MenuItem from "@material-ui/core/MenuItem";
+import Select from "@material-ui/core/Select";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import Draggable from "react-draggable"; // The default
-import Divider from '@material-ui/core/Divider'
+import Divider from "@material-ui/core/Divider";
 import { SettingsContext } from "../../Viz";
-import { mean } from "d3-array";
 import { format } from "d3-format";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
-import { getPower } from "./utils"
+import pvalueWorker from "../settings/pvalueWorker";
+import PvalueWorker from "../settings/calcPvalues.worker.js";
+
+// Use a separate worker for stat summary calculations
+const cardWorker = typeof window === "object" && new PvalueWorker();
+
 const useStyles = makeStyles((theme) => ({
   root: {
+    // fallback to semi-transparent
+    // if backdrop-filter not supported
+    background: theme.palette.type === 'dark' ? '#282828db':"#ffffffd6",
     maxWidth: 345,
-    background: "none",
-    backdropFilter: "blur(50px)",
+    '@supports ((-webkit-backdrop-filter: blur(50px)) or (backdrop-filter: blur(50px)))': {
+      background: "none",
+      backdropFilter: "blur(50px)"
+    }
+
   },
   expand: {
     transform: "rotate(0deg)",
@@ -48,69 +58,174 @@ const useStyles = makeStyles((theme) => ({
   },
   nLabel: {
     fontWeight: 500,
-    minWidth: '65px',
+    minWidth: "65px",
   },
   clearButton: {
-    margin: '5px 0',
-    marginLeft: '5px'
-  }
+    margin: "5px 0",
+    marginLeft: "5px",
+  },
 }));
 
+const SampleStatsText = (props) => {
+  const [stats, setStats] = useState(
+    {
+      propSignificant: 0,
+      effectOnlySignificantSample: 0,
+      effectWholeSample: 0,
+      power: 0,
+    },
+    []
+  );
+  const { cohend } = props;
+  useEffect(() => {
+    cardWorker.calcSummaryStats(props).then((result) => setStats(result));
+  }, [props]);
 
-const XAxisMenu = ({dispatch, xAxis}) => {
+  return (
+    <>
+      <Typography
+        align="right"
+        component="p"
+        variant="body2"
+        style={{ fontWeight: 700 }}
+      >
+        {cohend > 0 ? "Power" : "Type I Error"}:{" "}
+        {format(".2f")(stats.propSignificant)}
+      </Typography>
+      <Typography align="right" component="p" variant="body2">
+        Power (true): {format(".2f")(stats.power)}
+      </Typography>
+      <Typography align="right" component="p" variant="body2">
+        Effect size (true): {format(".1f")(cohend)}
+      </Typography>
+      <Typography align="right" component="p" variant="body2">
+        Effect size (sim): {format(".1f")(stats.effectWholeSample)}
+      </Typography>
+      <Typography align="right" component="p" variant="body2">
+        Effect size (pub. bias):{" "}
+        {format(".1f")(stats.effectOnlySignificantSample)}
+      </Typography>
+    </>
+  );
+};
+
+const XAxisMenu = ({
+  dispatch,
+  xAxis,
+  data,
+  phacked,
+  dataBeforePhack,
+  shift,
+}) => {
   const classes = useStyles();
   const handleChange = (event) => {
-    dispatch({name: "SWITCH_AXIS", value: event.target.value})
+    dispatch({ name: "SWITCH_AXIS", value: event.target.value });
+    if (event.target.value === "pValue") {
+      // P-values need to be recalculated when the user
+      // switch to the p-dist view
+      pvalueWorker.updateData({ data: data, shift: shift }).then((result) => {
+        // 'dataBeforePhack' need to be updated
+        // in case the user start p-hacking in M/Z view
+        // then hit 'clear' in pdist view
+        if (phacked) {
+          pvalueWorker
+            .updateData({
+              data: dataBeforePhack,
+              shift: shift,
+            })
+            .then((resultDataBeforePhack) => {
+              dispatch({
+                name: "UPDATE_DATA",
+                value: {
+                  data: result,
+                  dataBeforePhack: resultDataBeforePhack,
+                  xAxis: event.target.value,
+                },
+              });
+            });
+        } else {
+          dispatch({
+            name: "UPDATE_DATA",
+            value: {
+              data: result,
+              xAxis: event.target.value,
+            },
+          });
+        }
+      });
+    }
   };
-  return (     
+  return (
     <FormControl className={classes.formControl}>
-    <InputLabel id="select-x-axis-label">Sample dist. statistic</InputLabel>
-    <Select
-      labelId="select-x-axis-label"
-      id="select-x-axis"
-      value={xAxis}
-      onChange={handleChange}
-    >
-      <MenuItem value={'mean'}>Mean</MenuItem>
-      <MenuItem value={'zValue'}>Z</MenuItem>
-      <MenuItem value={'pValue'}>p-value</MenuItem>
-    </Select>
-  </FormControl>
-  )
+      <InputLabel id="select-x-axis-label">Sample dist. statistic</InputLabel>
+      <Select
+        labelId="select-x-axis-label"
+        id="select-x-axis"
+        value={xAxis}
+        onChange={handleChange}
+      >
+        <MenuItem value={"mean"}>Mean</MenuItem>
+        <MenuItem value={"zValue"}>Z</MenuItem>
+        <MenuItem value={"pValue"}>p-value</MenuItem>
+      </Select>
+    </FormControl>
+  );
+};
 
-}
+const MemoXAxisMenu = React.memo(XAxisMenu);
 
 export default function TestCard() {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(true);
   const { state, dispatch } = useContext(SettingsContext);
-  const mobile = useMediaQuery('(max-width:400px)');
+  const mobile = useMediaQuery("(max-width:400px)");
+  const { data, M0, M1, xAxis, n, shift } = state;
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
-  const propSignificant = useMemo(() => mean(state.data.map((d) => d.pval < 0.05)), [state.data]);
-  const effectOnlySignificantSample = useMemo(() => (mean(state.data.filter((d) => d.Z > 1.96).map((d) => d.xMean)) - state.M0) / state.SD, [state.data, state.M0, state.SD])
-  const power = useMemo(() => getPower(0.05, state.cohend, state.n), [state.cohend, state.n])
-  const effectWholeSample = useMemo(() => mean(state.data.map(d => (d.xMean - state.M0)/state.SD)), [state.data, state.M0, state.SD])
+
   const addSample = (add = 1) => {
-    dispatch({ name: "DRAW", value: add });
+    pvalueWorker
+      .drawSamples({
+        data: data,
+        n: n,
+        shift: shift,
+        add: add,
+      })
+      .then((data) => {
+        dispatch({ name: "UPDATE_DATA", value: { data: data, add: add } });
+      });
+    //dispatch({ name: "DRAW", value: add });
   };
   const addObservation = () => {
-    dispatch({name: "ADD_ONE_OBS", value: ""})
-  }
+    pvalueWorker
+      .addOneObs({ data: data, M0: M0, M1: M1, pHack: false, xAxis: xAxis })
+      .then((result) => {
+        dispatch({ name: "ADD_ONE_OBS", value: result });
+      });
+  };
   const removeObservation = () => {
-    if(state.n > 1) dispatch({name: "REMOVE_ONE_OBS", value: ""})
-  }
+    if (state.n > 1)
+      pvalueWorker
+        .removeOneObs({ data: data, M0: M0, M1: M1, xAxis: xAxis })
+        .then((result) => {
+          dispatch({ name: "REMOVE_ONE_OBS", value: result });
+        });
+  };
   const addObservationsPhack = (add = 1) => {
-    dispatch({name: "PHACK", value: add})
-  }
-  const toggleAxis= () => {
-    dispatch({name: "SWITCH_AXIS", value: ""})
-  }
+    pvalueWorker
+      .addOneObs({ data: data, M0: M0, M1: M1, pHack: true, xAxis: xAxis })
+      .then((result) => {
+        dispatch({ name: "PHACK", value: result });
+      });
+  };
+  const toggleAxis = () => {
+    dispatch({ name: "SWITCH_AXIS", value: "" });
+  };
   const clear = () => {
-    dispatch({name: "CLEAR", value: ""})
-  }
+    dispatch({ name: "CLEAR", value: "" });
+  };
   return (
     <Draggable handle="#handle">
       <Card
@@ -140,22 +255,24 @@ export default function TestCard() {
             aria-label="remove 1 observation to each sample"
             component="span"
             color="primary"
+            disabled={state.phacked || state.n === 1}
           >
             <RemoveIcon />
           </IconButton>
-          <Chip className={classes.nLabel} label={'n=' + state.n} />
+          <Chip className={classes.nLabel} label={"n=" + state.n} />
           <IconButton
             onClick={addObservation}
             color="primary"
             aria-label="add 1 observation to each sample"
             component="span"
+            disabled={state.phacked}
           >
             <AddIcon />
           </IconButton>
           <Button
             variant="contained"
             size="small"
-            color="default"
+            color={state.phacked ? "primary" : "default"}
             disableElevation
             onClick={addObservationsPhack}
           >
@@ -170,28 +287,36 @@ export default function TestCard() {
             variant="contained"
             color="primary"
             fullWidth={true}
+            disabled={state.phacked}
           >
             <Button onClick={() => addSample(1)}>+1</Button>
             <Button onClick={() => addSample(50)}>+50</Button>
             <Button onClick={() => addSample(500)}>+500</Button>
-
           </ButtonGroup>
           <Grid container justify="flex-end" alignItems="center">
-          <Typography align="right" component="p" variant="body2">
+            <Typography align="right" component="p" variant="body2">
               # Draws: {state.data.length}
             </Typography>
-          <Button
-            className={classes.clearButton}
-            size="small"
-            color="secondary"
-            disableElevation
-            onClick={clear}
-          >
-            Clear
-          </Button>
+            <Button
+              variant={state.phacked ? "contained" : "text"}
+              className={classes.clearButton}
+              size="small"
+              color="secondary"
+              disableElevation
+              onClick={clear}
+            >
+              Clear
+            </Button>
           </Grid>
           <Divider style={{ marginTop: "5px", marginBottom: "5px" }} />
-          <XAxisMenu dispatch={dispatch} xAxis={state.xAxis} />
+          <MemoXAxisMenu
+            dispatch={dispatch}
+            xAxis={state.xAxis}
+            data={state.data}
+            shift={state.shift}
+            dataBeforePhack={state.dataBeforePhack}
+            phacked={state.phacked}
+          />
         </CardContent>
         <CardActions disableSpacing>
           <Typography variant="body1">Stats</Typography>
@@ -208,27 +333,15 @@ export default function TestCard() {
         </CardActions>
         <Collapse in={expanded} timeout="auto" unmountOnExit>
           <CardContent style={{ paddingTop: 0 }}>
-            <Typography
-              align="right"
-              component="p"
-              variant="body2"
-              style={{ fontWeight: 700 }}
-            >
-              {state.cohend > 0 ? "Power" : "Type I Error"}:{" "}
-              {format(".2f")(propSignificant)}
-            </Typography>
-            <Typography align="right" component="p" variant="body2">
-              Power (true): {format(".2f")(power)}
-            </Typography>
-            <Typography align="right" component="p" variant="body2">
-              Effect size (true): {format(".1f")(state.cohend)}
-            </Typography>
-            <Typography align="right" component="p" variant="body2">
-            Effect size  (sim): {format(".1f")(effectWholeSample)}
-            </Typography>
-            <Typography align="right" component="p" variant="body2">
-            Effect size  (pub. bias): {format(".1f")(effectOnlySignificantSample)}
-            </Typography>
+            <SampleStatsText
+              data={state.data}
+              cohend={state.cohend}
+              critValLwr={state.critValLwr}
+              critValUpr={state.critValUpr}
+              SD={state.SD}
+              n={state.n}
+              shift={state.shift}
+            />
           </CardContent>
         </Collapse>
       </Card>

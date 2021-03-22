@@ -3,10 +3,11 @@
   "description": "A tool to understand p-values",
   "author": "Kristoffer Magnusson",
   "license": "MIT",
-  "version": "0.0.3",
-  "lastUpdated": "2021-03-08",
+  "version": "0.0.4",
+  "lastUpdated": "2021-03-20",
   "private": true,
   "dependencies": {
+    "gatsby-plugin-workerize-loader": "^1.5.0",
     "gatsby-theme-rpsych": "*",
     "gatsby-theme-rpsych-viz": "*",
     "gsap": "^3.6.0",

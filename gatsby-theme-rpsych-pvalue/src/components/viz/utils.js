@@ -4,39 +4,20 @@ import { normal } from "jstat";
 import {bisector} from "d3-array"
 
 
-export const isInTails = ({ highlightZ, Z }) => {
-  const check =
-    (highlightZ > 0
-      ? Z > highlightZ || Z < -highlightZ
-      : Z < highlightZ || Z > -highlightZ);
-  return check;
-};
-
-export const getPower = (alpha, d, n, onetailed = false) => {
-  if (onetailed) {
-    alpha = alpha;
+export const isInTails = ({ highlightM, M, pval = false, highlightPval = 0, xAxis = "mean" }) => {
+  if(xAxis === "pValue") {
+    return pval < highlightPval
   } else {
-    alpha = alpha / 2;
-  }
-  var power =
-    1 -
-    normal.cdf(
-      normal.inv(1 - alpha, 0, 1) * (1 / Math.sqrt(n)),
-      d,
-      1 / Math.sqrt(n)
-    );
-
-  if (onetailed) {
-    return power;
-  } else {
-    var lwr = normal.cdf(
-      -1 * (normal.inv(1 - alpha, 0, 1) * (1 / Math.sqrt(n))),
-      d,
-      1 / Math.sqrt(n)
-    );
-    return power + lwr;
+    const check =
+    (highlightM > 0
+      ? M > highlightM || M < -highlightM
+      : M < highlightM || M > -highlightM)
+    return check;
   }
 };
+export const checkIfIsSignificant = ({M, critValLwr,  critValUpr}) => {
+  return M < critValLwr || M > critValUpr
+}
 
 export const usePrevious = (value) => {
   const ref = useRef();

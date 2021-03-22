@@ -18,7 +18,6 @@ const useStyles = makeStyles(() => ({
 const PopulationDist = ({
   xScale,
   M0,
-  M1,
   SD,
   w,
   h,
@@ -31,7 +30,7 @@ const PopulationDist = ({
   // X range
   const x = useMemo(() => {
     const xStart = M0 - 3 * SD;
-    const xEnd = M1 + 3 * SD;
+    const xEnd = M0 + 3 * SD;
     return range(xStart, xEnd, Math.abs(xStart - xEnd) / 100);
   }, [M0, w, SD, reset]);
   // data

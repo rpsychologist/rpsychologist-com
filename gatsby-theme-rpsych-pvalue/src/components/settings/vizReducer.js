@@ -8,10 +8,6 @@ import { mean } from "d3-array";
 import { normal } from "jstat";
 
 
-const drawGaussian = (n, M, SD) => {
-  return [...Array(n)].map(() => randomNormal(M, SD)());
-};
-
 const shiftAllObs = (data, shift = 0, n) => {
   return data.map((d, i) => ({
     ...d,
@@ -20,118 +16,56 @@ const shiftAllObs = (data, shift = 0, n) => {
   }));
 };
 
-const calcPvalue = (data, shift) => {
-  const updatedData = data.map((d, i) => {
-    const Z = (d.xMeanOrigin + shift - 100) / (15 / Math.sqrt(d.x.length))
-    const pval = 2 * (1 - normal.cdf(Math.abs(Z), 0, 1)) 
+
+
+const calcCritValues = ({shift, SE}) => {
+    // Instead of recalculating all data,
+    // we leave the sample stats untouched
+    // and just shift the critical values,
+    //
+    // for easier comparisons the data
+    // are centered around H0
+    const upr = 1.96 * SE - shift
+    const lwr = -1.96 * SE - shift
+
     return {
-      ...d,
-      Z: Z,
-      xMean: d.xMeanOrigin + shift,
-      pval: pval
-    }
-  });
-  return updatedData
-}
-
-const addOneObs = (data, shift, pHack = true) => {
-
-  const newData = data.map((d, i) => {
-    // Math.abs(d.Z)
-    if(pHack && d.Z > 1.96) return d
-    else {
-      const newObs = drawGaussian(1, 100, 15);
-      const updatedSample = [...d.x, ...newObs]
-      const xMean = mean(updatedSample);
-      const Z = (xMean + shift - 100) / (15 / Math.sqrt(updatedSample.length))
-      const pval = 2 * (1 - normal.cdf(Math.abs(Z), 0, 1))
-      return {
-        ...d,
-        x: updatedSample,
-        zPrev: d.Z,
-        xMeanOrigin: xMean,
-        xMean: xMean + shift,
-        Z: Z,
-        pval: pval,
-        pHacked: pHack
-      }
+      critValLwr: lwr,
+      critValUpr: upr
     }
 
-  })
-  return newData
-
 }
-
-const removeOneObs = (data, shift, pHack = true) => {
-
-  const newData = data.map((d, i) => {
-    // Math.abs(d.Z)
-    if(pHack && d.Z > 1.96) return d
-    if(d.x.length === 1) return d
-    else {
-      const updatedSample = d.x
-      updatedSample.pop()
-      const xMean = mean(updatedSample);
-      const Z = (xMean + shift - 100) / (15 / Math.sqrt(updatedSample.length))
-      const pval = 2 * (1 - normal.cdf(Math.abs(Z), 0, 1))
-      return {
-        ...d,
-        x: updatedSample,
-        zPrev: d.Z,
-        xMeanOrigin: xMean,
-        xMean: xMean + shift,
-        Z: Z,
-        pval: pval
-      }
-    }
-
-  })
-  return newData
-
-}
-
-const throtthledcalcPvalue = _.throttle(calcPvalue, 100);
 
 export const vizReducer = (state, action) => {
   let { name, value, immediate } = action;
   immediate = typeof immediate === "undefined" ? false : immediate;
   value = value === "" ? "" : action.value;
+  let n, SE, shift
   switch (name) {
     case "COHEND":
       let M1 = state.M0 + value * state.SD;
+      shift = M1 - state.M0
       return {
         ...state,
         cohend: round(value),
         immediate: immediate,
         M1: round(M1),
+        shift: shift,
         sliding: true,
-        data: throtthledcalcPvalue(state.data, M1 - state.M0)
+        ...calcCritValues({shift: shift, SE: state.SE})
       };
+    case "UPDATE_DATA": {
+      return {
+        ...state,
+        ...value,
+        sliding: false,
+        updateDodge: !state.updateDodge
+        }
+    }
     case "DRAW":
-      let data = [...Array(value)].map((d, i) => {
-        const { n } = state
-        const sample = drawGaussian(n, 100, 15);
-        const xMean = mean(sample);
-        //const xMeanPx = xScale(xMean)
-        const shift = state.M1 - state.M0;
-        const Z =  (xMean + shift - 100) / (15 / Math.sqrt(n))
-        const pval = 2 * (1 - normal.cdf(Math.abs(Z), 0, 1))
-        return {
-          x: sample,
-          xMeanOrigin: xMean,
-          xMean: xMean + shift,
-          //xMeanPx: xMeanPx,
-          //cy: h - dodge(xMeanPx),
-          Z: Z,
-          pval: pval,
-          pHacked: false
-        };
-      });
       return {
         ...state,
         immediate: immediate,
         add: value,
-        data: [...state.data, ...data],
       };
     case "HIGHLIGHT": {
       return {
@@ -141,12 +75,19 @@ export const vizReducer = (state, action) => {
       }
     }
     case "CLEAR": {
+      n = state.phacked ? state.nBeforePhack : 5
+      SE = state.SD / Math.sqrt(n)
+      shift = state.M1 - state.M0
       return {
         ...state,
         updateDodge: !state.updateDodge,
-        clear: !state.clear,
-        n: 5,
-        data: []
+        clear: state.phacked ? state.clear : !state.clear,
+        n: n,
+        SE: SE,
+        shift: shift,
+        ...calcCritValues({shift: shift, SE: SE}),
+        data: state.phacked ? state.dataBeforePhack : [],
+        phacked: false
       }
     }
     case "CHANGE_COMMITTED": {
@@ -157,28 +98,47 @@ export const vizReducer = (state, action) => {
       }
     }
     case "ADD_ONE_OBS": {
+      n = state.n + 1
+      SE = (state.SD / Math.sqrt(n))
       return {
           ...state,
           immediate: immediate,
-          data: addOneObs(state.data, state.M1 - state.M0, false),
-          n: state.n + 1
-      }
+          data: value,
+          n: n,
+          SE: SE,
+          ...calcCritValues({shift: state.shift, SE: SE})
+        }
     }
     case "REMOVE_ONE_OBS": {
+      n = state.n - 1
+      SE = (state.SD / Math.sqrt(n))
       return {
         ...state,
         immediate: immediate,
-        data: removeOneObs(state.data, state.M1 - state.M0, false),
-        n: state.n - 1
+        data: value,
+        n: n,
+        SE: SE,
+        ...calcCritValues({shift: state.shift, SE: SE})
       }
     }
     case "PHACK": {
+      const phacked = state.phacked
+      n =  state.n + 1
+      SE = (state.SD / Math.sqrt(n))
       return {
         ...state,
+        phacked: true,
         immediate: immediate,
-        data: addOneObs(state.data, state.M1 - state.M0, true),
-        n: state.n + 1,
-        pHacked: state.pHacked + 1
+        data: value,
+        n: n,
+        SE: SE,
+        ...(!phacked && {
+          nBeforePhack: state.n, 
+          dataBeforePhack: state.data,
+          zShiftBeforePhack: state.shift/(state.SD / Math.sqrt(state.n))
+        }),
+
+        ...calcCritValues({shift: state.shift, SE: SE})
       }
     }
     case "SWITCH_AXIS": {

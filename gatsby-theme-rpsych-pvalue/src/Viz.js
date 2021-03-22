@@ -61,14 +61,14 @@ if (typeof localStorage !== `undefined`) {
     localStorage.removeItem("pvalueState");
     initialState = vizReducer(defaultState, {
       name: "COHEND",
-      value: defaultState.cohend,
+      value: defaultState.cohend
     });
   }
 } else {
   // calculate actual values based on Cohen's d
   initialState = vizReducer(defaultState, {
     name: "COHEND",
-    value: defaultState.cohend,
+    value: defaultState.cohend
   });
 }
 

@@ -15,6 +15,8 @@ import { SettingsContext } from "../../Viz";
 import PlayCircleOutlineIcon from "@material-ui/icons/PlayCircleOutline";
 import FormControl from "@material-ui/core/FormControl";
 import { useTranslation, Trans } from "react-i18next";
+import pvalueWorker from "./pvalueWorker"
+import {debounce, throttle} from "lodash"
 
 const useStyles = makeStyles({
   root: {
@@ -24,6 +26,9 @@ const useStyles = makeStyles({
     width: 60,
   }
 });
+
+const delayedHandleChange = debounce(eventData => someApiFunction(eventData), 500);
+
 
 const InputCohen = ({ cohend, sliderStep, sliderMax }) => {
   const { state, dispatch } = useContext(SettingsContext);
@@ -66,6 +71,7 @@ const InputCohen = ({ cohend, sliderStep, sliderMax }) => {
               type: "number",
               "aria-labelledby": "input-slider",
             }}
+            disabled={state.phacked}
           />
           <IconButton
             aria-label="delete"
@@ -83,6 +89,7 @@ const InputCohen = ({ cohend, sliderStep, sliderMax }) => {
   );
 };
 
+
 const InputSlider = ({
   handleDrawer,
   openSettings,
@@ -92,13 +99,19 @@ const InputSlider = ({
   const classes = useStyles();
   const { t } = useTranslation("cohend");
   const { state, dispatch } = useContext(SettingsContext);
-  const { cohend, sliderMax, sliderStep } = state;
-
+  const { cohend, sliderMax, sliderStep, xAxis, data, shift } = state;
   const handleSliderChange = (event, newVal) => {
-      dispatch({ name: "COHEND", value: newVal });
+    dispatch({ name: "COHEND", value: newVal });
+
   };
   const handleSliderChangeCommitted = (event, newVal) => {
+    if(xAxis === "pValue") {
+      pvalueWorker.updateData({data: data, shift: shift}).then(result => {
+        dispatch({name: "UPDATE_DATA", value: {data: result}})
+      })
+    } else {
       dispatch({ name: "CHANGE_COMMITTED", value: ""});
+    }
   };
 
   return (
@@ -163,6 +176,7 @@ const InputSlider = ({
             step={sliderStep}
             aria-labelledby="input-slider"
             classes={{ root: "main--slider" }}
+            disabled={state.phacked}
           />
         </Grid>
         <Grid

@@ -1,7 +1,14 @@
 import React, { useContext } from "react";
+import { makeStyles } from "@material-ui/core/styles";
 import { SettingsContext } from "../../Viz";
 import { format } from "d3-format";
 import { gsap } from "gsap";
+
+const useStyles = makeStyles((theme) => ({
+  samples: {
+    fill: theme.palette.type === 'dark' ? '#fff' : "#000",
+  }
+}));
 
 const HighlightSample = ({
   xScale,
@@ -15,6 +22,7 @@ const HighlightSample = ({
   M,
   highlightPos,
 }) => {
+  const classes = useStyles();
   const { state, dispatch } = useContext(SettingsContext);
   const circles = React.useRef(new Map());
   React.useLayoutEffect(() => {
@@ -34,6 +42,7 @@ const HighlightSample = ({
           {x.map((x, i) => {
             return (
               <circle
+                className={classes.samples}
                 r={radius}
                 cy={h / 4 + 50}
                 cx={xScale(x)}

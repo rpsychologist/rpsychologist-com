@@ -18,19 +18,19 @@ const Samples = ({
   h,
   M0,
   M1,
-  pHacked,
+  phacked,
   meanShiftPx,
 }) => {
   const { state, dispatch } = useContext(SettingsContext);
-  const { updateDodge } = state;
+  const { updateDodge, n, xAxis } = state;
   const radius = w < 400 ? 2 : 4;
-  const prevPhacked = usePrevious(pHacked);
-  const pHackedChanged = prevPhacked != pHacked;
+  const prevPhacked = usePrevious(phacked);
+  const pHackedChanged = prevPhacked != phacked;
   const dodge = useMemo(() => dodger(radius * 2 + 1), [
-    state.updateDodge,
-    pHacked,
-    state.xAxis,
-    state.n,
+    updateDodge,
+    phacked,
+    xAxis,
+    n,
   ]);
   const closeTimer = React.useRef();
 
@@ -48,8 +48,8 @@ const Samples = ({
 
   const samples = useMemo(
     () =>
-      data.map((props, i) => (
-        <Circle
+      data.map((props, i) => {
+        return (<Circle
           id={i}
           key={i}
           test={i - (data.length - add)}
@@ -62,12 +62,13 @@ const Samples = ({
           M0={M0}
           M1={M1}
           radius={radius}
-          pHackedChanged={pHackedChanged}
+          phacked={phacked}
           timerRef={closeTimer}
           meanShiftPx={meanShiftPx}
-        />
-      )),
-    [data.length, M1, updateDodge, pHacked, state.xAxis, state.n, xScaleSampleDist, w]
+        />)
+      }
+      ),
+    [data.length, updateDodge, phacked, xAxis, n, xScaleSampleDist, w]
   );
   return <>{samples}</>;
 };

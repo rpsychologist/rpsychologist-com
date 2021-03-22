@@ -8,5 +8,6 @@ module.exports = {
         path: `${__dirname}/content/`
       }
     },
+    'gatsby-plugin-workerize-loader'
   ]
 };
