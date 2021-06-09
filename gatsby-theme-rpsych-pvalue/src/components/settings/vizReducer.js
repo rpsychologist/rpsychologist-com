@@ -74,6 +74,12 @@ export const vizReducer = (state, action) => {
         highlight: value
       }
     }
+    case "HOLD_HIGHLIGHT": {
+      return {
+        ...state,
+        highlight: {...state.highlight, hold: true}
+      }
+    }
     case "CLEAR": {
       n = state.phacked ? state.nBeforePhack : 5
       SE = state.SD / Math.sqrt(n)

@@ -82,7 +82,7 @@ const Circle = ({
     xAxis,
     state.n,
   ]);
-  const { meanCentered: highlightM, pval: highlightPval } = state.highlight;
+  const { meanCentered: highlightM, pval: highlightPval, hold: holdHighlight } = state.highlight;
   const prevSignificant = useRef();
   const prevPosition = usePrevious({
     x: xMeanPx,
@@ -238,11 +238,18 @@ const Circle = ({
           fill: "#056187",
         },
       );
-    } else if ((state.cohend === 0 || xAxis === "pValue") ){
+    } else if ((state.cohend === 0 || xAxis === "pValue")) {
       gsap.set(
         circle,
         {
           fill: "#d35400",
+        },
+      );
+    } else {
+      gsap.set(
+        circle,
+        {
+          fill: xMeanCentered > highlightM ? "#056187" : "#d35400",
         },
       );
     }
@@ -274,10 +281,17 @@ const Circle = ({
   const handleMouseOut = () => {
     const circle = circles.current.children[0];
     gsap.to(circle, { r: radius });
-    timerRef.current = setTimeout(() => {
-      dispatch({ name: "HIGHLIGHT", value: false });
-    }, 500);
+    console.log(holdHighlight)
+    !holdHighlight && (
+      timerRef.current = setTimeout(() => {
+        dispatch({ name: "HIGHLIGHT", value: false });
+      }, 500)
+    )
+
   };
+  const handleMouseClick = () => {
+    dispatch({ name: "HOLD_HIGHLIGHT" });
+  }
 
   return (
     <>
@@ -291,8 +305,9 @@ const Circle = ({
               cx={xMeanPx}
               key={i}
               id="testCircle"
-              onMouseOver={() => handleMouseOver()}
-              onMouseOut={() => handleMouseOut()}
+              onMouseOver={handleMouseOver}
+              onMouseOut={handleMouseOut}
+              onMouseDown={handleMouseClick}
             />
           );
         })}
