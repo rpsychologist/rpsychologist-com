@@ -11,10 +11,10 @@ footer a {
 }
 
 /* VIZ */
-svg#overlapChart {
+svg#pvalueChart {
   user-select: none;
 }
-svg#overlapChart:active {
+svg#pvalueChart:active {
 }
 .vx-axis, #x-label {
   user-select: none;

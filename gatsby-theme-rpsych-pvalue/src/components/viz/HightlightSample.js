@@ -65,7 +65,7 @@ const HighlightSample = ({
             p: {format(".3f")(pval)},<br />
             Z: {format(".3f")(Z)},<br />
             M: {format(".1f")(M)},<br />
-            d: {format(".1f")((M - 100) / 15)}
+            d: {format(".1f")((M - state.M0) / state.SD)}
             <br />
             n: {x.length}
             <br />

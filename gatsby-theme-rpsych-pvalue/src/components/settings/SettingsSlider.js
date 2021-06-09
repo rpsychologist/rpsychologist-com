@@ -99,14 +99,14 @@ const InputSlider = ({
   const classes = useStyles();
   const { t } = useTranslation("cohend");
   const { state, dispatch } = useContext(SettingsContext);
-  const { cohend, sliderMax, sliderStep, xAxis, data, shift } = state;
+  const { cohend, sliderMax, sliderStep, xAxis, data, shift , M0, SD} = state;
   const handleSliderChange = (event, newVal) => {
     dispatch({ name: "COHEND", value: newVal });
 
   };
   const handleSliderChangeCommitted = (event, newVal) => {
     if(xAxis === "pValue") {
-      pvalueWorker.updateData({data: data, shift: shift}).then(result => {
+      pvalueWorker.updateData({data: data, shift: shift, M0: M0, SD: SD}).then(result => {
         dispatch({name: "UPDATE_DATA", value: {data: result}})
       })
     } else {

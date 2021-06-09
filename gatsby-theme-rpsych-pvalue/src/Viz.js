@@ -1,5 +1,6 @@
 import React, { useReducer, createContext, useMemo } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, ThemeProvider } from "@material-ui/core/styles";
+import {vizTheme} from "./styles/vizTheme"
 import Container from "@material-ui/core/Container";
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
@@ -122,6 +123,7 @@ const Viz = ({
   }, [state, dispatch]);
 
   return (
+    <ThemeProvider theme={vizTheme}>
     <div className={classes.root}>
       <Container maxWidth={embed && "lg"}>
         <SettingsContext.Provider value={contextValue}>
@@ -146,6 +148,7 @@ const Viz = ({
         </SettingsContext.Provider>
       </Container>
     </div>
+    </ThemeProvider>
   );
 };
 export default Viz;

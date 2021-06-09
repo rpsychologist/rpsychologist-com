@@ -127,8 +127,11 @@ const App = (props) => {
         <img src={underConstructionGIF} alt="Page under construction" style={{margin: 'auto', width:'100%'}}/><br/>
           This is an alpha version of this page, there might be some rough edges and missing features!
         </Typography>
-        <Typography paragraph align="center" paragraph>
-        P HACK: add 1 observations to all samples that do not show a positive effect and reanalyze.
+        <Typography component="div" variant="body2">
+          <ul>
+          <li><strong>P HACK</strong>: add 1 observations to all samples that do not show a positive effect and reanalyze.</li>
+          <li><strong>Severity Assessment</strong>: Mayo's severity assessment can be toggled by clicking on a sample. This only works when the sample distribution show "mean" values. The highlighted sample is draggable. </li>
+          </ul>
         </Typography>
 
       </Container>
