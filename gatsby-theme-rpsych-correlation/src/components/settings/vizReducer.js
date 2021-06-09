@@ -152,8 +152,6 @@ const rescale = (state) => {
   const xMax = muHatNewX + 4 * sigmaHatNewX
   let yMin = muHatNewY - 4 * sigmaHatNewY
   let yMax = muHatNewY + 4 * sigmaHatNewY
-  yMin = min([yMin, xMin])
-  yMax = max([yMax, xMax])
   return {
     yMin: yMin,
     yMax: yMax,
@@ -470,20 +468,15 @@ export const vizReducer = (state, action) => {
         data: z,
       };
     case "addPoint":
-      data = state.data
-      x = state.x
-      y = state.y
-      x.push(value[0])
-      y.push(value[1])
-      data.push(value)
+      data = state.data.concat([value])
       desc = getSampleCorrelation(data)
       return {
         ...state,
         ...desc,
         ...editParamUpdate(desc),
         n: data.length,
-        x: x,
-        y: y,
+        x: state.x.concat(value[0]),
+        y: state.y.concat(value[1]),
         data: data
       };  
     case "deletePoint":
