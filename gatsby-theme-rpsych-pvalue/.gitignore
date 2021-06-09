@@ -34,3 +34,4 @@ yarn-error.log*
 # Other
 TODO.md
 rpsychologist-disqus-archive.xml
+tmp/
