@@ -8,11 +8,11 @@ import { mean } from "d3-array";
 import { normal } from "jstat";
 
 
-const shiftAllObs = (data, shift = 0, n) => {
+const shiftAllObs = ({data, shift = 0, n, M0, SD}) => {
   return data.map((d, i) => ({
     ...d,
     xMean: d.xMeanOrigin + shift,
-    Z: (d.xMeanOrigin + shift - 100) / (15 / Math.sqrt(n)),
+    Z: (d.xMeanOrigin + shift - M0) / (SD / Math.sqrt(n)),
   }));
 };
 
@@ -80,6 +80,30 @@ export const vizReducer = (state, action) => {
         highlight: {...state.highlight, hold: true}
       }
     }
+    case "RELEASE_HIGHLIGHT": {
+      return {
+        ...state,
+        highlight: {...state.highlight, hold: false}
+      }
+    }
+    case "DRAG_SEV_XBAR": {
+      const xbar_Z = (value - state.M0) / state.SE
+      return {
+        ...state,
+        highlight: {
+          ...state.highlight, 
+          M: value,
+          Z: xbar_Z,
+          pval: 2 * (1 - normal.cdf(Math.abs(xbar_Z), 0, 1)),
+        }
+      }
+    }
+    case "SWITCH_SEV_DIRECTION": {
+      return {
+        ...state,
+        sevDirection: value
+      }
+    }
     case "CLEAR": {
       n = state.phacked ? state.nBeforePhack : 5
       SE = state.SD / Math.sqrt(n)
@@ -93,7 +117,8 @@ export const vizReducer = (state, action) => {
         shift: shift,
         ...calcCritValues({shift: shift, SE: SE}),
         data: state.phacked ? state.dataBeforePhack : [],
-        phacked: false
+        phacked: false,
+        highlight: false
       }
     }
     case "CHANGE_COMMITTED": {
@@ -151,7 +176,8 @@ export const vizReducer = (state, action) => {
       return {
         ...state,
         immediate: immediate,
-        xAxis: value
+        xAxis: value,
+        highlight: false
       }
     }
     case "INCREASE_N": {
@@ -170,7 +196,12 @@ export const vizReducer = (state, action) => {
         cohend: cohend,
         immediate: immediate,
         [name]: value,
-        data: shiftAllObs(state.data, value - state.M0, state.n),
+        data: shiftAllObs({
+          data: state.data,
+          shift: value - state.M0,
+          M0: state.M0,
+          n: state.n,
+        }),
       };
     }
     case "preset": {

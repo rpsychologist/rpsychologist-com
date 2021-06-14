@@ -7,7 +7,7 @@ import {
 } from "gatsby-theme-rpsych-pvalue/src/components/viz/utils";
 
 const calcZ = ({ xMeanOrigin, shift, M0, SD, n }) => {
-  return (xMeanOrigin + shift - 100) / (15 / Math.sqrt(n));
+  return (xMeanOrigin + shift - M0) / (SD / Math.sqrt(n));
 };
 const calcPTwoSided = (Z) => {
   return 2 * (1 - normal.cdf(Math.abs(Z), 0, 1));
@@ -49,6 +49,7 @@ export async function countSamplesInTails({ data, highlight, xAxis }) {
     })
   ).length;
 }
+
 export async function calcSummaryStats({
   data,
   critValLwr,
@@ -57,6 +58,7 @@ export async function calcSummaryStats({
   cohend,
   n,
   SD,
+  M0
 }) {
   const onlySigSamples = data.filter((d) =>
     checkIfIsSignificant({
@@ -65,13 +67,12 @@ export async function calcSummaryStats({
       critValUpr: critValUpr,
     })
   );
-  const H0 = 100;
   const onlyPosSigEffects = onlySigSamples
     .filter((d) => d.xMeanCentered > -shift)
     .map((d) => d.xMean);
-  const effectOnlySignificantSample = mean(onlyPosSigEffects) + shift - H0;
+  const effectOnlySignificantSample = mean(onlyPosSigEffects) + shift - M0;
   const propSignificant = onlySigSamples.length / data.length;
-  const effectWholeSample = mean(data.map((d) => d.xMean)) + shift - H0;
+  const effectWholeSample = mean(data.map((d) => d.xMean)) + shift - M0;
   const power = getPower(0.05, cohend, n);
   return {
     effectOnlySignificantSample: effectOnlySignificantSample / SD,
@@ -83,14 +84,14 @@ export async function calcSummaryStats({
 
 // Update data with correct p and z values,
 // recalculates the p and Z vals based on the current 'shift'
-export async function updateData({ data, shift, includeZ = false }) {
+export async function updateData({ data, shift, includeZ = false, M0, SD }) {
   const updatedData = data.map((d, i) => {
     const n = d.x.length;
     const Z = calcZ({
       xMeanOrigin: d.xMeanOrigin,
       shift: shift,
-      M0: 100,
-      SD: 15,
+      M0: M0,
+      SD: SD,
       n: n,
     });
     return {
@@ -101,19 +102,19 @@ export async function updateData({ data, shift, includeZ = false }) {
   });
   return updatedData;
 }
-export async function drawSamples({ add, n, shift, data }) {
+export async function drawSamples({ add, n, shift, data, M0, SD }) {
   const newData = [...Array(add)].map((d, i) => {
-    const sample = drawGaussian(n, 100, 15);
+    const sample = drawGaussian(n, M0, SD);
     const xMean = mean(sample);
-    const SE = 15 / Math.sqrt(n);
-    const zOrigin = (xMean - 100) / (15 / Math.sqrt(n));
+    const SE = SD / Math.sqrt(n);
+    const zOrigin = (xMean - M0) / (SD / Math.sqrt(n));
     const Z = zOrigin + shift / SE;
     const pval = 2 * (1 - normal.cdf(Math.abs(Z), 0, 1));
     return {
       x: sample,
       xMeanOrigin: xMean,
       xMean: xMean,
-      xMeanCentered: xMean - 100,
+      xMeanCentered: xMean - M0,
       zOrigin: zOrigin,
       Z: Z,
       pval: pval,
@@ -123,16 +124,16 @@ export async function drawSamples({ add, n, shift, data }) {
   return [...data, ...newData];
 }
 
-export async function addOneObs({ data, M0, M1, pHack, xAxis }) {
+export async function addOneObs({ data, M0, M1, pHack, xAxis, SD }) {
   const shift = M1 - M0;
   const calcPvalues = xAxis === "pValue";
   const newData = data.map((d, i) => {
     if (pHack && d.Z > 1.96) return d;
     else {
-      const newObs = drawGaussian(1, M0, 15);
+      const newObs = drawGaussian(1, M0, SD);
       const updatedSample = [...d.x, ...newObs];
       const xMean = mean(updatedSample);
-      const SE = 15 / Math.sqrt(updatedSample.length);
+      const SE = SD / Math.sqrt(updatedSample.length);
       const Z = (xMean - M0) / SE;
       const zShifted = Z + shift / SE;
       const pval = calcPvalues
@@ -142,7 +143,7 @@ export async function addOneObs({ data, M0, M1, pHack, xAxis }) {
         ...d,
         x: updatedSample,
         xMeanOrigin: xMean,
-        xMeanCentered: xMean - 100,
+        xMeanCentered: xMean - M0,
         xMean: xMean,
         zOrigin: Z,
         Z: zShifted,
@@ -154,7 +155,7 @@ export async function addOneObs({ data, M0, M1, pHack, xAxis }) {
   return newData;
 }
 
-export async function removeOneObs({ data, M0, M1, xAxis }) {
+export async function removeOneObs({ data, M0, M1, xAxis, SD }) {
   const shift = M1 - M0;
   const calcPvalues = xAxis === "pValue";
 
@@ -164,7 +165,7 @@ export async function removeOneObs({ data, M0, M1, xAxis }) {
       const updatedSample = d.x;
       updatedSample.pop();
       const xMean = mean(updatedSample);
-      const SE = 15 / Math.sqrt(updatedSample.length);
+      const SE = SD / Math.sqrt(updatedSample.length);
       const Z = (xMean - M0) / SE;
       const zShifted = Z + shift / SE;
       const pval = calcPvalues
@@ -174,7 +175,7 @@ export async function removeOneObs({ data, M0, M1, xAxis }) {
         ...d,
         x: updatedSample,
         xMeanOrigin: xMean,
-        xMeanCentered: xMean - 100,
+        xMeanCentered: xMean - M0,
         xMean: xMean,
         zOrigin: Z,
         Z: zShifted,

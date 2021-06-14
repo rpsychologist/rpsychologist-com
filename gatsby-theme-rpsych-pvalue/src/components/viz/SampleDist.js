@@ -14,7 +14,6 @@ const useStyles = makeStyles(() => ({
     fillOpacity: "1",
   }
 }));
-const SE10 = 15 / Math.sqrt(10);
 const SampleDist = ({
   xScale,
   xAxis,
@@ -29,6 +28,7 @@ const SampleDist = ({
 }) => {
 
   const classes = useStyles();
+  const SE10 = useMemo(() => SD / Math.sqrt(10), [SD]);
   const yMaxSampleDist = useMemo(
     () => {
       switch(xAxis) {

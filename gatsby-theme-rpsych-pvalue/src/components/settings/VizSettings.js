@@ -55,7 +55,7 @@ const VizSettings = () => {
     localStorage.setItem("cohendState", JSON.stringify(vizState));
   };
   const propSignificant = mean(state.data.map(d => d.pval < 0.05))
-  const effectOnlySignificantSample = (mean(state.data.filter(d => d.Z > 1.96).map(d => d.xMean)) - 100)/15
+  const effectOnlySignificantSample = (mean(state.data.filter(d => d.Z > 1.96).map(d => d.xMean)) - state.M0)/state.SD
   return (
     <div>
       <Container maxWidth="sm" className={classes.container}>

@@ -1,7 +1,9 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useContext } from "react";
+import { SettingsContext } from "../../Viz";
 import { scaleLinear } from "d3-scale";
 import { format } from "d3-format";
 import { makeStyles } from "@material-ui/styles";
+import { useGesture } from "react-use-gesture";
 import PopulationDist from "./PopulationDist";
 import SampleDist from "./SampleDist";
 import { useTranslation } from "react-i18next";
@@ -10,6 +12,15 @@ import HighlightSample from "./HightlightSample";
 import { isInTails } from "./utils";
 import { AxisBottom } from "@vx/axis";
 import pvalueWorker from "../settings/pvalueWorker";
+import { useTheme } from '@material-ui/core/styles';
+import MuiLink from '@material-ui/core/Link'
+
+// sev
+import FormControl from "@material-ui/core/FormControl";
+import InputLabel from "@material-ui/core/InputLabel";
+import MenuItem from "@material-ui/core/MenuItem";
+import Select from "@material-ui/core/Select";
+import Grid from '@material-ui/core/Grid';
 
 const useStyles = makeStyles((theme) => ({
   testStatLine: {
@@ -26,6 +37,19 @@ const useStyles = makeStyles((theme) => ({
   highlightLine: {
     stroke: theme.palette.type === 'dark' ? '#fff' : "#000",
     strokeWidth: "2",
+  },
+  circleSeverity: {
+    fill: "#c0392b",
+    r: 10,
+    cursor: 'w-resize'
+  },
+  lineSeverity: {
+    stroke: theme.palette.type === 'dark' ? '#fff' : "#c0392b",
+    strokeWidth: "2",
+  },
+  formControl: {
+    margin: 0,
+    minWidth: 150,
   },
 }));
 
@@ -92,6 +116,78 @@ const PValueSumCalculation = (props) => {
   );
 };
 
+const SeverityCalculation = (props) => {
+  const { data, highlight, shift, M0, M1, direction } = props;
+
+  const numMuLarger = data.filter((d) =>
+    direction == "greater"
+      ? M0 + d.xMeanCentered + shift < highlight.M
+      : M0 + d.xMeanCentered + shift > highlight.M
+  ).length;
+  const sevFromSim = numMuLarger / data.length;
+  const xbar = format(".1f")(highlight.M);
+  const H1 = format(".1f")(M1)
+  const claim = direction === "less" ? `μ < ${H1}` : `μ > ${H1}`;
+  return (
+    <>
+      <Grid container alignItems="flex-end" spacing={2}>
+          <Grid item>
+            <strong>Severity Assessment: </strong> SEV(T, x̄ = {xbar}, {claim}) ={" "} 
+        {numMuLarger} / {data.length} = {format(".2f")(sevFromSim)}
+        </Grid>
+        <Grid item>
+          <SevMenu />
+        </Grid>
+        <Grid item xs={12}>
+        We have observed x̄ = {xbar} and want to assess the claim that {claim},
+        if we assume that the sample came from a population with mean {H1}, then{" "}
+        {format(".3p")(sevFromSim)} of the time we would observe a mean{" "}
+        {direction === "less" ? "greater" : "less"} than x̄ = {xbar}. According
+        to{" "}
+        <MuiLink
+          href="https://www.amazon.com/gp/product/1107664640/ref=as_li_qf_asin_il_tl?ie=UTF8&tag=rpsyc-20&creative=9325&linkCode=as2&creativeASIN=1107664640&linkId=aa85d15f7afd2fae0ca3aa4b4f7adb55"
+          target="_blank"
+        >
+          Mayo (2018)
+        </MuiLink>{" "}
+        "this probability must be high for C to pass severely; if it’s low, it’s
+        BENT". See{" "}
+        <MuiLink
+          href="https://www.amazon.com/gp/product/1107664640/ref=as_li_qf_asin_il_tl?ie=UTF8&tag=rpsyc-20&creative=9325&linkCode=as2&creativeASIN=1107664640&linkId=aa85d15f7afd2fae0ca3aa4b4f7adb55"
+          target="_blank"
+        >
+          Statistical Inference as Severe Testing: How to Get Beyond the
+          Statistics Wars
+        </MuiLink>.
+        </Grid>
+      </Grid>
+    </>
+  );
+};
+
+const SevMenu = () => {
+  const classes = useStyles();
+  const { state, dispatch } = useContext(SettingsContext);
+  const handleChange = (event) => {
+    dispatch({ name: "SWITCH_SEV_DIRECTION", value: event.target.value });
+  };
+  return (
+    <FormControl className={classes.formControl}>
+      <InputLabel id="select-sev-direction-label">Claim Direction</InputLabel>
+      <Select
+        labelId="select-sev-direction-label"
+        id="select-sev-direction"
+        value={state.sevDirection === null ? "less" : state.sevDirection}
+        onChange={handleChange}
+      >
+        <MenuItem value={"less"}> {`μ < ${state.M1}`}</MenuItem>
+        <MenuItem value={"greater"}>{`μ > ${state.M1}`}</MenuItem>
+      </Select>
+    </FormControl>
+  );
+};
+
+
 const SimChart = ({
   cohend,
   shift,
@@ -109,6 +205,7 @@ const SimChart = ({
   n,
 }) => {
   const { t } = useTranslation("cohend");
+  const { state, dispatch } = useContext(SettingsContext);
   const [reset, setReset] = useState(false);
   const classes = useStyles();
   const { meanCentered: highlightM } = highlight;
@@ -145,6 +242,24 @@ const SimChart = ({
         break;
     }
   }, [reset, xAxis]);
+
+  // Drag
+  const bind = useGesture(
+    {
+      onDrag: ({ args: [index, cond], movement: [mx], memo, first }) => {
+        const xy = first ? highlight.M : memo;
+        let x = xScaleSampleDist.invert(xScaleSampleDist(xy) + mx);
+        x = x < xPopDist[0] ? xPopDist[0] : x;
+        x = x > xPopDist[1] ? xPopDist[1] : x;
+        dispatch({
+          name: "DRAG_SEV_XBAR",
+          value: x,
+          immediate: true,
+        });
+        return xy;
+      }
+    }
+  );
   // Scales and Axis
   const xScaleSampleDist = useMemo(
     () =>
@@ -186,8 +301,9 @@ const SimChart = ({
     xScalePopDist,
   ]);
   return (
+    <>
     <svg
-      id="overlapChart"
+      id="pvalueChart"
       width={width}
       height={width * aspect}
       viewBox={`0,0, ${width}, ${width * aspect}`}
@@ -241,6 +357,27 @@ const SimChart = ({
         <text x="0" y={20}>
           1. Sample observations
         </text>
+        {highlight.hold && (
+          <>
+            <line
+              x1={xScaleSampleDist(highlight.M)}
+              x2={xScaleSampleDist(highlight.M)}
+              y1={h / 2}
+              y2={h}
+              id="testLine"
+              className={classes.lineSeverity}
+            />
+            <circle
+              {...bind()}
+              className={classes.circleSeverity}
+              r={radius}
+              cy={h}
+              cx={xScaleSampleDist(highlight.M)}
+              //onMouseDown={() => dispatch({ name: "RELEASE_HIGHLIGHT" })}
+            />
+          </>
+        )}
+
         <PopulationDist
           xScale={xScalePopDist}
           M0={M0}
@@ -250,16 +387,24 @@ const SimChart = ({
           reset={reset}
           margin={margin}
           meanShiftPx={meanShiftPopPx}
-        >
-          {highlight && (
+        ></PopulationDist>
+        {highlight && (
+          <g
+            transform={`translate(
+              ${
+                highlight.hold
+                  ? xScaleSampleDist(highlight.M) - highlight.cx
+                  : meanShiftPx
+              }, 0)`}
+          >
             <HighlightSample
               {...highlight}
               h={h}
               xScale={xScalePopDist}
               radius={5}
             />
-          )}
-        </PopulationDist>
+          </g>
+        )}
         <g transform={`translate(0, ${h / 4 + 50 + 2})`}>
           <text x="0" y="-5">
             2. Calculate test statistic
@@ -270,15 +415,17 @@ const SimChart = ({
           <text x="0" y="-5">
             3. Calculate p-value
           </text>
-          {(cohend === 0 || xAxis === "pValue") && highlight && (
-            <PValueSumCalculation
-              data={data}
-              xAxis={xAxis}
-              highlightM={highlightM}
-              highlight={highlight}
-              n={n}
-            />
-          )}
+          {(cohend === 0 || xAxis === "pValue") &&
+            highlight &&
+            !highlight.hold && (
+              <PValueSumCalculation
+                data={data}
+                xAxis={xAxis}
+                highlightM={highlightM}
+                highlight={highlight}
+                n={n}
+              />
+            )}
         </g>
         {xAxis === "pValue" && (
           <line
@@ -309,6 +456,19 @@ const SimChart = ({
         )}
       </g>
     </svg>
+    <div>
+           {highlight.hold && (
+            <SeverityCalculation
+              data={data}
+              highlight={highlight}
+              shift={shift}
+              M0={M0}
+              M1={M1}
+              direction={state.sevDirection}
+            />
+          )}
+          </div>
+          </>
   );
 };
 

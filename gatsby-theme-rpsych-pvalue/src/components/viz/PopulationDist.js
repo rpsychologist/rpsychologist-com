@@ -61,7 +61,6 @@ const PopulationDist = ({
       </g>
       <g transform={`translate(${meanShiftPx}, 0)`}>
         <path id="dist1" d={pathDist} className={classes.populationDist} />
-        {children}
       </g>
     </>
   );

@@ -116,6 +116,8 @@ const XAxisMenu = ({
   phacked,
   dataBeforePhack,
   shift,
+  M0,
+  SD
 }) => {
   const classes = useStyles();
   const handleChange = (event) => {
@@ -123,7 +125,7 @@ const XAxisMenu = ({
     if (event.target.value === "pValue") {
       // P-values need to be recalculated when the user
       // switch to the p-dist view
-      pvalueWorker.updateData({ data: data, shift: shift }).then((result) => {
+      pvalueWorker.updateData({ data: data, shift: shift, M0: M0, SD: SD }).then((result) => {
         // 'dataBeforePhack' need to be updated
         // in case the user start p-hacking in M/Z view
         // then hit 'clear' in pdist view
@@ -132,6 +134,8 @@ const XAxisMenu = ({
             .updateData({
               data: dataBeforePhack,
               shift: shift,
+              M0: M0, 
+              SD: SD 
             })
             .then((resultDataBeforePhack) => {
               dispatch({
@@ -179,7 +183,7 @@ export default function TestCard() {
   const [expanded, setExpanded] = React.useState(true);
   const { state, dispatch } = useContext(SettingsContext);
   const mobile = useMediaQuery("(max-width:400px)");
-  const { data, M0, M1, xAxis, n, shift } = state;
+  const { data, M0, M1, xAxis, n, shift, SD } = state;
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -192,6 +196,8 @@ export default function TestCard() {
         n: n,
         shift: shift,
         add: add,
+        M0: M0,
+        SD: SD
       })
       .then((data) => {
         dispatch({ name: "UPDATE_DATA", value: { data: data, add: add } });
@@ -200,7 +206,7 @@ export default function TestCard() {
   };
   const addObservation = () => {
     pvalueWorker
-      .addOneObs({ data: data, M0: M0, M1: M1, pHack: false, xAxis: xAxis })
+      .addOneObs({ data: data, M0: M0, M1: M1, SD: SD, pHack: false, xAxis: xAxis })
       .then((result) => {
         dispatch({ name: "ADD_ONE_OBS", value: result });
       });
@@ -208,14 +214,14 @@ export default function TestCard() {
   const removeObservation = () => {
     if (state.n > 1)
       pvalueWorker
-        .removeOneObs({ data: data, M0: M0, M1: M1, xAxis: xAxis })
+        .removeOneObs({ data: data, M0: M0, M1: M1, SD: SD, xAxis: xAxis })
         .then((result) => {
           dispatch({ name: "REMOVE_ONE_OBS", value: result });
         });
   };
   const addObservationsPhack = (add = 1) => {
     pvalueWorker
-      .addOneObs({ data: data, M0: M0, M1: M1, pHack: true, xAxis: xAxis })
+      .addOneObs({ data: data, M0: M0, M1: M1, SD: SD, pHack: true, xAxis: xAxis })
       .then((result) => {
         dispatch({ name: "PHACK", value: result });
       });
@@ -316,6 +322,8 @@ export default function TestCard() {
             shift={state.shift}
             dataBeforePhack={state.dataBeforePhack}
             phacked={state.phacked}
+            M0={state.M0}
+            SD={state.SD}
           />
         </CardContent>
         <CardActions disableSpacing>
@@ -338,6 +346,7 @@ export default function TestCard() {
               cohend={state.cohend}
               critValLwr={state.critValLwr}
               critValUpr={state.critValUpr}
+              M0={state.M0}
               SD={state.SD}
               n={state.n}
               shift={state.shift}

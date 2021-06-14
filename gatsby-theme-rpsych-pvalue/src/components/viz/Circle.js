@@ -7,32 +7,37 @@ import { gsap } from "gsap";
 import { isInTails, usePrevious, checkIfIsSignificant } from "./utils";
 import pvalueWorker from "../settings/pvalueWorker";
 
+const colorSig = "#055578"
+const colorNonSig = "#C9C7C5"
+const dropColor = "#2980b9"
+const colorHighlight = "#871326"
 
-const colorSig = "#056187"
-const colorNonSig = "#d35400"
 const useStyles = makeStyles(() => ({
   circle: {
-    fill: "#d35400",
+    fill: colorNonSig,
+  },
+  circleCursor: {
+    cursor: "pointer"
   },
   circleSignificant: {
-    fill: "#056187",
+    fill: colorSig,
   },
   phacked: {
     opacity: 1,
   },
   phackedSignificant: {
-    fill: "#056187",
+    fill: colorSig,
     opacity: 0.66,
   },
   highlight: {
     fill: "pink",
   },
   highlightTails: {
-    fill: "#056187",
+    fill: colorSig,
     transition: "fill 0.25s",
   },
   highlightCenter: {
-    fill: "#d35400",
+    fill: colorNonSig,
     transition: "fill 0.25s",
   },
 }));
@@ -82,7 +87,7 @@ const Circle = ({
     xAxis,
     state.n,
   ]);
-  const { meanCentered: highlightM, pval: highlightPval, hold: holdHighlight } = state.highlight;
+  const { meanCentered: highlightM, pval: highlightPval, hold: holdHighlight, M: holdMean } = state.highlight;
   const prevSignificant = useRef();
   const prevPosition = usePrevious({
     x: xMeanPx,
@@ -92,12 +97,12 @@ const Circle = ({
     xAxis: xAxis,
     y: cy,
     Z: zOrigin,
-    w: w
+    w: w,
+    holdHighlight: holdHighlight
   });
   React.useLayoutEffect(() => {
     let children = circles.current.children;
     const firstDrop = 50;
-    const dropColor = "#2980b9";
     for (let i = 0; i < children.length; i++) {
       const circle = circles.current.children[i];
       const translateX = (xScalePopDist(samples[i]) - xMeanPx);
@@ -146,12 +151,18 @@ const Circle = ({
 
   React.useEffect(() => {
     const circle = circles.current.children[0];
+    let isSignificant
     if (prevPosition != undefined) {
-      const isSignificant = checkIfIsSignificant({
-        M: xMeanCentered,
-        critValLwr: critValLwr,
-        critValUpr: critValUpr,
-      });
+      if(holdHighlight) {
+        isSignificant = state.sevDirection === "greater" ? (state.M0 + xMeanCentered + state.shift) < holdMean : (state.M0 + xMeanCentered + state.shift) > holdMean
+      } else {
+        isSignificant = checkIfIsSignificant({
+          M: xMeanCentered,
+          critValLwr: critValLwr,
+          critValUpr: critValUpr
+        });
+      }
+  
       if (isSignificant && !prevSignificant.current) {
         gsap.fromTo(
           circle,
@@ -162,7 +173,7 @@ const Circle = ({
             },
           },
           {
-            fill: "#056187",
+            fill: colorSig,
             attr: {
               r: radius,
             },
@@ -175,7 +186,7 @@ const Circle = ({
         gsap.fromTo(
           circle,
           {
-            fill: "red",
+            fill: "#871326",
           },
           {
             clearProps: "fill",
@@ -235,24 +246,17 @@ const Circle = ({
       gsap.set(
         circle,
         {
-          fill: "#056187",
+          fill: colorSig,
         },
       );
     } else if ((state.cohend === 0 || xAxis === "pValue")) {
       gsap.set(
         circle,
         {
-          fill: "#d35400",
+          fill: colorNonSig,
         },
       );
-    } else {
-      gsap.set(
-        circle,
-        {
-          fill: xMeanCentered > highlightM ? "#056187" : "#d35400",
-        },
-      );
-    }
+    } 
   }, [highlightM])
 
   const handleMouseOver = () => {
@@ -261,27 +265,29 @@ const Circle = ({
     clearTimeout(timerRef.current);
     const circle = circles.current.children[0];
     gsap.to(circle, { r: radius * 2, duration: 0.1, ease: "ease-in" });
-    const SE = phacked ? 15/Math.sqrt(samples.length) : state.SE
+    const SE = phacked ? state.SD/Math.sqrt(samples.length) : state.SE
     const zShifted = zOrigin + state.shift/SE
-    dispatch({
-      name: "HIGHLIGHT",
-      value: {
-        id: id,
-        cy: cy,
-        cx: xScalePopDist(xMeanOrigin),
-        highlightPos: xMeanPx,
-        meanCentered: xMeanCentered,
-        x: samples,
-        Z: zShifted,
-        M: xMeanOrigin + state.shift,
-        pval: 2 * (1 - normal.cdf(Math.abs(zShifted), 0, 1)),
-      },
-    });
+    if(!holdHighlight) {
+      dispatch({
+        name: "HIGHLIGHT",
+        value: {
+          id: id,
+          cy: cy,
+          cx: xScalePopDist(xMeanOrigin),
+          highlightPos: xMeanPx,
+          meanCentered: xMeanCentered,
+          x: samples,
+          Z: zShifted,
+          M: xMeanOrigin + state.shift,
+          pval: 2 * (1 - normal.cdf(Math.abs(zShifted), 0, 1)),
+        },
+      });
+    }
+
   };
   const handleMouseOut = () => {
     const circle = circles.current.children[0];
     gsap.to(circle, { r: radius });
-    console.log(holdHighlight)
     !holdHighlight && (
       timerRef.current = setTimeout(() => {
         dispatch({ name: "HIGHLIGHT", value: false });
@@ -290,7 +296,9 @@ const Circle = ({
 
   };
   const handleMouseClick = () => {
-    dispatch({ name: "HOLD_HIGHLIGHT" });
+    if(xAxis === "mean") {
+      dispatch({ name: holdHighlight ? "RELEASE_HIGHLIGHT" : "HOLD_HIGHLIGHT" });
+    }
   }
 
   return (
@@ -299,7 +307,10 @@ const Circle = ({
         {observations.map((x, i) => {
           return (
             <circle
-              className={classes.circle}
+              className={clsx({
+                [classes.circle]: true,
+                [classes.circleCursor]: xAxis === "mean"
+              })}
               r={radius}
               cy={cy}
               cx={xMeanPx}
