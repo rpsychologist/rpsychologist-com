@@ -21,6 +21,7 @@ import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
 import Grid from '@material-ui/core/Grid';
+import { normal } from "jstat";
 
 const useStyles = makeStyles((theme) => ({
   testStatLine: {
@@ -41,16 +42,29 @@ const useStyles = makeStyles((theme) => ({
   circleSeverity: {
     fill: "#c0392b",
     r: 10,
-    cursor: 'w-resize'
   },
   lineSeverity: {
     stroke: theme.palette.type === 'dark' ? '#fff' : "#c0392b",
-    strokeWidth: "2",
+    strokeWidth: 3,
+  },
+  lineXbarCI: {
+    stroke: theme.palette.type === 'dark' ? '#fff' : "#e67e22",
+    strokeWidth: 5,
   },
   formControl: {
     margin: 0,
     minWidth: 150,
   },
+  dragAreaSverity: {
+    cursor: "w-resize",
+    transition: "opacity 0.5s, fill 0.5s",
+    fill:  theme.palette.type === 'dark' ? "black" : "white",
+    opacity: 0,
+    "&:hover": {
+      opacity: 0.05,
+      fill:  theme.palette.type === 'dark' ? "white" : "black"
+    }
+  }
 }));
 
 const margin = {
@@ -117,23 +131,17 @@ const PValueSumCalculation = (props) => {
 };
 
 const SeverityCalculation = (props) => {
-  const { data, highlight, shift, M0, M1, direction } = props;
-
-  const numMuLarger = data.filter((d) =>
-    direction == "greater"
-      ? M0 + d.xMeanCentered + shift < highlight.M
-      : M0 + d.xMeanCentered + shift > highlight.M
-  ).length;
-  const sevFromSim = numMuLarger / data.length;
+  const { highlight,  M1, direction, SE } = props;
   const xbar = format(".1f")(highlight.M);
   const H1 = format(".1f")(M1)
   const claim = direction === "less" ? `μ < ${H1}` : `μ > ${H1}`;
+  let sev = normal.cdf(highlight.M, M1, SE)
+  sev = direction === "less" ? 1 - sev : sev
   return (
     <>
       <Grid container alignItems="flex-end" spacing={2}>
           <Grid item>
-            <strong>Severity Assessment: </strong> SEV(T, x̄ = {xbar}, {claim}) ={" "} 
-        {numMuLarger} / {data.length} = {format(".2f")(sevFromSim)}
+            <strong>Severity Assessment: </strong> SEV(T, x̄ = {xbar}, {claim}) = {format(".2r")(sev)}
         </Grid>
         <Grid item>
           <SevMenu />
@@ -141,7 +149,7 @@ const SeverityCalculation = (props) => {
         <Grid item xs={12}>
         We have observed x̄ = {xbar} and want to assess the claim that {claim},
         if we assume that the sample came from a population with mean {H1}, then{" "}
-        {format(".3p")(sevFromSim)} of the time we would observe a mean{" "}
+        {format(".3p")(sev)} of the time we would observe a mean{" "}
         {direction === "less" ? "greater" : "less"} than x̄ = {xbar}. According
         to{" "}
         <MuiLink
@@ -171,6 +179,8 @@ const SevMenu = () => {
   const handleChange = (event) => {
     dispatch({ name: "SWITCH_SEV_DIRECTION", value: event.target.value });
   };
+  const H1 = format(".1f")(state.M1)
+
   return (
     <FormControl className={classes.formControl}>
       <InputLabel id="select-sev-direction-label">Claim Direction</InputLabel>
@@ -180,8 +190,8 @@ const SevMenu = () => {
         value={state.sevDirection === null ? "less" : state.sevDirection}
         onChange={handleChange}
       >
-        <MenuItem value={"less"}> {`μ < ${state.M1}`}</MenuItem>
-        <MenuItem value={"greater"}>{`μ > ${state.M1}`}</MenuItem>
+        <MenuItem value={"less"}> {`μ < ${H1}`}</MenuItem>
+        <MenuItem value={"greater"}>{`μ > ${H1}`}</MenuItem>
       </Select>
     </FormControl>
   );
@@ -244,22 +254,21 @@ const SimChart = ({
   }, [reset, xAxis]);
 
   // Drag
-  const bind = useGesture(
-    {
-      onDrag: ({ args: [index, cond], movement: [mx], memo, first }) => {
-        const xy = first ? highlight.M : memo;
-        let x = xScaleSampleDist.invert(xScaleSampleDist(xy) + mx);
-        x = x < xPopDist[0] ? xPopDist[0] : x;
-        x = x > xPopDist[1] ? xPopDist[1] : x;
-        dispatch({
-          name: "DRAG_SEV_XBAR",
-          value: x,
-          immediate: true,
-        });
-        return xy;
-      }
-    }
-  );
+  const bind = useGesture({
+    onDrag: ({ args: [param], movement: [mx], memo, first }) => {
+      const xy = first ? (param === "xbar" ? highlight.M : state.M1) : memo;
+      let x = xScaleSampleDist.invert(xScaleSampleDist(xy) + mx);
+      x = x < xPopDist[0] ? xPopDist[0] : x;
+      x = x > xPopDist[1] ? xPopDist[1] : x;
+      dispatch({
+        name: param === "xbar" ? "DRAG_SEV_XBAR" : "COHEND",
+        value: param === "xbar" ? x : (x - state.M0) / state.SD,
+        immediate: true,
+      });
+      return xy;
+    },
+  });
+  
   // Scales and Axis
   const xScaleSampleDist = useMemo(
     () =>
@@ -302,173 +311,252 @@ const SimChart = ({
   ]);
   return (
     <>
-    <svg
-      id="pvalueChart"
-      width={width}
-      height={width * aspect}
-      viewBox={`0,0, ${width}, ${width * aspect}`}
-    >
-      <g transform={`translate(${margin.left}, ${margin.top})`}>
-        <g transform={`translate(0, ${h})`}>
-          <AxisBottom ticks={10} scale={xScaleSampleDist} />
-          <text x={w / 2} y="40" textAnchor="middle">
-            {getLabel(xAxis)}
+      <svg
+        id="pvalueChart"
+        width={width}
+        height={width * aspect}
+        viewBox={`0,0, ${width}, ${width * aspect}`}
+      >
+        <g transform={`translate(${margin.left}, ${margin.top})`}>
+          <g transform={`translate(0, ${h})`}>
+            <AxisBottom ticks={10} scale={xScaleSampleDist} />
+            <text x={w / 2} y="40" textAnchor="middle">
+              {getLabel(xAxis)}
+            </text>
+          </g>
+          {["mean", "zValue"].includes(xAxis) && (
+            <SampleDist
+              xScale={xScaleSampleDist}
+              xAxis={xAxis}
+              M0={M0}
+              SD={SD}
+              n={n}
+              SE={SE}
+              w={w}
+              h={h}
+              reset={reset}
+              margin={margin}
+              dist="H0"
+            />
+          )}
+          {(cohend === 0 || xAxis === "pValue") && highlight && (
+            <line
+              x1={highlight.highlightPos}
+              x2={highlight.highlightPos}
+              y1={h / 2}
+              y2={h}
+              id="testLine"
+              className={classes.highlightLine}
+            />
+          )}
+          <g transform={`translate(${meanShiftPx}, 0)`}>
+            <Samples
+              xScaleSampleDist={xScaleSampleDist}
+              xScalePopDist={xScalePopDist}
+              data={data}
+              add={add}
+              h={h}
+              M0={M0}
+              M1={M1}
+              w={w}
+              highlight={highlight}
+              phacked={phacked}
+              meanShiftPx={meanShiftPx}
+            />
+            {["mean", "zValue"].includes(xAxis) && (
+              <SampleDist
+                  xScale={xScaleSampleDist}
+                  xAxis={xAxis}
+                  M0={M0}
+                  SD={SD}
+                  n={n}
+                  SE={SE}
+                  w={w}
+                  h={h}
+                  reset={reset}
+                  margin={margin}
+                  dist="H1"
+              />)
+              }
+          </g>
+          <text x="0" y={20}>
+            1. Sample observations
           </text>
-        </g>
-        {["mean", "zValue"].includes(xAxis) && (
-          <SampleDist
-            xScale={xScaleSampleDist}
-            xAxis={xAxis}
+          <line
+                x1={xScaleSampleDist(state.M1)}
+                x2={xScaleSampleDist(state.M1)}
+                y1={h / 2}
+                y2={h + 15}
+                id="testLine"
+                className={classes.lineSeverity}
+              />
+                            <text
+                x={xScaleSampleDist(state.M1)}
+                y={h / 2 - 5}
+                textAnchor="middle"
+              >
+                μ₁
+              </text>
+              <rect
+                {...bind('M1')}
+                className={classes.dragAreaSverity}
+                x={xScaleSampleDist(state.M1) - 25}
+                y={h / 4 + 50}
+                height={3 * h / 4 + 150}
+                width={50}
+              />
+          {highlight.hold && (
+            <>
+            
+              <line
+                x1={xScaleSampleDist(highlight.M)}
+                x2={xScaleSampleDist(highlight.M)}
+                y1={h / 2}
+                y2={h}
+                id="testLine"
+                className={classes.lineSeverity}
+              />
+
+              <line
+                x1={xScaleSampleDist(highlight.M - 1.96 * state.SE)}
+                x2={xScaleSampleDist(highlight.M + 1.96 * state.SE)}
+                y1={h}
+                y2={h}
+                className={classes.lineXbarCI}
+              />
+              <line
+                x1={xScaleSampleDist(highlight.M + 1.96 * state.SE)}
+                x2={xScaleSampleDist(highlight.M + 1.96 * state.SE)}
+                y1={h + 15}
+                y2={h - 15}
+                className={classes.lineXbarCI}
+              />
+              <line
+                x1={xScaleSampleDist(highlight.M - 1.96 * state.SE)}
+                x2={xScaleSampleDist(highlight.M - 1.96 * state.SE)}
+                y1={h + 15}
+                y2={h - 15}
+                className={classes.lineXbarCI}
+              />
+              <circle
+                className={classes.circleSeverity}
+                r={radius}
+                cy={h}
+                cx={xScaleSampleDist(highlight.M)}
+                //onMouseDown={() => dispatch({ name: "RELEASE_HIGHLIGHT" })}
+              />
+              <text
+                x={xScaleSampleDist(highlight.M)}
+                y={h / 2 - 5}
+                textAnchor="middle"
+              >
+                x̄ (95% CI)
+              </text>
+
+              <rect
+                {...bind("xbar")}
+                className={classes.dragAreaSverity}
+                x={xScaleSampleDist(highlight.M) - 25}
+                y={h / 4 - 100}
+                height={3 * h / 4 + 150}
+                width={50}
+              />
+   
+            </>
+          )}
+
+          <PopulationDist
+            xScale={xScalePopDist}
             M0={M0}
             SD={SD}
-            n={n}
-            SE={SE}
             w={w}
             h={h}
             reset={reset}
             margin={margin}
-          />
-        )}
-        {(cohend === 0 || xAxis === "pValue") && highlight && (
-          <line
-            x1={highlight.highlightPos}
-            x2={highlight.highlightPos}
-            y1={h / 2}
-            y2={h}
-            id="testLine"
-            className={classes.highlightLine}
-          />
-        )}
-        <g transform={`translate(${meanShiftPx}, 0)`}>
-          <Samples
-            xScaleSampleDist={xScaleSampleDist}
-            xScalePopDist={xScalePopDist}
-            data={data}
-            add={add}
-            h={h}
-            M0={M0}
-            M1={M1}
-            w={w}
-            highlight={highlight}
-            phacked={phacked}
-            meanShiftPx={meanShiftPx}
-          />
-        </g>
-        <text x="0" y={20}>
-          1. Sample observations
-        </text>
-        {highlight.hold && (
-          <>
-            <line
-              x1={xScaleSampleDist(highlight.M)}
-              x2={xScaleSampleDist(highlight.M)}
-              y1={h / 2}
-              y2={h}
-              id="testLine"
-              className={classes.lineSeverity}
-            />
-            <circle
-              {...bind()}
-              className={classes.circleSeverity}
-              r={radius}
-              cy={h}
-              cx={xScaleSampleDist(highlight.M)}
-              //onMouseDown={() => dispatch({ name: "RELEASE_HIGHLIGHT" })}
-            />
-          </>
-        )}
-
-        <PopulationDist
-          xScale={xScalePopDist}
-          M0={M0}
-          SD={SD}
-          w={w}
-          h={h}
-          reset={reset}
-          margin={margin}
-          meanShiftPx={meanShiftPopPx}
-        ></PopulationDist>
-        {highlight && (
-          <g
-            transform={`translate(
+            meanShiftPx={meanShiftPopPx}
+          ></PopulationDist>
+          {highlight && (
+            <g
+              transform={`translate(
               ${
                 highlight.hold
                   ? xScaleSampleDist(highlight.M) - highlight.cx
                   : meanShiftPx
               }, 0)`}
-          >
-            <HighlightSample
-              {...highlight}
-              h={h}
-              xScale={xScalePopDist}
-              radius={5}
-            />
-          </g>
-        )}
-        <g transform={`translate(0, ${h / 4 + 50 + 2})`}>
-          <text x="0" y="-5">
-            2. Calculate test statistic
-          </text>
-          <line x1="0" x2={width} y="0" className={classes.testStatLine} />
-        </g>
-        <g transform={`translate(0, ${h / 4 + 50 + 50})`}>
-          <text x="0" y="-5">
-            3. Calculate p-value
-          </text>
-          {(cohend === 0 || xAxis === "pValue") &&
-            highlight &&
-            !highlight.hold && (
-              <PValueSumCalculation
-                data={data}
-                xAxis={xAxis}
-                highlightM={highlightM}
-                highlight={highlight}
-                n={n}
+            >
+              <HighlightSample
+                {...highlight}
+                h={h}
+                xScale={xScalePopDist}
+                radius={5}
               />
-            )}
-        </g>
-        {xAxis === "pValue" && (
-          <line
-            x1={xScaleSampleDist(0.05)}
-            x2={xScaleSampleDist(0.05)}
-            y1={h / 2}
-            y2={h}
-            className={classes.critStatLine}
-          />
-        )}
-        {["mean", "zValue"].includes(xAxis) && (
-          <>
+            </g>
+          )}
+          <g transform={`translate(0, ${h / 4 + 50 + 2})`}>
+            <text x="0" y="-5">
+              2. Calculate test statistic
+            </text>
+            <line x1="0" x2={width} y="0" className={classes.testStatLine} />
+          </g>
+          <g transform={`translate(0, ${h / 4 + 50 + 50})`}>
+            <text x="0" y="-5">
+              3. Calculate p-value
+            </text>
+            {(cohend === 0 || xAxis === "pValue") &&
+              highlight &&
+              !highlight.hold && (
+                <PValueSumCalculation
+                  data={data}
+                  xAxis={xAxis}
+                  highlightM={highlightM}
+                  highlight={highlight}
+                  n={n}
+                />
+              )}
+          </g>
+          {xAxis === "pValue" && (
             <line
-              x1={critVals.criticalValueUpr}
-              x2={critVals.criticalValueUpr}
+              x1={xScaleSampleDist(0.05)}
+              x2={xScaleSampleDist(0.05)}
               y1={h / 2}
               y2={h}
               className={classes.critStatLine}
-            />
-            <line
-              x1={critVals.criticalValueLwr}
-              x2={critVals.criticalValueLwr}
-              y1={h / 2}
-              y2={h}
-              className={classes.critStatLine}
-            />
-          </>
-        )}
-      </g>
-    </svg>
-    <div>
-           {highlight.hold && (
-            <SeverityCalculation
-              data={data}
-              highlight={highlight}
-              shift={shift}
-              M0={M0}
-              M1={M1}
-              direction={state.sevDirection}
             />
           )}
-          </div>
-          </>
+          {["mean", "zValue"].includes(xAxis) && (
+            <>
+              <line
+                x1={critVals.criticalValueUpr}
+                x2={critVals.criticalValueUpr}
+                y1={h / 2}
+                y2={h}
+                className={classes.critStatLine}
+              />
+              <line
+                x1={critVals.criticalValueLwr}
+                x2={critVals.criticalValueLwr}
+                y1={h / 2}
+                y2={h}
+                className={classes.critStatLine}
+              />
+            </>
+          )}
+        </g>
+      </svg>
+      <div>
+        {highlight.hold && (
+          <SeverityCalculation
+            data={data}
+            highlight={highlight}
+            shift={shift}
+            M0={M0}
+            M1={M1}
+            SE={SE}
+            direction={state.sevDirection}
+          />
+        )}
+      </div>
+    </>
   );
 };
 

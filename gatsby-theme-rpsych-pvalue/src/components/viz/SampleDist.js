@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import clsx from "clsx";
 import { makeStyles } from "@material-ui/styles";
 import { genData } from "./utils";
 import { scaleLinear } from "d3-scale";
@@ -6,10 +7,18 @@ import { line } from "d3-shape";
 import { range } from "d3-array";
 import { normal } from "jstat";
 
-const useStyles = makeStyles(() => ({
-  sampleDist: {
+const useStyles = makeStyles((theme) => ({
+  h0Dist: {
     stroke: "#30394F",
     strokeWidth: "4",
+    fill: "none",
+    fillOpacity: "1",
+  },
+  h1Dist: {
+    stroke: theme.palette.type === "dark" ? "white" : "#30394F",
+    strokeWidth: "4",
+    strokeOpacity: 0.5,
+    strokeDasharray: 10,
     fill: "none",
     fillOpacity: "1",
   }
@@ -25,6 +34,7 @@ const SampleDist = ({
   SE,
   reset,
   margin,
+  dist
 }) => {
 
   const classes = useStyles();
@@ -100,7 +110,13 @@ const SampleDist = ({
   return (
     <>
       <g transform={`translate(0, 0)`}>
-        <path d={pathDist} className={classes.sampleDist} />
+        <path
+          d={pathDist}
+          className={clsx({
+            [classes.h0Dist]: dist === "H0",
+            [classes.h1Dist]: dist === "H1",
+          })}
+        />
       </g>
     </>
   );
