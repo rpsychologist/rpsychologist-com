@@ -6,6 +6,7 @@ import _ from "lodash";
 import { randomNormal } from "d3-random";
 import { mean } from "d3-array";
 import { normal } from "jstat";
+import { getPower } from "../viz/utils";
 
 
 const shiftAllObs = ({data, shift = 0, n, M0, SD}) => {
@@ -48,6 +49,7 @@ export const vizReducer = (state, action) => {
         ...state,
         cohend: round(value),
         immediate: immediate,
+        currentPower: getPower(0.05, value, state.n),
         M1: round(M1),
         shift: shift,
         sliding: true,
@@ -116,6 +118,7 @@ export const vizReducer = (state, action) => {
         SE: SE,
         shift: shift,
         ...calcCritValues({shift: shift, SE: SE}),
+        currentPower: getPower(0.05, state.cohend, n),
         data: state.phacked ? state.dataBeforePhack : [],
         phacked: false,
         highlight: false
@@ -137,6 +140,7 @@ export const vizReducer = (state, action) => {
           data: value,
           n: n,
           SE: SE,
+          currentPower: getPower(0.05, state.cohend, n),
           ...calcCritValues({shift: state.shift, SE: SE})
         }
     }
@@ -149,6 +153,7 @@ export const vizReducer = (state, action) => {
         data: value,
         n: n,
         SE: SE,
+        currentPower: getPower(0.05, state.cohend, n),
         ...calcCritValues({shift: state.shift, SE: SE})
       }
     }
@@ -162,6 +167,7 @@ export const vizReducer = (state, action) => {
         immediate: immediate,
         data: value,
         n: n,
+        currentPower: getPower(0.05, state.cohend, n),
         SE: SE,
         ...(!phacked && {
           nBeforePhack: state.n, 

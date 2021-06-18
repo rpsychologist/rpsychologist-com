@@ -3,7 +3,31 @@ import { useRef, useEffect } from "react"
 import { normal } from "jstat";
 import {bisector} from "d3-array"
 
+export const getPower = (alpha, d, n, onetailed = false) => {
+  if (onetailed) {
+    alpha = alpha;
+  } else {
+    alpha = alpha / 2;
+  }
+  var power =
+    1 -
+    normal.cdf(
+      normal.inv(1 - alpha, 0, 1) * (1 / Math.sqrt(n)),
+      d,
+      1 / Math.sqrt(n)
+    );
 
+  if (onetailed) {
+    return power;
+  } else {
+    var lwr = normal.cdf(
+      -1 * (normal.inv(1 - alpha, 0, 1) * (1 / Math.sqrt(n))),
+      d,
+      1 / Math.sqrt(n)
+    );
+    return power + lwr;
+  }
+};
 export const isInTails = ({ highlightM, M, pval = false, highlightPval = 0, xAxis = "mean" }) => {
   if(xAxis === "pValue") {
     return pval < highlightPval

@@ -11,8 +11,9 @@ footer a {
 }
 
 /* VIZ */
-svg#pvalueChart {
+svg#pvalueChart, svg#curvesChart  {
   user-select: none;
+  touch-action: pan-y;
 }
 svg#pvalueChart:active {
 }

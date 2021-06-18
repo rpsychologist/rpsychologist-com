@@ -1,11 +1,12 @@
 import React, { useReducer, createContext, useMemo } from "react";
-import { makeStyles, ThemeProvider } from "@material-ui/core/styles";
+import { makeStyles, ThemeProvider, useTheme } from "@material-ui/core/styles";
 import {vizTheme} from "./styles/vizTheme"
 import Container from "@material-ui/core/Container";
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import SimChart from "./components/viz/SimChart";
+import PowerCurve from "./components/viz/PowerCurve";
 import ResponsiveChart from "gatsby-theme-rpsych-viz/src/components/ResponsiveChart";
 import Slider from "./components/settings/SettingsSlider";
 import CircularProgress from "@material-ui/core/CircularProgress";
@@ -17,8 +18,10 @@ import { queryTypes } from "./components/settings/queryTypes";
 import IconButton from "@material-ui/core/IconButton";
 import TwitterIcon from "@material-ui/icons/Twitter";
 import Link from "@material-ui/core/Link";
-import { normal } from "jstat";
 import TestCard from './components/viz/TestCard'
+import SeverityDescription from "./components/viz/SeverityDesc"
+import { format } from "d3-format";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -104,6 +107,7 @@ const Viz = ({
 }) => {
   const classes = useStyles();
   const { t } = useTranslation("pvalue");
+  const theme = useTheme();
   const [query] = useQueryParams(queryTypes);
   const { slider: minimal } = query;
   initialState = useMemo(() => {
@@ -121,7 +125,9 @@ const Viz = ({
   const contextValue = useMemo(() => {
     return { state, dispatch };
   }, [state, dispatch]);
-
+  const H1 = format(".1f")(state.M1)
+  const mobile = useMediaQuery(theme.breakpoints.down("xs"));
+  const curveDivPadding = mobile ? {text: 0, curve: 20} : {text: 40, curve:0}
   return (
     <ThemeProvider theme={vizTheme}>
     <div className={classes.root}>
@@ -135,6 +141,34 @@ const Viz = ({
           />
           <div className={classes.vizContainer}>
           <ResponsiveChart chart={SimChart} {...state}/>
+          <Grid container>
+            <Grid item sm={6} style={{paddingRight: curveDivPadding.text}}>
+            {state.highlight.hold && (
+              <SeverityDescription
+                data={state.data}
+                highlight={state.highlight}
+                shift={state.shift}
+                M0={state.M0}
+                M1={state.M1}
+                SE={state.SE}
+                direction={state.sevDirection}
+              />
+            )}
+            {!state.highlight.hold && (
+              <>
+              <Typography variant="body1" component="h3" gutterBottom><strong>Power Analysis</strong>: Pr(test T rejects H<sub>0</sub>; μ = {H1}) = {format(".2f")(state.currentPower)}</Typography>
+              <Typography variant="body2"> If we assume that the population mean is {H1}, then our test would reject the null hypothesis {format(".2p")(state.currentPower)} of the time.</Typography>
+              </>
+            )
+            
+            }
+
+            </Grid>
+            <Grid item xs={12} sm={6} style={{paddingLeft: curveDivPadding.curve}}>
+              <ResponsiveChart chart={PowerCurve} {...state}/>
+            </Grid>
+          </Grid>
+
           <TestCard />
           </div>
           <Grid container justify="center" spacing={3} id="__loader">
