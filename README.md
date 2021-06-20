@@ -3,7 +3,7 @@
 
 
 ## Visualizations
-Each of the visualization has it's own folder `gatsby-plugin-viz-*`.
+Each of the visualization has it's own folder `gatsby-plugin-rpsych-*`.
 All of the visualizations are not yet ported to React.
 
 
