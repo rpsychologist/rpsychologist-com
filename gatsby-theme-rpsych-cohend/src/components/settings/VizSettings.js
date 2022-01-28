@@ -287,7 +287,7 @@ const VizSettings = () => {
           type="number"
           name="sliderMax"
           value={sliderMax}
-          min="0"
+          min={0}
           handleChange={handleChange}
           handleSubmit={handleSubmit}
         />
@@ -296,8 +296,8 @@ const VizSettings = () => {
           type="number"
           name="sliderStep"
           value={sliderStep}
-          min="0"
-          step="0.1"
+          min={0}
+          step="0.01"
           handleChange={handleChange}
           handleSubmit={handleSubmit}
         />

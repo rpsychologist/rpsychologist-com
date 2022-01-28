@@ -73,9 +73,9 @@ const InputCohen = ({ cohend, sliderStep, sliderMax }) => {
             margin="dense"
             onChange={handleInputChange}
             inputProps={{
-              step: `${sliderStep}`,
+              step: `${Number(sliderStep)}`,
               min: 0,
-              max: `${sliderMax}`,
+              max: `${Number(sliderMax)}`,
               type: "number",
               "aria-labelledby": "input-slider",
             }}
@@ -176,8 +176,8 @@ const InputSlider = ({
           <Slider
             value={typeof cohend === "number" ? cohend : 0}
             onChange={handleSliderChange}
-            max={sliderMax}
-            step={sliderStep}
+            max={Number(sliderMax)}
+            step={Number(sliderStep)}
             aria-labelledby="input-slider"
             classes={{ root: "main--slider" }}
           />
