@@ -3,6 +3,7 @@ import { makeStyles } from "@material-ui/core";
 import Container from "@material-ui/core/Container";
 import { MDXRenderer } from "gatsby-plugin-mdx"
 import { useTranslation } from "react-i18next"
+import { format } from "d3-format";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -21,17 +22,17 @@ const useStyles = makeStyles(theme => ({
 }));
 const round = val => Math.round(Number(val) * 10) / 10;
 
-const CommonLanguage = ({ vizState, commonLangText }) => {
+const CommonLanguage = ({ vizState, commonLangText, precision, precisionPercent }) => {
   const classes = useStyles();
 
   const formatedEstimates = {
-    cohend: round(vizState.cohend),
-    U3: round(vizState.U3 * 100),
-    propOverlap: round(vizState.propOverlap * 100),
-    CL: round(vizState.CL * 100),
-    NNT: round(vizState.NNT),
-    NNTPerc: round((1 / vizState.NNT) * 100),
-    CER: round(vizState.CER),
+    cohend: format("." + (vizState.cohend > 1 ? precision + 1 : precision) + "r")(vizState.cohend),
+    U3: format("." + precisionPercent + "%")(vizState.U3),
+    propOverlap: format("." + precisionPercent + "%")(vizState.propOverlap ),
+    CL: format("." + precisionPercent + "%")(vizState.CL),
+    NNT: format("." + precisionPercent  + "f")(vizState.NNT),
+    NNTPerc: format("." + precisionPercent + "f")((1 / vizState.NNT) * 100),
+    CER: format("." + precision + "r")(vizState.CER),
     muOneLabel: vizState.muOneLabel.toLowerCase(),
     muZeroLabel: vizState.muZeroLabel.toLowerCase()
   }

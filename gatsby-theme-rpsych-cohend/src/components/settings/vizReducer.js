@@ -16,7 +16,7 @@ export const vizReducer = (state, action) => {
       case "cohend":
         return {
           ...state,
-          cohend: round(value),
+          cohend: value,
           immediate: immediate,
           M1: round(state.M0 + value * state.SD),
           ...updateDonutData(value, state.CER / 100),

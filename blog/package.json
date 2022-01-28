@@ -40,7 +40,7 @@
     "url": "git+https://github.com/rpsychologist/rpsychologist-com/"
   },
   "scripts": {
-    "dev": "gatsby develop -H 172.16.0.116",
+    "dev": "gatsby develop -H 0.0.0.0",
     "dev-debug": "node --nolazy node_modules/.bin/gatsby develop --inspect-brk",
     "lint": "eslint --ext .js,.jsx --ignore-pattern public .",
     "test": "echo \"Write tests! -> https://gatsby.app/unit-testing\"",
@@ -48,7 +48,7 @@
     "develop": "gatsby develop",
     "start": "npm run develop",
     "build": "node postinstall.js && gatsby build",
-    "serve": "gatsby serve -H 172.16.0.116",
+    "serve": "gatsby serve -H 0.0.0.0",
     "fix-semi": "eslint --quiet --ignore-pattern node_modules --ignore-pattern public --parser babel-eslint --no-eslintrc --rule '{\"semi\": [2, \"never\"], \"no-extra-semi\": [2]}' --fix gatsby-node.js",
     "clean": "gatsby clean"
   }
