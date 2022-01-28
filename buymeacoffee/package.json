@@ -5,7 +5,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "Download": "node src/getCoffeeSupporters.js"
+    "download": "node src/getCoffeeSupporters.js"
   },
   "dependencies": {
     "axios": "^0.21.1"
