@@ -82,3 +82,4 @@ blog/content/comments/rpsychologist-disqus-archive.xml
 coffee-supporters/
 #vscode
 .vscode
+.yarn
