@@ -38,5 +38,13 @@
     "localName": "Norsk (bokmål)",
     "langDir": "ltr",
     "dateFormat": "YYYY.MM.DD"
+  },
+  {
+    "code": "uz",
+    "hrefLang": "uz",
+    "name": "Uzbek",
+    "localName": "O'zbek tili",
+    "langDir": "ltr",
+    "dateFormat": "YYYY.MM.DD"
   }
 ]
