@@ -6,7 +6,7 @@ import Link from "@material-ui/core/Link";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
-import ScatterPlot from "./components/viz/Overlap";
+import ScatterPlot from "./components/viz/ScatterPlot";
 import Venn from "./components/viz/Venn";
 import ResponsiveChart from "gatsby-theme-rpsych-viz/src/components/ResponsiveChart";
 import Slider from "./components/settings/SettingsSlider";
@@ -16,7 +16,7 @@ import { defaultState } from "./components/settings/defaultSettings";
 import { vizReducer } from "./components/settings/vizReducer";
 import VizSettings from "./components/settings/VizSettings";
 import { format } from "d3-format";
-import PointEditSettings from './components/settings/PointEditSettings'
+import PointEditSettings from "./components/settings/PointEditSettings";
 
 export const SettingsContext = createContext(null);
 
@@ -71,21 +71,30 @@ if (typeof localStorage !== `undefined`) {
   });
 }
 
-const DataSource = ({preset}) => {
-
-  let source
-  if(['anscombe1', 'anscombe2', 'anscombe3', 'anscombe4'].includes(preset)) {
-    source = <Link href="https://doi.org/10.1080%2F00031305.1973.10478966">Anscombe, F. J. (1973)</Link>
-  } else if (preset === 'anscombosaurus') {
-    source = <Link href="http://www.thefunctionalart.com/2016/08/download-datasaurus-never-trust-summary.html">Alberto Cairo</Link>
-  } else source = false
+const DataSource = ({ preset }) => {
+  let source;
+  if (["anscombe1", "anscombe2", "anscombe3", "anscombe4"].includes(preset)) {
+    source = (
+      <Link href="https://doi.org/10.1080%2F00031305.1973.10478966">
+        Anscombe, F. J. (1973)
+      </Link>
+    );
+  } else if (preset === "anscombosaurus") {
+    source = (
+      <Link href="http://www.thefunctionalart.com/2016/08/download-datasaurus-never-trust-summary.html">
+        Alberto Cairo
+      </Link>
+    );
+  } else source = false;
 
   return (
-    source && <Typography variant="body2" align="right">Data source: {source}</Typography>
-  )
-} 
-
-
+    source && (
+      <Typography variant="body2" align="right">
+        Data source: {source}
+      </Typography>
+    )
+  );
+};
 
 const Viz = ({ openSettings, toggleDrawer, handleHelpTour }) => {
   const [state, dispatch] = useReducer(vizReducer, initialState);
@@ -102,10 +111,8 @@ const Viz = ({ openSettings, toggleDrawer, handleHelpTour }) => {
             handleDrawer={toggleDrawer}
             handleHelpTour={handleHelpTour}
           />
-                        
-
           <Grid container alignItems="center">
-            <Grid item xs={12} sm={6} md={7} style={{position: 'relative'}}>
+            <Grid item xs={12} sm={6} md={7} style={{ position: "relative" }}>
               <PointEditSettings state={state} dispatch={dispatch} />
               <ResponsiveChart chart={ScatterPlot} {...state} />
             </Grid>

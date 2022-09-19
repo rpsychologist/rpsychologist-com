@@ -3,7 +3,7 @@ import { csvParse } from "d3-dsv";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Tooltip from "@material-ui/core/Tooltip";
-import GridOnIcon from '@material-ui/icons/GridOn';
+import GridOnIcon from "@material-ui/icons/GridOn";
 
 const useStyles = makeStyles((theme) => ({
   input: {
@@ -12,8 +12,7 @@ const useStyles = makeStyles((theme) => ({
   button: {
     width: "100%",
     marginBottom: theme.spacing(1),
-
-  }
+  },
 }));
 
 const CsvLoad = ({ dispatch }) => {
@@ -27,7 +26,7 @@ const CsvLoad = ({ dispatch }) => {
     };
     reader.onerror = (e) => {
       if (e.target.error.name == "NotReadableError") {
-        alert("Canno't read file !");
+        alert("Cannot read file !");
       }
     };
     file && reader.readAsText(file);
@@ -51,8 +50,9 @@ const CsvLoad = ({ dispatch }) => {
           <Button
             startIcon={<GridOnIcon />}
             variant="outlined"
-            color="primary"
+            color="default"
             component="span"
+            fullWidth
           >
             Load CSV
           </Button>
