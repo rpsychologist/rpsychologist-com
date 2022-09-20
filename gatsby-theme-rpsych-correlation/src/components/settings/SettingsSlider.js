@@ -1,15 +1,11 @@
-import React, {
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Slider from "@material-ui/core/Slider";
 import Input from "@material-ui/core/Input";
 import IconButton from "@material-ui/core/IconButton";
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
 import SettingsIcon from "@material-ui/icons/Settings";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import HelpIcon from "@material-ui/icons/Help";
@@ -18,12 +14,12 @@ import { Typography } from "@material-ui/core";
 import clsx from "clsx";
 import MenuItemDownloadCsv from "./DownloadCsv";
 import { SettingsContext } from "../../Viz";
-import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
-import FormControl from '@material-ui/core/FormControl';
-import {saveSvgAsPng, svgAsDataUri} from 'save-svg-as-png'
-import { saveAs } from 'file-saver';
-import ImageIcon from '@material-ui/icons/Image';
-import GridOnIcon from '@material-ui/icons/GridOn';
+import PlayCircleOutlineIcon from "@material-ui/icons/PlayCircleOutline";
+import FormControl from "@material-ui/core/FormControl";
+import { saveSvgAsPng, svgAsDataUri } from "save-svg-as-png";
+import { saveAs } from "file-saver";
+import ImageIcon from "@material-ui/icons/Image";
+import GridOnIcon from "@material-ui/icons/GridOn";
 
 const useStyles = makeStyles({
   root: {
@@ -31,11 +27,14 @@ const useStyles = makeStyles({
   },
   input: {
     width: 60,
-  }
+  },
 });
 
 const saveSvgToPng = () => {
-  saveSvgAsPng(document.getElementById("scatterChart"), "rpsychologist-correlation.png");
+  saveSvgAsPng(
+    document.getElementById("scatterChart"),
+    "rpsychologist-correlation.png"
+  );
 };
 const saveSvg = () => {
   const promise = svgAsDataUri(document.getElementById("scatterChart"), {
@@ -43,8 +42,6 @@ const saveSvg = () => {
     fonts: "",
   }).then((uri) => saveAs(uri, "rpsychologist-correlation.svg"));
 };
-
-
 
 const DownloadSelect = ({ data }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -67,18 +64,18 @@ const DownloadSelect = ({ data }) => {
   };
   return (
     <>
-    <Tooltip title="Download SVG/CSV">
-      <IconButton
-        color="inherit"
-        aria-label="save svg"
-        edge="end"
-        onClick={handleClick}
-        id="button--save-svg"
-        aria-controls="download-menu"
-        aria-haspopup="true"
-      >
-        <SaveAltIcon />
-      </IconButton>
+      <Tooltip title="Download SVG/CSV">
+        <IconButton
+          color="inherit"
+          aria-label="save svg"
+          edge="end"
+          onClick={handleClick}
+          id="button--save-svg"
+          aria-controls="download-menu"
+          aria-haspopup="true"
+        >
+          <SaveAltIcon />
+        </IconButton>
       </Tooltip>
       <Menu
         id="simple-menu"
@@ -87,21 +84,23 @@ const DownloadSelect = ({ data }) => {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        <MenuItem onClick={handleSVGtoPNG}><ImageIcon fontSize="small" style={{marginRight: '0.5em'}}/> PNG</MenuItem>
-        <MenuItem onClick={handleSVG}><ImageIcon fontSize="small" style={{marginRight: '0.5em'}}/> SVG</MenuItem>
+        <MenuItem onClick={handleSVGtoPNG}>
+          <ImageIcon fontSize="small" style={{ marginRight: "0.5em" }} /> PNG
+        </MenuItem>
+        <MenuItem onClick={handleSVG}>
+          <ImageIcon fontSize="small" style={{ marginRight: "0.5em" }} /> SVG
+        </MenuItem>
         <MenuItemDownloadCsv
           data={data}
-
           onClick={handleClose}
           filename={"rpschologist-correlation.csv"}
         >
-          <GridOnIcon fontSize="small" style={{marginRight: '0.5em'}}/> CSV
+          <GridOnIcon fontSize="small" style={{ marginRight: "0.5em" }} /> CSV
         </MenuItemDownloadCsv>
       </Menu>
-  </>
+    </>
   );
 };
-
 
 const InputCohen = ({ rho }) => {
   const { state, dispatch } = useContext(SettingsContext);
@@ -112,45 +111,50 @@ const InputCohen = ({ rho }) => {
   const handleInputChange = (e) => {
     const newVal = e.target.value === "" ? "" : Number(e.target.value);
     setInputVal(newVal);
-    setSubmitted(false)
+    setSubmitted(false);
   };
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     dispatch({ name: "rho", value: inputVal, immediate: false });
-    setSubmitted(true)
-  }
-   const handleChange = (event) => {
+    setSubmitted(true);
+  };
+  const handleChange = (event) => {
     dispatch({ name: "rho", value: 1, immediate: false });
   };
 
   return (
     <>
-    <FormControl >
-    <form id="rho-input" onSubmit={handleSubmit}>
-      <Typography display="inline" style={{ paddingRight: "10px" }}>
-        Correlation
-      </Typography>
-      <Input
-        className={classes.input}
-        value={submitted ? rho : inputVal}
-        margin="dense"
-        onChange={handleInputChange}
-        inputProps={{
-          step: 0.001,
-          min: -1,
-          max: 1,
-          type: "number",
-          "aria-labelledby": "input-slider",
-        }}
-      />
-         <IconButton aria-label="delete" disabled={submitted} size="small" color="primary" onClick={handleSubmit}>
-          <PlayCircleOutlineIcon fontSize="inherit"  />
-        </IconButton>
+      <FormControl>
+        <form id="rho-input" onSubmit={handleSubmit}>
+          <Typography display="inline" style={{ paddingRight: "10px" }}>
+            Correlation
+          </Typography>
+          <Input
+            className={classes.input}
+            value={submitted ? rho : inputVal}
+            margin="dense"
+            onChange={handleInputChange}
+            inputProps={{
+              step: 0.001,
+              min: -1,
+              max: 1,
+              type: "number",
+              "aria-labelledby": "input-slider",
+            }}
+          />
+          <IconButton
+            aria-label="delete"
+            disabled={submitted}
+            size="small"
+            color="primary"
+            onClick={handleSubmit}
+          >
+            <PlayCircleOutlineIcon fontSize="inherit" />
+          </IconButton>
         </form>
-        </FormControl >
-        <FormControl >
-      </FormControl >
-      </>
+      </FormControl>
+      <FormControl></FormControl>
+    </>
   );
 };
 
@@ -179,12 +183,7 @@ const InputSlider = ({ handleDrawer, openSettings, handleHelpTour }) => {
     <div className={classes.root}>
       <Grid container spacing={1} alignItems="center" justify="space-between">
         <Grid item>
-        <InputCohen 
-          rho={rho} 
-          sliderMin={-1}
-          sliderMax={1}
-          sliderStep={0.1}
-        />
+          <InputCohen rho={rho} sliderMin={-1} sliderMax={1} sliderStep={0.1} />
         </Grid>
         <Grid item>
           <Tooltip title="Settings">
@@ -199,7 +198,13 @@ const InputSlider = ({ handleDrawer, openSettings, handleHelpTour }) => {
               <SettingsIcon />
             </IconButton>
           </Tooltip>
-          <DownloadSelect data={{ data: state.data, xLabel: state.xLabel, yLabel: state.yLabel }} />
+          <DownloadSelect
+            data={{
+              data: state.data,
+              xLabel: state.xLabel,
+              yLabel: state.yLabel,
+            }}
+          />
           <Tooltip title="Start guided help">
             <IconButton
               color="inherit"

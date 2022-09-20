@@ -1,6 +1,7 @@
 import { randomNormal } from "d3-random";
 import { mean, variance, deviation, min, max } from "d3-array";
 import jstat from "jstat";
+import { defaultState } from "../settings/defaultSettings";
 
 const drawGaussian = (n, M, SD) => {
   return [...Array(n)].map(() => randomNormal(M, SD)());
@@ -93,17 +94,16 @@ const createBivariateData = (state) => {
   );
   const newX = xNormalized.map((x) => x * SD0 + M0);
 
-
   const sigmaHatNewY = deviation(newY);
   const sigmaHatNewX = deviation(newX);
   const muHatNewY = mean(newY);
   const muHatNewX = mean(newX);
-  const covNew = jstat.covariance(newY, newX)
-  const cor =  covNew / (sigmaHatNewY * sigmaHatNewX);
+  const covNew = jstat.covariance(newY, newX);
+  const cor = covNew / (sigmaHatNewY * sigmaHatNewX);
 
   // regression
-  const slope = covNew / (sigmaHatNewX*sigmaHatNewX)
-  const intercept = muHatNewY - slope*muHatNewX
+  const slope = covNew / (sigmaHatNewX * sigmaHatNewX);
+  const intercept = muHatNewY - slope * muHatNewX;
   return {
     muHatX: muHatX,
     muHatY: muHatY,
@@ -117,41 +117,40 @@ const createBivariateData = (state) => {
     newX: newX,
     cor: cor,
     intercept: intercept,
-    slope: slope
+    slope: slope,
   };
 };
 
 const getSampleCorrelation = (data) => {
-  const y = data.map(d => d[1])
-  const x = data.map(d => d[0])
-  const cov = jstat.covariance(y, x)
-  const sigmaX = deviation(x)
-  const cor =  cov / (deviation(y) * sigmaX)
+  const y = data.map((d) => d[1]);
+  const x = data.map((d) => d[0]);
+  const cov = jstat.covariance(y, x);
+  const sigmaX = deviation(x);
+  const cor = cov / (deviation(y) * sigmaX);
 
-  const slope = cov / (sigmaX * sigmaX)
-  const intercept = mean(y) - slope * mean(x)
+  const slope = cov / (sigmaX * sigmaX);
+  const intercept = mean(y) - slope * mean(x);
 
-  return ({
+  return {
     cor: cor,
     rho: cor,
     intercept: intercept,
     slope: slope,
-    yNew: y,
-    xNew: x,
+    x: y,
+    x: x,
     muHatNewX: mean(x),
     muHatNewY: mean(y),
     sigmaHatNewX: deviation(x),
     sigmaHatNewY: deviation(y),
-  })
-    
-}
+  };
+};
 
 const rescale = (state) => {
   const { muHatNewY, muHatNewX, sigmaHatNewY, sigmaHatNewX, plotType } = state;
-  const xMin = muHatNewX - 4 * sigmaHatNewX
-  const xMax = muHatNewX + 4 * sigmaHatNewX
-  let yMin = muHatNewY - 4 * sigmaHatNewY
-  let yMax = muHatNewY + 4 * sigmaHatNewY
+  const xMin = muHatNewX - 4 * sigmaHatNewX;
+  const xMax = muHatNewX + 4 * sigmaHatNewX;
+  let yMin = muHatNewY - 4 * sigmaHatNewY;
+  let yMax = muHatNewY + 4 * sigmaHatNewY;
   return {
     yMin: yMin,
     yMax: yMax,
@@ -161,31 +160,31 @@ const rescale = (state) => {
 };
 
 const anscombe1 = [
-  [10 ,8.04],
-  [8 ,6.95],
-  [13 ,7.58],
-  [9 ,8.81],
-  [11 ,8.33],
-  [14 ,9.96],
-  [6 ,7.24],
-  [4 ,4.26],
-  [12 ,10.84],
-  [7 ,4.82],
-  [5 ,5.68]
-]
+  [10, 8.04],
+  [8, 6.95],
+  [13, 7.58],
+  [9, 8.81],
+  [11, 8.33],
+  [14, 9.96],
+  [6, 7.24],
+  [4, 4.26],
+  [12, 10.84],
+  [7, 4.82],
+  [5, 5.68],
+];
 const anscombe2 = [
-  [10 , 9.14],
-  [8 ,8.14],
-  [13 ,8.74],
-  [9 ,8.77],
-  [11 ,9.26],
-  [14 ,8.1],
-  [6 ,6.13],
-  [4 ,3.1],
-  [12 ,9.13],
-  [7 ,7.26],
-  [5 ,4.74],
-]
+  [10, 9.14],
+  [8, 8.14],
+  [13, 8.74],
+  [9, 8.77],
+  [11, 9.26],
+  [14, 8.1],
+  [6, 6.13],
+  [4, 3.1],
+  [12, 9.13],
+  [7, 7.26],
+  [5, 4.74],
+];
 const anscombe3 = [
   [10, 7.46],
   [8, 6.77],
@@ -198,7 +197,7 @@ const anscombe3 = [
   [12, 8.15],
   [7, 6.42],
   [5, 5.73],
-]
+];
 const anscombe4 = [
   [8, 6.58],
   [8, 5.76],
@@ -210,8 +209,8 @@ const anscombe4 = [
   [19, 12.5],
   [8, 5.56],
   [8, 7.91],
-  [8, 6.89]
-]
+  [8, 6.89],
+];
 const anscombosaurus = [
   [51.5385, 96.0256],
   [46.1538, 94.4872],
@@ -353,20 +352,17 @@ const anscombosaurus = [
   [91.2821, 41.5385],
   [50, 95.7692],
   [47.9487, 95],
-  [44.1026, 92.6923]
-]
-
+  [44.1026, 92.6923],
+];
 
 const presetData = (data, value, state) => {
-  const desc = getSampleCorrelation(data)
+  const desc = getSampleCorrelation(data);
   return {
     ...state,
     preset: value.preset,
     data: data,
     ...rescale(desc),
     ...desc,
-    x: desc.xNew,
-    y: desc.yNew,
     M0: desc.muHatNewX,
     muHatX: desc.muHatNewX,
     M1: desc.muHatNewY,
@@ -375,9 +371,9 @@ const presetData = (data, value, state) => {
     sigmaHatX: desc.sigmaHatNewX,
     SD1: desc.sigmaHatNewY,
     sigmaHatY: desc.sigmaHatNewY,
-    n: data.length
+    n: data.length,
   };
-}
+};
 
 const setPreset = (value, state) => {
   if (["small", "medium", "large"].includes(value.preset)) {
@@ -390,23 +386,21 @@ const setPreset = (value, state) => {
         rho: value.rho,
       }),
     };
-  } else if (value.preset === 'anscombe1') {
-    return presetData(anscombe1, value, state)
-  } else if (value.preset === 'anscombe2') {
-    return presetData(anscombe2, value, state)
-  } else if (value.preset === 'anscombe3') {
-    return presetData(anscombe3, value, state)
-  } else if (value.preset === 'anscombe4') {
-    return presetData(anscombe4, value, state)
-  } else if (value.preset === 'anscombosaurus') {
-    return presetData(anscombosaurus, value, state)
+  } else if (value.preset === "anscombe1") {
+    return presetData(anscombe1, value, state);
+  } else if (value.preset === "anscombe2") {
+    return presetData(anscombe2, value, state);
+  } else if (value.preset === "anscombe3") {
+    return presetData(anscombe3, value, state);
+  } else if (value.preset === "anscombe4") {
+    return presetData(anscombe4, value, state);
+  } else if (value.preset === "anscombosaurus") {
+    return presetData(anscombosaurus, value, state);
   }
-
-  
 };
 
 const editParamUpdate = (desc) => {
-  return ({
+  return {
     M0: desc.muHatNewX,
     muHatX: desc.muHatNewX,
     M1: desc.muHatNewY,
@@ -415,15 +409,20 @@ const editParamUpdate = (desc) => {
     sigmaHatX: desc.sigmaHatNewX,
     SD1: desc.sigmaHatNewY,
     sigmaHatY: desc.sigmaHatNewY,
-  }
-  )
-}
+  };
+};
+
+const allEntriesToNumber = (value) => {
+  Object.keys(value).forEach((key) => {
+    value[key] = Number(value[key]);
+  });
+};
 
 export const vizReducer = (state, action) => {
   let { name, value, immediate } = action;
   immediate = typeof immediate === "undefined" ? false : immediate;
   value = value === "" ? "" : action.value;
-  let data, x, y, desc
+  let data, x, y, desc;
   switch (name) {
     case "rho":
       return {
@@ -435,8 +434,13 @@ export const vizReducer = (state, action) => {
           rho: value,
         }),
       };
+    case "reset":
+      return {
+        ...defaultState,
+        ...setCorrelation(defaultState),
+      };
     case "sample":
-      let n = typeof value === "undefined" ? state.n : Number(value)
+      let n = typeof value === "undefined" ? state.n : Number(value);
       y = drawGaussian(n, state.M1, state.SD1);
       x = drawGaussian(n, state.M0, state.SD0);
       const props = {
@@ -457,19 +461,17 @@ export const vizReducer = (state, action) => {
     case "drag":
       const z = state.data;
       z[value.i] = value.xy;
-      desc = getSampleCorrelation(z)
+      desc = getSampleCorrelation(z);
       return {
         ...state,
         ...desc,
         ...editParamUpdate(desc),
-        x: desc.xNew,
-        y: desc.yNew,
         immediate: immediate,
         data: z,
       };
     case "addPoint":
-      data = state.data.concat([value])
-      desc = getSampleCorrelation(data)
+      data = state.data.concat([value]);
+      desc = getSampleCorrelation(data);
       return {
         ...state,
         ...desc,
@@ -477,16 +479,16 @@ export const vizReducer = (state, action) => {
         n: data.length,
         x: state.x.concat(value[0]),
         y: state.y.concat(value[1]),
-        data: data
-      };  
+        data: data,
+      };
     case "deletePoint":
-      data = state.data
-      x = state.x
-      y = state.y
-      x.splice(value, 1)
-      y.splice(value, 1)
-      data.splice(value, 1)
-      desc = getSampleCorrelation(data)
+      data = state.data;
+      x = state.x;
+      y = state.y;
+      x.splice(value, 1);
+      y.splice(value, 1);
+      data.splice(value, 1);
+      desc = getSampleCorrelation(data);
       return {
         ...state,
         ...desc,
@@ -495,8 +497,8 @@ export const vizReducer = (state, action) => {
         immediate: true,
         x: x,
         y: y,
-        data: data
-      };   
+        data: data,
+      };
     case "rescale":
       return {
         ...state,
@@ -506,29 +508,22 @@ export const vizReducer = (state, action) => {
     case "pointEdit":
       return {
         ...state,
-        pointEdit: value
+        pointEdit: value,
       };
     case "togglePointEdit": {
       return {
         ...state,
-        showPointEdit: !state.showPointEdit
-      }
-    }
-    case "SD0":
-    case "SD1":
-    case "M0":
-    case "M1": {
-      value = Number(value);
-      return {
-        ...state,
-        immediate: immediate,
-        [name]: value,
-        ...setCorrelation({
-          ...state,
-          [name]: value,
-        }),
+        showPointEdit: !state.showPointEdit,
       };
     }
+    case "updateMoments":
+      allEntriesToNumber(value);
+      const newState = { ...state, ...value };
+      return {
+        ...newState,
+        immediate: immediate,
+        ...setCorrelation(newState),
+      };
     case "n": {
       value = Number(value);
       return {
@@ -543,34 +538,32 @@ export const vizReducer = (state, action) => {
       };
     }
     case "loadCsv": {
-      data = value.map(d => [ +d[value.columns[0]], +d[value.columns[1]] ])
-      desc = getSampleCorrelation(data)
+      data = value.map((d) => [+d[value.columns[0]], +d[value.columns[1]]]);
+      desc = getSampleCorrelation(data);
       return {
         ...state,
         ...rescale(desc),
         ...desc,
         ...editParamUpdate(desc),
         data: data,
-        x: desc.xNew,
-        y: desc.yNew,
         xLabel: value.columns[0],
-        yLabel: value.columns[1]
-      }
+        yLabel: value.columns[1],
+      };
     }
     case "toggleResiduals":
       return {
         ...state,
-        residuals: !state.residuals
+        residuals: !state.residuals,
       };
     case "toggleRegressionLine":
       return {
         ...state,
-        regressionLine: !state.regressionLine
+        regressionLine: !state.regressionLine,
       };
     case "toggleEllipses":
       return {
         ...state,
-        ellipses: !state.ellipses
+        ellipses: !state.ellipses,
       };
     case "plotType":
       return {
@@ -578,8 +571,11 @@ export const vizReducer = (state, action) => {
         immediate: false,
         plotType: value,
       };
-    case "xLabel":
-    case "yLabel":
+    case "updateLabels":
+      return {
+        ...state,
+        ...value,
+      };
     case "colorDist1":
     case "colorDistOverlap":
     case "colorDist2":
