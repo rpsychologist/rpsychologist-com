@@ -1,0 +1,27 @@
+---
+title: common-language
+---
+
+import Typography from "@material-ui/core/Typography";
+
+<Typography variant="body1" gutterBottom>
+  Kohen-ning <em>d</em> {props.cohend}, {props.U3} bilan "
+   {props.muOneLabel}” guruhi “{props.muZeroLabel}” oʻrtacha qiymatidan yuqori boʻladi
+   guruhi (Koenning U<sub>3</sub>), ikki guruhning {props.propOverlap}
+   bir-biriga mos keladi va odam tasodifiy tanlab olish ehtimoli {props.CL} bo'ladi
+   davolash guruhi tasodifiy tanlangan kishiga qaraganda yuqori ballga ega bo'ladi
+   nazorat guruhidan (ustunlik ehtimoli). Bundan tashqari, uchun
+   davolash guruhida nazorat bilan solishtirganda yana bir qulay natijaga ega
+   guruh, biz davolashimiz kerak{" "}
+   {isFinite(props.NNT) ? props.NNT : o'rtacha "cheksiz son"} kishi.
+  This means that if there are 100 people in each group, and we assume that{" "}
+  {props.CER} people have favorable outcomes in the control group, then{" "}
+  {props.CER} + {props.NNTPerc} people in the treatment group will have
+  favorable outcomes.<sup>1</sup>
+</Typography>
+<Typography variant="body2" gutterBottom>
+  <sup>1</sup>The values are averages, and it is assumed that {props.CER} (CER)
+  of the control group have "favorable outcomes," i.e., their outcomes are below
+  some cut-off. Change this by pressing the settings symbol to the right of the
+  slider. Go to the formula section for more information.
+</Typography>
