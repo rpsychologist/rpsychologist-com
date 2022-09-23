@@ -29,6 +29,11 @@
   "coffeSupportersThanks": "Mendan <6><0>{{totalNumCoffees}}</0></6> dona kofe sotib olgan <2><0>{{numSupporters}}</0></2> qo'llab-quvvatlovchiga katta rahmat!",
   "contributeGitHub": "Pull Request so'rovlari ham qabul qilinadi yoki siz yangi funksiyalarni taklif qilish, foydali havolalar qo'shish yoki matn terish xatolarini tuzatishga yordam berish orqali o'z hissangizni qo'shishingiz mumkin. Faqat <2>GitHub</2> da issues bo'limini oching.",
   "What's this?": "Bu nima?",
+  "Update": "Yangilash",
+  "Save": "Saqlash",
+  "Settings seved": "Sozlamalar saqlandi",
+  "Settings cleared": "Sozlamalar tozalandi",
+  "Something went wrong": "Nimadir noto'g'ri bajarildi",
   "Connect": "Ulanmoq",
   "Donate": "Ehson qilish",
   "License": "Litsenziya"
