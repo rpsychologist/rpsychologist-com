@@ -17,7 +17,7 @@ $$U_3 = \Phi(\delta)$$
 
 donde $\Phi$ es la función de distribución acumulada de la distribución normal estándar, y $\delta$ la <em>d</em> de Cohen poblacional.
 
-### Overlap
+### Superposición
 Generalmente se le denomina coeficiente de superposición (OVL). La <em>d</em> de Cohen puede convertirse a OVL mediante la siguiente fórmula (Reiser y Faraggi, 1999)
 
 $$\text{OVL}=2\Phi(-|\delta|/2) $$
