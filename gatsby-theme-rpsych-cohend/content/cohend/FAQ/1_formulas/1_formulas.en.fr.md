@@ -1,45 +1,45 @@
 ---
-title: What are the formulas?
+title: Quelles sont les formules ?
 order: 1
 ---
 
-### Cohen's *d*
-Cohen's *d* is simply the standardized mean difference,
+### *d* de Cohen
+Le *d* de Cohen est simplement la différence standardisée des moyennes,
 
 $$ \delta = \frac{\mu_2-\mu_1}{\sigma}$$,
 
-where $\delta$ is the population parameter of Cohen's *d*. Where it is assumed that $\sigma_1=\sigma_2=\sigma$, i.e., homogeneous population variances. And $\mu_i$ is the mean of the respective population.
+où $\delta$ est le paramètre de population du *d* de Cohen. Il est supposé que que $\sigma_1=\sigma_2=\sigma$, c'est-à-dire que les variances des populations sont homogènes. Enfin, $\mu_i$ est la moyenne respective de chaque population.
 
-### Cohen's U<sub>3</sub>
-Cohen (1977) defined U<sub>3</sub> as a measure of non-overlap, where "we take the percentage of the A population which the upper half of the cases of the Β population exceeds". Cohen's *d* can be converted to Cohen's U<sub>3</sub> using the following formula
+### Le U<sub>3</sub> de Cohen
+Cohen (1977) a défini le U<sub>3</sub> comme la mesure du non-chevauchement, lorsque "l'on prend le pourcentage de la population A qui est inférieure à la moitié supérieure de la poulation B". Le *d* de Cohen peut être converti en U<sub>3</sub> de Cohen en utilisant la formule suivante
 
 $$U_3 = \Phi(\delta)$$
 
-where $\Phi$ is the cumulative distribution function of the standard normal distribution, and $\delta$ the population Cohen's <em>d</em>.
+où $\Phi$ est la distribution de répartition (ou fonction de distribution cumulative) de la distribution normale standard, et $\delta$ la population du *d* de Cohen.
 
 ### Overlap
-Generally called the overlapping coefficient (OVL). Cohen's <em>d</em> can be converted to OVL using the following formula (Reiser and Faraggi, 1999)
+Généralement appelé coefficient de chevauchement (overlapping coefficient (OVL) en anglais). Le *d* de Cohen peut être converti en OVL en utilisant la formule suivante (Reiser et Faraggi, 1999)
 
 $$\text{OVL}=2\Phi(-|\delta|/2) $$
 
-where $\Phi$ is the cumulative distribution function of the standard normal distribution, and $\delta$ the population Cohen's *d*.
+où $\Phi$ est la distribution de répartition de la distribution normale standard, et $\delta$ la population du *d* de Cohen.
 
-### Probability of superiority
-This is effect size with many names: common language effect size (CL), Area under the receiver operating characteristics (AUC) or just A for its non-parametric version (Ruscio & Mullen, 2012). It is meant to be more intuitive for persons without any training in statistics. The effect size gives the probability that a person picked at random from the treatment group will have a higher score than a person picked at random from the control group. Cohen's *d* can be converted CL using the following formula (Ruscio, 2008)
+### Probabilité de supériorité
+C'est la taille d'effet, avec de nombreux noms : taille d'effet en langage commun (LC), aire sous la fonction d'efficacité du récepteur (AUC), ou simplement A pour ces versions non-paramétriques (Ruscio et Mullen, 2012). Il se veut plus intuitif pour les personnes sans aucune formation statistique. La taille de l'effet donne la probabilité qu'une personne choisie au hasard dans le groupe traitement ait un score plus élevé qu'une personne prise au hasard dans le groupe contrôle. Le *d* de Cohen peut être converti en LC en utilisant la formule suivante :
 
 $$\text{CL}=\Phi\left(\frac{\delta}{\sqrt{2}}\right)$$
 
-where $\Phi$ is the cumulative distribution function of the standard normal distribution, and $\delta$ the population Cohen's *d*.
+où $\Phi$ est la distribution de répartition de la distribution normale standard, et $\delta$ la population du *d* de Cohen.
 
 ### Number Needed to Treat
-NNT is the number of patients we would need to treat with the intervention to achieve one more favorable outcome compared to the control group. Furukawa and Leucht (2011) gives the following formula for converting Cohen's *d* into NNT
+NNT est le nombre de patients que nous devrions traiter pour atteindre un résultat plus favorable comparé au groupe contrôle. Furukawa et Leucht (2011) donnent la formule suivante pour convertir le *d* de Cohen en NNT :
 
 $$ \text{NNT} = \frac{1}{  \Phi(\delta + \Psi(CER))-CER}$$
 
-where $\Phi$ is the cumulative distribution function of the standard normal distribution and $\Psi$ its inverse, CER is the control group's event rate and $\delta$ the population Cohen's *d*. **N.B. CER is set to 20 % in the visualization above. You can change this be pressing the settings symbol to the right of the slider**. The definition of an "event" or a "response" is arbitrary and could be defined as the proportion of patients who are in remission, e.g. bellow some cut-off on a standardized questionnaire. It is possible to convert Cohen's *d* into a version of NNT that is invariant to the event rate of the control group. The interested reader should look at Furukawa and Leucht (2011) where a convincing argument is given to why this complicates the interpretation of NNT.
+où $\Phi$ est la distribution de répartition de la distribution normale standard et $\Psi$ son inverse, CER est le ratio d'évènement en condition contrôle et $\delta$ la population du *d* de Cohen. **N.B. CER est fixé à 20 % dans la visualisaton ci-dessus. Vous pouvez changer cette valeur grâce au bouton paramètres à droite du Slider**. Les définitions d'un "évènement" ou d'une "réponse" sont arbitraires et doivent être définies comme la proportion de patients qui sont en rémission, c'est-à-dire inférieure à un seuil défini par un questionnaire standardisé. Il est possible de convertir le *d* de Cohen en une version du NNT qui ne prend pas en compte le ratio d'évènement du groupe contrôle. Le lecteur interessé doit regarder la publication de Furukawa et Leucht (2011) qui donne un argument convaincant et montre pourquoi cela complique l'interprétation du NNT.
 
-### R code to calculate NNT from Cohen's *d*
-Since many have asked about R code for the formula above, here it is
+### Code R pour calculer le NNT depuis le *d* de Cohen
+Puisque j'ai reçu beaucoup de demandes à propos du code R pour la formule ci-dessus, le voici :
 
 ```r
 CER <- 0.2
@@ -47,7 +47,7 @@ d <- 0.2
 1 / (pnorm(d + qnorm(CER))-CER)
 ```
 
-### References
+### Références
 
 * Baguley, T. (2009). Standardized or simple effect size: what should be reported? *British journal of psychology*, 100(Pt 3), 603–17.
 * Cohen, J. (1977). *Statistical power analysis for the behavioral sciencies*. Routledge.
