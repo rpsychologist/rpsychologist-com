@@ -5,23 +5,23 @@ title: common-language
 import Typography from "@material-ui/core/Typography";
 
 <Typography variant="body1" gutterBottom>
-  Med en Cohens <em>d</em> på {props.cohend}, kommer {props.U3} av "
-  {props.muOneLabel}"-gruppa å være over gjennomsnittsverdien for "
-  {props.muZeroLabel}"-gruppa (Cohens U<sub>3</sub>), {props.propOverlap} av de
-  to gruppene til å være overlappende, og det er en {props.CL} sjanse å
-  tilfeldig utvalgt person fra "{props.muOneLabel}"-gruppa kommer ha en høyere
-  poengscore enn en tilfeldig utvalgt person fra "{props.muZeroLabel}"-gruppa
-  (probability of superiority). For å få et mer positivt utfall i "
-  {props.muOneLabel}"-gruppa sammenlignet med "{props.muZeroLabel}"-gruppa
-  behøver vi behandle {isFinite(props.NNT) ? props.NNT : "et uendelig antall "}{" "}
-  personer i gjennomsnitt. Dette innebærer at om det er 100 personer i hver
-  gruppe, og om vi antar at {props.CER} personer har et positivt utfall i "
-  {props.muZeroLabel}"-gruppa, så kommer {props.CER} + {props.NNTPerc} personer
-  i "{props.muOneLabel}"-gruppa ha positive utfall.<sup>1</sup>
+  With a Cohen's <em>d</em> of {props.cohend}, {props.U3} of the "
+  {props.muOneLabel}" group will be above the mean of the "{props.muZeroLabel}"
+  group (Cohen's U<sub>3</sub>), {props.propOverlap} of the two groups will
+  overlap, and there is a {props.CL} chance that a person picked at random from
+  the treatment group will have a higher score than a person picked at random
+  from the control group (probability of superiority). Moreover, in order to
+  have one more favorable outcome in the treatment group compared to the control
+  group, we need to treat{" "}
+  {isFinite(props.NNT) ? props.NNT : "an infinite number of"} people on average.
+  This means that if there are 100 people in each group, and we assume that{" "}
+  {props.CER} people have favorable outcomes in the control group, then{" "}
+  {props.CER} + {props.NNTPerc} people in the treatment group will have
+  favorable outcomes.<sup>1</sup>
 </Typography>
 <Typography variant="body2" gutterBottom>
-  <sup>1</sup>Verdiene er gjennomsnitt, og det antas at {props.CER} (CER) i "
-  {props.muZeroLabel}"-gruppa har et "positivt utfall", dvs. deres utfall havner
-  under en terskelverdi. Du kan endra på denne verdien i kontrollpanelet. Mer
-  informasjon om utregningene finnes i formel-delen i FAQen.
+  <sup>1</sup>The values are averages, and it is assumed that {props.CER} (CER)
+  of the control group have "favorable outcomes," i.e., their outcomes are below
+  some cut-off. Change this by pressing the settings symbol to the right of the
+  slider. Go to the formula section for more information.
 </Typography>
