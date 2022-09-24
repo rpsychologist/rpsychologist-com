@@ -3,6 +3,6 @@ title: Kan jeg bruke visualiseringen i boka/artikkelen min?
 order: 6
 ---
 
-Ja, absolutt! Jeg har ikke oppfunnet hvordan tegne to overlappende gauss-kurver. Visualiseringen på den her siden er **public domain**, noe som medfører at du kan "kopiere, endre, distribuere og fremføre verket, selv for kommersielle formål, uten å spørre om tillatelse." (see [CC0 1.0 universell Public domain-dedikation](https://creativecommons.org/publicdomain/zero/1.0/deed.no)). **Kreditering er ikke et krav, men det vil satt pris på!**
+Yes, go ahead! I did not invent plotting two overlapping Gaussian distributions. This visualization is dedicated to the **public domain**, which means "you can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission" (see [Creative common's CC0-license](https://creativecommons.org/publicdomain/zero/1.0/)). Although, **attribution is not required it is always appreciated!**
 
 Kildekoden for visualiseringen har en MIT-lisens, og tekstene er CC-BY 4.0.
