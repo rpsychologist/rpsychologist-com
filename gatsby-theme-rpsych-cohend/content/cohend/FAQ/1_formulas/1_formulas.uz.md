@@ -8,35 +8,35 @@ Cohen *d*-ning oddiygina standartlashtirilgan o'rtacha farq,
 
 $$ \delta = \frac{\mu_2-\mu_1}{\sigma}$$,
 
-bu yerda $\delta$ - Cohen *d*-ning populyatsiya parametri. Qayerda $\sigma_1=\sigma_2=\sigma$, ya'ni bir hil populyatsiya dispersiyalari deb taxmin qilinadi. Va $\mu_i$ - tegishli aholining o'rtacha qiymati.
+where $\delta$ is the population parameter of Cohen's *d*. Where it is assumed that $\sigma_1=\sigma_2=\sigma$, i.e., homogeneous population variances. And $\mu_i$ is the mean of the respective population.
 
 ### Cohen U<sub>3</sub>
-Cohen (1977) U<sub>3</sub>ni bir-biriga mos kelmaslik o'lchovi sifatida ta'riflagan, bu erda biz "A populyatsiyasining B populyatsiya holatlarining yuqori yarmidan oshib ketgan foizini olamiz". Cohen *d*-ni quyidagi formula yordamida Cohen U<sub>3</sub> ga aylantirish mumkin.
+Cohen (1977) defined U<sub>3</sub> as a measure of non-overlap, where "we take the percentage of the A population which the upper half of the cases of the Β population exceeds". Cohen's *d* can be converted to Cohen's U<sub>3</sub> using the following formula
 
 $$U_3 = \Phi(\delta)$$
 
 bu yerda $\Phi$ standart normal taqsimotning kumulyativ taqsimot funksiyasi va Cohen <em>d</em>-ning $\delta$ populyatsiyasi.
 
 ### O'xshashlik
-Odatda bir-biriga o'xshash koeffitsient (OVL) deb ataladi. Cohen <em>d</em>ni quyidagi formula yordamida OVL ga aylantirish mumkin (Reiser va Faraggi, 1999)
+Generally called the overlapping coefficient (OVL). Cohen's <em>d</em> can be converted to OVL using the following formula (Reiser and Faraggi, 1999)
 
 $$\text{OVL}=2\Phi(-|\delta|/2) $$
 
 bu yerda $\Phi$ standart normal taqsimotning kumulyativ taqsimot funksiyasi va Cohen *d*-ning $\delta$ populyatsiyasi.
 
 ### Ustunlik ehtimoli
-Bu ko'plab nomlarga ega effekt hajmi: umumiy til effekti o'lchami (UT), qabul qiluvchining ishlash xususiyatlari ostidagi maydon (QIM) yoki uning parametrik bo'lmagan versiyasi uchun faqat A (Ruscio & Mullen, 2012). Bu statistika bo'yicha hech qanday ma'lumotga ega bo'lmagan odamlar uchun yanada intuitiv bo'lishi uchun mo'ljallangan. Ta'sir hajmi davolash guruhidan tasodifiy tanlangan kishi nazorat guruhidan tasodifiy tanlangan kishiga qaraganda yuqori ball olish ehtimolini beradi. Cohen *d* ni quyidagi formula yordamida UT ga aylantirish mumkin (Ruscio, 2008)
+This is effect size with many names: common language effect size (CL), Area under the receiver operating characteristics (AUC) or just A for its non-parametric version (Ruscio & Mullen, 2012). It is meant to be more intuitive for persons without any training in statistics. The effect size gives the probability that a person picked at random from the treatment group will have a higher score than a person picked at random from the control group. Cohen's *d* can be converted CL using the following formula (Ruscio, 2008)
 
 $$\text{CL}=\Phi\left(\frac{\delta}{\sqrt{2}}\right)$$
 
 bu yerda $\Phi$ standart normal taqsimotning kumulyativ taqsimot funksiyasi va Cohen *d*-ning $\delta$ populyatsiyasi.
 
 ### Davolash uchun zarur bo'lgan raqam
-NNT - bu nazorat guruhiga nisbatan ko'proq ijobiy natijaga erishish uchun biz aralashuv bilan davolashimiz kerak bo'lgan bemorlar soni. Furukawa va Leucht (2011) Cohen *d*-ni NNT ga aylantirish uchun quyidagi formulani beradi.
+NNT is the number of patients we would need to treat with the intervention to achieve one more favorable outcome compared to the control group. Furukawa and Leucht (2011) gives the following formula for converting Cohen's *d* into NNT
 
 $$ \text{NNT} = \frac{1}{  \Phi(\delta + \Psi(CER))-CER}$$
 
-bu yerda $\Phi$ standart normal taqsimotning kümülatif taqsimot funksiyasi va $\Psi$ uning teskarisi, CER - nazorat guruhining hodisa tezligi va $\delta$ populyatsiyasi Cohen *d*-ning. **N.B. Yuqoridagi vizualizatsiyada CER 20% ga sozlangan. Buni slayderning oʻng tomonidagi sozlamalar belgisini bosish orqali oʻzgartirishingiz mumkin**. "Hodisa" yoki "javob" ta'rifi o'zboshimchalik bilan va remissiyada bo'lgan bemorlarning nisbati sifatida belgilanishi mumkin, masalan. standartlashtirilgan so'rovnoma bo'yicha ba'zi bir kesish. Cohen *d*-ning ni NNT ning nazorat guruhining hodisalar tezligiga o'zgarmas versiyasiga aylantirish mumkin. Qiziqqan o'quvchi Furukawa va Leucht (2011) ga qarashi kerak, bu erda nima uchun bu NNT talqinini murakkablashtirishi haqida ishonchli dalil berilgan.
+where $\Phi$ is the cumulative distribution function of the standard normal distribution and $\Psi$ its inverse, CER is the control group's event rate and $\delta$ the population Cohen's *d*. **N.B. CER is set to 20 % in the visualization above. You can change this be pressing the settings symbol to the right of the slider**. The definition of an "event" or a "response" is arbitrary and could be defined as the proportion of patients who are in remission, e.g. bellow some cut-off on a standardized questionnaire. It is possible to convert Cohen's *d* into a version of NNT that is invariant to the event rate of the control group. The interested reader should look at Furukawa and Leucht (2011) where a convincing argument is given to why this complicates the interpretation of NNT.
 
 ### Cohen *d*-dan NNTni hisoblash uchun R kodi
 Ko'pchilik yuqoridagi formula uchun R kodi haqida so'raganligi sababli, bu erda
