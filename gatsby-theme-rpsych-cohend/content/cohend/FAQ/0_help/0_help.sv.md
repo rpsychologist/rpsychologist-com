@@ -4,7 +4,7 @@ order: 0
 ---
 
 ### Ändra Cohens *d*
-Use the slider to change Cohen's *d*, or open the settings drawer and change the parameters. The inputs can also be controlled using the keyboard arrows.
+Använd skjutregalget för att ändra Cohens *d*, eller öppna inställningspanelen och ändra parametrarna. Du kan också använda tangentbordets piltangenter för att göra ändringar.
 
 ### Inställningar
 Du kan ändra följande inställningar genom att klicka på inställningsikonen till höger om skjutreglaget.
@@ -26,7 +26,7 @@ Du kan ändra följande inställningar genom att klicka på inställningsikonen 
 Inställningarna kan sparas i din webbläsares `localStorage`, och kommer därför finnas kvar vid framtida besök.
 
 ### Panorera och skala om
-You can pan the x axis by clicking and dragging the visualization. **Double-click** the visualization to center and rescale it.
+Du kan panorera längs x-axeln genom att klicka-och-dra visualiseringen. **Dubbelklicka** på visualiseringen för att centrera och skala om den.
 
 ### Offline-användning
 Denna sida använder en *service worker* och kommer att fungera även när du är offline.
