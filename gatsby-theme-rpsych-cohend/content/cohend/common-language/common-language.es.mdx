@@ -11,10 +11,7 @@ import Typography from "@material-ui/core/Typography";
   dos grupos se solaparán, y hay un un {props.CL} de probabilidad de que una
   persona elegida al azar del grupo de tratamiento tenga una puntuación más alta
   que una persona elegida al azar del grupo control (probabilidad de
-  superioridad). Además, para tener un resultado favorable más en el grupo de
-  tratamiento que en el grupo control, necesitamos tratar a{" "}
-  {isFinite(props.NNT) ? props.NNT : "un número infinito de"} personas en
-  promedio. props.NNT : "an infinite number of"} people on average.
+  superioridad). Además, para tener un resultado favorable más en el grupo de tratamiento que en el grupo control, necesitamos tratar a {isFinite(props.NNT) ? props.NNT : "un número infinito de"} personas en promedio.
   Esto significa que si hay 100 personas en cada grupo, y suponemos
   que {props.CER} personas tienen resultados favorables en el grupo control,
   entonces {props.CER} + {props.NNTPerc} personas en el grupo de tratamiento
