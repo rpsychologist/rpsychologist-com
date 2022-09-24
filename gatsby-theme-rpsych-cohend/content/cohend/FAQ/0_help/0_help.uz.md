@@ -4,7 +4,7 @@ order: 0
 ---
 
 ### Cohen *d*-ni o'zgartiring
-Cohen *d*-ni o'zgartirish uchun slayderdan foydalaning yoki sozlamalar panelini oching va parametrlarni o'zgartiring. Kirishlarni klaviatura strelkalari yordamida ham boshqarish mumkin.
+Use the slider to change Cohen's *d*, or open the settings drawer and change the parameters. The inputs can also be controlled using the keyboard arrows.
 
 ### Sozlamalar
 Slayderning o'ng tomonidagi sozlamalar belgisini bosish orqali quyidagi sozlamalarni o'zgartirishingiz mumkin.
@@ -26,8 +26,8 @@ Slayderning o'ng tomonidagi sozlamalar belgisini bosish orqali quyidagi sozlamal
 Sozlamalar brauzeringizning `localStorage` da saqlanishi mumkin va shu tariqa tashriflar davomida saqlanib qoladi.
 
 ### Panorama va oʻlchamni oʻzgartirish
-Displeyni bosish va uni sudrab borish orqali X o'qini panorama qilishingiz mumkin. **Vizualizatsiyani markazlashtirish va hajmini o'zgartirish uchun ikki marta bosing**.
-Displayni bosish va sudrab borish orqali x o'qini panorama qilishingiz mumkin. Vizualizatsiyani markazlashtirish va o‘lchamini o‘zgartirish uchun **ikki marta bosing**.
+You can pan the x axis by clicking and dragging the visualization. **Double-click** the visualization to center and rescale it.
 
 ### Oflayn foydalanish
 Ushbu sayt `service worker` yordamida keshlangan va hatto oflayn bo'lganingizda ham ishlaydi.
+
