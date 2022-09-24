@@ -1,6 +1,7 @@
 ---
 title: common-language
 ---
+
 import Typography from "@material-ui/core/Typography"
 
 <Typography variant="body1" gutterBottom>
@@ -10,8 +11,7 @@ y a {props.CL} de chances qu'une personne choisie au hasard dans le groupe trait
 ait un score plus élevé qu'une personne choisie au hasard dans le groupe contrôle
 (probabilité de supériorité). De plus, dans le but d'avoir 
 un meilleur résultat en faveur du groupe traitement, nous avons besoin d'inclure{" "}
-{isFinite(props.NNT) ? props.NNT : "un nombre infini de"} personnes en moyenne dans le groupe traitement.
-Cela signifie que s'il y a 100 personnes dans chaque groupe, et nous supposons que {props.CER} personnes
+{isFinite(props.NNT) ? <IsInfinite value={props.NNT}>an infinite number of</IsInfinite> people on average. Cela signifie que s'il y a 100 personnes dans chaque groupe, et nous supposons que {props.CER} personnes
 ont un résultat favorable dans le groupe contrôle, alors {props.CER} + {props.NNTPerc}{" "}
 personnes dans le groupe traitement auront des résultats favorables.<sup>1</sup>
 </Typography>
