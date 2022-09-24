@@ -5,13 +5,7 @@ title: common-language
 import Typography from "@material-ui/core/Typography"
 
 <Typography variant="body1" gutterBottom>
-Avec un <em>d</em> de Cohen de {props.cohend}, {props.U3} du groupe "{props.muOneLabel}" 
-a une valeur supérieure à la moyenne du groupe "{props.muZeroLabel}"  (U<sub>3</sub> de Cohen), {props.propOverlap} des deux groupes se chevauchent, et il 
-y a {props.CL} de chances qu'une personne choisie au hasard dans le groupe traitement
-ait un score plus élevé qu'une personne choisie au hasard dans le groupe contrôle
-(probabilité de supériorité). De plus, dans le but d'avoir 
-un meilleur résultat en faveur du groupe traitement, nous avons besoin d'inclure{" "}
-{isFinite(props.NNT) ? <IsInfinite value={props.NNT}>an infinite number of</IsInfinite> people on average. Cela signifie que s'il y a 100 personnes dans chaque groupe, et nous supposons que {props.CER} personnes
+With a Cohen's <em>d</em> of {props.cohend}, {props.U3} of the "{props.muOneLabel}" group will be above the mean of the "{props.muZeroLabel}" group (Cohen's U<sub>3</sub>), {props.propOverlap} of the two groups will overlap, and there is a {props.CL} chance that a person picked at random from the "{props.muOneLabel}" group will have a higher score than a person picked at random from the "{props.muZeroLabel}" group (probability of superiority). Moreover, in order to have one more favorable outcome in the "{props.muOneLabel}" group compared to the "{props.muZeroLabel}" group, we need to treat <IsInfinite value={props.NNT}>an infinite number of</IsInfinite> people on average. Cela signifie que s'il y a 100 personnes dans chaque groupe, et nous supposons que {props.CER} personnes
 ont un résultat favorable dans le groupe contrôle, alors {props.CER} + {props.NNTPerc}{" "}
 personnes dans le groupe traitement auront des résultats favorables.<sup>1</sup>
 </Typography>
