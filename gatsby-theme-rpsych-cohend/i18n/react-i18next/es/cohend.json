@@ -58,5 +58,4 @@
   "guidePropOverlap": "Esto muestra el porcentaje del total de puntuaciones que se superponen.",
   "guideCL": "Esta es la probabilidad de que una persona elegida al azar del grupo de tratamiento tenga una puntuación más alta que una persona elegida al azar del grupo control.",
   "guideNNT": "<0>Este es el número de pacientes, de media, que necesitamos tratar para tener un resultado favorable más en el grupo de tratamiento en comparación con el grupo control.</0><1>El NNT depende de la <strong>tasa de eventos de control (CER)</strong>, que está representada por el trazo más oscuro en el gráfico. Puedes cambiarlo en los ajustes.</1>"
-
 }
