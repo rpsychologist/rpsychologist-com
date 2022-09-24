@@ -2,8 +2,9 @@
 title: Hvordan bruker jeg denne visualiseringen?
 order: 0
 ---
+
 ### Endre Cohens *d*
-Bruk skyvebryteren (slider'en) for å endre Cohens *d*, eller åpne kontrollpanelet og endre parameterne. Du kan også endre ved hjelp av piltastene på tastaturet.
+Use the slider to change Cohen's *d*, or open the settings drawer and change the parameters. The inputs can also be controlled using the keyboard arrows.
 
 ### Innstillinger
 Du kan endre følgende innstillinger ved å klikke på innstillingsikonene til høyre for skyvebryteren.
@@ -25,7 +26,8 @@ Du kan endre følgende innstillinger ved å klikke på innstillingsikonene til h
 Innstillingene kan lagres i nettleserens `localStorage`, og kommer til å vedvare ved fremtidige besøk.
 
 ### Panorer og endre skalering
-Du kan panorere langs x-aksen ved å klikke og dra på visualiseringen. **Dobbeltklikk** på visualiseringen for å sentrere og skalere.
+You can pan the x axis by clicking and dragging the visualization. **Double-click** the visualization to center and rescale it.
 
 ### Offline-användning
 Denne nettsiden bruker en *service worker* og vil fungere selv når den er uten nett-tilgang.
+
