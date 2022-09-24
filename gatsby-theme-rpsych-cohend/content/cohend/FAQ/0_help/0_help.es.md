@@ -12,15 +12,15 @@ Puedes configurar los siguientes ajustes haciendo click en el icono de ajustes a
 * **Parámetros**
     + Media 1
     + Media 2
-    + SD
+    + Desviación típica
     + Tasa de eventos de control (CER)
 * **Etiquetas**
     + Eje X
     + Distribución 1
     + Distribución 2
-* **Slider settings**
-    + Slider Max
-    + Slider Step: Controls the step size of the slider
+* **Ajustes del *slider***
+    + Máximo del *slider*
+    + Salto del *slider*: Especifica el tamaño de un paso del *slider*
 
 #### Guardar ajustes
 Los ajustes se pueden guardar en el `localStorage` del navegador y, por lo tanto, permanecerán en tus futuras visitas.
