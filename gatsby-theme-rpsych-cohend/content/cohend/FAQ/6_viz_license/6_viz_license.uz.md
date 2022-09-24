@@ -3,6 +3,6 @@ title: Ushbu vizualizatsiyani kitobim/maqolam/va hokazolarimga qo'shishim mumkin
 order: 6
 ---
 
-Ha, davom eting! Men ikkita bir-biriga o'xshash Gauss taqsimotini tuzishni o'ylab topmaganman. Bu vizualizatsiya **ommaviy domenga** bag'ishlangan bo'lib, bu "siz ishni ko'chirish, o'zgartirish, tarqatish va hatto tijorat maqsadlarida ham ruxsat so'ramasdan bajarishingiz mumkin" degan ma'noni anglatadi ([Creative common CC0-litsenziya](https://creativecommons.org/publicdomain/zero/1.0/)-siga qarang). Garchi atribut talab qilinmasa ham, **u har doim qadrlanadi!**
+Yes, go ahead! I did not invent plotting two overlapping Gaussian distributions. This visualization is dedicated to the **public domain**, which means "you can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission" (see [Creative common's CC0-license](https://creativecommons.org/publicdomain/zero/1.0/)). Although, **attribution is not required it is always appreciated!**
 
 Ushbu sahifaning manba kodi MIT yordamida litsenziyalangan va sahifadagi matn CC-BY 4.0.
