@@ -1,6 +1,6 @@
 ---
-title: Bir-biriga o'xshashlik statistikasi Cohen-ning hisob-kitoblaridan farq qiladi
+title: The overlap statistic differs from Cohen's calculations
 order: 5
 ---
 
-Bu ataylab qilingan, mening sabablarim haqida ushbu blog postda ko'proq o'qishingiz mumkin: [Cohen qayerda xatoga yo'l qo'ygan - ikkita oddiy taqsimot o'rtasidagi o'xshashlik nisbati](https://rpsychologist.com/cohen-d-proportion-overlap)
+This is intentional, you can read more about my reasons in this blog post: [Where Cohen went wrong – the proportion of overlap between two normal distributions](https://rpsychologist.com/cohen-d-proportion-overlap)
