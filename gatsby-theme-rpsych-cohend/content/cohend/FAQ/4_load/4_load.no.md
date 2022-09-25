@@ -1,6 +1,6 @@
 ---
-title: I'm gonna ask a large number of students to visit this site. Will it crash your server?
+title: Jeg kommer til å anbefale en stor gruppe studenter besøke siden,  vil det kræsje serveren?
 order: 4
 ---
 
-No, it will be fine. The app runs in your browser so the server only needs to serve the files. 
+Nei, det er ingen fare! Denne tjenesten kjøres i din nettleser og og serveren trenger bare sende ut noen små filer. 
