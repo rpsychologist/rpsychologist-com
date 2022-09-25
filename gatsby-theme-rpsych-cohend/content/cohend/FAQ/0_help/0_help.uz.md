@@ -1,33 +1,33 @@
 ---
-title: How do I use this visualization?
+title: Ushbu vizualizatsiyadan qanday foydalanaman?
 order: 0
 ---
 
-### Change Cohen's *d*
-Use the slider to change Cohen's *d*, or open the settings drawer and change the parameters. The inputs can also be controlled using the keyboard arrows.
+### Cohen *d*-ni o'zgartiring
+Cohen *d*-ni o'zgartirish uchun slayderdan foydalaning yoki sozlamalar panelini oching va parametrlarni o'zgartiring. Kirishlarni klaviatura strelkalari yordamida ham boshqarish mumkin.
 
-### Settings
-You can change the following settings by clicking on the settings icon to the right of the slider.
+### Sozlamalar
+Slayderning o'ng tomonidagi sozlamalar belgisini bosish orqali quyidagi sozlamalarni o'zgartirishingiz mumkin.
 
-* **Parameters**
-    + Mean 1
-    + Mean 2
-    + SD
-    + Control group event rate (CER)
-* **Labels**
-    + X axis
-    + Distribution 1
-    + Distribution 2
-* **Slider settings**
-    + Slider Max
-    + Slider Step: Controls the step size of the slider
+* **Parametrlar**
+    + O'rta 1
+    + O'rta 2
+    + Oddiy og'ish
+    + Nazorat guruhidagi hodisalar tezligi (NHT)
+* **Belgilar**
+    + X o'qi
+    + Taqsimot 1
+    + Taqsimot 2
+* **Slayder sozlamalari**
+    + Slayderder Max
+    + Slayder qadami: Slayderning qadam o'lchamini boshqaradi
 
-#### Save settings
-The settings can be saved in your browser's `localStorage` and will thus persist across visits.
+#### Sozlamalarni saqlash
+Sozlamalar brauzeringizning `localStorage` da saqlanishi mumkin va shu tariqa tashriflar davomida saqlanib qoladi.
 
-### Pan and rescale
-You can pan the x axis by clicking and dragging the visualization. **Double-click** the visualization to center and rescale it.
+### Panorama va oʻlchamni oʻzgartirish
+Displeyni bosish va uni sudrab borish orqali X o'qini panorama qilishingiz mumkin. **Vizualizatsiyani markazlashtirish va hajmini o'zgartirish uchun ikki marta bosing**. Displayni bosish va sudrab borish orqali x o'qini panorama qilishingiz mumkin. Vizualizatsiyani markazlashtirish va o‘lchamini o‘zgartirish uchun **ikki marta bosing**.
 
-### Offline use
-This site is cached using a service worker and will work even when you are offline.
+### Oflayn foydalanish
+Ushbu sayt `service worker` yordamida keshlangan va hatto oflayn bo'lganingizda ham ishlaydi.
 
