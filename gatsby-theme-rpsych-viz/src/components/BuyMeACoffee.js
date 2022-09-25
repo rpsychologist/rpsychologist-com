@@ -205,7 +205,7 @@ export default BuyMeACoffee;
 
 const coffeeSupportersQuery = graphql`
   query {
-    allCoffeeSupportersJson {
+    allCoffeeSupportersJson(sort: {fields: support_coffees, order: DESC}) {
       edges {
         node {
           supporter_name

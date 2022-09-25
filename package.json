@@ -17,9 +17,10 @@
         "gatsby-theme-rpsych-viz",
         "gatsby-theme-rpsych-cohend",
         "gatsby-theme-rpsych-likelihood",
-        "gatsby-theme-rpsych-correlation"
+        "gatsby-theme-rpsych-correlation",
+        "gatsby-theme-rpsych-pvalue"
     ],
     "dependencies": {
-        "netlify-cli": "^3.7.1"
+        "netlify-cli": "^3.10.0"
     }
 }

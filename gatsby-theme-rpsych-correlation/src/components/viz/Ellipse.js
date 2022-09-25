@@ -9,20 +9,23 @@ const useStyles = makeStyles((theme) => ({
       fill: theme.palette.background.default,
       fillOpacity: 0.5,
     },
-    ellipseNoHover: {
-      '&:hover': {
-        fill: theme.palette.background.default,
-    
-      }
-    },
     ellipseHover: {
       stroke: "#9fdfff",
       strokeWidth: "5px",
       fillOpacity: 0.33,
-      fill: "#9fdfff",
+      fill: "#9fdfff"
+    },
+    ellipseMouseHover: {
       "&:hover": {
-        fill: "#9fdfff",
+        strokeWidth: "3px",
+        fill: "black",
+        fillOpacity: 0.05
       },
+    },
+    ellipseCursorPointer: {
+      "&:hover": {
+        cursor: "pointer"
+      }
     },
     ellipseAxis: {
       strokeWidth: '1px',
@@ -52,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
 const Ellipse = ({
     level,
     handleEllipse,
-    pointEdit,
+    showPointEdit,
     state,
     xScale,
     yScale,
@@ -76,8 +79,10 @@ const Ellipse = ({
         <ellipse
           className={clsx({
             [classes.ellipse]: true,
-            [classes.ellipseNoHover]: pointEdit,
+            [classes.ellipseNoHover]: showPointEdit,
             [classes.ellipseHover]: state.level === level && state.toggle,
+            [classes.ellipseMouseHover]: !showPointEdit && state.level !== level,
+            [classes.ellipseCursorPointer]: !showPointEdit 
           })}
           transform={`rotate(${45})`}
           cx={0}

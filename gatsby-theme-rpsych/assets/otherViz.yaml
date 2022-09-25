@@ -1,3 +1,8 @@
+- title: "Understanding p-values Through Simulations"
+  excerpt: "An interactive simulation to help explain p-values"
+  image: "MoreViz/pvalue.png"
+  url: "/pvalue/"
+
 - title: "Maximum Likelihood"
   excerpt: "An interactive post covering various aspects of maximum likelihood estimation."
   image: "MoreViz/likelihood.png"

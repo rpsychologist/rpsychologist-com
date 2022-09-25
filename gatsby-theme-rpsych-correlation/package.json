@@ -3,8 +3,8 @@
   "description": "A tool to understand correlations",
   "author": "Kristoffer Magnusson",
   "license": "MIT",
-  "version": "0.6.4",
-  "lastUpdated": "2020-11-16",
+  "version": "0.7.0",
+  "lastUpdated": "2022-09-19",
   "private": true,
   "dependencies": {
     "d3-dsv": "^2.0.0",
@@ -28,12 +28,12 @@
   },
   "scripts": {
     "build-production": "gatsby build --prefix-paths",
-    "build-serve": "gatsby build && gatsby serve -H 172.16.0.116",
-    "develop": "gatsby develop -H 172.16.0.116",
+    "build-serve": "gatsby build && gatsby serve -H 0.0.0.0",
+    "develop": "gatsby develop -H 0.0.0.0",
     "develop-local": "gatsby develop",
     "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
     "start": "npm run develop",
-    "serve": "gatsby serve -H 172.16.0.116",
+    "serve": "gatsby serve -H 0.0.0.0",
     "clean": "gatsby clean"
   },
   "eslintConfig": {

@@ -2,7 +2,6 @@ import React, { useContext, useState } from "react";
 import Grid from "@material-ui/core/Grid";
 import Divider from "@material-ui/core/Divider";
 import SettingsInput from "gatsby-theme-rpsych-viz/src/components/SettingsInput";
-import SaveButton from "gatsby-theme-rpsych-viz/src/components/SaveButton";
 import { Typography } from "@material-ui/core";
 import { SettingsContext } from "../../Viz";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
@@ -22,6 +21,10 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Tooltip from "@material-ui/core/Tooltip";
 import CsvLoad from "./CsvLoad";
 import FormGroup from "@material-ui/core/FormGroup";
+import DownloadCsvButton from "./DownloadCsvButton";
+import SaveIcon from "@material-ui/icons/Save";
+import Snackbar from "@material-ui/core/Snackbar";
+import Alert from "@material-ui/lab/Alert";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -31,12 +34,12 @@ const useStyles = makeStyles((theme) => ({
   setting: {
     paddingRight: theme.spacing(2),
     paddingLeft: theme.spacing(2),
-    width: "100%",
+    minWidth: "100%",
   },
   button: {
     width: "100%",
     marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(2),
+    marginBottom: theme.spacing(1),
   },
   root: {
     flexGrow: 1,
@@ -46,6 +49,12 @@ const useStyles = makeStyles((theme) => ({
   },
   labelPlacementStart: {
     marginRight: 0,
+  },
+  rescaleButton: {
+    marginTop: 0,
+  },
+  divider: {
+    marginTop: theme.spacing(1),
   },
 }));
 
@@ -158,6 +167,12 @@ const presetList = [
   },
 ];
 
+const getFormData = (event) => {
+  const formData = new FormData(event.target);
+  const data = Object.fromEntries(formData);
+  return data;
+};
+
 const VizSettings = () => {
   const classes = useStyles();
   const { state, dispatch } = useContext(SettingsContext);
@@ -176,20 +191,41 @@ const VizSettings = () => {
     showPointEdit,
     plotType,
   } = state;
-  const handleSubmit = (e) => {
-    e.preventDefault();
-  };
+  const [alertState, setAlertState] = React.useState({
+    open: false,
+    severity: "",
+    message: "",
+  });
   const handlePreset = (e) => {
     const selected = e.target.value;
     const preset = presetList.filter((d) => d.preset === selected);
     dispatch({ name: "preset", value: preset[0] });
   };
-  const handleChange = (e) => {
-    //e.preventDefault();
-    dispatch(e);
+  const handleResetButtonClick = () => {
+    localStorage.removeItem("correlationState");
+    const localSettings = JSON.parse(localStorage.getItem("correlationState"));
+    if (localSettings === null) {
+      setAlertState({
+        open: true,
+        message: "Storage cleared",
+        severity: "success",
+      });
+      dispatch({
+        name: "reset",
+      });
+    } else {
+      setAlertState({
+        open: true,
+        message: "Something went wrong",
+        severity: "error",
+      });
+    }
   };
-  const onClick = () => {
-    localStorage.setItem("correlationState", JSON.stringify(vizState));
+  const handleAlertClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setAlertState({ ...alertState, open: false });
   };
   return (
     <div className={classes.root}>
@@ -218,84 +254,98 @@ const VizSettings = () => {
             </Select>
           </FormControl>
         </Grid>
-        <form onSubmit={(e) => {
-          e.preventDefault()
-          const n = e.target['n'].value
-          dispatch({ name: "sample", value: n, immediate: false })
-        }} >
-        <Grid item xs={12} className={classes.setting}>
-          <SettingsInput
-            label="Sample size"
-            type="number"
-            name="n"
-            value={n}
-            min={1}
-            handleChange={handleChange}
-            handleSubmit={handleSubmit}
-          />
-        </Grid>
-        <Grid item xs={12} className={classes.setting}>
-          <Tooltip
-            title="Simulate a new sample"
-            enterDelay={500}
-            className={classes.button}
-          >
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              startIcon={<RepeatIcon />}
+        <form
+          className={classes.setting}
+          onSubmit={(e) => {
+            e.preventDefault();
+            const n = e.target["n"].value;
+            dispatch({ name: "sample", value: n, immediate: false });
+          }}
+        >
+          <Grid item xs={12}>
+            <SettingsInput
+              label="Sample size"
+              type="number"
+              name="n"
+              value={n}
+              min={1}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Tooltip
+              title="Simulate a new sample"
+              enterDelay={500}
+              className={classes.button}
             >
-              New Sample
-            </Button>
-          </Tooltip>
-        </Grid>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                startIcon={<RepeatIcon />}
+              >
+                New Sample
+              </Button>
+            </Tooltip>
+          </Grid>
         </form>
-        <Grid item xs={12} className={classes.setting}>
-          <CsvLoad dispatch={dispatch} />
-        </Grid>
-        <Grid item xs={12} className={classes.setting}>
-          <SettingsInput
-            label="Mean X"
-            type="number"
-            name="M0"
-            value={M0}
-            handleChange={handleChange}
-            handleSubmit={handleSubmit}
-          />
-        </Grid>
-        <Grid item xs={12} className={classes.setting}>
-          <SettingsInput
-            label="SD X"
-            type="number"
-            name="SD0"
-            value={SD0}
-            min={0}
-            handleChange={handleChange}
-            handleSubmit={handleSubmit}
-          />
-        </Grid>
-        <Grid item xs={12} className={classes.setting}>
-          <SettingsInput
-            label="Mean Y"
-            type="number"
-            name="M1"
-            value={M1}
-            handleChange={handleChange}
-            handleSubmit={handleSubmit}
-          />
-        </Grid>
-        <Grid item xs={12} className={classes.setting}>
-          <SettingsInput
-            label="SD Y"
-            type="number"
-            name="SD1"
-            value={SD1}
-            min={0}
-            handleChange={handleChange}
-            handleSubmit={handleSubmit}
-          />
-        </Grid>
+        <form
+          className={classes.setting}
+          onSubmit={(event) => {
+            event.preventDefault();
+            const data = getFormData(event);
+            dispatch({ name: "updateMoments", value: data });
+          }}
+        >
+          <Grid item xs={12}>
+            <SettingsInput
+              label="Mean X"
+              type="number"
+              name="M0"
+              value={M0}
+              step="any"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <SettingsInput
+              label="SD X"
+              type="number"
+              name="SD0"
+              value={SD0}
+              min={0}
+              step="any"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <SettingsInput
+              label="Mean Y"
+              type="number"
+              name="M1"
+              value={M1}
+              step="any"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <SettingsInput
+              label="SD Y"
+              type="number"
+              name="SD1"
+              step="any"
+              value={SD1}
+              min={0}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Tooltip
+              title="Update parameters"
+              enterDelay={500}
+              className={classes.button}
+            >
+              <Button variant="contained" color="primary" type="submit">
+                Update
+              </Button>
+            </Tooltip>
+          </Grid>
+        </form>
         <Grid item xs={12} className={classes.setting}>
           <Tooltip
             title="Rescale plot using the current parameters"
@@ -304,7 +354,8 @@ const VizSettings = () => {
           >
             <Button
               startIcon={<AspectRatioIcon />}
-              variant="contained"
+              className={classes.rescaleButton}
+              variant="outlined"
               color="primary"
               onClick={() => dispatch({ name: "rescale", immediate: false })}
             >
@@ -313,7 +364,7 @@ const VizSettings = () => {
           </Tooltip>
         </Grid>
         <Grid item style={{ minWidth: "100%" }}>
-          <Divider />
+          <Divider className={classes.divider} />
         </Grid>
         <Grid item xs={12} className={classes.setting}>
           <Typography align="center" variant="h6" component="h3">
@@ -330,7 +381,7 @@ const VizSettings = () => {
           <Typography align="center" variant="caption" component="p">
             Click to change colors.
           </Typography>
-          <Divider />
+          <Divider className={classes.divider} />
         </Grid>
         <Grid item xs={12} className={classes.setting}>
           <Typography align="center" variant="body2" component="p">
@@ -338,16 +389,21 @@ const VizSettings = () => {
           </Typography>
         </Grid>
         <Grid item xs={12} className={classes.setting}>
-          <Divider />
+          <Divider className={classes.divider} />
           <FormGroup>
-          <Tooltip title="Toggle slope chart" enterDelay={500}>
+            <Tooltip title="Toggle slope chart" enterDelay={500}>
               <FormControlLabel
                 className={classes.labelPlacementStart}
-                checked={plotType === 'slope'}
+                checked={plotType === "slope"}
                 control={<Switch color="primary" />}
                 label="Slope chart"
                 labelPlacement="start"
-                onChange={() => dispatch({ name: "plotType", value: plotType === 'slope' ? 'scatter': 'slope' })}
+                onChange={() =>
+                  dispatch({
+                    name: "plotType",
+                    value: plotType === "slope" ? "scatter" : "slope",
+                  })
+                }
               />
             </Tooltip>
             <Tooltip title="Toggle the regression line" enterDelay={500}>
@@ -362,7 +418,7 @@ const VizSettings = () => {
             </Tooltip>
             <Tooltip title="Toggle residuals" enterDelay={500}>
               <FormControlLabel
-                disabled={plotType === 'slope'}
+                disabled={plotType === "slope"}
                 className={classes.labelPlacementStart}
                 checked={residuals}
                 control={<Switch color="primary" />}
@@ -376,7 +432,7 @@ const VizSettings = () => {
               enterDelay={500}
             >
               <FormControlLabel
-                disabled={plotType === 'slope'}
+                disabled={plotType === "slope"}
                 className={classes.labelPlacementStart}
                 checked={ellipses}
                 control={<Switch color="primary" />}
@@ -398,38 +454,135 @@ const VizSettings = () => {
           </FormGroup>
         </Grid>
         <Grid item style={{ minWidth: "100%" }}>
-          <Divider />
+          <Divider className={classes.divider} />
         </Grid>
         <Grid item xs={12} className={classes.setting}>
           <Typography align="center" variant="h6" component="h3">
             Labels
           </Typography>
         </Grid>
-        <Grid item xs={12} className={classes.setting}>
-          <SettingsInput
-            label="x-axis"
-            type="text"
-            name="xLabel"
-            value={xLabel}
-            handleChange={handleChange}
-            handleSubmit={handleSubmit}
-          />
-        </Grid>
-        <Grid item xs={12} className={classes.setting}>
-          <SettingsInput
-            label="y-axis"
-            type="text"
-            name="yLabel"
-            value={yLabel}
-            handleChange={handleChange}
-            handleSubmit={handleSubmit}
-          />
-        </Grid>
+        <form
+          className={classes.setting}
+          onSubmit={(event) => {
+            event.preventDefault();
+            const data = getFormData(event);
+            dispatch({ name: "updateLabels", value: data });
+          }}
+        >
+          <Grid item xs={12}>
+            <SettingsInput
+              label="x-axis"
+              type="text"
+              name="xLabel"
+              value={xLabel}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <SettingsInput
+              label="y-axis"
+              type="text"
+              name="yLabel"
+              value={yLabel}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Tooltip
+              title="Update labels"
+              enterDelay={500}
+              className={classes.button}
+            >
+              <Button variant="contained" color="primary" type="submit">
+                Update
+              </Button>
+            </Tooltip>
+          </Grid>
+        </form>
         <Grid item style={{ minWidth: "100%" }}>
-          <Divider />
+          <Divider className={classes.divider} />
+          <Grid item xs={12} className={classes.setting}>
+            <Typography align="center" variant="h6" component="h3">
+              Save settings
+            </Typography>
+            <Typography align="center" variant="body2" component="p">
+              This will save the current state in your browser.
+            </Typography>
+          </Grid>
         </Grid>
         <Grid item xs={12} className={classes.setting}>
-          <SaveButton data={state} localStorageName="correlationState" />
+          <Button
+            variant="outlined"
+            color="primary"
+            aria-label="update"
+            fullWidth
+            className={classes.button}
+            startIcon={<SaveIcon />}
+            onClick={() => {
+              const dJSON = JSON.stringify(state);
+              localStorage.setItem("correlationState", dJSON);
+              const dLocal = JSON.stringify(
+                JSON.parse(localStorage.getItem("correlationState"))
+              );
+              if (dJSON == dLocal) {
+                setAlertState({
+                  open: true,
+                  message: "Settings saved",
+                  severity: "success",
+                });
+              } else {
+                setAlertState({
+                  open: true,
+                  severity: "error",
+                  message: "Something went wrong",
+                });
+              }
+            }}
+          >
+            Save
+          </Button>
+        </Grid>
+        <Snackbar
+          open={alertState.open}
+          autoHideDuration={4000}
+          onClose={handleAlertClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        >
+          <Alert onClose={handleAlertClose} severity={alertState.severity}>
+            {alertState.message}
+          </Alert>
+        </Snackbar>
+        <Grid item xs={12} className={classes.setting}>
+          <Button
+            variant="outlined"
+            color="default"
+            onClick={handleResetButtonClick}
+            fullWidth
+          >
+            Clear
+          </Button>
+        </Grid>
+        <Grid item xs={12} className={classes.setting}>
+          <Typography
+            variant="body1"
+            component="h3"
+            gutterBottom
+            className={classes.divider}
+          >
+            Download data
+          </Typography>
+        </Grid>
+        <Grid item xs={12} className={classes.setting}>
+          {/* Save data to file */}
+          <DownloadCsvButton
+            data={{
+              data: state.data,
+              xLabel: state.xLabel,
+              yLabel: state.yLabel,
+            }}
+            filename="rpschologist-correlation.csv"
+          />
+        </Grid>
+        <Grid item xs={12} className={classes.setting}>
+          <CsvLoad dispatch={dispatch} />
         </Grid>
       </Grid>
     </div>

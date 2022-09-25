@@ -1,0 +1,9 @@
+files:
+  - source: /gatsby-theme-rpsych/i18n/react-i18next/en/*.json
+    translation: /gatsby-theme-rpsych/i18n/react-i18next/%two_letters_code%/%original_file_name%
+  - source: /gatsby-theme-rpsych-cohend/i18n/react-i18next/en/*.json
+    translation: /gatsby-theme-rpsych-cohend/i18n/react-i18next/%two_letters_code%/%original_file_name%
+  - source: /gatsby-theme-rpsych-cohend/content/cohend/**/*.en.md*
+    translation: /gatsby-theme-rpsych-cohend/content/cohend/**/%file_name%.%two_letters_code%.%file_extension%
+    translation_replace:
+      .en: ''

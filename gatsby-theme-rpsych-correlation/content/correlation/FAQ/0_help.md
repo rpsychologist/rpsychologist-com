@@ -5,7 +5,7 @@ order: 0
 
 **This section is not finished.**
 
-## Load CSV files
+### Load CSV files
 You can load your own data from a CSV file. The CSV file must have this structure:
 ```
 x,y
@@ -18,3 +18,6 @@ The first row is the column names, where the first column is assumed to be the x
 
 ### Your data is _not_ uploaded
 This site performs no server-side calculations, and the data is only loaded in your browser and not uploaded to my server.
+
+### Probability Ellipses
+You can toggle probability ellipses in the settings drawer. The ellipse probabilities are: 0.5, 0.8, 0.95, 0.99. **Protip**: You can click on the ellipses if you disable "Edit points". 

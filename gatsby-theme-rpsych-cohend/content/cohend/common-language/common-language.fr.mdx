@@ -4,9 +4,9 @@ title: common-language
 import Typography from "@material-ui/core/Typography"
 
 <Typography variant="body1" gutterBottom>
-Avec un <em>d</em> de Cohen de {props.cohend}, {props.U3}% du groupe "{props.muOneLabel}" 
-a une valeur supérieure à la moyenne du groupe "{props.muZeroLabel}"  (U<sub>3</sub> de Cohen), {props.propOverlap}% des deux groupes se chevauchent, et il 
-y a {props.CL}% de chances qu'une personne choisie au hasard dans le groupe traitement
+Avec un <em>d</em> de Cohen de {props.cohend}, {props.U3} du groupe "{props.muOneLabel}" 
+a une valeur supérieure à la moyenne du groupe "{props.muZeroLabel}"  (U<sub>3</sub> de Cohen), {props.propOverlap} des deux groupes se chevauchent, et il 
+y a {props.CL} de chances qu'une personne choisie au hasard dans le groupe traitement
 ait un score plus élevé qu'une personne choisie au hasard dans le groupe contrôle
 (probabilité de supériorité). De plus, dans le but d'avoir 
 un meilleur résultat en faveur du groupe traitement, nous avons besoin d'inclure{" "}
@@ -16,7 +16,7 @@ ont un résultat favorable dans le groupe contrôle, alors {props.CER} + {props.
 personnes dans le groupe traitement auront des résultats favorables.<sup>1</sup>
 </Typography>
 <Typography variant="body2" gutterBottom>
-<sup>1</sup>Les valeurs sont des moyennes, et il est supposé que {props.CER}% (CER)
+<sup>1</sup>Les valeurs sont des moyennes, et il est supposé que {props.CER} (CER)
 du groupe contrôle auront un "résultat favorable," c'est-à-dire que leur résultat est
 inférieur à un seuil donné. Vous pouvez changer ce paramètre grâce au symbole 'paramètre' à droite 
 du slider. Allez dans la section 'formules' pour plus d'informations.

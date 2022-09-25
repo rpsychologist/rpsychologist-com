@@ -214,7 +214,7 @@ const OverlapChart = (props) => {
             textAnchor="middle"
             id="cohend_float"
           >
-            {aniProps.d.to(d => `${t("Cohen's d")}: ${format(".2n")(d)}`)}
+            {aniProps.d.to(d => `${t("Cohen's d")}: ${d > 1 ? format(".3n")(d) : format(".2n")(d)}`)}
           </animated.text>
           <animated.text
             x={aniProps.x.to(calcCenter)}

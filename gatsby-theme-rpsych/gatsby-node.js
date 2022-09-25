@@ -1,5 +1,5 @@
-const path = require(`path`)
-const { createFilePath } = require(`gatsby-source-filesystem`)
+const path = require(`path`);
+const { createFilePath } = require(`gatsby-source-filesystem`);
 const { createURLRegEx } = require(`gatsby-theme-rpsych/src/utils/helpers`);
 const { withDefaults } = require(`gatsby-theme-i18n/utils/default-options`);
 const {
@@ -74,9 +74,7 @@ exports.createSchemaCustomization = ({ actions }) => {
     `);
 };
 
-
-exports.sourceNodes = (
-  { actions, createContentDigest, createNodeId }) => {
+exports.sourceNodes = ({ actions, createContentDigest, createNodeId }) => {
   const { createNode } = actions;
 
   const config = require(i18nOptions.configPath);
@@ -102,7 +100,7 @@ exports.sourceNodes = (
 
 exports.onCreateNode = ({ node, actions, getNode }) => {
   const { createNodeField } = actions;
-  const { defaultLang } = i18nOptions
+  const { defaultLang } = i18nOptions;
   if (node.internal.type === `Mdx`) {
     const name = path.basename(node.fileAbsolutePath, `.mdx`);
     const isDefault = name === `index`;
@@ -110,7 +108,7 @@ exports.onCreateNode = ({ node, actions, getNode }) => {
     let value;
     // use YAML slug if it exists
     if (node.frontmatter && node.frontmatter.slug) {
-      value = `/${node.frontmatter.slug}`
+      value = `/${node.frontmatter.slug}`;
     } else {
       value = createFilePath({ node, getNode });
     }
@@ -118,7 +116,7 @@ exports.onCreateNode = ({ node, actions, getNode }) => {
       name: `slug`,
       node,
       value,
-    })
+    });
     createNodeField({ node, name: `locale`, value: lang });
     createNodeField({ node, name: `isDefault`, value: isDefault });
   }
@@ -126,7 +124,7 @@ exports.onCreateNode = ({ node, actions, getNode }) => {
 
 exports.onCreatePage = ({ page, actions }) => {
   const { createPage, deletePage } = actions;
-  const { configPath, defaultLang, locales, prefixDefault } = i18nOptions
+  const { configPath, defaultLang, locales, prefixDefault } = i18nOptions;
   // Check if originalPath was already set and bail early as otherwise an infinite loop could occur
   // as other plugins like gatsby-plugin-mdx could modify this
   if (page.context.originalPath) {
@@ -134,28 +132,28 @@ exports.onCreatePage = ({ page, actions }) => {
   }
   const originalPath = page.path;
 
-  if(originalPath === "/cohend/") {
+  if (originalPath === "/cohend/") {
     deletePage(page);
 
     const configLocales = require(configPath);
-  
+
     const languages = getLanguages({
       locales: configLocales,
       localeStr: locales,
     });
-  
+
     const defaultLocale = getDefaultLanguage({
       locales: configLocales,
       defaultLang,
     });
-  
+
     languages.forEach((locale) => {
       const path = localizedPath({
         defaultLang,
         prefixDefault,
         locale: locale.code,
         path: originalPath,
-      })
+      });
       const newPage = {
         ...page,
         path: path,
@@ -173,21 +171,20 @@ exports.onCreatePage = ({ page, actions }) => {
           hrefLang: locale.hrefLang,
           originalPath,
           dateFormat: locale.dateFormat,
-          permalinkRegEx: createURLRegEx(path, d3Slug = true),
+          permalinkRegEx: createURLRegEx(path, (d3Slug = true)),
         },
       };
-  
+
       // Check if the page is a localized 404
       if (newPage.path.match(/^\/[a-z]{2}\/404\/$/)) {
         // Match all paths starting with this code (apart from other valid paths)
         newPage.matchPath = `/${locale.code}/*`;
       }
-  
+
       createPage(newPage);
     });
-  
   }
-  
+
   // When prefixDefault is set the default development & production 404 pages
   // will be deleted but not re-created in the above `languages.forEach` segment
   // Thus we'll re-create them manually here

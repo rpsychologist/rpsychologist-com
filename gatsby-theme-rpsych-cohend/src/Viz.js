@@ -20,6 +20,7 @@ import { queryTypes } from "./components/settings/queryTypes";
 import IconButton from "@material-ui/core/IconButton";
 import TwitterIcon from "@material-ui/icons/Twitter";
 import Link from "@material-ui/core/Link";
+import { precisionFixed } from "d3-format";
 
 export const SettingsContext = createContext(null);
 
@@ -66,7 +67,6 @@ if (typeof localStorage !== `undefined`) {
     });
   }
 } else {
-  // calculate actual values based on Cohen's d
   initialState = vizReducer(defaultState, {
     name: "cohend",
     value: defaultState.cohend,
@@ -150,6 +150,14 @@ const Viz = ({
   const classes = useStyles();
   const { NNT, CER, U3, propOverlap, CL, immediate } = state;
   const nntFn = CreateNntFn(CER);
+  const precisionPercent = useMemo(
+    () => Math.max(0, precisionFixed(Number(state.sliderStep)) - 1),
+    [state.sliderStep]
+  );
+  const precision = useMemo(() => precisionFixed(Number(state.sliderStep)), [
+    state.sliderStep,
+  ]);
+
   return (
     <div className={classes.root}>
       <Container maxWidth={embed && "lg"}>
@@ -178,7 +186,7 @@ const Viz = ({
                     data={U3}
                     dataFn={dataFn}
                     immediate={immediate}
-                    formatType={".3p"}
+                    formatType={"." + precisionPercent + "%"}
                     className={"donut--two-arcs"}
                   />
                   <Typography align="center" variant="body1">
@@ -195,7 +203,7 @@ const Viz = ({
                     data={propOverlap}
                     dataFn={dataFn}
                     immediate={immediate}
-                    formatType={".3p"}
+                    formatType={"." + precisionPercent + "%"}
                     className={"donut--two-arcs"}
                   />
                   <Typography align="center" variant="body1">
@@ -210,7 +218,7 @@ const Viz = ({
                     data={CL}
                     dataFn={dataFn}
                     immediate={immediate}
-                    formatType={".3p"}
+                    formatType={"." + precisionPercent + "%"}
                     className={"donut--two-arcs"}
                   />
                   <Typography align="center" variant="body1">
@@ -226,7 +234,7 @@ const Viz = ({
                     dataFn={nntFn}
                     immediate={immediate}
                     label={NNT}
-                    formatType={".3n"}
+                    formatType={"." + 2 + "f"}
                     className={"donut--NNT"}
                   />
                   <Typography align="center" variant="body1">
@@ -249,16 +257,20 @@ const Viz = ({
               <CommonLanguage
                 vizState={state}
                 commonLangText={commonLangText}
+                precision={precision}
+                precisionPercent={precisionPercent}
               />
             </>
           )}
           {embed && <EmbedAttribution />}
-          {!minimal && <SettingsDrawer
-            handleDrawer={toggleDrawer}
-            open={openSettings}
-            vizState={state}
-            vizSettings={<VizSettings />}
-          />}
+          {!minimal && (
+            <SettingsDrawer
+              handleDrawer={toggleDrawer}
+              open={openSettings}
+              vizState={state}
+              vizSettings={<VizSettings />}
+            />
+          )}
         </SettingsContext.Provider>
       </Container>
     </div>

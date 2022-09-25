@@ -74,11 +74,12 @@ netlify.toml
 # Large binary assets
 */assets/Posters/
 */assets/profile.jpg
+gatsby-theme-rpsych/assets/MoreViz/psd
 
 # Other
 TODO.md
 blog/content/comments/rpsychologist-disqus-archive.xml
 coffee-supporters/
-
 #vscode
 .vscode
+.yarn

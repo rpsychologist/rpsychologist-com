@@ -31,11 +31,7 @@ const SEO = ({
               {
                 rel: `webmention`,
                 href: `https://webmention.io/rpsychologist.com/webmention`
-              },
-              {
-                rel: `pingback`,
-                href: `https://webmention.io/rpsychologist.com/xmlrpc`
-              },
+              }
             ]}
             meta={[
               {

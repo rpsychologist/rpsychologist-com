@@ -166,7 +166,7 @@ const BlogIndex = props => {
           Buy Me A Coffee
         </Typography>
         <BuyMeACoffee />
-        <Webmentions edges={data.webmentions.edges} />
+        <Webmentions data={data} />
       </Container>
     </Layout>
   )

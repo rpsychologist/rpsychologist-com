@@ -1,0 +1,23 @@
+a {
+  text-decoration: none;
+  color: #428bca;
+}
+a:hover {
+  text-decoration: underline;
+}
+footer a {
+  text-decoration: none;
+  color: white;
+}
+
+/* VIZ */
+svg#pvalueChart, svg#curvesChart  {
+  user-select: none;
+  touch-action: pan-y;
+}
+svg#pvalueChart:active {
+}
+.vx-axis, #x-label {
+  user-select: none;
+}
+

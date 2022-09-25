@@ -134,11 +134,8 @@ const ScatterPoints = (props) => {
     calcXY,
     regressionLine,
     residuals,
-    xMin,
-    xMax,
-    yMin,
-    yMax,
     pointEdit,
+    showPointEdit,
     immediate,
     colorDist1,
     intercept,
@@ -152,6 +149,7 @@ const ScatterPoints = (props) => {
     muHatNewY,
     xLabCondA,
     plotType,
+    w,
   } = props;
   const classes = useStyles(colorDist1);
   const { state, dispatch } = useContext(SettingsContext);
@@ -171,19 +169,23 @@ const ScatterPoints = (props) => {
         return xy;
       },
       onMouseDown: ({ args: [index], event }) => {
-        if (pointEdit === "delete") {
+        if (showPointEdit && pointEdit === "delete") {
           dispatch({ name: "deletePoint", value: index });
         }
       },
     },
     {
-      drag: { enabled: pointEdit === "drag" },
+      drag: { enabled: showPointEdit && pointEdit === "drag" },
     }
   );
   const [ellipseState, setEllipse] = useState({ toggle: false, level: [] });
   const handleEllipse = (level) => {
     const toggle = level === ellipseState.level ? !ellipseState.toggle : true;
-    !pointEdit && setEllipse({ toggle: toggle, level: level });
+    !showPointEdit &&
+      setEllipse({
+        toggle: toggle,
+        level: toggle ? level : null,
+      });
   };
   const ellipseProps = {
     rho: rho,
@@ -195,7 +197,7 @@ const ScatterPoints = (props) => {
     SDY: sigmaHatNewY,
     cor: cor,
     handleEllipse: handleEllipse,
-    pointEdit: pointEdit,
+    showPointEdit: showPointEdit,
     state: ellipseState,
   };
   return (
@@ -208,7 +210,7 @@ const ScatterPoints = (props) => {
           <Ellipse className={classes.level50} level={0.5} {...ellipseProps} />
         </>
       )}
-      {ellipses && ellipseState.toggle && (
+      {ellipses && plotType === "scatter" && ellipseState.toggle && (
         <text
           textAnchor="middle"
           className={"MuiTypography-body1"}
@@ -248,9 +250,9 @@ const ScatterPoints = (props) => {
               className={clsx({
                 [classes.circle]: true,
                 [classes.noTransition]: immediate,
-                [classes.circleDrag]: pointEdit === "drag",
-                [classes.circleDelete]: pointEdit === "delete",
-                [classes.circleAdd]: pointEdit === "add",
+                [classes.circleDrag]: showPointEdit && pointEdit === "drag",
+                [classes.circleDelete]: showPointEdit && pointEdit === "delete",
+                [classes.circleAdd]: showPointEdit && pointEdit === "add",
               })}
               transform={`translate(${xVal}, ${yVal})`}
               r="5"
@@ -279,16 +281,17 @@ const SlopeChart = ({
   plotType,
   yMin,
   yMax,
+  showPointEdit,
 }) => {
   const classes = useStyles(colorDist1);
   const { state, dispatch } = useContext(SettingsContext);
   // this is only used to transition the y var
   // from scatter to slope chart
-  const [show, setShow] = useState(!plotType === 'slope');
+  const [show, setShow] = useState(!plotType === "slope");
   const timeoutRef = useRef(null);
   useEffect(() => {
     timeoutRef.current = setTimeout(() => setShow(true), 0);
-  }, [])
+  }, []);
   const bind = useGesture(
     {
       onDrag: ({ args: [index, cond], movement: [mx, my], memo, first }) => {
@@ -311,11 +314,11 @@ const SlopeChart = ({
       },
     },
     {
-      drag: { enabled: pointEdit === "drag" },
+      drag: { enabled: showPointEdit && pointEdit === "drag" },
     }
   );
   return data.map(([x, y], i) => {
-    const xVal = show ? xScaleBand(xLabCondB) : xScaleLinear(x)
+    const xVal = show ? xScaleBand(xLabCondB) : xScaleLinear(x);
     return (
       <React.Fragment key={i}>
         <circle
@@ -323,9 +326,9 @@ const SlopeChart = ({
           className={clsx({
             [classes.circle]: true,
             [classes.noTransition]: immediate,
-            [classes.circleDrag]: pointEdit === "drag",
-            [classes.circleDelete]: pointEdit === "delete",
-            [classes.circleAdd]: pointEdit === "add",
+            [classes.circleDrag]: showPointEdit && pointEdit === "drag",
+            [classes.circleDelete]: showPointEdit && pointEdit === "delete",
+            [classes.circleAdd]: showPointEdit && pointEdit === "add",
           })}
           transform={`translate(${xVal}, ${yScale(y)})`}
           r="5"
@@ -355,7 +358,7 @@ const SlopeChart = ({
   });
 };
 
-const OverlapChart = (props) => {
+const ScatterPlot = (props) => {
   const {
     width,
     yMin,
@@ -389,9 +392,9 @@ const OverlapChart = (props) => {
   }, [w, plotType, xMin, xMax]);
 
   const xScaleBand = useMemo(() => {
-      return scaleBand()
-        .domain([xLabCondA, xLabCondB])
-        .range([0, w]);
+    return scaleBand()
+      .domain([xLabCondA, xLabCondB])
+      .range([0, w]);
   }, [w, plotType, xMin, xMax]);
 
   const yScale = useMemo(() => {
@@ -426,7 +429,7 @@ const OverlapChart = (props) => {
   };
 
   const addPoint = (e) => {
-    if (state.pointEdit === "add") {
+    if (state.showPointEdit && state.pointEdit === "add") {
       let svg = document.querySelector("#scatterChart");
       var p = svg.createSVGPoint();
       p.x = e.clientX;
@@ -444,7 +447,7 @@ const OverlapChart = (props) => {
     <svg
       id="scatterChart"
       className={clsx({
-        [classes.svgAdd]: state.pointEdit === "add",
+        [classes.svgAdd]: state.showPointEdit && state.pointEdit === "add",
       })}
       width={props.width}
       height={props.width * aspect}
@@ -459,13 +462,16 @@ const OverlapChart = (props) => {
         <g clipPath="url(#svg--overlap--clip)">
           <g
             transform={
-              plotType === "slope" ? `translate(${xScaleBand.bandwidth() / 2}, 0)` : undefined
+              plotType === "slope"
+                ? `translate(${xScaleBand.bandwidth() / 2}, 0)`
+                : undefined
             }
           >
             <ScatterPoints
-              xScale={plotType ==='scatter' ? xScaleLinear : xScaleBand}
+              xScale={plotType === "scatter" ? xScaleLinear : xScaleBand}
               yScale={yScale}
               calcXY={calcXY}
+              w={w}
               {...state}
             />
             {plotType === "slope" && (
@@ -496,8 +502,8 @@ const OverlapChart = (props) => {
         <AxisLeft ticks={10} scale={yScale} />
         <AxisBottom
           top={h}
-          ticks={plotType === 'slope' ? 2 : 10}
-          scale={plotType === 'slope' ? xScaleBand : xScaleLinear}
+          ticks={plotType === "slope" ? 2 : 10}
+          scale={plotType === "slope" ? xScaleBand : xScaleLinear}
         />
       </g>
       <defs>
@@ -509,4 +515,4 @@ const OverlapChart = (props) => {
   );
 };
 
-export default OverlapChart;
+export default ScatterPlot;

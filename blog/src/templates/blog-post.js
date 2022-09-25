@@ -359,7 +359,7 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
                     </Link>{' '}
                     if you've found a bug or wan't to make a feature request.
                   </Typography>
-                  <Webmentions edges={data.webmentions.edges} />
+                  <Webmentions data={data} />
                   {comments.length > 0 && (
                     <ArchivedComments comments={comments} />
                   )}

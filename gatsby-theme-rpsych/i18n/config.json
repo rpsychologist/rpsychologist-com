@@ -40,11 +40,11 @@
     "dateFormat": "YYYY.MM.DD"
   },
   {
-    "code": "vi",
-    "hrefLang": "vi",
-    "name": "Vietnamese",
-    "localName": "Tiếng Việt",
+    "code": "uz",
+    "hrefLang": "uz",
+    "name": "Uzbek",
+    "localName": "O'zbek tili",
     "langDir": "ltr",
-    "dateFormat": "DD/MM/YYYY"
+    "dateFormat": "YYYY.MM.DD"
   }
 ]
