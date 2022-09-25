@@ -1,6 +1,6 @@
 ---
-title: I'm gonna ask a large number of students to visit this site. Will it crash your server?
+title: Men ko'p sonli talabalardan ushbu saytga tashrif buyurishlarini so'rayman. Bu sizning serveringizni buzadimi?
 order: 4
 ---
 
-No, it will be fine. The app runs in your browser so the server only needs to serve the files. 
+Yo'q, yaxshi bo'ladi. Ilova brauzeringizda ishlaydi, shuning uchun server faqat fayllarga xizmat qiladi. 
