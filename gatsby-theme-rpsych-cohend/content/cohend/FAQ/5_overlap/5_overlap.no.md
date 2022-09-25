@@ -1,5 +1,5 @@
 ---
-title: Overlappstatistikken skiller seg fra Cohens beregninger
+title: The overlap statistic differs from Cohen's calculations
 order: 5
 ---
 
