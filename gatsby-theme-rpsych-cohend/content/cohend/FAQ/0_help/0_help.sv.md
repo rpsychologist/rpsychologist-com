@@ -20,7 +20,7 @@ Du kan ändra följande inställningar genom att klicka på inställningsikonen 
     + Fördelning 2
 * **Skjutreglagets inställningar**
     + Maxvärde
-    + Stegstorlek: Kontrollerar storleken på skjutreglaget steg.
+    + Stegstorlek: Kontrollerar storleken på skjutreglaget steg
 
 #### Spara inställningar
 Inställningarna kan sparas i din webbläsares `localStorage`, och kommer därför finnas kvar vid framtida besök.
