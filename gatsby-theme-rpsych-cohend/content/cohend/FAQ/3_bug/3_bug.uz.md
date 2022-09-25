@@ -1,6 +1,6 @@
 ---
-title: Men bug/xato/matbaa xatosini moliyalashtiraman yoki taklif qilmoqchiman!
+title: I fund a bug/error/typo or want to make an suggestion!
 order: 3
 ---
 
-Iltimos, [GitHub-da muammo ochish](https://github.com/rpsychologist/rpsychologist-com/issues) orqali xatolar yoki takliflar haqida xabar bering, agar savol bermoqchi bo‘lsangiz [GitHub muhokamalaridan](https://github.com/rpsychologist/rpsychologist-com/discussions) foydalaning.
+Please report errors or suggestions by [opening an issue on GitHub](https://github.com/rpsychologist/rpsychologist-com/issues), if you want to [ask a question use GitHub discussions](https://github.com/rpsychologist/rpsychologist-com/discussions)
