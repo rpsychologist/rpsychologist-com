@@ -1,6 +1,6 @@
 ---
-title: The overlap statistic differs from Cohen's calculations
+title: La estadística de superposición es diferente a los cálculos de Cohen
 order: 5
 ---
 
-This is intentional, you can read more about my reasons in this blog post: [Where Cohen went wrong – the proportion of overlap between two normal distributions](https://rpsychologist.com/cohen-d-proportion-overlap)
+Esto es adrede, puedes leer más sobre mis motivos en esta entrada del blog: [Dónde se equivocó Cohen – la proporción de superposición entre dos distribuciones normales](https://rpsychologist.com/cohen-d-proportion-overlap)
