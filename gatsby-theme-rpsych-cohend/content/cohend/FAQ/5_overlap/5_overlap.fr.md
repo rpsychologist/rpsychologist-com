@@ -1,6 +1,6 @@
 ---
-title: The overlap statistic differs from Cohen's calculations
+title: La statistique de chevauchement diffère des calculs de Cohen
 order: 5
 ---
 
-This is intentional, you can read more about my reasons in this blog post: [Where Cohen went wrong – the proportion of overlap between two normal distributions](https://rpsychologist.com/cohen-d-proportion-overlap)
+C'est intentionnel, vous pouvez en apprendre plus sur les raisons dans cet article de blog : [Where Cohen went wrong – the proportion of overlap between two normal distributions](https://rpsychologist.com/cohen-d-proportion-overlap)
