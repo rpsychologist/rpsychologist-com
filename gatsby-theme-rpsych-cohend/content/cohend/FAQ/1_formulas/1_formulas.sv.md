@@ -11,35 +11,35 @@ $$ \delta = \frac{\mu_2-\mu_1}{\sigma}$$,
 där $\delta$ är populationsparametern för Cohens *d*. Där det antas att $\sigma_1=\sigma_2=\sigma$, dvs., homogena populationsvarianser, och $\mu_i$ är respektive populations medelvärde.
 
 ### Cohens U<sub>3</sub>
-Cohen (1977) defined U<sub>3</sub> as a measure of non-overlap, where "we take the percentage of the A population which the upper half of the cases of the Β population exceeds". Cohen's *d* can be converted to Cohen's U<sub>3</sub> using the following formula
+Cohen (1977) definierade U<sub>3</sub> som ett mått på icke-överlapp, där vi "tar andelen av A-populationen som den övre halvan av fallen från Β-populationen överstiger". Cohens *d* kan konverteras till Cohens U<sub>3</sub> genom följande formel
 
-$$U_3 = \Phi(\delta)$$
+$$U_3 = \Phi(\delta)$$,
 
 där $\Phi$ är standardnormalfördelningens kumulativ fördelningsfunktion, och $\delta$ populationsvärdet för Cohens <em>d</em>.
 
 ### Överlapp
-Generally called the overlapping coefficient (OVL). Cohen's <em>d</em> can be converted to OVL using the following formula (Reiser and Faraggi, 1999)
+Kallas generellt för *overlapping coefficient* (OVL). Cohens <em>d</em> kan konverteras till OVL genom följande formel (Reiser and Faraggi, 1999),
 
 $$\text{OVL}=2\Phi(-|\delta|/2) $$
 
-where $\Phi$ is the cumulative distribution function of the standard normal distribution, and $\delta$ the population Cohen's *d*.
+där $\Phi$ standardnormalfördelningens kumulativ fördelningsfunktion, och $\delta$ populationsvärdet för Cohens <em>d</em>.
 
 ### Probability of superiority
-This is effect size with many names: common language effect size (CL), Area under the receiver operating characteristics (AUC) or just A for its non-parametric version (Ruscio & Mullen, 2012). It is meant to be more intuitive for persons without any training in statistics. The effect size gives the probability that a person picked at random from the treatment group will have a higher score than a person picked at random from the control group. Cohen's *d* can be converted CL using the following formula (Ruscio, 2008)
+Detta är en effektstorlek med många namn: *common language effect size* (CL), *Area under the receiver operating characteristics* (AUROC) eller bara A för sin icke-parametriska version (Ruscio & Mullen, 2012). Det är tänkt som en mer intuitivt effektstorlek för personer utan träning i statistik. Effektstorlek ger sannolikheten att en slumpmässigt utvald person från behandlingsgruppen kommer ha en högre poäng än en slumpmässigt utvald person från kontrollgruppen. Cohens *d* kan konvertas till CL genom följande formel (Ruscio, 2008),
 
 $$\text{CL}=\Phi\left(\frac{\delta}{\sqrt{2}}\right)$$
 
-where $\Phi$ is the cumulative distribution function of the standard normal distribution, and $\delta$ the population Cohen's *d*.
+där $\Phi$ standardnormalfördelningens kumulativ fördelningsfunktion, och $\delta$ populationsvärdet för Cohens <em>d</em>.
 
 ### Number Needed to Treat
-NNT is the number of patients we would need to treat with the intervention to achieve one more favorable outcome compared to the control group. Furukawa and Leucht (2011) gives the following formula for converting Cohen's *d* into NNT
+NNT är antalet patienter vi skulle behöva behandla för att få ett mer positivt utfall i behandlingsgruppen jämfört med kontrollgruppen. Furukawa och Leucht (2011) gav följande formel för att konvert Cohens *d* till NNT,
 
 $$ \text{NNT} = \frac{1}{  \Phi(\delta + \Psi(CER))-CER}$$
 
-where $\Phi$ is the cumulative distribution function of the standard normal distribution and $\Psi$ its inverse, CER is the control group's event rate and $\delta$ the population Cohen's *d*. **N.B. CER is set to 20 % in the visualization above. You can change this be pressing the settings symbol to the right of the slider**. The definition of an "event" or a "response" is arbitrary and could be defined as the proportion of patients who are in remission, e.g. bellow some cut-off on a standardized questionnaire. It is possible to convert Cohen's *d* into a version of NNT that is invariant to the event rate of the control group. The interested reader should look at Furukawa and Leucht (2011) where a convincing argument is given to why this complicates the interpretation of NNT.
+där $\Phi$ är standardnormalfördelningens kumulativ fördelningsfunktion och $\Psi$ dess invers, CER är kontrollgruppens händelsefrekvens och $\delta$ populationsvärdet för Cohens *d*. **OBS. CER är 20 % i visualiseringen. Du kan ändra på detta genom att trycka på inställningsikonen till höger om skjutreglaget**. Definitionen av en "händelse" eller "respons" är godtyckligt, och skulle kunna definieras som proportionen patienter i remission, t.ex. de som faller under en viss gräns på ett standardiserat formulär. Det är möjligt att konvertera Cohens *d* till en version av NNT som ignorerar kontrollgruppens händelsefrekvens. Om du vill läsa mer om det kan du gå till Furukawa and Leucht (2011), som presenterar ett övertygande argument om varför det komplicerar tolkningen av NNT.
 
-### R code to calculate NNT from Cohen's *d*
-Since many have asked about R code for the formula above, here it is
+### R-kod för att beräkna NNT från Cohens *d*
+Eftersom många har bett om R-kod för formel här ovanför så kommer det här
 
 ```r
 CER <- 0.2
@@ -47,7 +47,7 @@ d <- 0.2
 1 / (pnorm(d + qnorm(CER))-CER)
 ```
 
-### References
+### Referenser
 
 * Baguley, T. (2009). Standardized or simple effect size: what should be reported? *British journal of psychology*, 100(Pt 3), 603–17.
 * Cohen, J. (1977). *Statistical power analysis for the behavioral sciencies*. Routledge.
