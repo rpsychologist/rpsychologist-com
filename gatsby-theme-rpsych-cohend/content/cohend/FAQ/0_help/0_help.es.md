@@ -1,33 +1,33 @@
 ---
-title: How do I use this visualization?
+title: '¿Cómo puedo utilizar esta visualización?'
 order: 0
 ---
 
-### Change Cohen's *d*
-Use the slider to change Cohen's *d*, or open the settings drawer and change the parameters. The inputs can also be controlled using the keyboard arrows.
+### Modifica la *d* de Cohen
+Utiliza el *slider* para modificar el valor de la *d* de Cohen, o abre el menú de ajustes y cambia los parámetros. También se pueden controlar los inputs con las flechas del teclado.
 
-### Settings
-You can change the following settings by clicking on the settings icon to the right of the slider.
+### Ajustes
+Puedes configurar los siguientes ajustes haciendo click en el icono de ajustes a la derecha del *slider*.
 
-* **Parameters**
-    + Mean 1
-    + Mean 2
-    + SD
-    + Control group event rate (CER)
-* **Labels**
-    + X axis
-    + Distribution 1
-    + Distribution 2
-* **Slider settings**
-    + Slider Max
-    + Slider Step: Controls the step size of the slider
+* **Parámetros**
+    + Media 1
+    + Media 2
+    + Desviación típica
+    + Tasa de eventos de control (CER)
+* **Etiquetas**
+    + Eje X
+    + Distribución 1
+    + Distribución 2
+* **Ajustes del *slider***
+    + Máximo del *slider*
+    + Salto del *slider*: Especifica el tamaño de un paso del *slider*
 
-#### Save settings
-The settings can be saved in your browser's `localStorage` and will thus persist across visits.
+#### Guardar ajustes
+Los ajustes se pueden guardar en el `localStorage` del navegador y, por lo tanto, permanecerán en tus futuras visitas.
 
-### Pan and rescale
-You can pan the x axis by clicking and dragging the visualization. **Double-click** the visualization to center and rescale it.
+### Barrido y reescalado
+Puedes hacer un barrido del eje X haciendo click en la visualización y arrastrándola. Haz **doble click** en la visualización para centrarla y reescalarla.
 
-### Offline use
-This site is cached using a service worker and will work even when you are offline.
+### Uso sin conexión
+Esta página se almacena en caché utilizando un Service Worker y funcionará incluso cuando estés sin conexión.
 
