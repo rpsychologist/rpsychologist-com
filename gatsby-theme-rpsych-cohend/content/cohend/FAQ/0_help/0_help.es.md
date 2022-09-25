@@ -1,33 +1,33 @@
 ---
-title: '¿Cómo puedo utilizar esta visualización?'
+title: How do I use this visualization?
 order: 0
 ---
 
-### Modifica la *d* de Cohen
-Utiliza el *slider* para modificar el valor de la *d* de Cohen, o abre el menú de ajustes y cambia los parámetros. También se pueden controlar los inputs con las flechas del teclado.
+### Change Cohen's *d*
+Use the slider to change Cohen's *d*, or open the settings drawer and change the parameters. The inputs can also be controlled using the keyboard arrows.
 
-### Ajustes
-Puedes configurar los siguientes ajustes haciendo click en el icono de ajustes a la derecha del *slider*.
+### Settings
+You can change the following settings by clicking on the settings icon to the right of the slider.
 
-* **Parámetros**
-    + Media 1
-    + Media 2
+* **Parameters**
+    + Mean 1
+    + Mean 2
     + SD
-    + Tasa de eventos de control (CER)
-* **Etiquetas**
-    + Eje X
-    + Distribución 1
-    + Distribución 2
+    + Control group event rate (CER)
+* **Labels**
+    + X axis
+    + Distribution 1
+    + Distribution 2
 * **Slider settings**
     + Slider Max
     + Slider Step: Controls the step size of the slider
 
-#### Guardar ajustes
-Los ajustes se pueden guardar en el `localStorage` del navegador y, por lo tanto, permanecerán en tus futuras visitas.
+#### Save settings
+The settings can be saved in your browser's `localStorage` and will thus persist across visits.
 
-### Barrido y reescalado
-Puedes hacer un barrido del eje X haciendo click en la visualización y arrastrándola. Haz **doble click** en la visualización para centrarla y reescalarla.
+### Pan and rescale
+You can pan the x axis by clicking and dragging the visualization. **Double-click** the visualization to center and rescale it.
 
-### Uso sin conexión
-Esta página se almacena en caché utilizando un Service Worker y funcionará incluso cuando estés sin conexión.
+### Offline use
+This site is cached using a service worker and will work even when you are offline.
 
