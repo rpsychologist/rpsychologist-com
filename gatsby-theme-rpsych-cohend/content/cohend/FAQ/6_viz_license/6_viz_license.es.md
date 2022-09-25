@@ -1,8 +1,8 @@
 ---
-title: Can I include this visualization in my book/article/etc?
+title: '¿Puedo incluir esta visualización en mi libro/artículo/etc.?'
 order: 6
 ---
 
-Yes, go ahead! I did not invent plotting two overlapping Gaussian distributions. This visualization is dedicated to the **public domain**, which means "you can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission" (see [Creative common's CC0-license](https://creativecommons.org/publicdomain/zero/1.0/)). Although, **attribution is not required it is always appreciated!**
+Sí, ¡adelante! Yo no he inventado la representación gráfica de dos distribuciones gaussianas superpuestas. Esta visualización está dedicada al **dominio público**, lo que significa que "puedes copiar, modificar, distribuir la obra y hacer comunicación pública, incluso para fines comerciales, sin pedir permiso" (ver [licencia Creative Commons CC0 Universal](https://creativecommons.org/publicdomain/zero/1.0/deed.es_ES)). Aunque **no es necesario citarla, ¡siempre se agradece!**
 
-The source code for this page is licensed using MIT, and the text on the page is CC-BY 4.0.
+El código fuente de esta página tiene licencia MIT, y el texto de la página es CC-BY 4.0.
