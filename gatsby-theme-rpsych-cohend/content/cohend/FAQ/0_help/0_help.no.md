@@ -1,33 +1,33 @@
 ---
-title: How do I use this visualization?
+title: Hvordan bruker jeg denne visualiseringen?
 order: 0
 ---
 
-### Change Cohen's *d*
-Use the slider to change Cohen's *d*, or open the settings drawer and change the parameters. The inputs can also be controlled using the keyboard arrows.
+### Endre Cohens *d*
+Bruk skyvebryteren (slider'en) for å endre Cohens *d*, eller åpne kontrollpanelet og endre parameterne. Du kan også endre ved hjelp av piltastene på tastaturet.
 
-### Settings
-You can change the following settings by clicking on the settings icon to the right of the slider.
+### Innstillinger
+Du kan endre følgende innstillinger ved å klikke på innstillingsikonene til høyre for skyvebryteren.
 
-* **Parameters**
-    + Mean 1
-    + Mean 2
+* **Parametrar**
+    + Gjennomsnitt 1
+    + Gjennomsnitt 2
     + SD
     + Control group event rate (CER)
-* **Labels**
-    + X axis
-    + Distribution 1
-    + Distribution 2
-* **Slider settings**
-    + Slider Max
-    + Slider Step: Controls the step size of the slider
+* **Etiketter**
+    + X-akse
+    + Fordeling 1
+    + Fordeling 2
+* **Skjutreglagets inställningar**
+    + Maksverdi
+    + Stegstørrelse: Styrer størrelse på stegene i skyvebryteren
 
-#### Save settings
-The settings can be saved in your browser's `localStorage` and will thus persist across visits.
+#### Lagre innstillinger
+Innstillingene kan lagres i nettleserens `localStorage`, og kommer til å vedvare ved fremtidige besøk.
 
-### Pan and rescale
-You can pan the x axis by clicking and dragging the visualization. **Double-click** the visualization to center and rescale it.
+### Panorer og endre skalering
+Du kan panorere langs x-aksen ved å klikke og dra på visualiseringen. **Dobbeltklikk** på visualiseringen for å sentrere og skalere.
 
-### Offline use
-This site is cached using a service worker and will work even when you are offline.
+### Offline-användning
+Denne nettsiden bruker en *service worker* og vil fungere selv når den er uten nett-tilgang.
 
