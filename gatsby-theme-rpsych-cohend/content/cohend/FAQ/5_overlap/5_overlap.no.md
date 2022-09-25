@@ -1,6 +1,6 @@
 ---
-title: The overlap statistic differs from Cohen's calculations
+title: Overlappstatistikken skiller seg fra Cohens beregninger
 order: 5
 ---
 
-This is intentional, you can read more about my reasons in this blog post: [Where Cohen went wrong – the proportion of overlap between two normal distributions](https://rpsychologist.com/cohen-d-proportion-overlap)
+Dette er bevisst. Du kan lese mer om hva jeg har tenkt i blogginnlegget: <span lang="en">[Where Cohen went wrong – the proportion of overlap between two normal distributions](https://rpsychologist.com/cohen-d-proportion-overlap)</span>
