@@ -1,33 +1,33 @@
 ---
-title: How do I use this visualization?
+title: Comment utiliser cette visualisation ?
 order: 0
 ---
 
-### Change Cohen's *d*
-Use the slider to change Cohen's *d*, or open the settings drawer and change the parameters. The inputs can also be controlled using the keyboard arrows.
+### Changer le *d* de Cohen
+Pour changer le *d* de Cohen, utiliser le Slider, ou ouvrir le panneau des paramètres. Les entrées peuvent également être contrôlées en utilisant les flèches du clavier.
 
-### Settings
-You can change the following settings by clicking on the settings icon to the right of the slider.
+### Paramètres
+Vous pouvez changer les paramètres suivants en cliquant sur l'icône paramètres à droite du Slider
 
-* **Parameters**
-    + Mean 1
-    + Mean 2
+* **Paramètres**
+    + Moyenne 1
+    + Moyenne 2
     + SD
-    + Control group event rate (CER)
+    + Ratio d'évènement en condition contrôle (CER - Control group Event Rate)
 * **Labels**
-    + X axis
+    + Axe X
     + Distribution 1
     + Distribution 2
-* **Slider settings**
-    + Slider Max
-    + Slider Step: Controls the step size of the slider
+* **Paramètres du Slider**
+    + Maximum
+    + Résolution du Slider : contrôle le pas du Slider
 
-#### Save settings
-The settings can be saved in your browser's `localStorage` and will thus persist across visits.
+#### Enregistrer les paramètres
+Les paramètres peuvent être enregistrés dans le `stockage local` de votre navigateur et rester présents à chaque visite.
 
-### Pan and rescale
-You can pan the x axis by clicking and dragging the visualization. **Double-click** the visualization to center and rescale it.
+### Axes et échelles
+Vous pouvez bouger l'axe X en cliquant dessus et en glissant la souris. Un **Double-clic** sur la visualisation permet de centrer et de réinitialiser l'échelle.
 
-### Offline use
-This site is cached using a service worker and will work even when you are offline.
+### Utilisation hors-ligne
+Le site utilise un `Service Worker` et fonctionne même hors-ligne.
 
