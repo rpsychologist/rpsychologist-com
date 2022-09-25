@@ -1,33 +1,33 @@
 ---
-title: Ushbu vizualizatsiyadan qanday foydalanaman?
+title: How do I use this visualization?
 order: 0
 ---
 
-### Cohen *d*-ni o'zgartiring
+### Change Cohen's *d*
 Use the slider to change Cohen's *d*, or open the settings drawer and change the parameters. The inputs can also be controlled using the keyboard arrows.
 
-### Sozlamalar
-Slayderning o'ng tomonidagi sozlamalar belgisini bosish orqali quyidagi sozlamalarni o'zgartirishingiz mumkin.
+### Settings
+You can change the following settings by clicking on the settings icon to the right of the slider.
 
-* **Parametrlar**
-    + O'rta 1
-    + O'rta 2
-    + Oddiy og'ish
-    + Nazorat guruhidagi hodisalar tezligi (NHT)
-* **Belgilar**
-    + X o'qi
-    + Taqsimot 1
-    + Taqsimot 2
-* **Slayder sozlamalari**
-    + Slayderder Max
-    + Slayder qadami: Slayderning qadam o'lchamini boshqaradi
+* **Parameters**
+    + Mean 1
+    + Mean 2
+    + SD
+    + Control group event rate (CER)
+* **Labels**
+    + X axis
+    + Distribution 1
+    + Distribution 2
+* **Slider settings**
+    + Slider Max
+    + Slider Step: Controls the step size of the slider
 
-#### Sozlamalarni saqlash
-Sozlamalar brauzeringizning `localStorage` da saqlanishi mumkin va shu tariqa tashriflar davomida saqlanib qoladi.
+#### Save settings
+The settings can be saved in your browser's `localStorage` and will thus persist across visits.
 
-### Panorama va oʻlchamni oʻzgartirish
+### Pan and rescale
 You can pan the x axis by clicking and dragging the visualization. **Double-click** the visualization to center and rescale it.
 
-### Oflayn foydalanish
-Ushbu sayt `service worker` yordamida keshlangan va hatto oflayn bo'lganingizda ham ishlaydi.
+### Offline use
+This site is cached using a service worker and will work even when you are offline.
 
