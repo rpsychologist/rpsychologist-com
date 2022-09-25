@@ -3,17 +3,11 @@ title: common-language
 ---
 
 import Typography from "@material-ui/core/Typography";
+import { IsInfinite } from "gatsby-theme-rpsych-cohend/src/components/content/IsInfinite";
 
 <Typography variant="body1" gutterBottom>
-With a Cohen's <em>d</em> of {props.cohend}, {props.U3} of the "{props.muOneLabel}" group will be above the mean of the "{props.muZeroLabel}" group (Cohen's U<sub>3</sub>), {props.propOverlap} of the two groups will overlap, and there is a {props.CL} chance that a person picked at random from the "{props.muOneLabel}" group will have a higher score than a person picked at random from the "{props.muZeroLabel}" group (probability of superiority). Moreover, in order to have one more favorable outcome in the "{props.muOneLabel}" group compared to the "{props.muZeroLabel}" group, we need to treat <IsInfinite value={props.NNT}>an infinite number of</IsInfinite> people on average. Esto significa que si hay 100 personas en cada grupo, y suponemos
-  que {props.CER} personas tienen resultados favorables en el grupo control,
-  entonces {props.CER} + {props.NNTPerc} personas en el grupo de tratamiento
-  tendrán resultados favorables.<sup>1</sup>
+With a Cohen's <em>d</em> of {props.cohend}, {props.U3} of the "{props.muOneLabel}" group will be above the mean of the "{props.muZeroLabel}" group (Cohen's U<sub>3</sub>), {props.propOverlap} of the two groups will overlap, and there is a {props.CL} chance that a person picked at random from the "{props.muOneLabel}" group will have a higher score than a person picked at random from the "{props.muZeroLabel}" group (probability of superiority). Moreover, in order to have one more favorable outcome in the "{props.muOneLabel}" group compared to the "{props.muZeroLabel}" group, we need to treat <IsInfinite value={props.NNT}>an infinite number of</IsInfinite> people on average. This means that if there are 100 people in each group, and we assume that {props.CER} people have favorable outcomes in the "{props.muZeroLabel}" group, then {props.CER} + {props.NNTPerc} people in the "{props.muOneLabel}" group will have favorable outcomes.<sup>1</sup>
 </Typography>
 <Typography variant="body2" gutterBottom>
-<sup>1</sup>Los valores son promedios, y se asume que el {props.CER} (CER) del
-  grupo control tiene "resultados favorables", es decir, sus resultados están
-  por debajo de algún punto de corte. Cambia esto pulsando el símbolo de
-  configuración a la derecha del <em>slider</em>. Ve a la sección de fórmulas
-  para obtener más información.
+<sup>1</sup>The values are averages, and it is assumed that {props.CER} (CER) of the "{props.muZeroLabel}" group have "favorable outcomes," i.e., their outcomes are below some cut-off. Change this by pressing the settings symbol to the right of the slider. Go to the formula section for more information.
 </Typography>
