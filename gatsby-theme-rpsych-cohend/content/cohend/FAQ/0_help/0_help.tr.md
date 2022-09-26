@@ -13,7 +13,7 @@ Kaydırıcının sağındaki ayarlar simgesine tıklayarak aşağıdaki ayarlar�
     + Ortalama 1
     + Ortalama 2
     + Standart Sapma
-    + Kontrol grubu olay hızı (CER)
+    + Kontrol grubu gözlem oranı (KGO)
 * **Etiketler**
     + X ekseni
     + Dağılım 1
