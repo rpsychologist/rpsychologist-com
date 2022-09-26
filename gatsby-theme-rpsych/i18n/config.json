@@ -46,5 +46,13 @@
     "localName": "O'zbek tili",
     "langDir": "ltr",
     "dateFormat": "YYYY.MM.DD"
+  },
+  {
+    "code": "tr",
+    "hrefLang": "tr",
+    "name": "Turkish",
+    "localName": "Türkçe",
+    "langDir": "ltr",
+    "dateFormat": "YYYY.MM.DD"
   }
 ]
