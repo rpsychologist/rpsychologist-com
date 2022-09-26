@@ -1,33 +1,33 @@
 ---
-title: How do I use this visualization?
+title: Bu görselleştirmeyi nasıl kullanabilirim?
 order: 0
 ---
 
-### Change Cohen's *d*
-Use the slider to change Cohen's *d*, or open the settings drawer and change the parameters. The inputs can also be controlled using the keyboard arrows.
+### Cohen *d* değiştir
+Cohen *d* kodunu değiştirmek için kaydırıcıyı kullanın veya ayarlar sekmesini açıp parametreleri değiştirin. Girdiler klavye okları kullanılarak da kontrol edilebilir.
 
-### Settings
-You can change the following settings by clicking on the settings icon to the right of the slider.
+### Ayarlar
+Kaydırıcının sağındaki ayarlar simgesine tıklayarak aşağıdaki ayarları değiştirebilirsiniz.
 
-* **Parameters**
-    + Mean 1
-    + Mean 2
-    + SD
-    + Control group event rate (CER)
-* **Labels**
-    + X axis
-    + Distribution 1
-    + Distribution 2
-* **Slider settings**
-    + Slider Max
-    + Slider Step: Controls the step size of the slider
+* **Parametreler**
+    + Ortalama 1
+    + Ortalama 2
+    + Standart Sapma
+    + Kontrol grubu olay hızı (CER)
+* **Etiketler**
+    + X ekseni
+    + Dağılım 1
+    + Dağılım 2
+* **Kaydırıcı ayarları**
+    + Kaydırıcı Maks
+    + Kaydırıcı Adımı: Kaydırıcının adım büyüklüğünü kontrol eder
 
-#### Save settings
-The settings can be saved in your browser's `localStorage` and will thus persist across visits.
+#### Ayarları kaydet
+Ayarlar, tarayıcınızın `localStorage` adresine kaydedilebilir ve ziyaret boyunca bu şekilde devam edecektir.
 
-### Pan and rescale
-You can pan the x axis by clicking and dragging the visualization. **Double-click** the visualization to center and rescale it.
+### Kaydır ve yeniden ölçeklendir
+Tıklayarak x eksenini kaydırabilir ve görselleştirmeyi sürükleyebilirsin. Görselleştirmeyi ortalamak ve yeniden ölçeklendirmek için **çift tıklayın**.
 
-### Offline use
-This site is cached using a service worker and will work even when you are offline.
+### Çevrimdışı kullan
+Bu site bir hizmet çalışanı kullanılarak önbelleğe alınır ve çevrimdışı olduğunuzda bile çalışır.
 
