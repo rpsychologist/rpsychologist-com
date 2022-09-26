@@ -31,8 +31,8 @@ $$\text{CL}=\Phi\left(\frac{\delta}{\sqrt{2}}\right)$$
 
 burada $\Phi$ standart normal dağılımın kümülatif dağılım işlevidir ve $\delta$ popülasyon Cohen *d*'sidir.
 
-### Deneysel işlem için gereken kişi sayısı
-NNT, kontrol grubuna kıyasla bir tane daha olumlu sonuç elde edilmesi amacıyla deneysel işlem için gereken kişi sayısıdır. Furukawa ve Leucht (2011), Cohen *d*'yi NNT'ye dönüştürmek için aşağıdaki formülü verir.
+### İyileşme için gereken kişi sayısı
+NNT, kontrol grubuna kıyasla bir tane daha olumlu sonuç elde edilmesi amacıyla iyileşme için gereken kişi sayısıdır. Furukawa ve Leucht (2011), Cohen *d*'yi NNT'ye dönüştürmek için aşağıdaki formülü verir.
 
 $$ \text{NNT} = \frac{1}{  \Phi(\delta + \Psi(CER))-CER}$$
 
