@@ -31,12 +31,12 @@ $$\text{CL}=\Phi\left(\frac{\delta}{\sqrt{2}}\right)$$
 
 burada $\Phi$ standart normal dağılımın kümülatif dağılım işlevidir ve $\delta$ popülasyon Cohen *d*'sidir.
 
-### Tedavi için gerekli sayı
-NNT, kontrol grubuna kıyasla bir tane daha olumlu sonuç elde etmek için müdahale ile tedavi etmemiz gereken hasta sayısıdır. Furukawa ve Leucht (2011), Cohen *d*'yi NNT'ye dönüştürmek için aşağıdaki formülü verir.
+### Deneysel işlem için gereken kişi sayısı
+NNT, kontrol grubuna kıyasla bir tane daha olumlu sonuç elde edilmesi amacıyla deneysel işlem için gereken kişi sayısıdır. Furukawa ve Leucht (2011), Cohen *d*'yi NNT'ye dönüştürmek için aşağıdaki formülü verir.
 
 $$ \text{NNT} = \frac{1}{  \Phi(\delta + \Psi(CER))-CER}$$
 
-$\Phi$ standart normal dağılımın kümülatif dağılım fonksiyonu ve $\Psi$ bunun tersi olduğunda, KGO kontrol grubu gözlem oranı ve $\delta$ popülasyon Cohen *d< /em>'sidir. **N.B. Yukarıdaki görselleştirmede, KGO %20 olarak ayarlanmıştır. Kaydırıcının sağındaki ayarlar simgesine basarak değiştirebilirsiniz**. Bir "olay" veya "yanıt" tanımı keyfidir ve remisyonda olan hastaların oranı olarak tanımlanabilir, örn. standart bir anketin belirli bir kesme puanının altındakiler. Kontrol grubu olay hızından bağımsız olarak Cohen *d* değerini NNT versiyonuna dönüştürmek mümkündür. İlgilenen okuyucu, bunun NNT'nin yorumlanmasını neden karmaşık hale getirdiğine dair ikna edici bir argümanın verildiği Furukawa ve Leucht (2011) bakmalıdır.</p>
+$\Phi$ standart normal dağılımın kümülatif dağılım fonksiyonu ve $\Psi$ bunun tersi olduğunda, KGO kontrol grubu gözlem oranı ve $\delta$ popülasyon Cohen *d< /em>'sidir. **N.B. Yukarıdaki görselleştirmede, KGO %20 olarak ayarlanmıştır. Kaydırıcının sağındaki ayarlar simgesine basarak değiştirebilirsiniz**. Bir "olay" veya "yanıt" tanımı keyfidir ve remisyonda olan hastaların oranı olarak tanımlanabilir, örn. standart bir anketin belirli bir kesme puanının altındakiler/üstündekiler. Kontrol grubu gözlem oranından (KGO) bağımsız olarak Cohen *d* değerini NNT'ye dönüştürmek mümkündür. İlgilenenler, bunun NNT'nin yorumlanmasını neden karmaşık hale getirdiğine dair ikna edici bir argümanın verildiği Furukawa ve Leucht (2011) kaynağına bakmalıdır.</p>
 
 ### Cohen *d*'den NNT'yi hesaplamak için R kodu
 Birçoğu yukarıdaki formül için R kodunu sorduğundan, işte burada
