@@ -2,6 +2,7 @@
 title: Hvordan bruker jeg denne visualiseringen?
 order: 0
 ---
+
 ### Endre Cohens *d*
 Bruk skyvebryteren (slider'en) for å endre Cohens *d*, eller åpne kontrollpanelet og endre parameterne. Du kan også endre ved hjelp av piltastene på tastaturet.
 
@@ -19,7 +20,7 @@ Du kan endre følgende innstillinger ved å klikke på innstillingsikonene til h
     + Fordeling 2
 * **Skjutreglagets inställningar**
     + Maksverdi
-    + Stegstørrelse: Styrer størrelse på stegene i skyvebryteren.
+    + Stegstørrelse: Styrer størrelse på stegene i skyvebryteren
 
 #### Lagre innstillinger
 Innstillingene kan lagres i nettleserens `localStorage`, og kommer til å vedvare ved fremtidige besøk.
@@ -29,3 +30,4 @@ Du kan panorere langs x-aksen ved å klikke og dra på visualiseringen. **Dobbel
 
 ### Offline-användning
 Denne nettsiden bruker en *service worker* og vil fungere selv når den er uten nett-tilgang.
+

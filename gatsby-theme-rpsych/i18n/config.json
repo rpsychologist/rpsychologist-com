@@ -8,10 +8,10 @@
     "dateFormat": "MM/DD/YYYY"
   },
   {
-    "code": "sv",
-    "hrefLang": "sv",
-    "name": "Swedish",
-    "localName": "Svenska",
+    "code": "es",
+    "hrefLang": "es",
+    "name": "Spanish",
+    "localName": "Español",
     "langDir": "ltr",
     "dateFormat": "YYYY.MM.DD"
   },
@@ -20,14 +20,6 @@
     "hrefLang": "fr",
     "name": "French",
     "localName": "Français",
-    "langDir": "ltr",
-    "dateFormat": "YYYY.MM.DD"
-  },
-  {
-    "code": "es",
-    "hrefLang": "es",
-    "name": "Spanish",
-    "localName": "Español",
     "langDir": "ltr",
     "dateFormat": "YYYY.MM.DD"
   },
@@ -44,6 +36,22 @@
     "hrefLang": "uz",
     "name": "Uzbek",
     "localName": "O'zbek tili",
+    "langDir": "ltr",
+    "dateFormat": "YYYY.MM.DD"
+  },
+  {
+    "code": "sv",
+    "hrefLang": "sv",
+    "name": "Swedish",
+    "localName": "Svenska",
+    "langDir": "ltr",
+    "dateFormat": "YYYY.MM.DD"
+  },
+  {
+    "code": "tr",
+    "hrefLang": "tr",
+    "name": "Turkish",
+    "localName": "Türkçe",
     "langDir": "ltr",
     "dateFormat": "YYYY.MM.DD"
   }

@@ -1,5 +1,5 @@
 ---
-title: ¿Puedo incluir esta visualización en mi libro/artículo/etc.?
+title: '¿Puedo incluir esta visualización en mi libro/artículo/etc.?'
 order: 6
 ---
 

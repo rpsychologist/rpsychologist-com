@@ -1,0 +1,14 @@
+---
+title: common-language
+---
+
+import Typography from "@material-ui/core/Typography";
+import { IsInfinite } from "gatsby-theme-rpsych-cohend/src/components/content/IsInfinite";
+
+<Typography variant="body1" gutterBottom>
+Với chỉ số <em>d</em> của Cohen từ {props.cohend}, {props.U3}% của nhóm "{props.muOneLabel}" sẽ có số liệu cao hơn mức trung bình của nhóm "{props.muZeroLabel}" (chỉ số U<sub>3</sub> của Cohen), {props.propOverlap}% của hai nhóm sẽ trùng nhau, và có {props.CL}% khả năng là một người chọn ngẫu nhiên từ nhóm điều trị sẽ có số liệu cao hơn một người chọn ngẫu nhiên từ nhóm chứng (xác suất vượt trội). Hơn nữa, để nhóm điều trị có thêm hơn một kết quả thuận lợi so với nhóm chứng, chúng ta cần điều trị thêm trung bình <IsInfinite value={props.NNT}>an infinite number of</IsInfinite> người Điều này có nghĩa là nếu mỗi nhóm có 100 người và chúng ta giả định là {props.CER} người ở nhóm chứng có 
+kết quả thuật lợi, thì {props.CER} + {props.NNTPerc} người ở nhóm điều trị sẽ có kết quả thuận lợi.<sup>1</sup>
+</Typography>
+<Typography variant="body2" gutterBottom>
+<sup>1</sup>Các giá trị ở đây là số bình quân, và chúng ta giả định là {props.CER}% (xác suất vượt trội) ở nhóm chứng sẽ có "kết quả thuận lợi," hay nói cách khác là kết quả của họ ở dưới một mức đặt trước. Chỉnh giá trị này bằng cách nhấp chuột vào biểu tượng cài đặt ở bên phải thanh trượt. Tham khảo mục công thức để biết thêm thông tin.
+</Typography>
