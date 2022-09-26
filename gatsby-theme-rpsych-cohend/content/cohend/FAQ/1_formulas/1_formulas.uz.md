@@ -11,14 +11,14 @@ $$ \delta = \frac{\mu_2-\mu_1}{\sigma}$$,
 bu yerda $\delta$ - Cohen *d*-ning populyatsiya parametri. Qayerda $\sigma_1=\sigma_2=\sigma$, ya'ni bir hil populyatsiya dispersiyalari deb taxmin qilinadi. Va $\mu_i$ - tegishli aholining o'rtacha qiymati.
 
 ### Cohen U<sub>3</sub>
-Cohen (1977) U<sub>3</sub>ni bir-biriga mos kelmaslik o'lchovi sifatida ta'riflagan, bu erda biz "A populyatsiyasining B populyatsiya holatlarining yuqori yarmidan oshib ketgan foizini olamiz". Cohen *d*-ni quyidagi formula yordamida Cohen U<sub>3</sub> ga aylantirish mumkin.
+Cohen (1977) U<sub>3</sub>ni bir-biriga mos kelmaslik o'lchovi sifatida ta'riflagan, bu erda biz "A populyatsiyasining B populyatsiya holatlarining yuqori yarmidan oshib ketgan foizini olamiz". Cohen *d*-ni quyidagi formula yordamida Cohen U<sub>3</sub> ga aylantirish mumkin
 
 $$U_3 = \Phi(\delta)$$
 
 bu yerda $\Phi$ standart normal taqsimotning kumulyativ taqsimot funksiyasi va Cohen <em>d</em>-ning $\delta$ populyatsiyasi.
 
 ### O'xshashlik
-Odatda bir-biriga o'xshash koeffitsient (OVL) deb ataladi. Cohen <em>d</em>ni quyidagi formula yordamida OVL ga aylantirish mumkin (Reiser va Faraggi, 1999)
+Odatda bir-biriga o'xshash koeffitsient (OVL) deb ataladi. Cohen *d*ni quyidagi formula yordamida OVL ga aylantirish mumkin (Reiser va Faraggi, 1999)
 
 $$\text{OVL}=2\Phi(-|\delta|/2) $$
 
@@ -32,7 +32,7 @@ $$\text{CL}=\Phi\left(\frac{\delta}{\sqrt{2}}\right)$$
 bu yerda $\Phi$ standart normal taqsimotning kumulyativ taqsimot funksiyasi va Cohen *d*-ning $\delta$ populyatsiyasi.
 
 ### Davolash uchun zarur bo'lgan raqam
-NNT - bu nazorat guruhiga nisbatan ko'proq ijobiy natijaga erishish uchun biz aralashuv bilan davolashimiz kerak bo'lgan bemorlar soni. Furukawa va Leucht (2011) Cohen *d*-ni NNT ga aylantirish uchun quyidagi formulani beradi.
+NNT - bu nazorat guruhiga nisbatan ko'proq ijobiy natijaga erishish uchun biz aralashuv bilan davolashimiz kerak bo'lgan bemorlar soni. Furukawa va Leucht (2011) Cohen *d*-ni NNT ga aylantirish uchun quyidagi formulani beradi
 
 $$ \text{NNT} = \frac{1}{  \Phi(\delta + \Psi(CER))-CER}$$
 

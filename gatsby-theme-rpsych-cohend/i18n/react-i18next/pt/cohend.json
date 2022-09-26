@@ -1,8 +1,9 @@
 {
-  "Interpreting Cohen's": "Interpretando o d de Cohen",
   "effect size": "tamanho do efeito",
   "Cohen's": "de Cohen",
   "Cohen's d": "d de Cohen",
+  "CohenLabelSlider": "Cohen's <i>d</i>",
+  "CohenU3": "Cohen's U<1>3</1>",
   "Interactive": "Interativo",
   "Created by": "Criado por",
   "Visualization": "Visualização",
@@ -57,5 +58,4 @@
   "guidePropOverlap": "Isto mostra a percentagem do número total de pontuações que se sobrepõem.",
   "guideCL": "Esta é a probabilidade de que uma pessoa escolhida aleatoriamente no grupo de tratamento tenha uma pontuação superior do que uma pessoa escolha aleatoriamente no grupo de controlo.",
   "guideNNT": "<0>Este é o Número de pacientes, em média, Necessário a Tratar para termos um resultado mais favorável no grupo de tratamento comparativamente ao grupo de controlo.</0><1>O NNT depende da <strong>Taxa de Eventos no Controlo (TEC)</strong>, representada na figura pela linha mais escura. Pode ser alterado nas configurações.</1>"
-
 }

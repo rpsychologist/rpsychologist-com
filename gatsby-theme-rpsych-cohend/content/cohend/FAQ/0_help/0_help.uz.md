@@ -26,8 +26,8 @@ Slayderning o'ng tomonidagi sozlamalar belgisini bosish orqali quyidagi sozlamal
 Sozlamalar brauzeringizning `localStorage` da saqlanishi mumkin va shu tariqa tashriflar davomida saqlanib qoladi.
 
 ### Panorama va oʻlchamni oʻzgartirish
-Displeyni bosish va uni sudrab borish orqali X o'qini panorama qilishingiz mumkin. **Vizualizatsiyani markazlashtirish va hajmini o'zgartirish uchun ikki marta bosing**.
-Displayni bosish va sudrab borish orqali x o'qini panorama qilishingiz mumkin. Vizualizatsiyani markazlashtirish va o‘lchamini o‘zgartirish uchun **ikki marta bosing**.
+Displeyni bosish va uni sudrab borish orqali X o'qini panorama qilishingiz mumkin. **Vizualizatsiyani markazlashtirish va hajmini o'zgartirish uchun ikki marta bosing**. Displayni bosish va sudrab borish orqali x o'qini panorama qilishingiz mumkin. Vizualizatsiyani markazlashtirish va o‘lchamini o‘zgartirish uchun **ikki marta bosing**.
 
 ### Oflayn foydalanish
 Ushbu sayt `service worker` yordamida keshlangan va hatto oflayn bo'lganingizda ham ishlaydi.
+

@@ -1,5 +1,5 @@
 ---
-title: ¡He encontrado un error, un fallo o quiero hacer una sugerencia!
+title: '¡He encontrado un error, un fallo o quiero hacer una sugerencia!'
 order: 3
 ---
 

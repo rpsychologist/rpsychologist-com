@@ -3,25 +3,12 @@ title: common-language
 ---
 
 import Typography from "@material-ui/core/Typography";
+import { IsInfinite } from "gatsby-theme-rpsych-cohend/src/components/content/IsInfinite";
 
 <Typography variant="body1" gutterBottom>
-  Cohen <em>d</em> {props.cohend} ga teng bo'lsa, "{props.muOneLabel}"
-  guruhining {props.U3} "{props.muZeroLabel}" guruhining o'rtacha qiymatidan
-  yuqori bo'ladi (Cohen U<sub>3</sub>), {props.propOverlap} ikkita guruh
-  bir-biriga mos keladi va davolash guruhidan tasodifiy tanlangan kishi nazorat
-  guruhidan tasodifiy tanlangan kishiga qaraganda yuqori ballga ega bo'lish
-  ehtimoli {props.CL} (ustunlik ehtimoli). Bundan tashqari, davolash guruhida
-  nazorat guruhiga nisbatan yana bitta ijobiy natijaga erishish uchun biz
-  o'rtacha {isFinite(props.NNT) ? props.NNT : "an infinite number of"} kishini
-  davolashimiz kerak. Bu shuni anglatadiki, agar har bir guruhda 100 kishi
-  bo'lsa va biz nazorat guruhida {props.CER} kishi ijobiy natijaga ega deb
-  hisoblasak, davolash guruhidagi {props.CER} + {props.NNTPerc} kishi ijobiy
-  natijalarga erishadi.<sup>1</sup>
+Cohen <em>d</em> {props.cohend} ga teng bo'lsa, "{props.muOneLabel}" guruhining {props.U3} "{props.muZeroLabel}" guruhining o'rtacha qiymatidan yuqori bo'ladi (Cohen U<sub>3</sub>), {props.propOverlap} ikkita guruh bir-biriga mos keladi va davolash guruhidan tasodifiy tanlangan kishi nazorat guruhidan tasodifiy tanlangan kishiga qaraganda yuqori ballga ega bo'lish
+ehtimoli {props.CL} (ustunlik ehtimoli). Bundan tashqari, davolash guruhida nazorat guruhiga nisbatan yana bitta ijobiy natijaga erishish uchun biz o'rtacha <IsInfinite value={props.NNT}>an infinite number of</IsInfinite> kishini davolashimiz kerak. Bu shuni anglatadiki, agar har bir guruhda 100 kishi bo'lsa va biz nazorat guruhida {props.CER} kishi ijobiy natijaga ega deb hisoblasak, davolash guruhidagi {props.CER} + {props.NNTPerc} kishi ijobiy natijalarga erishadi.<sup>1</sup>
 </Typography>
 <Typography variant="body2" gutterBottom>
-  <sup>1</sup>Qiymatlar oʻrtacha qiymatlar boʻlib, nazorat guruhining{" "}
-  {props.CER} tasi (CER) "qulay natijalarga" ega, ya'ni ularning natijalari
-  ba'zi chegaralardan past deb taxmin qilinadi. Slayderning o'ng tomonidagi
-  sozlamalar belgisini bosib, buni o'zgartiring. Qo'shimcha ma'lumot olish uchun
-  formulalar bo'limiga o'ting.
+<sup>1</sup>Qiymatlar oʻrtacha qiymatlar boʻlib, nazorat guruhining {props.CER} tasi (CER) "qulay natijalarga" ega, ya'ni ularning natijalari ba'zi chegaralardan past deb taxmin qilinadi. Slayderning o'ng tomonidagi sozlamalar belgisini bosib, buni o'zgartiring. Qo'shimcha ma'lumot olish uchun formulalar bo'limiga o'ting.
 </Typography>

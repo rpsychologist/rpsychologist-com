@@ -58,5 +58,4 @@
   "guidePropOverlap": "Đây là phần trăm của tất cả số liệu trùng nhau giữa hai nhóm.",
   "guideCL": "Đây là xác suất mà một người chọn ngẫu nhiên từ nhóm điều trị sẽ có giá trị điểm cao hơn một người chọn ngẫu nhiên từ nhóm chứng.",
   "guideNNT": "<0>Đây là số lượng bệnh nhân trung bình cần được điều trị để nhóm điều trị có thêm một kết quả thuận lợi so với nhóm chứng.</0><1>NNT phụ thuộc vào <strong>tỷ lệ biến cố nhóm chứng (CER)</strong>, được thể hiện bằng phần tối trong biểu đồ này. Bạn có thể thay đổi cài đặt này.</1>"
-
 }

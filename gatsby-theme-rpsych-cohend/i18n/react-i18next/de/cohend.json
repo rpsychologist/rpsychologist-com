@@ -1,8 +1,9 @@
 {
-  "Interpreting Cohen's": "Cohen's interpretieren",
   "effect size": "Effektstärke",
   "Cohen's": "Cohen's",
   "Cohen's d": "Cohen's d",
+  "CohenLabelSlider": "Cohen's <i>d</i>",
+  "CohenU3": "Cohen's U<1>3</1>",
   "Interactive": "Interaktiv",
   "Created by": "Erstellt von",
   "Visualization": "Visualisierung",
@@ -57,5 +58,4 @@
   "guidePropOverlap": "Hier wird der prozentuale Anteil an der Gesamtzahl der Punkte angezeigt, die sich überschneiden.",
   "guideCL": "Das ist die Wahrscheinlichkeit, dass eine zufällig ausgewählte Person aus der Behandlungsgruppe einen höheren Wert hat als eine zufällig ausgewählte Person aus der Kontrollgruppe.",
   "guideNNT": "<0>Das ist die Anzahl der Patienten, die wir im Durchschnitt behandeln müssen, um ein günstigeres Ergebnis in der Behandlungsgruppe im Vergleich zur Kontrollgruppe zu erzielen.</0><1>NNT hängt von der <strong>Kontroll-Ereignisrate (CER)</strong> ab, die in dieser Abbildung durch den dunkleren Pfad dargestellt ist. Dies kann in den Einstellungen geändert werden.</1>"
-
 }

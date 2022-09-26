@@ -4,7 +4,7 @@ order: 1
 ---
 
 ### Chỉ số *d* của Cohen
-Chỉ số *d* của Cohen đơn giản là một hệ số ảnh hưởng được chuẩn hóa, 
+Chỉ số *d* của Cohen đơn giản là một hệ số ảnh hưởng được chuẩn hóa,
 
 $$ \delta = \frac{\mu_2-\mu_1}{\sigma}$$,
 
@@ -15,21 +15,21 @@ Cohen (1977) định nghĩa U<sub>3</sub> là một thước đo của sự khô
 
 $$U_3 = \Phi(\delta)$$
 
-với $\Phi$ là hàm phân phối tích lũy của phân phối chuẩn, và $\delta$ là tham số quần thể <em>d</em> của Cohen. 
+với $\Phi$ là hàm phân phối tích lũy của phân phối chuẩn, và $\delta$ là tham số quần thể <em>d</em> của Cohen.
 
 ### Trùng lập
-Thường được gọi là hệ số trùng lập (overlapping coefficient - OVL). Chỉ số <em>d</em> của Cohen có thể được chuyển đổi thành bằng công thức sau (Reiser and Faraggi, 1999)
+Thường được gọi là hệ số trùng lập (overlapping coefficient - OVL). Chỉ số *d* của Cohen có thể được chuyển đổi thành bằng công thức sau (Reiser and Faraggi, 1999)
 
 $$\text{OVL}=2\Phi(-|\delta|/2) $$
 
-với $\Phi$ là hàm phân phối tích lũy của phân phối chuẩn, và $\delta$ là tham số quần thể *d* của Cohen. 
+với $\Phi$ là hàm phân phối tích lũy của phân phối chuẩn, và $\delta$ là tham số quần thể *d* của Cohen.
 
 ### Xác suất vượt trội
 Đây là một hệ số ảnh hưởng với nhiều tên khác nhau: common language effect size (CL), Area under the receiver operating characteristics (AUC) hoặc A cho phiên bản phi tham số (Ruscio & Mullen, 2012). It is meant to be more intuitive for persons without any training in statistics. The effect size gives the probability that a person picked at random from the treatment group will have a higher score than a person picked at random from the control group. Cohen's *d* can be converted CL using the following formula (Ruscio, 2008)
 
 $$\text{CL}=\Phi\left(\frac{\delta}{\sqrt{2}}\right)$$
 
-where $\Phi$ is the cumulative distribution function of the standard normal distribution, and $\delta$ the population Cohen's *d*. 
+where $\Phi$ is the cumulative distribution function of the standard normal distribution, and $\delta$ the population Cohen's *d*.
 
 ### Number Needed to Treat
 NNT is the number of patients we would need to treat with the intervention to achieve one more favorable outcome compared to the control group. Furukawa and Leucht (2011) gives the following formula for converting Cohen's *d* into NNT

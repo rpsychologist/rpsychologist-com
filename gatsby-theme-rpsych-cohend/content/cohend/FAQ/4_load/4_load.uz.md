@@ -3,4 +3,4 @@ title: Men ko'p sonli talabalardan ushbu saytga tashrif buyurishlarini so'rayman
 order: 4
 ---
 
-Yo'q, yaxshi bo'ladi. Ilova brauzeringizda ishlaydi, shuning uchun server faqat fayllarga xizmat qiladi.
+Yo'q, yaxshi bo'ladi. Ilova brauzeringizda ishlaydi, shuning uchun server faqat fayllarga xizmat qiladi. 
