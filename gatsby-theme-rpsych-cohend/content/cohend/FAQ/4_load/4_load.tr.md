@@ -1,6 +1,6 @@
 ---
-title: I'm gonna ask a large number of students to visit this site. Will it crash your server?
+title: Çok sayıda öğrenciden bu siteyi ziyaret etmelerini isteyeceğim. Sunucunuzu çökertir mi?
 order: 4
 ---
 
-No, it will be fine. The app runs in your browser so the server only needs to serve the files. 
+Hayır, iyi olacak. Uygulama tarayıcınızda çalışır, bu nedenle sunucunun yalnızca dosyaları sunması gerekir. 
