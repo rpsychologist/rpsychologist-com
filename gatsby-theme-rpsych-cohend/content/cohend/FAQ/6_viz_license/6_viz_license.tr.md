@@ -1,8 +1,8 @@
 ---
-title: Can I include this visualization in my book/article/etc?
+title: Bu görselleştirmeyi kitabıma/makaleme/vb. dahil edebilir miyim?
 order: 6
 ---
 
-Yes, go ahead! I did not invent plotting two overlapping Gaussian distributions. This visualization is dedicated to the **public domain**, which means "you can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission" (see [Creative common's CC0-license](https://creativecommons.org/publicdomain/zero/1.0/)). Although, **attribution is not required it is always appreciated!**
+Evet, devam et! Örtüşen iki Gauss dağılımını çizmeyi ben icat etmedim. Bu görselleştirme, **kamuya** adanmıştır; bu, "işleri ticari amaçlarla dahi olsa izin istemeden kopyalayabilir, değiştirebilir, dağıtabilir ve gerçekleştirebilirsiniz" anlamına gelir. (bakınız [Creative common's CC0-license](https://creativecommons.org/publicdomain/zero/1.0/)). **Atıf gerekli olmasa da, yapılması her zaman takdir edilir!**
 
-The source code for this page is licensed using MIT, and the text on the page is CC-BY 4.0.
+Bu sayfanın kaynak kodu MIT kullanılarak lisanslanmıştır ve sayfadaki metin CC-BY 4.0'dır.
