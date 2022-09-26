@@ -36,7 +36,7 @@ NNT, kontrol grubuna kıyasla bir tane daha olumlu sonuç elde edilmesi amacıyl
 
 $$ \text{NNT} = \frac{1}{  \Phi(\delta + \Psi(CER))-CER}$$
 
-$\Phi$ standart normal dağılımın kümülatif dağılım fonksiyonu ve $\Psi$ bunun tersi olduğunda, KGO kontrol grubu gözlem oranı ve $\delta$ popülasyon Cohen *d< /em>'sidir. **N.B. Yukarıdaki görselleştirmede, KGO %20 olarak ayarlanmıştır. Kaydırıcının sağındaki ayarlar simgesine basarak değiştirebilirsiniz**. Bir "olay" veya "yanıt" tanımı keyfidir ve remisyonda olan hastaların oranı olarak tanımlanabilir, örn. standart bir anketin belirli bir kesme puanının altındakiler/üstündekiler. Kontrol grubu gözlem oranından (KGO) bağımsız olarak Cohen *d* değerini NNT'ye dönüştürmek mümkündür. İlgilenenler, bunun NNT'nin yorumlanmasını neden karmaşık hale getirdiğine dair ikna edici bir argümanın verildiği Furukawa ve Leucht (2011) kaynağına bakmalıdır.</p>
+$\Phi$ standart normal dağılımın kümülatif dağılım fonksiyonu ve $\Psi$ bunun tersi olduğunda, KGO kontrol grubu gözlem oranı ve $\delta$ popülasyon Cohen *d*'sidir. **N.B. Yukarıdaki görselleştirmede, KGO %20 olarak ayarlanmıştır. Kaydırıcının sağındaki ayarlar simgesine basarak değiştirebilirsiniz**. Bir "olay" veya "yanıt" tanımı keyfidir ve remisyonda olan hastaların oranı olarak tanımlanabilir, örn. standart bir anketin belirli bir kesme puanının altındakiler/üstündekiler. Kontrol grubu gözlem oranından (KGO) bağımsız olarak Cohen *d* değerini NNT'ye dönüştürmek mümkündür. İlgilenenler, bunun NNT'nin yorumlanmasını neden karmaşık hale getirdiğine dair ikna edici bir argümanın verildiği Furukawa ve Leucht (2011) kaynağına bakmalıdır.
 
 ### Cohen *d*'den NNT'yi hesaplamak için R kodu
 Birçoğu yukarıdaki formül için R kodunu sorduğundan, işte burada

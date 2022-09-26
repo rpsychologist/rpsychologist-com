@@ -17,7 +17,7 @@ $$U_3 = \Phi(\delta)$$
 
 où $\Phi$ est la distribution de répartition (ou fonction de distribution cumulative) de la distribution normale standard, et $\delta$ la population du *d* de Cohen.
 
-### Overlap
+### Chevauchement
 Généralement appelé coefficient de chevauchement (overlapping coefficient (OVL) en anglais). Le *d* de Cohen peut être converti en OVL en utilisant la formule suivante (Reiser et Faraggi, 1999)
 
 $$\text{OVL}=2\Phi(-|\delta|/2) $$
@@ -31,7 +31,7 @@ $$\text{CL}=\Phi\left(\frac{\delta}{\sqrt{2}}\right)$$
 
 où $\Phi$ est la distribution de répartition de la distribution normale standard, et $\delta$ la population du *d* de Cohen.
 
-### Number Needed to Treat
+### Nombre de patients à traiter (NNT)
 NNT est le nombre de patients que nous devrions traiter pour atteindre un résultat plus favorable comparé au groupe contrôle. Furukawa et Leucht (2011) donnent la formule suivante pour convertir le *d* de Cohen en NNT :
 
 $$ \text{NNT} = \frac{1}{  \Phi(\delta + \Psi(CER))-CER}$$

@@ -12,7 +12,7 @@ Vous pouvez changer les paramètres suivants en cliquant sur l'icône paramètre
 * **Paramètres**
     + Moyenne 1
     + Moyenne 2
-    + SD
+    + Ecart type
     + Ratio d'évènement en condition contrôle (CER - Control group Event Rate)
 * **Labels**
     + Axe X
