@@ -1,6 +1,5 @@
 {
   "effect size": "ta'sir hajmi",
-  "Cohen's": "Cohen-ning",
   "Cohen's d": "Cohen d-ning",
   "CohenLabelSlider": "Cohen <i>d</i>-ning",
   "CohenU3": "Cohen U<1>3</1>-ning",
@@ -50,7 +49,7 @@
   "Diff": "Farq",
   "license": "Versiya {{version}}, oxirgi yangilangan {{lastUpdated}}. Litsenziyalar: MIT (<5>manba kodi</5>), vizualizatsiya CC0 va matn tarkibi CC-BY 4.0.",
   "guideStart": "<0>Ushbu ilovadan qanday foydalanish kerak</0>Bu ilova funksiyalarini ta'kidlab o'tadigan qo'llanma.",
-  "guideSlider": "Use this <strong>slider</strong> to change Cohen's <3>d</3>. Try dragging it!",
+  "guideSlider": "Cohen <3>d</3>-ning belgisini o'zgartirish uchun ushbu <strong>slayder-dan</strong> foydalaning. Uni surib ko'ring!",
   "guideSettings": "<0>Ushbu belgini bosish orqali vizualizatsiya <strong>sozlamalarini</strong> ko'rishingiz va o'zgartirishingiz mumkin.</0><1>Maslahat: tashriflar davomida saqlanib qolishi uchun ushbu sozlamalarni saqlashingiz mumkin. Sozlamalar panelining pastki qismidagi saqlash belgisini bosing.</1>",
   "guideSaveSVG": "Vizualizatsiya nusxasini <0><strong>yuklab oling</strong> (SVG formatida).</0><1>Bu rasm <strong>CC0 litsenziyasi</strong> (\"Hech qanday huquqlar himoyalanmagan\"), ya'ni siz ruxsat so'ramasdan rasmdan nusxa ko'chirishingiz, o'zgartirishingiz va hatto tijoriy maqsadlarda ham tarqatishingiz mumkin (garchi, atribut juda qadrlanadi!).</1>",
   "guideDiff": "Bu standartlashtirilmagan shkala bo'yicha guruhlar orasidagi farq (xom farq).",
