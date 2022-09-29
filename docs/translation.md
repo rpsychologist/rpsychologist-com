@@ -12,6 +12,14 @@ Currently the [Cohen's *d* visualization](https://rpsychologist.com/cohend) has 
 
 Don't hesitate to contact me if you have any questions.
 
+### Crowdin tips
+
+Switch from "ALL STRINGS" to the individual files to better understand the context, this is especially true for the markdown files (*.md/mdx).
+![](img/crowdin-all-strings.png)
+
+Most string have screenshots under "context", that highlight the context and show where on  the page the text is located.
+![](img/crowdin-context.png)
+
 ## Attribution
 The translation will be attributed to you on the translated page, e.g., "translated by Your Name". I can link to your webpage and/or Twitter if you'd like.
 
