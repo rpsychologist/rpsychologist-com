@@ -44,7 +44,7 @@ const Contact = props => {
               and psychotherapy.
             </Typography>
             <Typography variant="body1" paragraph>
-              I also have a background in web development, and I still work part as a web developer (mostly React/NextJS/Node). I have created various <InternalLink to="/viz">interactive
+              I also have a background in web development, and I still work part-time as a web developer (mostly React/NextJS/Node). I have created various <InternalLink to="/viz">interactive
               visualizations of statistical concepts.</InternalLink>
             </Typography>
             <Typography variant="body1" paragraph>

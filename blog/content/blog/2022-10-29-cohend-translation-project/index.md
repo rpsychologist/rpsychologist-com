@@ -13,7 +13,7 @@ slug: cohens-d-translation-project
 summary: My Cohen's d app support multiple language, any help with translation the contents into more languages is very welcome.
 ---
 
-My [Cohen's d page](https://rpsychologist.com/cohend/) support multiple language, any help with translation the contents into more languages is very welcome. The contents are currently available in:
+My [Cohen's *d* page](https://rpsychologist.com/cohend/) support multiple languages, any help with translation the contents into more languages is very welcome. The contents are currently available in:
 - [English](https://rpsychologist.com/cohend/)
 - [Spanish](https://rpsychologist.com/es/cohend/)
 - [French](https://rpsychologist.com/fr/cohend/)
@@ -22,7 +22,7 @@ My [Cohen's d page](https://rpsychologist.com/cohend/) support multiple language
 - [Swedish](https://rpsychologist.com/sv/cohend/)
 - [Turkish](https://rpsychologist.com/tr/cohend/)
 
-wit the following languages being a work in progress:
+with the following languages being a work in progress:
 - German
 - Portuguese
 - Vietnamese
