@@ -30,7 +30,7 @@
   url: "https://rpsychologist.com/d3/bayes/"
 
 - title: "Correlations"
-  excerpt: "Interactive scatterplot that let's you visualize correlations of various magnitudes."
+  excerpt: "Interactive scatterplot that lets you visualize correlations of various magnitudes."
   image: "MoreViz/correlation.png"
   internal_link: true
   url: "/correlation/"
