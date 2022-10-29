@@ -1,5 +1,6 @@
 import React from 'react'
 import { graphql } from 'gatsby'
+import InternalLink from 'gatsby-theme-rpsych/src/utils/InternalLink'
 import Image from 'gatsby-image'
 import Layout from 'gatsby-theme-rpsych/src/components/Layout'
 import Container from '@material-ui/core/Container'
@@ -37,15 +38,14 @@ const Contact = props => {
           <Grid item sm>
             <Typography variant="body1" paragraph>
               I'm Kristoffer Magnusson a researcher in clinical psychology at
-              the Centre for Psychiatry Research, Karolinska Institutet, in
-              Stockholm, Sweden. My interests are a mix of open science,
-              gambling problems, statistics, therapist effects, visualization,
+              the <MuiLink href="https://ki.se/en/cns/centre-for-psychiatry-research">Centre for Psychiatry Research, Karolinska Institutet</MuiLink>, in
+              Stockholm, Sweden and a research associate at <MuiLink href="https://www.oii.ox.ac.uk/people/profiles/kristoffer-magnusson/">the Oxford Internet Institute</MuiLink>. My interests are a mix of open science,
+              gaming and gambling problems, statistics, therapist effects, visualization,
               and psychotherapy.
             </Typography>
             <Typography variant="body1" paragraph>
-              I also have a background in web development, and I still dabble
-              with JavaScript and I have created various interactive
-              visualizations of statistical concepts.
+              I also have a background in web development, and I still work part as a web developer (mostly React/NextJS/Node). I have created various <InternalLink to="/viz">interactive
+              visualizations of statistical concepts.</InternalLink>
             </Typography>
             <Typography variant="body1" paragraph>
               You can find a list of my publications at{' '}
