@@ -226,7 +226,7 @@ $$
 with, 
 $$
 
-U_{0j} \sim\mathcal{N}(0, ~\tau_{10}^2)
+U_{1j} \sim\mathcal{N}(0, ~\tau_{10}^2)
 
 $$
 and

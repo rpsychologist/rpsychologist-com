@@ -168,7 +168,9 @@ const Viz = ({
             handleHelpTour={handleHelpTour}
             minimal={minimal}
           />
-          <ResponsiveChart chart={Cohend} {...state} />
+          <div id="overlapChartContainer">
+            <ResponsiveChart chart={Cohend} {...state} />
+          </div>
           <Grid container justify="center" spacing={3} id="__loader">
             <Paper className={classes.loading}>
               <CircularProgress />
