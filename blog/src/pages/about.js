@@ -38,14 +38,25 @@ const Contact = props => {
           <Grid item sm>
             <Typography variant="body1" paragraph>
               I'm Kristoffer Magnusson a researcher in clinical psychology at
-              the <MuiLink href="https://ki.se/en/cns/centre-for-psychiatry-research">Centre for Psychiatry Research, Karolinska Institutet</MuiLink>, in
-              Stockholm, Sweden and a research associate at <MuiLink href="https://www.oii.ox.ac.uk/people/profiles/kristoffer-magnusson/">the Oxford Internet Institute</MuiLink>. My interests are a mix of open science,
-              gaming and gambling problems, statistics, therapist effects, visualization,
-              and psychotherapy.
+              the{' '}
+              <MuiLink href="https://ki.se/en/cns/centre-for-psychiatry-research">
+                Centre for Psychiatry Research, Karolinska Institutet
+              </MuiLink>
+              , in Stockholm, Sweden and a research associate at{' '}
+              <MuiLink href="https://www.oii.ox.ac.uk/people/profiles/kristoffer-magnusson/">
+                the Oxford Internet Institute
+              </MuiLink>
+              . My interests are a mix of open science, gaming and gambling
+              problems, statistics, therapist effects, visualization, and
+              psychotherapy.
             </Typography>
             <Typography variant="body1" paragraph>
-              I also have a background in web development, and I still work part-time as a web developer (mostly React/NextJS/Node). I have created various <InternalLink to="/viz">interactive
-              visualizations of statistical concepts.</InternalLink>
+              I also have a background in web development, and I still work
+              part-time as a web developer (mostly React/NextJS/Node). I have
+              created various{' '}
+              <InternalLink to="/viz">
+                interactive visualizations of statistical concepts.
+              </InternalLink>
             </Typography>
             <Typography variant="body1" paragraph>
               You can find a list of my publications at{' '}
@@ -100,7 +111,7 @@ const Contact = props => {
               <MuiLink href="https://github.com/rpsychologist/rpsychologist-com/issues">
                 open an issue on GitHub
               </MuiLink>{' '}
-              if you've found a bug or wan't to make a feature request.
+              if you've found a bug or want to make a feature request.
             </Typography>
             <Typography variant="h4" gutterBottom>
               Contact
