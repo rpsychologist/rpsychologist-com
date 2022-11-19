@@ -12,6 +12,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import TwitterIcon from "@material-ui/icons/Twitter";
 import GitHubIcon from "@material-ui/icons/GitHub";
 import RssFeedIcon from "@material-ui/icons/RssFeed";
+import MastodonIcon from "../MastodonIcon";
 import DarkModeToggle from "../DarkModeToggle";
 import Logo from "./Logo";
 import TranslateIcon from "@material-ui/icons/Translate";
@@ -188,14 +189,21 @@ const MenuList = ({ langCode, originalPath }) => {
       </Button>
       <IconButton
         color="inherit"
-        aria-label="Go to Kristoffers twitter"
+        aria-label="Kristoffer's Mastodon"
+        href="https://mastodon.rpsychologist.com/@kristoffer"
+      >
+        <MastodonIcon />
+      </IconButton>
+      <IconButton
+        color="inherit"
+        aria-label="Kristoffer's Twitter"
         href="https://twitter.com/krstoffr"
       >
         <TwitterIcon />
       </IconButton>
       <IconButton
         color="inherit"
-        aria-label="Go to Kristoffers GitHub"
+        aria-label="Kristoffer's GitHub"
         href="https://github.com/rpsychologist"
       >
         <GitHubIcon />
@@ -203,7 +211,7 @@ const MenuList = ({ langCode, originalPath }) => {
       <IconButton
         color="inherit"
         href="https://feeds.feedburner.com/RPsychologist"
-        aria-label="Go to RSS feed"
+        aria-label="RSS feed"
       >
         <RssFeedIcon />
       </IconButton>
@@ -214,11 +222,10 @@ const MenuList = ({ langCode, originalPath }) => {
 
 const HeaderAppBar = React.memo(
   ({ translations, pageContext = { originalPath: null } }) => {
-
     const classes = useStyles();
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const { originalPath } = pageContext;
-    const langCode = translations && translations.nodes.map(t => t.lang)
+    const langCode = translations && translations.nodes.map((t) => t.lang);
     const handleDrawerToggle = () => {
       setMobileOpen(!mobileOpen);
     };

@@ -117,13 +117,29 @@ const Contact = props => {
               Contact
             </Typography>
             <Typography variant="body1" paragraph>
-              You can get in contact with via hello{' '}
-              <AlternateEmailIcon fontSize="inherit" /> rpsychologist.com or on{' '}
-              <MuiLink href={`https://twitter.com/${social.twitter}`}>
-                Twitter @{social.twitter}
-              </MuiLink>
-              , and feel free to add me on{' '}
-              <MuiLink href={social.linkedin}>LinkedIn</MuiLink>.
+              You can get in contact with via:
+              <ul>
+                <li>
+                  Email: hello <AlternateEmailIcon fontSize="inherit" />{' '}
+                  rpsychologist.com,{' '}
+                </li>
+                <li>
+                  Mastodon{' '}
+                  <MuiLink href="https://mastodon.rpsychologist.com/@kristoffer">
+                    @kristoffer@rpsychologist.com
+                  </MuiLink>
+                </li>
+                <li>
+                  Twitter{' '}
+                  <MuiLink href={`https://twitter.com/${social.twitter}`}>
+                    @{social.twitter}
+                  </MuiLink>
+                </li>
+                <li>
+                  Feel free to add me on{' '}
+                  <MuiLink href={social.linkedin}>LinkedIn</MuiLink>.
+                </li>
+              </ul>
             </Typography>
             <Typography variant="body1" paragraph>
               You can also come hang out and chat with me on the open science

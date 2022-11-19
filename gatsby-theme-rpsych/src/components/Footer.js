@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "gatsby"
+import { Link } from "gatsby";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import List from "@material-ui/core/List";
@@ -17,6 +17,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import logo from "../../assets/rpsychologist-logo.svg";
 import { MDXRenderer } from "gatsby-plugin-mdx";
 import { useTranslation } from "react-i18next";
+import MastodonIcon from "./MastodonIcon";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -50,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Footer = React.memo(({ blogPost, license }) => {
   const classes = useStyles();
-  const { t } = useTranslation("blog")
+  const { t } = useTranslation("blog");
   return (
     <footer className={classes.footer}>
       <Container maxWidth="sm">
@@ -83,6 +84,17 @@ const Footer = React.memo(({ blogPost, license }) => {
                   <TwitterIcon className={classes.icon} />
                 </ListItemIcon>
                 <ListItemText primary="Twitter" />
+              </ListItem>
+              <ListItem
+                button
+                component="a"
+                href="https://mastodon.rpsychologist.com/@kristoffer"
+                rel="me"
+              >
+                <ListItemIcon>
+                  <MastodonIcon className={classes.icon} />
+                </ListItemIcon>
+                <ListItemText primary="Mastodon" />
               </ListItem>
               <ListItem
                 button
