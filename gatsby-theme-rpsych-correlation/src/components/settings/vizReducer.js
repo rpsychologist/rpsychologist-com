@@ -136,7 +136,7 @@ const getSampleCorrelation = (data) => {
     rho: cor,
     intercept: intercept,
     slope: slope,
-    x: y,
+    y: y,
     x: x,
     muHatNewX: mean(x),
     muHatNewY: mean(y),
