@@ -1,0 +1,75 @@
+a {
+  text-decoration: none;
+  color: #428bca;
+}
+a:hover {
+  text-decoration: underline;
+}
+footer a {
+  text-decoration: none;
+  color: white;
+}
+
+/* VIZ */
+svg#overlapChart {
+  cursor: -webkit-grab;
+  user-select: none;
+}
+svg#overlapChart:active {
+  cursor: -webkit-grabbing;
+}
+/* path#dist1 {
+  fill: #30394F;
+  stroke: #30394F;
+  stroke-width: 0px;
+} 
+
+
+#distOverlap {
+  stroke: rgb(6, 18, 19) 38, 39);
+  fill: rgb(6, 18, 19) 38, 39);
+}  */
+path#distOverlap{
+  stroke: #fff;
+  stroke-width: 2px;
+
+}
+#muConnectLine {
+  fill: none;
+  stroke-width: 2px;
+}
+line#mu0 {
+  fill: none;
+  stroke: white;
+  stroke-dasharray: 2,2;
+}
+line#mu1 {
+  fill: none;
+  stroke: white;
+  stroke-dasharray: 2,2;
+}
+
+
+svg.donut--two-arcs path.arc0 {
+  fill:#2980B9
+} 
+svg.donut--two-arcs path.arc1 {
+  fill: none;
+}
+svg.donut--icc path.arc0 {
+  fill: #30394F;
+} 
+svg.donut--icc path.arc1 {
+  fill: #2980B9;
+}
+svg.donut--icc path.arc2 {
+  fill: none;
+} 
+.vx-axis, #x-label {
+  user-select: none;
+}
+#x-label {
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+

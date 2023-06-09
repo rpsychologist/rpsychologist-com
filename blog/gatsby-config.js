@@ -5,6 +5,7 @@ module.exports = {
     `gatsby-theme-rpsych-likelihood`,
     `gatsby-theme-rpsych-correlation`,
     `gatsby-theme-rpsych-pvalue`,
+    `gatsby-theme-rpsych-therapist-effects`,
     {
       resolve: `gatsby-source-filesystem`,
       options: {

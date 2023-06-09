@@ -1,0 +1,21 @@
+// Viz settings
+export let defaultState = {
+  M0: 0,
+  M1: 0.5,
+  SD: 0.2236068,
+  cohend: 0.5,
+  icc: 0.05,
+  U3: 0,
+  propOverlap: 0,
+  CL: 0,
+  xLabel: "Therapist Effects",
+  muZeroLabel: "Control",
+  muOneLabel: "Treatment",
+  sliderMax: 1,
+  sliderStep: 0.01,
+  colorDist1: { r: 160, g: 171, b: 192, a: 1 },
+  colorDistOverlap: { r: 41, g: 128, b: 185, a: 1 },
+  colorDist2: { r: 44, g: 62, b: 80, a: 1 },
+  immediate: false,
+  slug: "",
+};

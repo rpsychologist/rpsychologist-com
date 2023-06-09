@@ -18,7 +18,8 @@
         "gatsby-theme-rpsych-cohend",
         "gatsby-theme-rpsych-likelihood",
         "gatsby-theme-rpsych-correlation",
-        "gatsby-theme-rpsych-pvalue"
+        "gatsby-theme-rpsych-pvalue",
+        "gatsby-theme-rpsych-therapist-effects"
     ],
     "dependencies": {
         "netlify-cli": "^3.10.0"
