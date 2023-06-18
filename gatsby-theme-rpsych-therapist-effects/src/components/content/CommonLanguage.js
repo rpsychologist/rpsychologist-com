@@ -28,6 +28,10 @@ const CommonLanguage = ({
   precisionPercent,
 }) => {
   const classes = useStyles();
+  const treatmentOneSd = vizState.cohend + vizState.SD
+  const treatmentTwoSd = vizState.cohend + 2 * vizState.SD
+  const controlOneSd = 0 + vizState.SD
+  const controlTwoSd = 0 + 2 * vizState.SD
   const formatedEstimates = {
     cohend: format(
       "." + (vizState.cohend > 1 ? precision + 1 : precision) + "r"
@@ -42,6 +46,18 @@ const CommonLanguage = ({
     CER: format("." + precision + "r")(vizState.CER),
     muOneLabel: vizState.muOneLabel.toLowerCase(),
     muZeroLabel: vizState.muZeroLabel.toLowerCase(),
+    treatmentOneSd: format(
+      "." + (treatmentOneSd > 1 ? precision + 1 : precision) + "r"
+    )(treatmentOneSd),
+    treatmentTwoSd: format(
+      "." + (treatmentTwoSd > 1 ? precision + 1 : precision) + "r"
+    )(treatmentTwoSd),
+    controlOneSd: format(
+      "." + (controlOneSd > 1 ? precision + 1 : precision) + "r"
+    )(controlOneSd),
+    controlTwoSd: format(
+      "." + (controlTwoSd > 1 ? precision + 1 : precision) + "r"
+    )(controlTwoSd)
   };
 
   return (

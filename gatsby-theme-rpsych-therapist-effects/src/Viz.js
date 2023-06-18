@@ -194,7 +194,7 @@ const Viz = ({
                 align="center"
                 gutterBottom
               >
-                Interpretation
+                Interpretations
               </Typography>
               <CommonLanguage
                 vizState={state}

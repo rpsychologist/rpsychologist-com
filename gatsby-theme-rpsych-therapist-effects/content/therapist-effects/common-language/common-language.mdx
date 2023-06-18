@@ -5,12 +5,21 @@ title: common-language
 import Typography from "@material-ui/core/Typography";
 
 <Typography variant="body1" gutterBottom>
-<strong>Cohen's U<sub>3</sub>:</strong> {props.U3} of the therapists in the {props.muOneLabel} group have treatment effects greater than the average therapist in the {props.muZeroLabel} group.
+<ul>
+<li>
+    <strong>Cohen's U<sub>3</sub>:</strong> {props.U3} of the therapists in the {props.muOneLabel} group have treatment effects greater than the average therapist in the {props.muZeroLabel} group.
+</li>
+<li>
+    <strong>Overlap:</strong> {props.propOverlap} of the therapists in the {props.muOneLabel} and {props.muZeroLabel} group have overlapping treatment effects.
+</li>
+<li>
+    <strong>Probability of superiority:</strong> There is a <strong>{props.CL}</strong> chance that a therapist picked at random from the {props.muOneLabel} group will have a greater treatment effect than one picked at random from the {props.muZeroLabel} group. 
+</li>
+<li>
+    <strong>Super-shrinks ({props.muOneLabel}):</strong> The top 16% of the therapists in the {props.muOneLabel} group have effects greater than <strong>{props.treatmentOneSd}</strong>, and the top 2% have effects greater than <strong>{props.treatmentTwoSd}</strong>.
+</li>
+<li>
+    <strong>Super-shrinks ({props.muZeroLabel}):</strong> The top 16% of the therapists in the {props.muZeroLabel} groups have effects greater than <strong>{props.controlOneSd}</strong>, and the top 2% have effects greater than <strong>{props.controlTwoSd}</strong>.
+</li>
+</ul>
 </Typography>
-<Typography variant="body1" gutterBottom>
-<strong>Overlap:</strong> {props.propOverlap} of the therapist in the {props.muOneLabel} and {props.muZeroLabel} have treatment effects that overlap
-</Typography>
-<Typography variant="body1" gutterBottom>
-<strong>Probability of superiority:</strong> there is a {props.CL} chance that a therapist picked at random from the {props.muOneLabel} group will have a greater treatment effect compared to a therapist picked at random from the {props.muZeroLabel} group. 
-</Typography>
-

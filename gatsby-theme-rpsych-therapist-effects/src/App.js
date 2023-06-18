@@ -17,6 +17,9 @@ const drawerWidth = 240;
 const useStyles = makeStyles((theme) => ({
   textContent: {
     maxWidth: 700,
+    "& img > .gatsby-resp-image-image !important": {
+      boxShadow: "none"
+    }
   },
   siteTitle: {
     margin: theme.spacing(10, 0, 5),
