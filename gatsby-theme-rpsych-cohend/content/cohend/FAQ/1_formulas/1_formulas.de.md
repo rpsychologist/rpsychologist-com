@@ -1,10 +1,10 @@
 ---
-title: What are the formulas?
+title: Was sind die Formeln?
 order: 1
 ---
 
-### Cohen's *d*
-Cohen's *d* is simply the standardized mean difference,
+### Cohens *d*
+Cohens *d* ist einfach der standardisierte Unterschied der Mittelwerte,
 
 $$ \delta = \frac{\mu_2-\mu_1}{\sigma}$$,
 
