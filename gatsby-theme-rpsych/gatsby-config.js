@@ -1,5 +1,5 @@
 require("dotenv").config({
-  path: '/home/kris/rpsychologist-blog/.env',
+  path: '../.env',
 })
 module.exports = {
   flags: {

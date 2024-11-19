@@ -7,6 +7,7 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import TwitterIcon from "@material-ui/icons/Twitter";
+import BlueskyIcon from "./BlueskyIcon";
 import LinkedInIcon from "@material-ui/icons/LinkedIn";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import ChatIcon from "@material-ui/icons/Chat";
@@ -74,6 +75,17 @@ const Footer = React.memo(({ blogPost, license }) => {
               {t("Connect")}
             </Typography>
             <List component="nav" aria-label="connect">
+            <ListItem
+                button
+                component="a"
+                href="https://bsky.app/profile/rpsychologist.com"
+                rel="me"
+              >
+                <ListItemIcon>
+                  <BlueskyIcon className={classes.icon} />
+                </ListItemIcon>
+                <ListItemText primary="Bluesky" />
+              </ListItem>
               <ListItem
                 button
                 component="a"
@@ -121,12 +133,6 @@ const Footer = React.memo(({ blogPost, license }) => {
                   <HomeIcon className={classes.icon} />
                 </ListItemIcon>
                 <ListItemText primary="Blog" />
-              </ListItem>
-              <ListItem button component="a" href="https://discord.gg/8DZmg2g">
-                <ListItemIcon>
-                  <ChatIcon className={classes.icon} />
-                </ListItemIcon>
-                <ListItemText primary="Discord" />
               </ListItem>
             </List>
             <Typography variant="h6" align="left" gutterBottom>

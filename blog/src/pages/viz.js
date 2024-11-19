@@ -10,7 +10,6 @@ import MoreViz from 'gatsby-theme-rpsych/src/components/MoreViz'
 import Posters from 'gatsby-theme-rpsych/src/components/Posters'
 import SocialShare from 'gatsby-theme-rpsych/src/components/SocialShare'
 import License from '../License'
-import Webmentions from 'gatsby-theme-rpsych/src/components/Webmentions'
 import BuyMeACoffee from 'gatsby-theme-rpsych-viz/src/components/BuyMeACoffee'
 import GitHubSponsors from 'gatsby-theme-rpsych-viz/src/components/GitHubSponsors'
 
@@ -30,6 +29,7 @@ const Viz = ({ data, pageContext }) => {
           <SocialShare
             slug="viz"
             title="Check out @krstoffr's interactive statistical visualizations"
+            via={true}
           />
         <Typography variant="body1" paragraph>
           Since 2014 I've tried to illustrate various statistical concepts using
@@ -89,9 +89,6 @@ const Viz = ({ data, pageContext }) => {
         <BuyMeACoffee />
         </Grid>
       </Container>
-      <Container maxWidth="sm" style={{ paddingBottom: '2em' }}>
-        <Webmentions data={data} /> 
-      </Container>
     </Layout>
   )
 }
@@ -99,7 +96,7 @@ const Viz = ({ data, pageContext }) => {
 export default Viz
 
 export const imgQuery = graphql`
-  query($permalinkRegEx: String) {
+  query {
     image: file(absolutePath: { regex: "/viz-card.png/" }) {
       childImageSharp {
         resize(width: 1200) {
@@ -109,6 +106,5 @@ export const imgQuery = graphql`
         }
       }
     }
-  ...webmentionQuery
   }
 `

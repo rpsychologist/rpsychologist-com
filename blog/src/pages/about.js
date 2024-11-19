@@ -124,6 +124,12 @@ const Contact = props => {
                   rpsychologist.com,{' '}
                 </li>
                 <li>
+                  Bluesky{' '}
+                  <MuiLink href="https://bsky.app/profile/rpsychologist.com">
+                    @rpsychologist.com
+                  </MuiLink>
+                </li>
+                <li>
                   Mastodon{' '}
                   <MuiLink href="https://mastodon.rpsychologist.com/@kristoffer">
                     @kristoffer@rpsychologist.com
@@ -140,14 +146,6 @@ const Contact = props => {
                   <MuiLink href={social.linkedin}>LinkedIn</MuiLink>.
                 </li>
               </ul>
-            </Typography>
-            <Typography variant="body1" paragraph>
-              You can also come hang out and chat with me on the open science
-              discord{' '}
-              <MuiLink href="https://discord.gg/8DZmg2g">
-                Git Gud Science
-              </MuiLink>
-              .
             </Typography>
           </Grid>
 

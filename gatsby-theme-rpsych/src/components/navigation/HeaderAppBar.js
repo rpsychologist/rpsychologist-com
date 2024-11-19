@@ -13,6 +13,7 @@ import TwitterIcon from "@material-ui/icons/Twitter";
 import GitHubIcon from "@material-ui/icons/GitHub";
 import RssFeedIcon from "@material-ui/icons/RssFeed";
 import MastodonIcon from "../MastodonIcon";
+import BlueskyIcon from "../BlueskyIcon";
 import DarkModeToggle from "../DarkModeToggle";
 import Logo from "./Logo";
 import TranslateIcon from "@material-ui/icons/Translate";
@@ -187,6 +188,14 @@ const MenuList = ({ langCode, originalPath }) => {
       >
         Visualizations
       </Button>
+      <IconButton
+        color="inherit"
+        aria-label="Kristoffer's Bluesky profile"
+        href="https://bsky.app/profile/rpsychologist.com"
+      >
+        <BlueskyIcon />
+      </IconButton>
+
       <IconButton
         color="inherit"
         aria-label="Kristoffer's Mastodon"

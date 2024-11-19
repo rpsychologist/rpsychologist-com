@@ -15,6 +15,7 @@ import RssFeedIcon from "@material-ui/icons/RssFeed";
 import LinkedInIcon from "@material-ui/icons/LinkedIn";
 import IconButton from "@material-ui/core/IconButton";
 import MastodonIcon from "../MastodonIcon";
+import BlueskyIcon from "../BlueskyIcon";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -76,6 +77,9 @@ const Hero = (props) => {
                   direction="row"
                   justify="flex-start"
                 >
+                   <IconButton href="https://bsky.app/profile/rpsychologist.com">
+                    <BlueskyIcon />
+                  </IconButton>
                   <IconButton href={`https://twitter.com/${social.twitter}`}>
                     <TwitterIcon />
                   </IconButton>

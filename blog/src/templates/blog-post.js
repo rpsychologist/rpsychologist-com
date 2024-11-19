@@ -288,6 +288,7 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
                     <Social
                       slug={post.frontmatter.slug}
                       title={post.frontmatter.title}
+                      via={true}
                     />
                   </Grid>
                 </Grid>
@@ -317,6 +318,7 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
                     <Social
                       slug={post.frontmatter.slug}
                       title={post.frontmatter.title}
+                      via={true}
                     />
                   </div>
                   <Tags tags={post.frontmatter.tags} />

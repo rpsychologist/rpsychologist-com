@@ -22,6 +22,7 @@
         "gatsby-theme-rpsych-therapist-effects"
     ],
     "dependencies": {
-        "netlify-cli": "^3.10.0"
+        "netlify-cli": "^3.10.0",
+        "yarn": "^1.22.22"
     }
 }

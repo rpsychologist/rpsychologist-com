@@ -29,11 +29,11 @@ const Bio = () => {
           <Trans t={t} i18nKey="authorBio">
             Written by <strong>Kristoffer Magnusson</strong>, a researcher in
             clinical psychology.{" "}
-            <MuiLink href={`https://twitter.com/${social.twitter}`}>
-              You should follow him on Twitter
-            </MuiLink>{" "}
-            and come hang out on the open science discord{" "}
-            <MuiLink href="https://discord.gg/8DZmg2g">Git Gud Science</MuiLink>
+            <MuiLink href="https://bsky.app/profile/rpsychologist.com">
+              You should follow him on Bluesky
+            </MuiLink> or on <MuiLink href={`https://twitter.com/${social.twitter}`}>
+              Twitter
+            </MuiLink>
             .
           </Trans>
         </Typography>
