@@ -18,7 +18,7 @@ export default (props) => {
 };
 
 export const pageQuery = graphql`
-  query cohend($locale: String!, $permalinkRegEx: String) {
+  query cohend($locale: String!) {
     FAQ: allMdx(
       filter: { fileAbsolutePath: { regex: "/cohend/FAQ/" }, fields: {locale: {eq: $locale }} }
       sort: { fields: frontmatter___order, order: ASC }
@@ -73,6 +73,5 @@ export const pageQuery = graphql`
         }
       }
     }
-    ...webmentionQuery
   }
 `;

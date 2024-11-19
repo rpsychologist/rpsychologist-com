@@ -7,7 +7,7 @@ export default (props) => {
 };
 
 export const pageQuery = graphql`
-  query correlation($permalinkRegEx: String) {
+  query correlation {
     FAQ: allMdx(
       filter: { fileAbsolutePath: { regex: "/correlation/FAQ/" } }
       sort: { fields: frontmatter___order, order: ASC }
@@ -34,6 +34,5 @@ export const pageQuery = graphql`
         }
       }
     }
-    ...webmentionQuery
   }
 `;

@@ -87,7 +87,6 @@ const gitHubQuery = graphql`
                   createdAt
                 }
                 sponsor {
-                  name
                   avatarUrl
                   url
                   login

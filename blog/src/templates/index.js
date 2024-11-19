@@ -12,7 +12,6 @@ import Powerlmm from 'gatsby-theme-rpsych/src/components/start/Powerlmm'
 import InternalLink from 'gatsby-theme-rpsych/src/utils/InternalLink'
 import { makeStyles } from '@material-ui/core'
 import License from '../License'
-import Webmentions from 'gatsby-theme-rpsych/src/components/Webmentions'
 import BuyMeACoffee from 'gatsby-theme-rpsych-viz/src/components/BuyMeACoffee'
 import GitHubSponsors from 'gatsby-theme-rpsych-viz/src/components/GitHubSponsors'
 
@@ -166,7 +165,6 @@ const BlogIndex = props => {
           Buy Me A Coffee
         </Typography>
         <BuyMeACoffee />
-        <Webmentions data={data} />
       </Container>
     </Layout>
   )
@@ -175,7 +173,7 @@ const BlogIndex = props => {
 export default BlogIndex
 
 export const pageQuery = graphql`
-  query($skip: Int!, $limit: Int!, $permalinkRegEx: String) {
+  query($skip: Int!, $limit: Int!) {
     site {
       siteMetadata {
         title
@@ -200,6 +198,5 @@ export const pageQuery = graphql`
         }
       }
     }
-    ...webmentionQuery
   }
 `

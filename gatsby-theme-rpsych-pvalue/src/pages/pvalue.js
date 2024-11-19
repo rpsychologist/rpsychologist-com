@@ -18,7 +18,7 @@ export default (props) => {
 };
 
 export const pageQuery = graphql`
-  query pvalue($permalinkRegEx: String) {
+  query pvalue {
     FAQ: allMdx(
       filter: { fileAbsolutePath: { regex: "/pvalue/FAQ/" } }
       sort: { fields: frontmatter___order, order: ASC }
@@ -45,6 +45,5 @@ export const pageQuery = graphql`
         }
       }
     }
-    ...webmentionQuery
   }
 `;

@@ -26,7 +26,6 @@ import { withStyles } from '@material-ui/core/styles'
 import TableContainer from '@material-ui/core/TableContainer'
 import CodeBlock from 'gatsby-theme-rpsych/src/components/code/code-block'
 import License from '../License'
-import Webmentions from 'gatsby-theme-rpsych/src/components/Webmentions'
 import ArchivedComments from 'gatsby-theme-rpsych/src/components/ArchivedComments'
 import BuyMeACoffee from 'gatsby-theme-rpsych-viz/src/components/BuyMeACoffee'
 import GitHubSponsors from 'gatsby-theme-rpsych-viz/src/components/GitHubSponsors'
@@ -361,7 +360,6 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
                     </Link>{' '}
                     if you've found a bug or wan't to make a feature request.
                   </Typography>
-                  <Webmentions data={data} />
                   {comments.length > 0 && (
                     <ArchivedComments comments={comments} />
                   )}
@@ -462,6 +460,5 @@ export const pageQuery = graphql`
         createdAt
       }
     }
-    ...webmentionQuery
   }
 `

@@ -18,7 +18,7 @@ export default (props) => {
 };
 
 export const pageQuery = graphql`
-  query therapistEffects($permalinkRegEx: String) {
+  query therapistEffects {
     FAQ: allMdx(
       filter: { fileAbsolutePath: { regex: "/therapist-effects/FAQ/" } }
       sort: { fields: frontmatter___order, order: ASC }
@@ -61,6 +61,5 @@ export const pageQuery = graphql`
         }
       }
     }
-    ...webmentionQuery
   }
 `;

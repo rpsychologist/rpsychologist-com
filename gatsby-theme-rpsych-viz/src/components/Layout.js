@@ -10,7 +10,6 @@ import MoreViz from "gatsby-theme-rpsych/src/components/MoreViz";
 import Contribute from "./Contribute";
 import SEO from "gatsby-theme-rpsych/src/components/seo";
 import clsx from "clsx";
-import Webmentions from 'gatsby-theme-rpsych/src/components/Webmentions'
 import { useTranslation } from "react-i18next"
 
 const useStyles = makeStyles((theme) => ({
@@ -68,7 +67,6 @@ const VizLayout = ({ openSettings, children, path, data, license, pageContext })
         <Container className={classes.textContent}>
           <Faq data={data.FAQ}/>
           <Contribute />
-          <Webmentions data={data}/>
         </Container>
         <Container maxWidth="lg" lang="en">
           <Typography variant="h2" component="h2" align="center" gutterBottom>
