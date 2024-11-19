@@ -1,10 +1,10 @@
 ---
-title: Was sind die Formeln?
+title: What are the formulas?
 order: 1
 ---
 
-### Cohens *d*
-Cohens *d* ist einfach der standardisierte Unterschied der Mittelwerte,
+### Cohen's *d*
+Cohen's *d* is simply the standardized mean difference,
 
 $$ \delta = \frac{\mu_2-\mu_1}{\sigma}$$,
 
@@ -36,7 +36,7 @@ NNT is the number of patients we would need to treat with the intervention to ac
 
 $$ \text{NNT} = \frac{1}{  \Phi(\delta + \Psi(CER))-CER}$$
 
-where $\Phi$ is the cumulative distribution function of the standard normal distribution and $\Psi$ its inverse, CER is the control group's event rate and $\delta$ the population Cohen's *d*. **N.B. CER is set to 20 % in the visualization above. You can change this be pressing the settings symbol to the right of the slider**. The definition of an "event" or a "response" is arbitrary and could be defined as the proportion of patients who are in remission, e.g. bellow some cut-off on a standardized questionnaire. It is possible to convert Cohen's *d* into a version of NNT that is invariant to the event rate of the control group. The interested reader should look at Furukawa and Leucht (2011) where a convincing argument is given to why this complicates the interpretation of NNT.
+where $\Phi$ is the cumulative distribution function of the standard normal distribution and $\Psi$ its inverse, CER is the control group's event rate and $\delta$ the population Cohen's *d*. **N.B. **N.B. CER is set to 20 % in the visualization above. You can change this be pressing the settings symbol to the right of the slider**. The definition of an "event" or a "response" is arbitrary and could be defined as the proportion of patients who are in remission, e.g. bellow some cut-off on a standardized questionnaire. It is possible to convert Cohen's *d* into a version of NNT that is invariant to the event rate of the control group. The interested reader should look at Furukawa and Leucht (2011) where a convincing argument is given to why this complicates the interpretation of NNT.</p>
 
 ### R code to calculate NNT from Cohen's *d*
 Since many have asked about R code for the formula above, here it is
