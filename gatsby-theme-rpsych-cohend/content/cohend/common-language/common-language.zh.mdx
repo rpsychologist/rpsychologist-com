@@ -1,0 +1,12 @@
+---
+title: common-language
+---
+
+import Typography from "@material-ui/core/Typography";
+
+<Typography variant="body1" gutterBottom>
+在Cohen's <em>d</em>等于{props.cohend}时，{props.muOneLabel}组中将有{props.U3}的人高于{props.muZeroLabel}组的均值（Cohen's U<sub>3</sub>）。两组间将有{props.propOverlap}的人群重合，并且有{props.CL}的概率在{props.muOneLabel}组中随机抽取一个样本，比从{props.muZeroLabel}组中抽取的人得分更高（优效概率）。 此外，为了使{props.muOneLabel}组相比{props.muZeroLabel}组有一个更有利的结果，我们平均需要治疗{props.NNT}个人。 这意味着，如果各组分别有100人，并且假设{props.muZeroLabel}组中有{props.CER}人具有有利的结果，那么{props.muOneLabel}组中将有{props.CER}+{props.NNTPerc}人具有有利的结果。<sup>1</sup>
+</Typography>
+<Typography variant="body2" gutterBottom>
+<sup>1</sup>这些值均为平均值，并且我们假设了{props.muZeroLabel}组的{props.CER}（对照组事件发生率，CER）具有“更有利的结果”，即他们的结果低于某个截断值。 你可以通过点击滑动条右侧的设置按钮来更改此值。 前往公式部分获取更多信息。
+</Typography>
