@@ -22,7 +22,7 @@ Thường được gọi là hệ số trùng lập (overlapping coefficient - O
 
 $$\text{OVL}=2\Phi(-|\delta|/2) $$
 
-với $\Phi$ là hàm phân phối tích lũy của phân phối chuẩn, và $\delta$ là tham số quần thể *d* của Cohen.
+where $\Phi$ is the cumulative distribution function of the standard normal distribution, and $\delta$ the population Cohen's *d*.
 
 ### Xác suất vượt trội
 Đây là một hệ số ảnh hưởng với nhiều tên khác nhau: common language effect size (CL), Area under the receiver operating characteristics (AUC) hoặc A cho phiên bản phi tham số (Ruscio & Mullen, 2012). It is meant to be more intuitive for persons without any training in statistics. The effect size gives the probability that a person picked at random from the treatment group will have a higher score than a person picked at random from the control group. Cohen's *d* can be converted CL using the following formula (Ruscio, 2008)
