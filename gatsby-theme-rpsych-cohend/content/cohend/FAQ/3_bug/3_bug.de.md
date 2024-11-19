@@ -1,6 +1,6 @@
 ---
-title: I fund a bug/error/typo or want to make an suggestion!
+title: Ich habe einen Fehler gefunden oder möchte einen Vorschlag machen!
 order: 3
 ---
 
-Please report errors or suggestions by [opening an issue on GitHub](https://github.com/rpsychologist/rpsychologist-com/issues), if you want to [ask a question use GitHub discussions](https://github.com/rpsychologist/rpsychologist-com/discussions)
+Bitte melden Sie Fehler oder Vorschläge auf GitHub</a> unter Issues, [, und stellen Fragen auf GitHub](https://github.com/rpsychologist/rpsychologist-com/issues) unter Discussions. </p>
