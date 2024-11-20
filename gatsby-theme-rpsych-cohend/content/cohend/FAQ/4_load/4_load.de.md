@@ -1,6 +1,6 @@
 ---
-title: I'm gonna ask a large number of students to visit this site. Will it crash your server?
+title: Ich werde eine große Anzahl von Studenten bitten, diese Website zu besuchen. Wird es den Server abstürzen?
 order: 4
 ---
 
-No, it will be fine. The app runs in your browser so the server only needs to serve the files. 
+Nein, das ist in Ordnung. Die Anwendung läuft in Ihrem Browser, so dass der Server nur die Dateien bereitstellen muss. 
