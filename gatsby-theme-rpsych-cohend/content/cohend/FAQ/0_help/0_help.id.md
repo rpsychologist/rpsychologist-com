@@ -1,5 +1,5 @@
 ---
-title: Wie benutze ich diese Visualisierung?
+title: How do I use this visualization?
 order: 0
 ---
 

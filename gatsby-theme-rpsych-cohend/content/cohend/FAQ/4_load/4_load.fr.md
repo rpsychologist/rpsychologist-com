@@ -1,5 +1,5 @@
 ---
-title: Je vais demander à un nombre important d'étudiants de visiter votre site, Je vais demander à un nombre important d'étudiants de visiter votre site, est-ce que cela va faire crasher vos serveurs?
+title: Je vais demander à un nombre important d'étudiants de visiter votre site, est-ce que cela va faire crasher vos serveurs?
 order: 4
 ---
 
