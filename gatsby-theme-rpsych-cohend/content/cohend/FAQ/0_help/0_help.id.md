@@ -1,9 +1,9 @@
 ---
-title: How do I use this visualization?
+title: Bagaimana cara menggunakan visualisasi ini?
 order: 0
 ---
 
-### Change Cohen's *d*
+### Ubah Cohen's *d*
 Use the slider to change Cohen's *d*, or open the settings drawer and change the parameters. The inputs can also be controlled using the keyboard arrows.
 
 ### Settings
