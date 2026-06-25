@@ -38,16 +38,16 @@ LMMs are frequently used by researchers to try to deal with missing data problem
 
 A common problem is that researchers do not include covariates that potentially predict dropout. Thus, it is assumed that missingness *only* depend on the previously observed values of the outcome. This is quite a strong assumption. A related misunderstanding, is that the LMM's missing data assumption is more liberal as it allows for participants' slopes to vary. It is sometimes assumed tat if a random slope is included in the model it can also be used to satisfy the MAR assumption. Clearly, it would be very practical if the inclusion of random slopes would allow missingness to depend on patients' latent change over time. Because it is probably true that some participants' dropout is related to their symptom's rate of change over time. Unfortunately, the **random effects are latent variables** and not observed variables—hence, such a **missingness mechanism would also be MNAR** (R. J. A. Little 1995). The figure below illustrates the MAR, outcome-based MNAR, and random coefficient-based MNAR mechanisms.
 
-<img src="img/missing_data_labels.png" title="Figure 1. Three different drop out mechanisms in longitudinal data from one patient. a) Illustrates a MAR mechanism where the patient's likelihood of dropping out is related to an observed large value. b) Shows an outcome-related MNAR mechanism, where dropout is related to a large unobserved value. c) Shows a random-slope MNAR mechanism where the likelihood of dropping out is related to the patient's unobserved slope."/>
+![Figure 1. Three different drop out mechanisms in longitudinal data from one patient. a) Illustrates a MAR mechanism where the patient's likelihood of dropping out is related to an observed large value. b) Shows an outcome-related MNAR mechanism, where dropout is related to a large unobserved value. c) Shows a random-slope MNAR mechanism where the likelihood of dropping out is related to the patient's unobserved slope.](img/missing_data_labels.png)
 
 Let's generate some data
 ------------------------
 
 To illustrate these concepts let's generate data from a two-level LMM with random intercept and slopes, and included a MNAR missing data mechanism where the likelihood of dropping out depended on the patient-specific random slopes. Moreover, let's assume that the missingness differs between the treatment and control group. This isn't *that* unlikely in unblinded studies (e.g., wait-list controls).
 
-<img src="img/MNAR_p_dropout.png" title="Figure 2. A differential MNAR dropout process where the probability of dropping out from a trial depends on the patient-specific slopes which interact with the treatment allocation. The probability of dropout is assumed to be constant over time."/>
+![Figure 2. A differential MNAR dropout process where the probability of dropping out from a trial depends on the patient-specific slopes which interact with the treatment allocation. The probability of dropout is assumed to be constant over time.](img/MNAR_p_dropout.png)
 
-<img src="img/MNAR.png" title="Figure 3. A sample of patients drawn from the MNAR (random slope) data-generating process.  Circles represent complete observations; the bold line represents the slope before dropping out. P(dropout) gives the probability of dropout, which is assumed to be constant at all time points."/>
+![Figure 3. A sample of patients drawn from the MNAR (random slope) data-generating process. Circles represent complete observations; the bold line represents the slope before dropping out. P(dropout) gives the probability of dropout, which is assumed to be constant at all time points.](img/MNAR.png)
 
 The equations for the dropout can be written as,
 
@@ -532,7 +532,7 @@ The table and figure below shows how much the treatment effects differ. We can s
 
 **Note:** MAR = missing at random; LMM = linear mixed-effects model; GEE = generalized estimating equation; JM = joint model; PM = pattern mixture; Est. = mean of the estimated effects; Rel. bias = relative bias of Est.; d = mean of the Cohen’s d estimates.
 
-<img src="img/MNAR_sim_res.png" title="Figure 3. Mean of the estimated treatment effect from the MNAR missing data simulations for the different models. The dashed lines represents the control group's estimated average slope and the solid lines the treatment group's average slope."/>
+![Figure 3. Mean of the estimated treatment effect from the MNAR missing data simulations for the different models. The dashed lines represents the control group's estimated average slope and the solid lines the treatment group's average slope.](img/MNAR_sim_res.png)
 
 Summary
 -------
