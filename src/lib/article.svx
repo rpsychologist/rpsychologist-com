@@ -1,0 +1,136 @@
+<script lang="ts">
+  import FactorsForest from "$lib/components/FactorsForest.svelte";
+  import FormsLeaderboard from "$lib/components/FormsLeaderboard.svelte";
+  import RedundancyExplorer from "$lib/components/RedundancyExplorer.svelte";
+  import ConditioningScatter from "$lib/components/ConditioningScatter.svelte";
+  import AdjustmentCells from "$lib/components/AdjustmentCells.svelte";
+  import ResidualScatter from "$lib/components/ResidualScatter.svelte";
+  import Tex from "$lib/components/Tex.svelte";
+
+</script>
+
+# Why Adjusted Regression Coefficients Are Less Descriptive Than They Look
+
+<p class="subtitle">There is no such thing as <em>the</em> association.</p>
+
+<div class="lead">
+
+It is common for researchers to investigate "factors associated with" an outcome by collecting many candidate variables, entering them together into one multivariable regression, and reporting the ones whose mutually-adjusted coefficients reach significance (Lewer et al., 2025). In this interactive article I explain why that practice misleads — not because of the usual problems of causal inference or multiple comparison, but even in descriptive studies, where researchers are genuinely interested in associations. To see why adjustment is the wrong tool for a descriptive question, it helps to look more closely at what it actually does.
+
+</div>
+
+Consider a descriptive question of the kind: where does gambling-related financial harm fall across the income range in some target population?
+In this population, harm is concentrated at the bottom: the marginal, unadjusted income slope is −0.48.
+But in practice researchers rarely stop there. They enter income alongside the covariates everyone reflexively controls for — psychological distress, substance use, social isolation — and report income's adjusted coefficient. Why that adjustment is done is seldom stated. Causal inference is not the goal, and when any rationale is offered it is usually to isolate an "independent" association.
+
+Here is what happens when those variables are entered together. Try selecting which variables go into the model and watch the adjusted coefficients change.
+
+<FactorsForest />
+
+In an adjusted model there is no such thing as *the* association between gambling harms and income; it is whatever the chosen adjustment set makes it. Distress, substance use, and isolation are not junk variables. They are exactly the covariates you would reflexively adjust for *if* the question were whether income *causes* harm. But that was not the question. We asked where harm falls across income in this population, and the answer cannot be "where it would fall if the poor had the mental health, level of substance use, and social connection of the rich", those people do not exist.
+Adjustment has not isolated the association of interest; it has swapped it for a counterfactual one.
+
+## What adjustment actually does
+
+Adjusting for a variable means looking only *within* its levels.
+Rather than asking how income and gambling harm co-vary across everyone, the model asks how they co-vary among people who share the same comorbidity burden, fitting a single slope that holds within every stratum at once. That is the right move against a confounder and the wrong one for a descriptive target. Try clicking on the adjust button below, then compare the pooled line with the within-stratum lines.
+
+<ConditioningScatter />
+
+Again, adjustment has not sharpened the population relationship into a truer one. It has *swapped* it for a within-stratum question with, here, the opposite sign.
+
+A real "factors associated with" model would adjust for many variables at once, not one.
+Each covariate added to the model splits the comparison again. Now the contrast holds only among people who share the same distress *and* the same substance use *and* the same social support, and so on.
+
+Try adding more variables to the model below and watch the comparison groups multiply and thin out.
+
+<AdjustmentCells />
+
+A coefficient adjusted for a dozen variables is the relationship estimated among people identical to one another on all dozen variables. Here we used binary variables to make the visualization work, and even then each cell contains only a sliver of the population; with continuous covariates each sliver would contain essentially no one. The model fills those empty cells by assuming the relationship is the same everywhere, so the reported number ends up describing a person who need not exist in the data at all.
+
+### Adjustment as residualized regression
+There is another way to see what adjustment does. Adjusting for the comorbidities is equivalent to working with residualized variables: regress income on the comorbidities and keep what is left unexplained, then do the same for harm. These residuals are the part of income comorbidity cannot account for, and the part of harm it cannot account for.
+
+The slope relating those two residuals is the adjusted coefficient, by the [Frisch–Waugh–Lovell theorem](https://en.wikipedia.org/wiki/Frisch%E2%80%93Waugh%E2%80%93Lovell_theorem). The model is no longer relating income to harm as they exist in the population; it is relating residualized income to residualized harm. The visualization below lets you explore this.
+
+
+<ResidualScatter />
+
+That is why adjustment changes the meaning of the coefficient rather than refining it. Change the adjustment set and you change what is being related to what. The descriptive estimand itself changes.
+
+So when a paper refers to "the independent association of <Tex math="X" /> with <Tex math="Y" />, controlling for the other variables", it sounds as though a single underlying fact has been revealed. But no such single fact exists here. There are many such coefficients, one for each choice of "other variables", because each choice creates a different pair of residuals and therefore a different target quantity.
+
+This is not the usual complaint about collinearity. The problem is not that coefficients become unstable when predictors overlap. The deeper problem is that the coefficient no longer means the same thing once the adjustment set changes.
+
+It all comes down to whether this residualized, within-stratum quantity is the one you actually wanted. For a causal question, perhaps it is. For a descriptive question, often it is not.
+
+## The strongest factor is an artifact
+
+The same multivariable approach is often used to *rank* factors, with the largest mutually-adjusted coefficient interpreted as the dominant risk factor.
+
+But that ranking is no more a property of the population than any single adjusted coefficient is. It depends on which variables were entered together and how much signal they share.
+
+Take a gambling study that enters online slots, online betting, horse-race betting, and lottery play into one regression and then interprets the largest adjusted coefficient as the form most strongly associated with harm. Try it yourself and watch how the ranking changes.
+
+<FormsLeaderboard />
+
+The adjusted model is no longer asking which form has the strongest crude relationship with harm. It asks which form retains the largest association after accounting for its overlap with the others. Online slots and online betting are used by much the same people, both being fast, continuously available products. Entered together, they compete for the same signal, and both coefficients shrink. Horse-race betting draws a more distinct set of players, keeps nearly all of its signal, and inherits the top rank by default. The "strongest risk factor" is not the form most related to harm. It is the form least redundant with whatever else is in the model.
+
+This looks like the *independent* contribution one wants, but independence is not importance. The adjusted column ranks forms by how little they overlap with the rest, not by how strongly they relate to harm, and then presents that ranking as importance. 
+
+Below we hold each form's crude link to harm fixed and change only how much the forms overlap. Try it and watch the rankings change.
+
+<RedundancyExplorer />
+
+This is why the ranking is sample-dependent. The overlap among predictors is estimated from the data, so the winner can change when the same forms co-occur differently in another study, another subgroup, or even another sample from the same population. The top-ranked factor is not "the most harmful form" but the form left with the largest remaining association after this particular model has divided up the overlap in this particular dataset.
+
+## Adjustment manufactures a counterfactual world
+
+For a descriptive study, the target is the population as it actually is: a prevalence, a risk, a rate, or a difference between groups (Fox et al., 2022; Lesko et al., 2022). Adjustment does not just change the coefficient, it changes the population being described.
+
+Suppose two communities differ in gambling-related financial harm, and low income is more common in one than the other: 70% versus 30%. Their harm prevalences are about 50% and 31%, a real difference of 19 percentage points.
+
+Now adjust for income. The question is no longer "how large is the disparity as it exists?". It becomes: what would the disparity be if the two communities had the same income distribution? In this example the answer is about 5 points.
+
+That adjusted number describes an imaginary world, not the one the study set out to describe (Kaufman, 2017). The communities really do differ in income, and that difference is part of why their outcomes differ. Removing it does not clarify the disparity, it shrinks it (Lesko et al., 2022).
+
+This does not make adjustment wrong in every setting. Sometimes the hypothetical comparison is exactly the point: age-standardizing mortality rates, for example, asks what two regions would look like if they shared the same age structure. But that choice needs justification. The analyst has to say why the standardized world is more relevant than the real one.
+
+For descriptive aims, that justification is usually missing. That is why Lesko, Fox, and Edwards (2022) recommend unadjusted results as primary in descriptive studies: the crude contrast is the disparity that actually exists.
+
+## Which question are you asking?
+
+Adjustment is not the problem. Using it without stating the question is.
+
+If the goal is **prediction**, conditioning on many variables will likely improve a forecast. In that setting, a coefficient is just a weight in a prediction rule, and what matters is predictive performance, not whether the coefficient names an "important factor."
+
+If the goal is **causal inference**, adjustment can be appropriate for a prespecified exposure under defended causal assumptions. But that is a different project.
+
+For **description**, adjustment is usually not the right tool. A descriptive study asks what the population is actually like: where the outcome falls, how common it is, how it differs across groups. Once you condition on other variables, you are no longer describing that population directly. You are describing a hypothetical one instead.
+
+That is the problem with many "factors associated with" studies. Their language is descriptive, but their method is conditional. Because the design names no exposure and defends no adjustment set, the reported coefficient has no clear target it is meant to recover (Lewer et al., 2025; Westreich & Greenland, 2013). Researchers adjust anyway, under pressure to treat it as the "correct" thing to do even when no causal question has been posed.
+
+The take-home message is simple: let the question determine the method, not the reverse (Conroy & Murray, 2020). State the estimand first (Lesko et al., 2022). If the aim is descriptive, report the crude occurrence or contrast as primary, and treat any adjustment or standardization as a separate, explicitly justified choice. What should be abandoned is the habit of interpreting a column of mutually-adjusted coefficients as though each were a stable fact about the world rather than an artifact of its adjustment set.
+
+<hr />
+
+<div class="references">
+
+**References**
+
+- Conroy, S., & Murray, E. J. (2020). Let the question determine the methods: Descriptive epidemiology done right. *British Journal of Cancer*, *123*(9), Article 9. https://doi.org/10.1038/s41416-020-1019-z
+
+- Fox, M. P., Murray, E. J., Lesko, C. R., & Sealy-Jefferson, S. (2022). On the need to revitalize descriptive epidemiology. *American Journal of Epidemiology*, *191*(7), 1174–1179. https://doi.org/10.1093/aje/kwac056
+
+- Frisch–Waugh–Lovell theorem. (2026). In *Wikipedia*. https://en.wikipedia.org/wiki/Frisch%E2%80%93Waugh%E2%80%93Lovell_theorem
+
+- Kaufman, J. S. (2017). Statistics, adjusted statistics, and maladjusted statistics. *American Journal of Law & Medicine*, *43*(2–3), 193–208. https://doi.org/10.1177/0098858817723659
+
+- Lesko, C. R., Fox, M. P., & Edwards, J. K. (2022). A framework for descriptive epidemiology. *American Journal of Epidemiology*, *191*(12), 2063–2070. https://doi.org/10.1093/aje/kwac115
+
+- Lewer, D., Brothers, T., O’Nions, E., & Pickavance, J. (2025). Factors associated with: Problems of using exploratory multivariable regression to identify causal risk factors. *BMJ Medicine*, *4*(1). https://doi.org/10.1136/bmjmed-2025-001375
+
+- Westreich, D., & Greenland, S. (2013). The table 2 fallacy: Presenting and interpreting confounder and modifier coefficients. *American Journal of Epidemiology*, *177*(4), 292–298. https://doi.org/10.1093/aje/kws412
+
+
+</div>

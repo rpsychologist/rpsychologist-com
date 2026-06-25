@@ -1,0 +1,423 @@
+/* Reading typography and the shared palette used by the figures.
+   Cool slate neutrals + blue accent, to match the rpsychologist / PowerLMM.js
+   app family. Components read these variables, so the palette cascades. */
+
+:root {
+  --bg: #f8fafc; /* slate-50 page ground */
+  --panel: #ffffff; /* figure cards */
+  --inset: #f1f5f9; /* slate-100 inset boxes (lm() box, tiles, readouts) */
+  --ink: #1e293b; /* slate-800 body / labels */
+  --heading: #0f172a; /* slate-900 headings */
+  --muted: #64748b; /* slate-500 */
+  --rule: #e2e8f0; /* slate-200 borders */
+  --accent: #3b82f6; /* blue-500 */
+  --accent-hover: #2563eb; /* blue-600 */
+  --accent-soft: #dbeafe; /* blue-100 */
+  --on-accent: #fff; /* text/icon color on an --accent fill */
+  --track: #cbd5e1; /* slate-300 — unfilled slider groove */
+  --marginal: #d97706; /* amber-600 — the pinned reference, distinct from accent */
+  --flip-pos: #3b82f6;
+  --flip-neg: #dc2626; /* red-600 */
+  --navy: #1e293b; /* footer */
+  --navy-ink: #f1f5f9; /* footer headings */
+  --navy-muted: #cbd5e1; /* footer text / links */
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.1);
+  --shadow-md: 0 4px 6px rgba(15, 23, 42, 0.05), 0 10px 15px rgba(15, 23, 42, 0.08);
+
+  --measure: 42rem;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0f172a;
+  --panel: #1e293b;
+  --inset: #334155;
+  --ink: #e2e8f0;
+  --heading: #f8fafc;
+  --muted: #94a3b8;
+  --rule: #334155;
+  --accent: #60a5fa;
+  --accent-hover: #93c5fd;
+  --accent-soft: rgba(96, 165, 250, 0.16);
+  --on-accent: #0b1220; /* dark ink reads clearly on the light dark-mode accent */
+  --track: #334155; /* slate-700 — unfilled slider groove */
+  --marginal: #fbbf24;
+  --flip-pos: #60a5fa;
+  --flip-neg: #f87171;
+  --navy: #0b1220;
+  --navy-ink: #f1f5f9;
+  --navy-muted: #cbd5e1;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3), 0 10px 15px rgba(0, 0, 0, 0.4);
+}
+
+html {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 18px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+  /* Stop iOS from inflating body text in landscape. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Kill the gray/blue rectangular flash on tap for interactive elements (mobile). */
+:where(a, button, summary, label, [role="button"], input) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Tap targets shouldn't trip the double-tap-zoom delay or flash a text
+   selection on repeated taps (the toggle pills get tapped a lot). Scoped to
+   button-like controls so prose links stay selectable. */
+:where(button, summary, label, [role="button"]) {
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+body {
+  margin: 0;
+}
+
+.article {
+  font-family: var(--font-sans);
+  line-height: 1.7;
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 3rem 1.25rem 5rem;
+}
+
+.article h1 {
+  font-size: 2.3rem;
+  line-height: 1.15;
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.02em;
+  color: var(--heading);
+  font-weight: 700;
+}
+
+.article .subtitle {
+  font-size: 1.2rem;
+  color: var(--muted);
+  margin: 0 0 2rem;
+  font-weight: 400;
+}
+
+.article h2 {
+  font-size: 1.5rem;
+  margin: 3rem 0 0.75rem;
+  letter-spacing: -0.015em;
+  color: var(--heading);
+  font-weight: 600;
+}
+
+.article h3 {
+  font-size: 1.15rem;
+  margin: 2rem 0 0.5rem;
+  color: var(--heading);
+  font-weight: 600;
+}
+
+.article p {
+  margin: 0 0 1.1rem;
+}
+
+.article a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.article a:hover {
+  text-decoration: underline;
+}
+
+.article strong {
+  font-weight: 600;
+  color: var(--heading);
+}
+
+.article blockquote {
+  margin: 1.5rem 0;
+  padding: 0.5rem 0 0.5rem 1.25rem;
+  border-left: 3px solid var(--rule);
+  color: var(--muted);
+}
+
+.article .lead {
+  font-size: 1.15rem;
+  line-height: 1.65;
+}
+
+/* ── Figure prose: three tiers shared by every figure ───────────────────────
+   The essay spine (18px body) owns the argument. Inside each figure card the
+   prose collapses to three subordinate roles, identical across all figures:
+
+     .fig-hint     quiet interaction micro-copy, sits under the controls
+     .fig-readout  the one live payoff line (the only place colored numbers live)
+     figcaption    static orientation, the smallest + most muted register
+
+   Components keep only SVG/layout styling local; these cascade like .fig-pill. */
+
+.fig-hint {
+  margin: 0.15rem 0 0.8rem;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.fig-hint strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.fig-readout {
+  margin: 0.75rem 0 0.25rem;
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+/* A secondary readout (a distinct sub-point, not a repeat) reads quieter. */
+.fig-readout.sub {
+  margin-top: 0.45rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.fig-readout strong.pos,
+.fig-readout .pos {
+  color: var(--flip-pos);
+}
+.fig-readout strong.neg,
+.fig-readout .neg {
+  color: var(--flip-neg);
+}
+
+.article figure figcaption {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--muted);
+  border-top: 1px solid var(--rule);
+  padding-top: 0.6rem;
+  margin-top: 0.6rem;
+}
+
+/* ── Figure controls: one design language for every interactive figure ──────
+   Pills, steppers, and sliders all draw from these shared classes, so the
+   controls stay visually identical across the essay. Components keep only their
+   SVG/layout-specific styling local. */
+
+/* Visible keyboard focus for every interactive control. :where() keeps the
+   specificity at 0 so a component can still override it locally if needed. */
+:where(a, button, summary):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Toggle pills and steppers. */
+.fig-pill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  border: 1.5px solid var(--accent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.fig-pill .katex {
+  color: var(--accent);
+}
+.fig-pill:hover:not(:disabled):not(.on) {
+  background: var(--accent-soft);
+}
+.fig-pill.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+.fig-pill.on .katex {
+  color: var(--on-accent);
+}
+.fig-pill:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.fig-pill-text {
+  font-size: 0.82rem;
+}
+
+/* Range slider: a flat pill track with an accent-filled portion driven by the
+   --pct custom property, and a circular accent thumb. Cross-browser via the
+   webkit/moz pseudo-elements. */
+.fig-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 22px; /* generous hit area for touch */
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.fig-range:focus {
+  outline: none;
+}
+.fig-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--accent) 0 var(--pct, 0%),
+    var(--track) var(--pct, 0%) 100%
+  );
+}
+.fig-range::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--track);
+}
+.fig-range::-moz-range-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+.fig-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: -7px; /* center the thumb on the 6px track */
+  border-radius: 50%;
+  background: var(--accent);
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.fig-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.fig-range:hover::-webkit-slider-thumb,
+.fig-range:active::-webkit-slider-thumb {
+  transform: scale(1.12);
+}
+.fig-range:hover::-moz-range-thumb,
+.fig-range:active::-moz-range-thumb {
+  transform: scale(1.12);
+}
+.fig-range:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+.fig-range:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+/* The interactive figures may break out wider than the text measure. */
+.article figure {
+  margin-inline: 0;
+}
+
+@media (min-width: 56rem) {
+  .article figure.flip,
+  .article figure.fwl,
+  .article figure.dist,
+  .article figure.cond,
+  .article figure.cells,
+  .article figure.resid {
+    width: calc(var(--measure) + 8rem);
+    margin-inline: -4rem;
+  }
+}
+
+/* Below the desktop breakout, figures span the full content column instead of
+   shrinking with the narrow text measure. Negative margins cancel the .article
+   side padding (scrollbar-safe — no 100vw, which would overflow by the vertical
+   scrollbar width); each figure card keeps its own padding as the gutter. */
+@media (max-width: 55.99rem) {
+  .article figure.forest,
+  .article figure.cond,
+  .article figure.cells,
+  .article figure.leader,
+  .article figure.explorer,
+  .article figure.dist,
+  .article figure.resid {
+    margin-inline: -1.25rem;
+  }
+}
+
+.article hr {
+  border: none;
+  border-top: 1px solid var(--rule);
+  margin: 2.5rem 0;
+}
+
+.references {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.references a {
+  overflow-wrap: anywhere;
+}
+
+.references p {
+  margin: 0 0 0.6rem;
+  padding-left: 1.5rem;
+  text-indent: -1.5rem;
+}
+
+.references ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.references li {
+  margin: 0;
+}
+
+.references li::marker {
+  content: none;
+}
+
+.katex {
+  font-size: 1.02em;
+}
+
+.footnote {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+@media (max-width: 48rem) {
+  .article {
+    padding-top: 2.25rem;
+  }
+
+  .article h1 {
+    font-size: 1.95rem;
+  }
+
+  .article .subtitle {
+    font-size: 1.05rem;
+  }
+
+  .fig-hint {
+    font-size: 0.82rem;
+  }
+}
