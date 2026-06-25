@@ -421,3 +421,48 @@ body {
     font-size: 0.82rem;
   }
 }
+
+/* ---- Code ---------------------------------------------------------------- */
+/* Shiki is configured with defaultColor:false, so it emits per-token CSS
+   variables (--shiki-light/--shiki-dark) instead of `color`. These rules pick
+   the variable for the active theme. */
+.shiki {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
+  margin: 1.5rem 0;
+  padding: 1rem 1.15rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius, 8px);
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  -webkit-overflow-scrolling: touch;
+}
+.shiki span {
+  color: var(--shiki-light);
+}
+.shiki code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+}
+
+:root[data-theme="dark"] .shiki {
+  color: var(--shiki-dark);
+  background-color: var(--shiki-dark-bg);
+}
+:root[data-theme="dark"] .shiki span {
+  color: var(--shiki-dark);
+}
+
+/* Inline code (anything not inside a highlighted block). */
+:not(pre) > code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.88em;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+}
