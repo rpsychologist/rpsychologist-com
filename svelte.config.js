@@ -28,15 +28,18 @@ const getHighlighter = () =>
     langs: shikiLangs
   }));
 
-async function highlight(code, lang) {
+async function highlight(code, lang, meta) {
   const hl = await getHighlighter();
   // Old R-generated fences use forms like `r:collapsed=true`; take the base token.
+  const info = `${lang ?? ""} ${meta ?? ""}`;
   const base = (lang || "text").split(/[:\s]/)[0];
   const language = hl.getLoadedLanguages().includes(base) ? base : "text";
+  const collapsed = /collapsed=true/i.test(info);
+  const attrs = `data-language="${language}"${collapsed ? ' data-collapsed="true"' : ""}`;
   const rendered = hl
     .codeToHtml(code, { lang: language, themes: shikiThemes, defaultColor: false })
-    // Tag the block with its language so the client copy/label enhancer can read it.
-    .replace("<pre ", `<pre data-language="${language}" `);
+    // Tag the block so the client enhancer can add a label / copy / fold control.
+    .replace("<pre ", `<pre ${attrs} `);
   const html = escapeSvelte(rendered);
   // Official mdsvex pattern: return the highlighted HTML as an {@html `...`} block;
   // escapeSvelte makes the string safe inside the template literal.
