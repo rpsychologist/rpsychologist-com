@@ -1,17 +1,20 @@
 <script lang="ts">
   import Icon from "./Icon.svelte";
   import Logo from "./Logo.svelte";
+  import { site } from "$lib/config";
 
-  // Placeholder links matching the brand footer in the screenshots.
   const connect = [
-    { name: "bluesky", label: "Bluesky", href: "https://bsky.app/profile/rpsychologist.com" },
-    { name: "github", label: "GitHub", href: "https://github.com/rpsychologist" },
+    { name: "bluesky", label: "Bluesky", href: site.social.bluesky },
+    { name: "mastodon", label: "Mastodon", href: site.social.mastodon },
+    { name: "x", label: "Twitter", href: site.social.twitter },
+    { name: "github", label: "GitHub", href: site.social.github },
     { name: "linkedin", label: "LinkedIn", href: "https://www.linkedin.com/in/kristofferm" }
   ];
   const nav = [
-    { label: "About", href: "https://rpsychologist.com/about" },
-    { label: "Posts", href: "https://rpsychologist.com/posts" },
-    { label: "Visualizations", href: "https://rpsychologist.com/viz" }
+    { label: "Posts", href: "/posts" },
+    { label: "Visualizations", href: "/viz" },
+    { label: "About", href: "/about" },
+    { label: "RSS", href: "/rss.xml" }
   ];
   const year = new Date().getFullYear();
 </script>
@@ -43,9 +46,7 @@
       <ul>
         {#each nav as item (item.label)}
           <li>
-            <a href={item.href} target="_blank" rel="noopener">
-             {item.label}
-            </a>
+            <a href={item.href}>{item.label}</a>
           </li>
         {/each}
       </ul>
