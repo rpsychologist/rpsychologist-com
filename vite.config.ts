@@ -1,12 +1,12 @@
+import { enhancedImages } from "@sveltejs/enhanced-img";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  plugins: [sveltekit()],
+  // enhancedImages must run before sveltekit so it can transform <enhanced:img>
+  // and ?enhanced imports emitted by the markdown image transform.
+  plugins: [enhancedImages(), sveltekit()],
   test: {
     include: ["src/**/*.{test,spec}.{js,ts}"]
-  },
-  server: {
-    allowedHosts: ["5db9-84-55-102-27.ngrok-free.app"]
   }
 });
