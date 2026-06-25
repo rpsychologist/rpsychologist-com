@@ -7,6 +7,10 @@ export default defineConfig({
   // enhancedImages must run before sveltekit so it can transform <enhanced:img>
   // and ?enhanced imports emitted by the markdown image transform.
   plugins: [enhancedImages(), postsData(), sveltekit()],
+  server: {
+    // Posts live in /content (outside src); allow the dev server to read them.
+    fs: { allow: ["content"] }
+  },
   test: {
     include: ["src/**/*.{test,spec}.{js,ts}"]
   }
