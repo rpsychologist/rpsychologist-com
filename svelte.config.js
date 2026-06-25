@@ -33,9 +33,11 @@ async function highlight(code, lang) {
   // Old R-generated fences use forms like `r:collapsed=true`; take the base token.
   const base = (lang || "text").split(/[:\s]/)[0];
   const language = hl.getLoadedLanguages().includes(base) ? base : "text";
-  const html = escapeSvelte(
-    hl.codeToHtml(code, { lang: language, themes: shikiThemes, defaultColor: false })
-  );
+  const rendered = hl
+    .codeToHtml(code, { lang: language, themes: shikiThemes, defaultColor: false })
+    // Tag the block with its language so the client copy/label enhancer can read it.
+    .replace("<pre ", `<pre data-language="${language}" `);
+  const html = escapeSvelte(rendered);
   // Official mdsvex pattern: return the highlighted HTML as an {@html `...`} block;
   // escapeSvelte makes the string safe inside the template literal.
   return `{@html \`${html}\`}`;
@@ -69,7 +71,9 @@ const config = {
   ],
   kit: {
     adapter: adapter({
-      fallback: undefined,
+      // Emit build/404.html (the rendered +error page) — Netlify serves it for
+      // unmatched paths. The site is otherwise fully prerendered.
+      fallback: "404.html",
       precompress: false,
       strict: true
     }),

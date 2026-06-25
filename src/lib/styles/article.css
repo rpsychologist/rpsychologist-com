@@ -476,6 +476,63 @@ body {
   opacity: 1;
 }
 
+/* Copy button + language label added by the enhanceCode action. */
+.code-block {
+  position: relative;
+}
+.code-bar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.55rem;
+}
+.code-lang {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.code-copy {
+  font-size: 0.7rem;
+  padding: 0.15rem 0.5rem;
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.code-block:hover .code-copy,
+.code-copy:focus-visible {
+  opacity: 1;
+}
+.code-copy:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Markdown tables. */
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.9rem;
+}
+.article th,
+.article td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+}
+.article thead th {
+  border-bottom: 2px solid var(--rule);
+  color: var(--heading);
+}
+
 /* Inline code (anything not inside a highlighted block). */
 :not(pre) > code {
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
