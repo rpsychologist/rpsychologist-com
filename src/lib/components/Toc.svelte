@@ -7,19 +7,28 @@
 
   let sections = $state<Section[]>([]);
 
-  // Built client-side from rendered headings (ids from rehype-slug): h2 are
-  // sections, the h3 that follow become collapsible subsections. Progressive
-  // enhancement — no-JS readers just don't get the TOC.
+  // Built client-side from rendered headings (ids from rehype-slug). Posts use
+  // inconsistent heading levels (some start sections at h1, others at h2), so the
+  // shallowest level present becomes the "section" level and anything deeper is a
+  // collapsible subsection. The post title h1 has no id, so it's filtered out.
+  // Progressive enhancement — no-JS readers just don't get the TOC.
   onMount(() => {
     const article = document.querySelector(".article");
     if (!article) return;
-    const heads = [...article.querySelectorAll<HTMLElement>("h2, h3")].filter((h) => h.id);
+    const heads = [
+      ...article.querySelectorAll<HTMLElement>("h1, h2, h3, h4")
+    ].filter((h) => h.id && !h.closest(".post-header"));
+    if (!heads.length) return;
+
+    const level = (h: HTMLElement) => Number(h.tagName[1]);
+    const min = Math.min(...heads.map(level));
+
     const out: Section[] = [];
     for (const h of heads) {
       const text = (h.textContent ?? "").trim();
-      if (h.tagName === "H2") {
+      if (level(h) === min || out.length === 0) {
         out.push({ id: h.id, text, subs: [], open: false });
-      } else if (out.length) {
+      } else {
         out[out.length - 1].subs.push({ id: h.id, text });
       }
     }
