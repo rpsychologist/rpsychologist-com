@@ -17,6 +17,6 @@ slug: powerlmm-intro-slides
 summary: This post contains the slides from a talk I gave recently at Stockholm University
 ---
 
-Here's the slides from a talk I gave recently at Stockholm University: ["Power Analysis for Longitudinal 2- and 3-Level Models: Challenges and Some Solutions Using the R Package powerlmm"](/slides/powerlmm-intro-20180411/).
+Here's the slides from a talk I gave recently at Stockholm University: ["Power Analysis for Longitudinal 2- and 3-Level Models: Challenges and Some Solutions Using the R Package powerlmm"](https://rpsychologist.com/slides/powerlmm-intro-20180411/).
 
 The slides gives several code examples for a lot of `powerlmm`'s functionality, and explain some of the terms I use. 

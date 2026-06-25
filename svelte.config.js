@@ -4,11 +4,11 @@ import { mdsvex, escapeSvelte } from "mdsvex";
 import { createHighlighter } from "shiki";
 import remarkMath from "remark-math";
 import remarkSmartypants from "remark-smartypants";
-import { remarkEscapeSvelte } from "./src/lib/remark/escape-svelte.js";
 import { remarkResolveImages } from "./src/lib/remark/resolve-images.js";
 import rehypeKatex from "rehype-katex";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import { rehypeEscapeSvelte } from "./src/lib/rehype/escape-svelte.js";
 
 // Dual-theme Shiki highlighting. A single highlighter instance is reused across
 // every fenced block (creating one per block is the common performance trap).
@@ -51,7 +51,7 @@ const config = {
       // resolved relative to the doc, so a relative path would break.
       layout: fileURLToPath(new URL("./src/lib/components/PostLayout.svelte", import.meta.url)),
       highlight: { highlighter: highlight },
-      remarkPlugins: [remarkResolveImages, remarkMath, remarkSmartypants, remarkEscapeSvelte],
+      remarkPlugins: [remarkResolveImages, remarkMath, remarkSmartypants],
       rehypePlugins: [
         rehypeSlug,
         [
@@ -61,7 +61,9 @@ const config = {
             properties: { class: "heading-anchor", ariaHidden: true, tabIndex: -1 }
           }
         ],
-        rehypeKatex
+        [rehypeKatex, { strict: false }],
+        // Must run after rehype-katex to escape braces in its MathML annotation.
+        rehypeEscapeSvelte
       ]
     })
   ],

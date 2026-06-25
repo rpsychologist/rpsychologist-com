@@ -3,16 +3,16 @@
   import Logo from "./Logo.svelte";
   import ThemeToggle from "./ThemeToggle.svelte";
 
-  // NOTE: links/handles are placeholders matching the brand in the screenshots —
-  // confirm/replace with the real URLs.
+  import { site } from "$lib/config";
+
   const nav = [
-    { label: "About", href: "https://rpsychologist.com/about" },
-    { label: "Posts", href: "https://rpsychologist.com/blog" },
-    { label: "Visualizations", href: "https://rpsychologist.com/viz" }
+    { label: "Posts", href: "/posts" },
+    { label: "Visualizations", href: "/viz" },
+    { label: "About", href: "/about" }
   ];
   const socials = [
-    { name: "bluesky", href: "https://bsky.app/profile/rpsychologist.com", label: "Bluesky" },
-    { name: "github", href: "https://github.com/rpsychologist", label: "GitHub" }
+    { name: "bluesky", href: site.social.bluesky, label: "Bluesky" },
+    { name: "github", href: site.social.github, label: "GitHub" }
   ];
 
   let menuOpen = $state(false);
@@ -20,7 +20,7 @@
 
 <header class="site-header">
   <div class="bar">
-    <a class="brand" href="https://rpsychologist.com" aria-label="R Psychologist home">
+    <a class="brand" href="/" aria-label="R Psychologist home">
       <Logo height={44} />
     </a>
 
