@@ -300,7 +300,7 @@ ggplot(tmp, aes(cor, sd_ITE)) +
          title = "Variation in Individual-Level Effects")
 ```
 
-<img src="./unnamed-chunk-3-1.png"  width="800px" />
+![Figure](./unnamed-chunk-3-1.png)
 
 
 We can also plot the proportion of "responders" (improve by more than 5 points on HDRS) as a function of the correlation.
@@ -330,7 +330,7 @@ ggplot(tmp, aes(cor, prop_responder)) +
          title = "Proportion of Participants with Treatment Effects Greater Than 5")
 ```
 
-<img src="./unnamed-chunk-4-1.png"  width="800px" />
+![Figure](./unnamed-chunk-4-1.png)
 
 We can also take a sample of participants and plot their potential outcomes. 
 
@@ -379,7 +379,7 @@ ggplot(tmp, aes(PO, val)) +
          title = "Potential Outcomes")
 ```
 
-<img src="./unnamed-chunk-5-1.png"  width="800px" />
+![Figure](./unnamed-chunk-5-1.png)
 
 
 

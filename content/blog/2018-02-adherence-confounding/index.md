@@ -40,7 +40,7 @@ Let's assume we've performed an RCT and compared some psychotherapy condition to
 ## A simple model of confounded adherence effects
 A really simple scenario with one know (or unknown) confounder is shown in the DAG below. 
 
-<img src="./img/DAG-compliance.png" alt="Adherence dose-response DAG" />
+![Adherence dose-response DAG](./img/DAG-compliance.png)
 
 Each arrow represent *causal* influence of one variable on another. `Y` is the observed outcome, `adherence` is often measured by some proxy, like the number of sessions completed–that we assume is a good indicator of treatment "dose", it could be any other proxy for treatment adherence. So, what the graph is saying, is that treatment allocation (randomization) influences the outcome (Y) via the amount of treatment received (adherence). Thus, unless something went horribly wrong, randomization should be strongly correlated with S, and only influence Y through the treatment received (S). By definition this makes randomization an *instrumental variable*. However, the problem is that the effect of S on Y is most likely confounded (U). For instance, baseline functioning might be related both to a better prognosis (better outcome) and treatment adherence. It is easy to come up with scenarios where the relationship could be either positive or negative. Higher baseline functioning could be related to a better prognosis, and to better treatment adherence, or, a patient could be too depressed to actually adhere to the treatment. It is also plausible that worse baseline functioning make you more motivated to adhere to your treatment. Whatever the relationship might be, it is clear that the causal effect of treatment adherence will be confounded.
 
@@ -219,7 +219,7 @@ We see the same results if look at the coverage probabilities of the confidence 
 ## When less is more–collider bias
 Let's throw in another example of how things can go wrong, this time by adjusting for a collider. We extend the first DAG, and add another covariate *therapeutic alliance*. A researcher might think that by controlling for X (alliance), the dose-response relationship will be more clearly revealed. Or they might just do a multivariable regression and think *"hey, both therapeutic alliance and adherence probably predict treatment outcome, let's throw both in and see what p-value we get"*. However, the problem is that alliance might neither be a predictor of outcome, nor a confounder of the adherence and outcome relationship, instead it could be a common effect of adherence and a hidden confounder (i.e., a collider). Obviously, this example is made up and *alliance* is just a placeholder–there's so much going on during a psychological treatment that it would be easy to come up with other colliders. In the DAG bellow, conditioning on alliance opens up a path between adherence and the hidden confounder, that bias the relationship between adherence and outcome *even* more.
 
-<img src="./img/DAG-collider-compliance.png" alt="Adherence dose-response DAG" />
+![Adherence dose-response DAG](./img/DAG-collider-compliance.png)
 
 If we also simulate this model, and assume that $U_1$ is measured with error, and use the same IV regressions, but add an OLS model that also includes the collider we get these results.
 

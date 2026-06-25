@@ -61,7 +61,7 @@ plot(p, type = "trend", RE = FALSE) +
                                   "Treatment" = "#0984e3")) 
 ```
 
-<img src="./img/treatment-response-subgroup-1.png" />
+![Treatment response subgroup](./img/treatment-response-subgroup-1.png)
 
 ### Creating the subgroups
 We want to add a subgroup of "non-responders", and we do this by simply assigning subjects to group A or B based on their latent random slopes. This is easily done using the `data_transform` argument. The non-responders have subject-specific slopes 1 SD above the mean. Obviously, this is a bit simplistic, but it gets the point across. 
@@ -109,7 +109,7 @@ p0 <- p %>%
   labs(title = "Treatment group")
 ```
 
-<img src="./img/unnamed-chunk-2-1.png" />
+![Figure](./img/unnamed-chunk-2-1.png)
 
 ### A naïve analysis: Using only the treatment group
 Let's say we have access to data from a clinic that carefully monitor their patients' change during treatment (e.g., IAPT). The sample size is large, and we want to identify if there is a subgroup of patients that are "non-responders". There is no control group, but we have weekly measures during the treatment (there is also perfect adherence and no dropout...), we also have access to some cool baseline marker data that will impress reviewers and enable "personalized treatment selection for non-responding patients". So what we do is run an analysis to identify if there is an interaction between our proposed subgroup variable and change over time. Let's run such a simulation.
@@ -383,7 +383,7 @@ p1 <- ggplot(tmp,
   labs(title = "Treatment and control")
 ```
 
-<img src="./img/treatment-response-subgroup-interaction-1.png" />
+![Treatment response subgroup interaction](./img/treatment-response-subgroup-interaction-1.png)
 
 
 We see that the "non-responders" actually improved just as much as the "responders" when compared to the control group. The effect from the naïve within-group analysis clearly confounds treatment response with just "change". You might think that there is no reason why Subgroup A would start deteriorating just as they enter the study. It is easy to think of different explanations for this; one explanation might be that the marker we used to identify the subgroup is related to some personality trait that makes participants more likely to seek treatment when they feel "good enough to start treatment". It is not uncommon to hear such reasoning. During the study period these patients will tend to regress toward their typical symptom level, but the deterioration is somewhat slowed down thanks to the treatment. Patients in subgroup B on the other hand, seek treatment because they have felt worse than usual for a period. So our marker for "treatment response" do not identify responders and non-responders it simply identifies patients on different trajectories, i.e., it is a prognostic marker. 

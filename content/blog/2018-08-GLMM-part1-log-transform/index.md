@@ -149,7 +149,7 @@ All of the estimates are on the log scale, and they do not have an immediate int
 
 In the figure below I try to illustrate both the cluster-specific nature of the model, and the transformation between the log scale and the natural data scale, without being too technical. 
 
-<img src="./img/interpret-lognormal-LMM.png" alt="lognormal multilevel LMM visualizing cluster-specific and population-average values" />
+![lognormal multilevel LMM visualizing cluster-specific and population-average values](./img/interpret-lognormal-LMM.png)
 
 ```r:collapsed=true
 # To create the figure below this code was used to generate the distributions,
@@ -687,11 +687,11 @@ p <- ggplot(ps, aes(x = samples,
   theme(legend.position = "bottom")
 ```
 
-<img src="./img/fixed-effects-cluster-multilevel-1.png" alt="Treating clusters as 'fixed' in a 'fixed effects' model versus a multilevel model" />
+![Treating clusters as 'fixed' in a 'fixed effects' model versus a multilevel model](./img/fixed-effects-cluster-multilevel-1.png)
 
 We see that the results are highly similar. Although, the models behind the results do differ. If we look at the estimates for the specific clusters we can see the—in this model very weak—effect of partial pooling in the multilevel model.
 
-<img src="./img/partial-vs-no-pooling-1.png"  alt="No pooling (fixed effects) versus partial pooling (multilevel) for the cluster means]"/>
+![No pooling (fixed effects) versus partial pooling (multilevel) for the cluster means](./img/partial-vs-no-pooling-1.png)
 
 
 ## Intraclass correlations (ICC)
@@ -831,11 +831,11 @@ $n_2$      | 10          | 75
 ### Simulation results
 In the figures below we see that the posterior median show mostly negligible bias for both the original parameters and the transformed marginal effects. The Gaussian model has the most trouble with the variance components, which show substantial bias. 
 
-<img src="./img/sim-skewed-data-normal-vs-lognormal-multilevel-rel-bias-1.png" alt="Simulation: Relative bias for models with skewed data fit using either a normal or lognormal multilevel model"/>
+![Simulation: Relative bias for models with skewed data fit using either a normal or lognormal multilevel model](./img/sim-skewed-data-normal-vs-lognormal-multilevel-rel-bias-1.png)
 
 If we look at the coverage probabilities we see that the lognormal model's posterior intervals have nominal coverage rates for all parameters. The Gaussian model has slightly worse coverage for the treatment effects, but not that bad. However, the CI's from the Gaussian model does a poor job of capturing the true ICC and variance components.  
 
-<img src="./img/sim-skewed-data-normal-vs-lognormal-multilevel-CI-coverage-1.png" alt="Simulation: 95 % CI coverage for models with skewed data fit using either a normal or lognormal multilevel model" />
+![Simulation: 95 % CI coverage for models with skewed data fit using either a normal or lognormal multilevel model](./img/sim-skewed-data-normal-vs-lognormal-multilevel-CI-coverage-1.png)
 
 
 ### Power
@@ -880,7 +880,7 @@ p <- ggplot(tmp, aes(x = sim, est, color = cover)) +
           panel.grid.major.x = element_blank()) 
 ```
 
-<img src="./img/illustrate_CI_ATE.png" alt="lognormal multilevel LMM compared to a normal LMM with skewed data, average treatment effect shown, the effect of skewness on precision and CI coverage" />
+![lognormal multilevel LMM compared to a normal LMM with skewed data, average treatment effect shown, the effect of skewness on precision and CI coverage](./img/illustrate_CI_ATE.png)
 
 ## Summary
 There is a lot of information in this post, so let's summarize the key take-home messages: 

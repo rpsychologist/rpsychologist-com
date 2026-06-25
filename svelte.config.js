@@ -1,9 +1,11 @@
+import { fileURLToPath } from "node:url";
 import adapter from "@sveltejs/adapter-static";
 import { mdsvex, escapeSvelte } from "mdsvex";
 import { createHighlighter } from "shiki";
 import remarkMath from "remark-math";
 import remarkSmartypants from "remark-smartypants";
 import { remarkEscapeSvelte } from "./src/lib/remark/escape-svelte.js";
+import { remarkResolveImages } from "./src/lib/remark/resolve-images.js";
 import rehypeKatex from "rehype-katex";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
@@ -45,8 +47,11 @@ const config = {
   preprocess: [
     mdsvex({
       extensions: [".svx", ".md"],
+      // Absolute path: mdsvex injects this as an import into each compiled doc,
+      // resolved relative to the doc, so a relative path would break.
+      layout: fileURLToPath(new URL("./src/lib/components/PostLayout.svelte", import.meta.url)),
       highlight: { highlighter: highlight },
-      remarkPlugins: [remarkMath, remarkSmartypants, remarkEscapeSvelte],
+      remarkPlugins: [remarkResolveImages, remarkMath, remarkSmartypants, remarkEscapeSvelte],
       rehypePlugins: [
         rehypeSlug,
         [
