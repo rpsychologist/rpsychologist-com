@@ -22,7 +22,7 @@ If you tend to do lots of large Monte Carlo simulations, you've probably already
 
 *The joy of running 72 R sessions in parallel.*
 
-## The Machines
+### The Machines
 These are the machines I benchmarked. Logical cores indicate the maximum number of virtual cores, or threads. I didn't remember to write down how many sockets the Amazon machines had. 
 
 Machine                  | CPU                       | GHz     |  Cores | Logical Cores
@@ -37,12 +37,12 @@ Amazon EC2 c5.4xlarge    | Xeon Platinum 8124M       | 3.0 GHz |    8   |  16
 Amazon EC2 c5.9xlarge    | Xeon Platinum 8124M       | 3.0 GHz |    18  |  36
 Amazon EC2 c5.18xlarge   | Xeon Platinum 8124M       | 3.0 GHz |    36  |  72
 
-## The Simulation
+### The Simulation
 I used my package `powerlmm` [(link)](https://github.com/rpsychologist/powerlmm) to simulate longitudinally clustered data, with 6 clusters per treatment arm, 50 subjects per clusters, and 11 measures on each subject. So **600 * 11 observations in total**. This three-level model was fit with a random intercept and slope at the subject-level, and a random slope at the cluster level. To make the machines work even harder, I approximated *dfs* using Satterthwaite's approximation, using `lmerTest`. The number of simulations was **5000**.
 
 The MacBooks were running macOS, and my HP workstation and Amazon's EC2 instances were running Ubuntu 16.04. R 3.4.3 was installed on all machines 
 
-## Results
+### Results
 Unsurprisingly, running only 1 core was the slowest, which took between 50 to 80 minutes. The maximum performance of each machine was:
 
   * MBP (2012) **17 min**.
@@ -59,14 +59,14 @@ Speedup was fairly linear for the number of physical cores per machine. The figu
 ![R parellel simulation AWS cloud speed up](./img/Parallel-simulation-speedup-linear-mixed-effects-models-lme4-1.png)
 
 
-## So, is cloud computing worth it?
+### So, is cloud computing worth it?
 Obviously, having remote access to a 72 core 3 GHz machine is an extremely convenient way to significantly decrease your simulation time. And RStudio Server makes remote R work painless. However, my ~5-year-old HP workstation still performs extremely well. So, if you have to pay for these things yourself, buying a refurbished workstation is a really good option, especially if you tend to do a lot of simulations. You can probably buy a refurbished Z620 for 600 EUR on Ebay, which is approximately what it costs to run the c5.9xlarge instance for 17 days (on-demand). 
 
 
 
-# Code
+## Code
 Lastly, here's the code I used.
-## Simulation functions
+### Simulation functions
 
 ```r
 # filename: funcs.R
@@ -121,7 +121,7 @@ run_benchmark <- function(object, max_cores, nsim, label, type = NULL) {
 }
 ```
 
-## Run benchmark
+### Run benchmark
 
 ```r
 source("funcs.R")

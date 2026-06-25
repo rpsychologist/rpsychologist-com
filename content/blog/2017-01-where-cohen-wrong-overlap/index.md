@@ -143,6 +143,6 @@ We see here that the shared area is 67 %, which is a different interpretation of
 
 ![“Cohen's d overlap”](./img/cohen_d_overlap_frequencies.png)
 
-# References
+## References
 I'm not the only one to note this discrepancy, Grice & Barrett (2014) used the same reasoning in their article "A note on Cohen's overlapping proportions of normal distributions". 
 

@@ -11,7 +11,7 @@ slug: more-pubmed-data-mining-looking-at-top-20-cbt-journals
 summary: In this short article I present some data of the top 20 Cognitive Behavior Therapy (CBT) journals with the most PubMed publications, and compare that to data from 2010 and 2011.
 ---
 
-# Introduction
+## Introduction
 
 Continuing from what I wrote in my article [An R Script to Automatically
 download PubMed Citation Counts By Year of Publication][], I’ve now
@@ -27,7 +27,7 @@ Therapy. I did tree searches, one for 2010, one for 2011 and lastly one
 for the total year range. By doing this I could visualize which journals
 had the most publications in total and compare that to recent years.
 
-# The query
+## The query
 
 I didn’t care to use a really comprehensive query, as I was more
 interested in testing my script. Nonetheless, the base query looked like
@@ -37,7 +37,7 @@ this:
 *"cognitive behavior therapy" OR "cognitive behavioral therapy" OR "cognitive therapy"*
 ```
 
-# Results
+## Results
 
 The total number of hits for all years was 14342 hits, from which I
 extracted 1667 different journals. After extracting the top 20 journals
@@ -53,7 +53,7 @@ surprising, since the Journal of Consulting and Clinical Psychology has
 existed since 1937 whilst Behavior Research and Therapy started out in
 1963.
 
-# Where’s the R code?
+## Where’s the R code?
 
 **Update:** Here's the R script: [How to download complete XML records
 from PubMed and extract data][]

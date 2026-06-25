@@ -18,7 +18,7 @@ include_toc: true
 
 I often get asked how to fit different multilevel models (or individual growth models, hierarchical linear models or linear mixed-models, etc.) in R. In this guide I have compiled some of the more common and/or useful models (at least common in clinical psychology), and how to fit them using `nlme::lme()` and `lme4::lmer()`. I will cover the common two-level random intercept-slope model, and three-level models when subjects are clustered due to some higher level grouping (such as therapists), partially nested models were there are clustering in one group but not the other, and different level 1 residual covariances (such as AR(1)). The point of this post is to show how to fit these longitudinal models in R, not to cover the statistical theory behind them, or how to interpret them.  
 
-# Data format
+## Data format
 In all examples I assume this data structure. 
 
 | subjects |  tx   | therapist | time  |   y   |
@@ -41,14 +41,14 @@ In all examples I assume this data structure.
 
 Where `subjects` is each subject's id, `tx` represent treatment allocation and is coded 0 or 1, `therapist` is the refers to either clustering due to therapists, or for instance a participant's group in group therapies. `Y` is the outcome variable. 
 
-# Power analysis, and simulating these models
+## Power analysis, and simulating these models
 Most of the designs covered in this post are supported by my R package `powerlmm`, [(http://cran.r-project.org/package=powerlmm)](http://cran.r-project.org/package=powerlmm). It can be used to calculate power for these models, or to simulate them to investigate model misspecification. I will soon integrate the package into this post, in order to create example data sets. For now, see the package's vignettes for tutorials. 
 
-# Longitudinal two-level model
+## Longitudinal two-level model
 We will begin with the two-level model, where we have repeated measures on individuals in different treatment groups. 
 ![Two-level multilevel model in R. By Kristoffer Magnusson](./img/2lvl.png)
 
-## Unconditional model
+### Unconditional model
 Model formulation
 $$
 \begin{aligned}
@@ -81,7 +81,7 @@ lmer(y ~ 1 + (1 | subjects), data=data)
 lme(y ~ 1, random = ~ 1 | subjects, data=data)
 ```
 
-## Unconditional growth model
+### Unconditional growth model
 Model formulation
 $$
 \begin{aligned}
@@ -179,7 +179,7 @@ lmer(y ~ time * tx + (time | subjects), data=data)
 lme(y ~ time * tx, random = ~ time | subjects, data=data)
 ```
 
-## Conditional growth model: dropping random slope
+### Conditional growth model: dropping random slope
 Model formulation
 $$
 \begin{aligned}
@@ -212,7 +212,7 @@ lmer(y ~ time * tx + (1 | subjects), data=data)
 lme(y ~ time * tx, random = ~ 1 | subjects, data=data)
 ```
 
-## Conditional growth model: dropping random intercept
+### Conditional growth model: dropping random intercept
 Model formulation
 $$
 \begin{aligned}
@@ -245,7 +245,7 @@ lmer(y ~ time * tx + ( 0 + time | subjects), data=data)
 lme(y ~ time * tx, random = ~ 0 + time | subjects, data=data)
 ```
 
-## Conditional growth model: dropping intercept-slope covariance
+### Conditional growth model: dropping intercept-slope covariance
 Model formulation
 $$
 \begin{aligned}
@@ -302,10 +302,10 @@ lme(y ~ time * tx,
           data=data)
 ```
 
-# Three-level models
+## Three-level models
 Here I will cover some different three-level models. In my examples clustering at the highest level is due to therapists. But the examples generalize to other forms of clustering as well, such as group therapy or clustering due to health-care provider. 
 ![Three-level multilevel model in r. By Kristoffer Magnusson](./img/3lvl.png)
-## Conditional three-level growth model
+### Conditional three-level growth model
 We will jump straight to the conditional three-level growth model, with the following model formulation:
 $$
 \begin{aligned}
@@ -395,7 +395,7 @@ lme(y ~ time * tx,
 ```
 
 
-## Subject level randomization (therapist crossed effect)
+### Subject level randomization (therapist crossed effect)
 In the previous example therapists only provided one type of treatment (nested design). Sometimes therapists will be a crossed effect, i.e. in a parallel group design they will deliver both treatments. If it's a randomized trial then in this design we have subject level randomization, whereas in the previous example randomization was at the therapist level. 
 
 ![Three-level multilevel model in r: subject-level randomization. By Kristoffer Magnusson](./img/3lvl-crossed.png)
@@ -495,7 +495,7 @@ lme(y ~ time * tx,
            data=df)
 ```
 
-### Different level 3 variance-covariance matrix
+#### Different level 3 variance-covariance matrix
 We might hypothesize that therapists that are allocated participants that report worse symptoms at treatment start have better outcomes (more room for improvement). To allow for separate covariances in each treatment group we update the variance-covariance matrix at level 3
 $$
 \begin{pmatrix}
@@ -580,7 +580,7 @@ lme(y ~ time * tx,
 
 ```
 
-## Partially nested models
+### Partially nested models
 Partially nesting occurs when we have nesting in one group but not the other. For instance, we might compare a treatment group to a wait-list condition. Subjects in the wait-list will not be nested, but subjects in treatment group will be nested within therapists.
 
 ![Partially-nested growth model in R. By Kristoffer Magnusson](./img/partially-nested.png)
@@ -661,8 +661,8 @@ lme(y ~ time * tx,
                     data=data)
 ```
 
-# More on level 1 specification
-## Heteroscedasticity at Level 1
+## More on level 1 specification
+### Heteroscedasticity at Level 1
 Only `lme` allows modeling heteroscedastic residual variance at level 1. If we wanted to extend our two level model and allow for different level 1 residual variance in the treatment groups, we'd get
 
 $$
@@ -680,7 +680,7 @@ lme(y ~ time * tx,
         weights = varIdent(form= ~ 1 | tx), data=data)
 ```
 
-### More grouping
+#### More grouping
 We could also add another grouping factor such as time, and fit a model with heteroscedastic level 1 residuals for each time point in each treatment group. For instance, for *i* = 0, 1, 2 we get
 $$
 (R_{ij} \ | \ \text{TX} = 0) 
@@ -725,7 +725,7 @@ lme(y ~ time * tx,
       data=data)
 ```
 
-## First-order Autoregressive AR(1) residuals
+### First-order Autoregressive AR(1) residuals
 For $T = 1, 2, 3, ..., N_1$ time points we get the level 1 variance-covariance matrix
 $$
 \Sigma =
@@ -758,7 +758,7 @@ lme(y ~ time * tx,
         data=data)
 ```
 
-## Heterogenous AR(1)
+### Heterogenous AR(1)
 We can also extend the level 1 variance-covariance matrix from above, to allow for different residuals at each time point. 
 $$
 \Sigma = 
@@ -793,13 +793,13 @@ lme(y ~ time * tx,
         data=data)
 ```
 
-## More level 1 variance-covariances matrices
+### More level 1 variance-covariances matrices
 Se `?corClasses` for the different types of residual variance-covariances matrices `lme` can estimate.  
  
-## Changing the functional form of time
+### Changing the functional form of time
 All of the examples above assume linear change. Here I will cover some examples of how to model nonlinear change at level 1. The examples will be based on the two-level model, but you could easily be combined them with the three-level models outlined above.  
 
-### Quadratic trend
+#### Quadratic trend
 $$
 \begin{aligned}
 \text{Level 1}& \\
@@ -859,7 +859,7 @@ lme(y ~ (time + I(time^2)) * tx,
              data=data)   
 ```
 
-#### Orthogonal polynomials
+##### Orthogonal polynomials
 If you'd like to fit orthogonal polynomials you can use the `poly()` function with `raw = FALSE` (which is the default). 
 
 ```r
@@ -875,19 +875,19 @@ lme(y ~ poly(time, 2) * tx,
 ```
 
 
-### Piecewise growth curve
+#### Piecewise growth curve
 Segmenting the time trend into different pieces has got more to do with simple dummy coding of regression variables, than any specifics of `lme` or `lmer`. However, I will cover some common scenarios anyway.
 
 To fit a piecewise growth model we simply replace `time` with two dummy variables `time1` and `time2`, that represent the different time periods. A common scenario is that the first piece represents the acute treatment phase, and piece 2 represent the follow-up phase.  
 
-#### Coding scheme 1: separate slopes
+##### Coding scheme 1: separate slopes
 
 | Time   | 0   | 1   | 2   | 3   | 4   | 5   |
 | ------ | --- | --- | --- | --- | --- | --- |
 | Time 1 | 0   | 1   | 2   | 2   | 2   | 2   |
 | Time 2 | 0   | 0   | 0   | 1   | 2   | 3   |
 
-#### Coding scheme 2: incremental/decremental slope
+##### Coding scheme 2: incremental/decremental slope
 
 | Time   | 0   | 1   | 2   | 3   | 4   | 5   |
 | ------ | --- | --- | --- | --- | --- | --- |
@@ -954,7 +954,7 @@ lme(y ~ (time1 + time2) * tx,
                 random = ~time1 + time2 | subjects,
         data=data)
 ```
-#### Drop the correlation between time piece 1 and 2
+##### Drop the correlation between time piece 1 and 2
 Sometimes you might want to fit a model with a correlation between the random intercept and time piece 1, but no correlation between time piece 2 and the other effects. This would change the level 2 variance-covariance from above to this
 
 $$
@@ -994,7 +994,7 @@ lme(y ~ (time1 + time2) * tx,
           data=df)
 ```
 
-#### Adding a quadratic effect
+##### Adding a quadratic effect
 We could extend the two-part piecewise growth model to allow for non-linear change during one or both of the pieces. As an example, I'll cover extending the model to allow for quadratic change during piece 1. 
 
 ![Piecewise growth model with quadratic trend in R. By Kristoffer Magnusson](./img/piecewise-quadratic.png)
@@ -1057,15 +1057,15 @@ lme(y ~ (time1 + I(time1^2) + time2) * tx,
  
 If you wanted to fit a reduced random effects structure you could use the method outlined in *"Drop the correlation between time piece 1 and 2"*. 
 
-# Hypothesis tests
+## Hypothesis tests
 `lmer` does not report *p*-values or degrees of freedoms, see `?pvalues` and [r-sig-mixed-models FAQ](http://glmm.wikidot.com/faq) for why not. However, there are other packages that will calculate *p*-values for you. I will cover some of them here. 
 
-## Wald test
+### Wald test
 ```r
 summary(lme.mod)
 ```
 
-## Likelihood ratio test
+### Likelihood ratio test
 ```r
 fm1 <- lmer(y ~ 1 + (1 | subjects), data=data)
 fm2 <- lmer(y ~ 1 + (time | subjects), data=data)
@@ -1073,23 +1073,23 @@ fm2 <- lmer(y ~ 1 + (time | subjects), data=data)
 anova(fm1, fm2) 
 ```
 
-## Profile confidence intervals
+### Profile confidence intervals
 ```r
 confint(lmer.mod)
 ```
 
-## Parametric bootstrap
+### Parametric bootstrap
 ```r
 confint(lmer.mod, method="boot", nsim=1000)
 ```
 
-## Kenward-Roger degrees of freedom approximation
+### Kenward-Roger degrees of freedom approximation
 ```r
 library(lmerTest)
 anova(lmer.mod, ddf = "Kenward-Roger")
 ```
 
-## Shattertwaite degrees of freedom approximation
+### Shattertwaite degrees of freedom approximation
 ```r
 library(lmerTest)
 anova(lmer.mod)
@@ -1097,7 +1097,7 @@ anova(lmer.mod)
 summary(lmer.mod)
 ```
 
-# Book recommendations
+## Book recommendations
 Not all of these books are specific to R and longitudinal data analysis. However, I've found them all useful over the years when working with multilevel/linear mixed models. 
 
 
@@ -1115,6 +1115,6 @@ Not all of these books are specific to R and longitudinal data analysis. However
 * Finch, Bolin, & Kelley (2014). <a href="http://www.amazon.com/gp/product/1466515856/ref=as_li_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=1466515856&linkCode=as2&tag=rpsyc-20&linkId=4Q3A3CMXA5DZCSMJ">Multilevel Modeling Using R</a>
 
 
-# Suggestions, errors or typos
+## Suggestions, errors or typos
 Please don't hesitate to <a href="http://rpsychologist.com/about">contact me</a> if you find some errors in this guide. 
 

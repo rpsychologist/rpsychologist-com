@@ -13,7 +13,7 @@ summary: Yesterday I wrote an article that looked at the top 20 Cognitive Behavi
 ---
 
 ![How to download complete XML records from PubMed and extract data. By Kristoffer Magnusson](./img/Use-R-to-download-complete-XML-records-from-PubMed-and-extract-data.jpg)
-# Introduction
+## Introduction
 
 My first PubMed script [(An R Script to Automatically download PubMed
 Citation Counts By Year of Publication)][] extracted yearly counts for
@@ -25,7 +25,7 @@ for a given query. However, PubMed’s E-utilities have a lot more
 features than that, some of which I will use in this article to download
 complete article records in XML.
 
-# How it works
+## How it works
 
 What’s cool about `esearch` is that you can tell it to save a history of
 the articles found by your query, and then use another function called
@@ -52,7 +52,7 @@ an extract whatever PubMed field(s) we’re interested in. I’ve included a
 function that will parse the XML-code and extract journal counts,
 although you could use the same method to extract any field.
 
-# One example run: Top 20 CBT journals in 2010, 2011 and all time
+## One example run: Top 20 CBT journals in 2010, 2011 and all time
 ![Top 20 Cognitive Behavior Therapy journals by PubMed citation count. By Kristoffer Magnusson](./img/cbt_top20_journals_PubMed_Annual_counts.png)
 
 These two graphs were created by using the following 3 queries (notice
@@ -78,7 +78,7 @@ pub.efetch <- searchPubmed(query)
 cbt_any <- extractJournal()
 ```
 
-# Reshaping the data and creating the plots
+## Reshaping the data and creating the plots
 
 I needed to reshape my data a bit, and combine it into one object,
 before I used `ggplot2` to make the graphs. I did it like this:  
@@ -108,7 +108,7 @@ cbt_total <- rbind(cbt_2010,cbt_2011,cbt_any)
 cbt_total$x <- factor(cbt_total$x, levels=rev(cbt_any$x))
 ```
 
-# Ggplot2 code
+## Ggplot2 code
 
 Now that I have all my top 20 data in one object in the long format, the
 `ggplot2` code is pretty simple. 
@@ -133,7 +133,7 @@ ggplot(cbt_total, aes(x, percent, group=year, color=year, linetype=year)) + geom
   opts(legend.position = "bottom")
 ```
 
-# Reliability of the method
+## Reliability of the method
 
 To check the reliability of my method I compared the number of extracted
 journals to the total number of hits. These are the numbers:
@@ -146,7 +146,7 @@ Since the error is so low, I didn’t bother to check why some journals
 were left out. My guess is, that they were missing in the original data
 as well.
 
-# The R code for searchPubmed() and extractJournal()
+## The R code for searchPubmed() and extractJournal()
 
 <del>Update 2013-02-23: The script broke when the date in
 doctype-declaration was changed from 2012 to 2013. I've updated the

@@ -41,8 +41,8 @@ nsim <- 5000
 cores <- 16
 ```
 
-## Example 1
-### Do I really need a LMM? 2-lvl LMM versus ANCOVA
+### Example 1
+#### Do I really need a LMM? 2-lvl LMM versus ANCOVA
 
 This example will show both the new `data_transform` argument and the new support for multiple formulas, and formulas without random effects. Each formula is fit to the same data set (or a transformed version) during the simulation. Let's assume we'll do a trial where we measure patients for 11 weeks, from baseline to week 10. We can analyze such data in many ways, as an example we will compare 3 popular models:
 
@@ -177,8 +177,8 @@ We can see that for complete data ANCOVA is generally more powerful than the sta
 
 It is worth noting that the 2-lvl LMM with 11 repeated measures is not always more powerful than a "cross-sectional" t-test at posttest. Obviously, this is a limited example, but it demonstrates that it is a mistake to base sample size calculations on a t-test, when a LMM is planned, with the motivation that "a LMM will have more power" (I see such motivations quite often). 
 
-## Example 2
-### Do I really need a multilevel model? Using LRT to perform model selection 
+### Example 2
+#### Do I really need a multilevel model? Using LRT to perform model selection 
 A common strategy when analyzing (longitudinal) data is to build the model in a data driven fashion—by starting with a random intercept model, then add a random slope and perform a likelihood ratio test (LRT) and keep the random slope if it is significant, and so on. We can investigate how well such a strategy works using `sim_formula_compare`. We'll define our model formulas, starting with a 2-level random intercept model and working up to a 3-level random intercept and slope model. The true model is a 3-level model with only a random slope. Let's first setup the models
 
 ```r
@@ -365,9 +365,9 @@ print(x1, verbose = FALSE)
 
 We can note that power for the treatment effect based on LRT model selection is only slightly higher than for the correct 3-level model. If we balance this slight increase in power compared to the noticeable increase in Type I errors, it might be reasonable to conclude that for these data we should always fit the 3-level model. Lastly, the overspecified 3-level model that include an unnecessary random intercept loses some power.
 
-# Summary
+## Summary
 The improved simulation method in `powerlmm` makes it really convenient to plan and evaluate the analysis of longitudinal treatment trials with a possible third level of clustering (therapists, schools, groups, etc). The support for data transforms and single level (`lm()`) models also enables a lot of custom models to be fit. 
 
-# Feedback, bugs, etc
+## Feedback, bugs, etc
 I appreciate all types of feedback, e.g. typos, bugs, inconsistencies, feature requests, etc. Open an issue on [github.com/rpsychologist/powerlmm/issues](http://github.com/rpsychologist/powerlmm/issues), common on this post, or contact me here [rpsychologist.com/about](http://rpsychologist.com/about).
 

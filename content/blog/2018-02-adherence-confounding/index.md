@@ -28,8 +28,8 @@ Something that never ceases to amaze (depress) me, is how extremely common it is
 2. Show that common regression methods either, makes absolutely no sense, or result in badly biased estimates of the causal dose-response effect, when a third variable influences both adherence and outcome, i.e. when the dose-response relationship is confounded. While **instrumental variable** methods *may* allow for unbiased estimates in these scenarios. 
 3. Show how **Bayesian intrumental variable** regression can be easily fit using `brms` new multivariate syntax. And also do a small simulation study to compare the results to `lavaan`, `AER::ivreg` and biased `lm()` models. 
 
-# Motivating example
-## The effect of treatment adherence (psychotherapy dose-response effects)
+## Motivating example
+### The effect of treatment adherence (psychotherapy dose-response effects)
 Let's assume we've performed an RCT and compared some psychotherapy condition to some control condition. Patients in these types of trials seldom complete all scheduled sessions, or adhere 100 % to the treatment. It's rather common for researchers to try to see if there is some relationship between adherence and treatment outcome. Which is a valid question, if there is no added effect of actually "receiving" more of the treatment, then that *should* be a problem for your theory, or at least some of the components of that theory. However, what usually happens is that researchers somehow forget that the variable "adherence to therapy" is not experimentally manipulated. Unless we have randomized patients to receive 1, 2, ..., 10 sessions, or to do 1, 2, ..., 10, exposure exercises (and somehow ensured adherence was 100% in all conditions)–then we are now longer in RCT country!
 
 
@@ -37,7 +37,7 @@ Let's assume we've performed an RCT and compared some psychotherapy condition to
 
 *Never stop to acknowledge you're doing non-randomized comparisons!*
 
-## A simple model of confounded adherence effects
+### A simple model of confounded adherence effects
 A really simple scenario with one know (or unknown) confounder is shown in the DAG below. 
 
 ![Adherence dose-response DAG](./img/DAG-compliance.png)
@@ -50,7 +50,7 @@ We will deal with three types of scenarios where a variable $U$ confounds the es
 * **Residual confounding**: our known confounder $U$ is measured with error.
 * **Hidden confounding**: $U$ is either unknown or unmeasured, and not adjusted for.
 
-# The data generating model
+## The data generating model
 First, let's remind ourselves what is commonly estimated in an RCT is the *average treatment effect* (ATE), or some related estimate, 
 
 $$
@@ -91,7 +91,7 @@ $$
 
 Where $R_i(Tx)$ is 1 for participants allocated to the treatment condition and 0 otherwise.
 
-# Different ways to answer the same question
+## Different ways to answer the same question
 Now, that we have a DGM, let's generate some fake data and fit different models. We'll start with a standard OLS regression, the first model would make sense in the absence of any hidden or residual confounding (extremely unlikely). The second model ("naïve OLS") makes little sense, since it only analyze the treatment group, and as we'll see, further confounds prognosis with the causal effect of treatment adherence. Sadly, this way of analyzing psychotherapy trials is really common... Anyway, lets generate some fake data. I'll use a two-level random intercept-only model as a starting point, and assume that the confounder (baseline functioning), is measured without error.
 
 
@@ -118,7 +118,7 @@ dpp <- data_generator(update(sp, n2 = 5000),
                       measure_error_sd = 0)()
 ```
 
-## OLS
+### OLS
 First, we fit the two standard OLS models where we are adjusting for pretest scores. 
 
 ```r
@@ -134,7 +134,7 @@ naive <- dpp %>%
 summary(naive)
 ```
 
-## Instrumental variables (IV)
+### Instrumental variables (IV)
 Now, let's try to use treatment assignment as an *instrument* to better uncover the causal effect of adherence. Two-stage least-squares (2SLS) is a common method to estimate an IV model. The point of this post is not to explain IV regression, it's explained well in standard econometric textbooks (<a target="_blank" href="https://www.amazon.com/gp/product/0262232588/ref=as_li_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=0262232588&linkCode=as2&tag=rpsyc-20&linkId=8b0629e282068c90e6ecc6f093bcf1b4">Wooldridge, 2010</a>; <a target="_blank" href="https://www.amazon.com/gp/product/130527010X/ref=as_li_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=130527010X&linkCode=as2&tag=rpsyc-20&linkId=4941b5cb6ce034f04eed61345e7a656a">Wooldridge, 2015</a>). And in the context of psychotherapy research in the articles by [Maracy and Dunn (2011)](https://doi.org/10.1177/0962280208097243), or [Dunn and Bentall (2007)](http://doi.wiley.com/10.1002/sim.2891). The *very* short explanation, is that 2SLS is basically to regress `session` on the instruments, then regress `y` on the predicted sessions from Step 1. This can be done using `lm()` to get point estimates, but the standard errors will be highly suspicious. 
 
 
@@ -183,14 +183,14 @@ summary(IV_brm)
 
 This allows extending the model a lot using `brms` highly flexible modelling syntax. Moreover, once you've exhausted `brms` capabilities you can get the `stancode()` and further customize the model yourself. 
 
-# A small simulation study
+## A small simulation study
 Let's also do a small simulation study, to better show the impact of observed confounding, residual confounding, and hidden confounding. We'll use the OLS and IV models shown above. For each of the three scenarios, 5000 data sets were generated, with 50 patients per condition. The correlations between the variables are shown in the figure below, the actual values are arbitrary chosen, and the resulting bias, and its direction, is not meant to reflect real data, instead the values are meant to highlight the different types of confounding. 
 
 ![Confounding of treatment adherence effect, different scenarious](./img/adherence-confounding-setup-1.png)
 
 In the figure, *s* is the latent adherence variable, *session* the observed adherence, *intercept_subject* is the baseline confounder, that is measured with or without error by *pre*, and *y* is the outcome.
 
-## Relative bias
+### Relative bias
 The relative bias of the estimated adherence effect is shown in the figure below.
 
 ![“Treatment adherence confounding relative bias, OLS and instrumental variables](./img/adherence-confounding-relative-bias-1.png)
@@ -213,10 +213,10 @@ And the overall pattern is that:
 
 We see the same results if look at the coverage probabilities of the confidence intervals. 
 
-## Coverage probabilities of the CIs
+### Coverage probabilities of the CIs
 ![Treatment adherence confounding confidence interval coverage, OLS and instrumental variables](./img/adherence-confounding-CI-coverage-1.png)
 
-## When less is more–collider bias
+### When less is more–collider bias
 Let's throw in another example of how things can go wrong, this time by adjusting for a collider. We extend the first DAG, and add another covariate *therapeutic alliance*. A researcher might think that by controlling for X (alliance), the dose-response relationship will be more clearly revealed. Or they might just do a multivariable regression and think *"hey, both therapeutic alliance and adherence probably predict treatment outcome, let's throw both in and see what p-value we get"*. However, the problem is that alliance might neither be a predictor of outcome, nor a confounder of the adherence and outcome relationship, instead it could be a common effect of adherence and a hidden confounder (i.e., a collider). Obviously, this example is made up and *alliance* is just a placeholder–there's so much going on during a psychological treatment that it would be easy to come up with other colliders. In the DAG bellow, conditioning on alliance opens up a path between adherence and the hidden confounder, that bias the relationship between adherence and outcome *even* more.
 
 ![Adherence dose-response DAG](./img/DAG-collider-compliance.png)
@@ -234,7 +234,7 @@ What we see is that:
 
 ![Treatment adherence confounding and collider CI coverage, OLS and instrumental variables](./img/adherence-confounding-collider-CI-coverage-1.png)
 
-# Summary
+## Summary
 Lastly, to summarize this post:
 
 * Don't do naïve regressions on treatment adherence dose-response effects. It makes no sense even in the absence of confounding. 
@@ -243,15 +243,15 @@ Lastly, to summarize this post:
 * IV regression does not *automagically* solve all problems. But if you think hard about your data it can be a very useful tool in treatment studies. 
 * `brms` new multivariate syntax make it extremely easy to fit Bayesian IV models, that can be extended to much more complicated scenarios than what I covered in this article.
 
-# References
+## References
 * Dunn, G., & Bentall, R. (2007). Modelling treatment-effect heterogeneity in randomized controlled trials of complex interventions (psychological treatments). Statistics in Medicine, 26(26), 4719–4745. https://doi.org/10.1002/sim.2891
 * Mohammad Maracy, & Graham Dunn. (2011). Estimating dose-response effects in psychological treatment trials: the role of instrumental variables. Statistical Methods in Medical Research, 20(3), 191–215. https://doi.org/10.1177/0962280208097243
 * <a target="_blank" href="https://www.amazon.com/gp/product/0262232588/ref=as_li_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=0262232588&linkCode=as2&tag=rpsyc-20&linkId=8b0629e282068c90e6ecc6f093bcf1b4">Wooldridge, J. M. (2010). Econometric analysis of cross section and panel data. MIT press.</a>
 * <a target="_blank" href="https://www.amazon.com/gp/product/130527010X/ref=as_li_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=130527010X&linkCode=as2&tag=rpsyc-20&linkId=4941b5cb6ce034f04eed61345e7a656a">Wooldridge, J. M. (2015). Introductory econometrics: A modern approach. Nelson Education.</a>
 
-# Code
+## Code
 
-## Simulation functions
+### Simulation functions
 
 ```r:collapsed=true
 library(dplyr)
@@ -466,7 +466,7 @@ summarise_sim <- function(x, type, theta = -1) {
 }
 ```
 
-## Setup and run the simulation.
+### Setup and run the simulation.
 
 ```r:collapsed=true
 source("functions.R")

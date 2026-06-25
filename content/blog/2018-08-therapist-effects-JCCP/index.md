@@ -41,7 +41,7 @@ We conclude that investigators should include enough therapists both so that the
 
 In the paper, we focus on LMMs, but we are aware that there are other options to deal with therapist effects, like fixed effects or design-based methods. We do not investigate these models in this article. These models have been extensively discussed in clinical psychology and there is wide agreement that random effects models are preferred. Personally, I agree, and especially regarding therapist effects, that a random effects (partial pooling) model is generally preferred compared to e.g. fixed effects (no pooling/dummy coding) models. 
 
-# Software & Code
+## Software & Code
 All code is available from [https://osf.io/egj4m/](https://osf.io/egj4m/). The simulations use my R package `powerlmm`, which can be used to:
 
 - investigate the consequences of ignoring therapist effects
@@ -80,5 +80,5 @@ res_bal <- simulate(object = p,
 summary(res_bal)
 ```
 
-# Reference
+## Reference
 Magnusson, K., Andersson, G., & Carlbring, P. (2018). [The consequences of ignoring therapist effects in trials with longitudinal data: A simulation study](https://dx.doi.org/10.1037/ccp0000333). Journal of Consulting and Clinical Psychology, 86(9), 711-725. doi:10.1037/ccp0000333

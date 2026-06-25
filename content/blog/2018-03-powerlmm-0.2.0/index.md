@@ -18,8 +18,8 @@ summary: My R package 'powerlmm' has now been update to version 0.2.0. It contai
 
 My R packge `powerlmm` 0.2.0 is now out on CRAN. It can be installed from CRAN [https://cran.r-project.org/package=powerlmm](https://cran.r-project.org/package=powerlmm) or GitHub [https://github.com/rpsychologist/powerlmm](https://github.com/rpsychologist/powerlmm).
 
-# Changes in version 0.2.0
-## New features
+## Changes in version 0.2.0
+### New features
 * Analytical power calculations now support using Satterthwaite's degrees of
   freedom approximation.
 * `Simulate.plcp` will now automatically create lme4 formulas if none is
@@ -35,7 +35,7 @@ My R packge `powerlmm` 0.2.0 is now out on CRAN. It can be installed from CRAN [
   environments, using `parallel::makeCluster` (PSOCK). Forking is still used for
   non-interactive Unix environments.
   
-## Improvements
+### Improvements
 * Calculations of the variance of the treatment effect is now much faster for
   designs with unequal clusters and/or missing data, when cluster sizes are
   large. The calculations now use the much faster implementation used by lme4.
@@ -46,7 +46,7 @@ My R packge `powerlmm` 0.2.0 is now out on CRAN. It can be installed from CRAN [
 * `print.plcp_multi_power` now has better support for subsetting via either [], 
 head(), or subset().
 
-## Breaking changes
+### Breaking changes
 * `icc_pre_subject` is now defined as `(u_0^2 + v_0^2) / (u_0^2 + v_0^2 + error^2)`,
 instead of `(u_0^2) / (u_0^2 + v_0^2 + error^2)`. This would be the subject-level ICC, 
 if there's no random slopes, i.e. correlation between time points for the same subject.
@@ -58,7 +58,7 @@ parameters was solved for. To make the function less bug prone and easier to mai
 it is now only possible to specify the cluster-level variance components as relative values,
 if the other parameters as passed as raw inputs. 
 
-## Bug fixes and minor changes
+### Bug fixes and minor changes
 * Output from `simulate_data()` now includes a column `y_c` that contains the full outcome vector,
 without missing values added. This makes it easy to compare the complete and incomplete
 data set, e.g. via `simulate()`.

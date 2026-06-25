@@ -11,11 +11,11 @@ slug: parsing-data-from-a-text-file-and-plotting-where-people-live-using-ggplot2
 summary: In this post I scrape data from a document were members of a group wrote were they live, and then plot the result using   OpenStreetsMaps and ggplot2.
 ---
 
-# Introduction
+## Introduction
 
 A Facebook group for psychologists in Sweden created a document where each member could type in were they live and what they work with. At the moment 192 psychologists have added their information to the document. This made me think about how to plot this information using R, and especially how to read data in this format. I was also interested in how to plot this information geographically on a map of Sweden and represent the number of individuals by the size of a circle over the corresponding city.
 
-# The data
+## The data
 
 The document with the data was ordered like this:
 
@@ -29,23 +29,23 @@ The document with the data was ordered like this:
     …
     etc.
 
-# Methods
+## Methods
 
-## Parsing the data  
+### Parsing the data  
 To get the data into R I copied the Facebook document to a txt-file and used `scan()` to read it. This saves the text into a vector with each line representing one row. I wrote a function to parse the text and to create a `data.frame` with the number of people of each city.
 
-## Creating the map  
+### Creating the map  
 To get a map of Sweden I used the `OpenStreetMap-package`. But since I wanted to plot data on this map I had to grab the coordinates for each city. This was accomplished by using data from the “world.cities”-set which is included in R. However, 5 cities weren’t included in this set so I looked up their coordinates on Google Maps and added them manually. Lastly I converted latitude and longitude into Mercator coordinates since this is the format used when plotting from the OpenStreetMaps-package.
 
-## Creating the plot  
+### Creating the plot  
 I used `autoplot()` to plot the map with `ggplot2()`. The city data was added as `geom_point()`-layer with size = number of psychologists in the city.
 
-# The resulting plot
+## The resulting plot
 
 ![where do we live. By Kristoffer Magnusson](./img/where_do_welive.png)
 *Figure 1*. Plot of where people live, with data taken from a Facebook document.
 
-# The R Code
+## The R Code
 
 ```r
 Sys.setenv(NOAWT=1) #call this before loading OpenStreetMap

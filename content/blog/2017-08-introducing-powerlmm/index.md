@@ -30,7 +30,7 @@ install.packages("powerlmm")
 devtools::install_github("rpsychologist/powerlmm", build_vignettes = TRUE)
 ```
 
-# A basic example
+## A basic example
 
 ```r
 library(powerlmm)
@@ -79,6 +79,6 @@ get_power(p)
 ```
 
 
-# Feedback
+## Feedback
 I appreciate all types of feedback, e.g. typos, bugs, inconsistencies, feature requests, etc. Open an issue on [github.com/rpsychologist/powerlmm/issues](http://github.com/rpsychologist/powerlmm/issues) or via my contact info [here](http://rpsychologist.com/about).
 

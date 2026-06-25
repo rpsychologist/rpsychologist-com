@@ -29,7 +29,7 @@ requirements. **One is left with the unsettling thought that the thousands of
 investigations of mediational mechanisms in the psychological and other literatures
 are of unknown and questionable value.**” (p. 4743)
 
-# The causal mediation model
+## The causal mediation model
 In all examples, I assume that mediation is investigated in a randomized controlled trial where treatment allocation is randomized. The treatment is a cognitive-behavioral therapy (CBT), and we want to estimate the indirect effect of homework completion, and the hypothesis is that a non-trivial amount of the treatment effect is mediated by exposure-based homework adherence. The figure bellow presents three different scenarios that I will simulate.
 
 * In (a), the relationship between the mediator and the outcome is confounded, but neither the mediator nor the confounder is measured with error. 
@@ -48,7 +48,7 @@ $$
 $$
 $M_i(1)$ is the level of the mediator under the treatment and $M_i(0)$ under the control, and $Y_i(1, M_i(1))$ is thus the outcome after treatment with the mediator at the natural level realized under the treatment. The subscript *i* indicates that these effects can be different for each individual. Just as with treatment effects, all these potential outcomes cannot be observed for every patient, but we can estimate the average causal effects. The indirect effect tells us "[w]hat change would occur to the outcome if one changes the mediator from the value that would be realized under the control condition, $M_i(0)$, to the value that would be observed under the treatment condition, $M_i(1)$, while holding the treatment status at *t*" (Imai, Keele, & Tingley,  2010, p. 311).
 
-# Generate the data
+## Generate the data
 We'll use the following packages. The simulations are performed using `powerlmm`, and the models are fit using `brms`. 
 
 ```r
@@ -210,7 +210,7 @@ We can see that the average indirect effect of exposure-based homework is -3, an
 We can also take a random sample of 100 participants and look at the individual-level effects. The figure below shows the direct, indirect, and total effects for these 100 participants. We see that the effects vary substantially on the individual level. In reality, we can't know if the individual-level effects vary or if they are constant for all participants. 
 ![“individual-level effects”](./img/indirect_AI-01.png)
 
-# Run the simulation
+## Run the simulation
 Let's first define the simulations for the scenarios with confounding, i.e., (a) and (b). We've already defined the measurement error, cor(pre, pre*) = 0.8. 
 
 ```r
@@ -353,7 +353,7 @@ res2 <- simulate(p1,
 saveRDS(res2, "med_me_sim.Rds")
 ```
 
-# Simulation results
+## Simulation results
 Now we just have to summarize the results. First, we create two functions to extract the relevant results.
 
 ```r:collapsed=true
@@ -509,10 +509,10 @@ summary_table(sum_res_me) %>%
 |M_me_pre |prop_mediated |  0.25|   0.5| -50.80|  0.30|     0.68|
 
 
-# Summary
+## Summary
 Measurement error and confounding is a huge problem for mediation analyses, and there's no easy solution. In real life, we can expect both confounding and measurement error in the mediator and confounders. There's likely to be multiple sources of confounding, both related to baseline variables and post-randomization variables (i.e., things happening after treatment allocation). Assumptions regarding the lack of hidden confounding and measurement error are very hard to defend.
 
-# References
+## References
 
 * Dunn, G., & Bentall, R. (2007). Modelling treatment-effect heterogeneity in randomized controlled trials of complex interventions (psychological treatments). Statistics in Medicine, 26(26), 4719–4745. https://doi.org/10.1002/sim.2891
 * Imai, K., Keele, L., & Tingley, D. (2010). A general approach to causal mediation analysis. Psychological Methods, 15(4), 309–334. https://doi.org/10.1037/a0020761
