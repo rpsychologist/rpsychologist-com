@@ -8,7 +8,8 @@
   const nav = [
     { label: "Posts", href: "/posts" },
     { label: "Visualizations", href: "/viz" },
-    { label: "About", href: "/about" }
+    { label: "About", href: "/about" },
+    { label: "Search", href: "/search" }
   ];
   const socials = [
     { name: "bluesky", href: site.social.bluesky, label: "Bluesky" },

@@ -66,6 +66,12 @@
   <title>{fullTitle}</title>
   <meta name="description" content={description} />
   <link rel="canonical" href={canonical} />
+  <link
+    rel="alternate"
+    type="application/rss+xml"
+    title={site.title}
+    href={`${site.url}/rss.xml`}
+  />
 
   <meta property="og:type" content={type} />
   <meta property="og:site_name" content={site.title} />

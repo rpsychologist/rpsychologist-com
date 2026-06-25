@@ -457,6 +457,25 @@ body {
   color: var(--shiki-dark);
 }
 
+/* Autolinked heading anchors (rehype-autolink-headings, behavior: append). */
+.article :is(h1, h2, h3, h4, h5, h6) {
+  scroll-margin-top: 1.5rem;
+}
+.heading-anchor {
+  margin-left: 0.35em;
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 400;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.heading-anchor::after {
+  content: "#";
+}
+.article :is(h1, h2, h3, h4, h5, h6):hover .heading-anchor {
+  opacity: 1;
+}
+
 /* Inline code (anything not inside a highlighted block). */
 :not(pre) > code {
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;

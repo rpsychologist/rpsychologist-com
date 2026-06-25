@@ -72,7 +72,27 @@ const config = {
       fallback: undefined,
       precompress: false,
       strict: true
-    })
+    }),
+    // Hash mode auto-hashes inline scripts/styles (including the pre-paint theme
+    // script in app.html and SvelteKit's hydration inline scripts).
+    csp: {
+      mode: "hash",
+      directives: {
+        "default-src": ["self"],
+        "script-src": ["self", "https://static.cloudflareinsights.com"],
+        "style-src": [
+          "self",
+          "unsafe-inline",
+          "https://fonts.googleapis.com",
+          "https://cdn.jsdelivr.net"
+        ],
+        "font-src": ["self", "https://fonts.gstatic.com", "https://cdn.jsdelivr.net", "data:"],
+        "img-src": ["self", "data:"],
+        "connect-src": ["self", "https://cloudflareinsights.com"],
+        "base-uri": ["self"],
+        "object-src": ["none"]
+      }
+    }
   }
 };
 

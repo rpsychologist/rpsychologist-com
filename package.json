@@ -9,7 +9,7 @@
   "packageManager": "pnpm@9.15.9",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "build": "vite build && pagefind --site build",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "test": "vitest run"
@@ -26,6 +26,7 @@
     "@types/node": "^25.9.3",
     "gray-matter": "^4.0.3",
     "mdsvex": "^0.12.3",
+    "pagefind": "^1.5.2",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-katex": "^6.0.3",
     "rehype-slug": "^6.0.0",
