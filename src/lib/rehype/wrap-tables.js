@@ -1,4 +1,4 @@
-import { visit } from "unist-util-visit";
+import { visit } from 'unist-util-visit';
 
 /**
  * Wrap every Markdown `<table>` in `<div class="table-wrap">` so a wide table
@@ -10,17 +10,17 @@ import { visit } from "unist-util-visit";
  * never double-wrapped.
  */
 export function rehypeWrapTables() {
-  return (/** @type {any} */ tree) => {
-    visit(tree, "element", (/** @type {any} */ node, index, /** @type {any} */ parent) => {
-      if (node.tagName !== "table" || !parent || index == null) return;
-      const classes = [].concat(parent.properties?.className ?? []);
-      if (parent.tagName === "div" && classes.includes("table-wrap")) return;
-      parent.children[index] = {
-        type: "element",
-        tagName: "div",
-        properties: { className: ["table-wrap"] },
-        children: [node]
-      };
-    });
-  };
+	return (/** @type {any} */ tree) => {
+		visit(tree, 'element', (/** @type {any} */ node, index, /** @type {any} */ parent) => {
+			if (node.tagName !== 'table' || !parent || index == null) return;
+			const classes = /** @type {string[]} */ ([]).concat(parent.properties?.className ?? []);
+			if (parent.tagName === 'div' && classes.includes('table-wrap')) return;
+			parent.children[index] = {
+				type: 'element',
+				tagName: 'div',
+				properties: { className: ['table-wrap'] },
+				children: [node]
+			};
+		});
+	};
 }

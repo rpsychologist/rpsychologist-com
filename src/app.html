@@ -1,42 +1,42 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script>
-      // Set the theme before first paint to avoid a flash of the wrong palette.
-      (function () {
-        try {
-          var stored = localStorage.getItem("theme");
-          var dark =
-            stored === "dark" ||
-            (stored === null && window.matchMedia("(prefers-color-scheme: dark)").matches);
-          if (dark) document.documentElement.dataset.theme = "dark";
-          else document.documentElement.dataset.theme = "light";
-        } catch (e) {
-          document.documentElement.dataset.theme = "light";
-        }
-      })();
-    </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Body runs on the system sans stack. Webfonts: Plex Sans for headings
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<script>
+			// Set the theme before first paint to avoid a flash of the wrong palette.
+			(function () {
+				try {
+					var stored = localStorage.getItem('theme');
+					var dark =
+						stored === 'dark' ||
+						(stored === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+					if (dark) document.documentElement.dataset.theme = 'dark';
+					else document.documentElement.dataset.theme = 'light';
+				} catch (e) {
+					document.documentElement.dataset.theme = 'light';
+				}
+			})();
+		</script>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<!-- Body runs on the system sans stack. Webfonts: Plex Sans for headings
          (the "designed" type), Plex Mono for the instrument layer (metadata,
          figure labels, code, numbers). -->
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
-      integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+"
-      crossorigin="anonymous"
-    />
-    %sveltekit.head%
-  </head>
-  <body data-sveltekit-preload-data="hover">
-    <div style="display: contents">%sveltekit.body%</div>
-  </body>
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+		/>
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
+			integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+"
+			crossorigin="anonymous"
+		/>
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
 </html>

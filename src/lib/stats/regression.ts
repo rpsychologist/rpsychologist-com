@@ -12,7 +12,7 @@
 // Sigma[P, Y] is the vector of predictor-outcome covariances. The partial
 // coefficient on X is the entry of beta_P aligned with X.
 
-import { solveLinearSystem, submatrix, type Matrix, type Vector } from "./linalg";
+import { solveLinearSystem, submatrix, type Matrix, type Vector } from './linalg';
 
 /**
  * OLS coefficients for regressing the variable at `yIdx` on the predictors at
@@ -20,14 +20,14 @@ import { solveLinearSystem, submatrix, type Matrix, type Vector } from "./linalg
  * `predictorIdx`.
  */
 export function regressionCoefficients(
-  sigma: Matrix,
-  yIdx: number,
-  predictorIdx: number[]
+	sigma: Matrix,
+	yIdx: number,
+	predictorIdx: number[]
 ): Vector {
-  if (predictorIdx.length === 0) return [];
-  const sigmaPP = submatrix(sigma, predictorIdx, predictorIdx);
-  const sigmaPY = predictorIdx.map((p) => sigma[p][yIdx]);
-  return solveLinearSystem(sigmaPP, sigmaPY);
+	if (predictorIdx.length === 0) return [];
+	const sigmaPP = submatrix(sigma, predictorIdx, predictorIdx);
+	const sigmaPY = predictorIdx.map((p) => sigma[p][yIdx]);
+	return solveLinearSystem(sigmaPP, sigmaPY);
 }
 
 /**
@@ -36,31 +36,31 @@ export function regressionCoefficients(
  * adjustment set this reduces to the marginal slope.
  */
 export function partialCoefficient(
-  sigma: Matrix,
-  yIdx: number,
-  xIdx: number,
-  adjustIdx: number[]
+	sigma: Matrix,
+	yIdx: number,
+	xIdx: number,
+	adjustIdx: number[]
 ): number {
-  const predictors = [xIdx, ...adjustIdx];
-  const beta = regressionCoefficients(sigma, yIdx, predictors);
-  return beta[0];
+	const predictors = [xIdx, ...adjustIdx];
+	const beta = regressionCoefficients(sigma, yIdx, predictors);
+	return beta[0];
 }
 
 /** The marginal slope of `yIdx` on `xIdx`: Cov(X, Y) / Var(X). */
 export function marginalSlope(sigma: Matrix, yIdx: number, xIdx: number): number {
-  return sigma[xIdx][yIdx] / sigma[xIdx][xIdx];
+	return sigma[xIdx][yIdx] / sigma[xIdx][xIdx];
 }
 
 /** Ordinary least squares slope of `y` on `x` for paired sample arrays. */
 export function sampleSlope(x: number[], y: number[]): number {
-  const n = x.length;
-  const mx = x.reduce((a, b) => a + b, 0) / n;
-  const my = y.reduce((a, b) => a + b, 0) / n;
-  let sxy = 0;
-  let sxx = 0;
-  for (let i = 0; i < n; i++) {
-    sxy += (x[i] - mx) * (y[i] - my);
-    sxx += (x[i] - mx) ** 2;
-  }
-  return sxy / sxx;
+	const n = x.length;
+	const mx = x.reduce((a, b) => a + b, 0) / n;
+	const my = y.reduce((a, b) => a + b, 0) / n;
+	let sxy = 0;
+	let sxx = 0;
+	for (let i = 0; i < n; i++) {
+		sxy += (x[i] - mx) * (y[i] - my);
+		sxx += (x[i] - mx) ** 2;
+	}
+	return sxy / sxx;
 }

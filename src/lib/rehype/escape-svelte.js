@@ -1,4 +1,4 @@
-import { visit } from "unist-util-visit";
+import { visit } from 'unist-util-visit';
 
 /**
  * Entity-escape characters that Svelte's compiler treats as markup/expressions
@@ -15,23 +15,23 @@ import { visit } from "unist-util-visit";
 
 /** @param {string} value */
 const escape = (value) =>
-  value
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\{/g, "&lbrace;")
-    .replace(/\}/g, "&rbrace;");
+	value
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/\{/g, '&lbrace;')
+		.replace(/\}/g, '&rbrace;');
 
 /** A rehype (hast) transformer plugin. */
 export function rehypeEscapeSvelte() {
-  /**
-   * @param {any} tree hast Root
-   * @param {any} file vfile VFile
-   */
-  return (tree, file) => {
-    const name = String(file?.filename ?? file?.path ?? "");
-    if (!name.endsWith(".md")) return;
-    visit(tree, "text", (/** @type {any} */ node) => {
-      if (/[<>{}]/.test(node.value)) node.value = escape(node.value);
-    });
-  };
+	/**
+	 * @param {any} tree hast Root
+	 * @param {any} file vfile VFile
+	 */
+	return (tree, file) => {
+		const name = String(file?.filename ?? file?.path ?? '');
+		if (!name.endsWith('.md')) return;
+		visit(tree, 'text', (/** @type {any} */ node) => {
+			if (/[<>{}]/.test(node.value)) node.value = escape(node.value);
+		});
+	};
 }

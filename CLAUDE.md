@@ -49,7 +49,7 @@ they stay decoupled is the key architectural idea:
    term slugs, prev/next adjacency. List pages, RSS, and sitemap import from
    here and never touch a post's compiled component.
 
-2. **Components** — `src/routes/[slug]/+page.ts` keeps a *separate, non-eager*
+2. **Components** — `src/routes/[slug]/+page.ts` keeps a _separate, non-eager_
    `import.meta.glob('/content/blog/*/index.{md,svx}')`. It looks up the one
    post by slug and lazy-loads only that chunk. This is what preserves
    per-post code-splitting: the homepage doesn't bundle every post.
