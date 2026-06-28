@@ -1,10 +1,10 @@
 const formatter = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
-  month: "long",
+  month: "short",
   day: "numeric"
 });
 
-/** "March 20, 2012" */
+/** "Mar 20, 2012" */
 export function formatDate(date: Date): string {
   return formatter.format(date);
 }

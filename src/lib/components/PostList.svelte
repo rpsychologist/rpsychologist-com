@@ -44,7 +44,9 @@
     text-decoration: none;
   }
   .post-title a:hover {
-    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 3px;
   }
   .post-meta {
     margin: 0 0 0.5rem;
@@ -60,7 +62,7 @@
     text-decoration: none;
   }
   .post-cat:hover {
-    color: var(--accent);
+    text-decoration: underline;
   }
   .post-summary {
     margin: 0;

@@ -48,7 +48,21 @@
               aria-expanded={s.open}
               onclick={() => (sections[i].open = !sections[i].open)}
             >
-              <span class="chev" class:open={s.open} aria-hidden="true">▸</span>
+              <svg
+                class="chev"
+                class:open={s.open}
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <polyline points="9 6 15 12 9 18" />
+              </svg>
               <span class="toc-text">{s.text}</span>
             </button>
             {#if s.open}
@@ -72,45 +86,58 @@
   .toc {
     font-size: 0.85rem;
   }
+  /* Matches the section kickers elsewhere — letterspaced caps, quiet. */
   .toc-title {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
     font-weight: 600;
-    color: var(--heading);
-    margin: 0 0 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
   }
   .toc ul {
     list-style: none;
     margin: 0;
     padding: 0;
   }
+  /* No width:100% — these are block-level flex, so they fill naturally without
+     the content-box + padding overflow that produced a stray scrollbar. */
   .toc-link,
-  .toc-toggle,
-  .toc-sub a {
+  .toc-toggle {
     display: flex;
-    width: 100%;
-    gap: 0.35rem;
-    align-items: center;
+    gap: 0.4rem;
+    align-items: baseline;
+    padding: 0.26rem 0;
     color: var(--muted);
-    text-decoration: none;
     text-align: left;
+    text-decoration: none;
     background: none;
     border: 0;
-    border-left: 3px solid transparent;
-    padding: 0.25rem 0.5rem;
     cursor: pointer;
     font: inherit;
+    line-height: 1.4;
+  }
+  .toc-sub {
+    margin: 0.05rem 0 0.25rem;
+  }
+  .toc-sub a {
+    display: block;
+    padding: 0.22rem 0 0.22rem 1.4rem;
+    color: var(--muted);
+    text-decoration: none;
+    line-height: 1.4;
   }
   .toc-link:hover,
   .toc-toggle:hover,
   .toc-sub a:hover {
-    color: var(--accent);
-    border-left-color: var(--accent);
-  }
-  .toc-sub {
-    padding-left: 0.5rem !important;
+    color: var(--heading);
   }
   .chev {
+    flex-shrink: 0;
+    align-self: center;
+    color: var(--muted);
     transition: transform 0.15s;
-    font-size: 0.7em;
   }
   .chev.open {
     transform: rotate(90deg);
@@ -124,6 +151,7 @@
       top: 1.5rem;
       max-height: calc(100vh - 3rem);
       overflow-y: auto;
+      overflow-x: hidden;
     }
   }
 </style>

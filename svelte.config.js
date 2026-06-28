@@ -9,6 +9,7 @@ import rehypeKatex from "rehype-katex";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { rehypeEscapeSvelte } from "./src/lib/rehype/escape-svelte.js";
+import { rehypeWrapTables } from "./src/lib/rehype/wrap-tables.js";
 
 // Dual-theme Shiki highlighting. A single highlighter instance is reused across
 // every fenced block (creating one per block is the common performance trap).
@@ -67,6 +68,7 @@ const config = {
           }
         ],
         [rehypeKatex, { strict: false }],
+        rehypeWrapTables,
         // Must run after rehype-katex to escape braces in its MathML annotation.
         rehypeEscapeSvelte
       ]

@@ -1,7 +1,6 @@
 <script lang="ts">
   import Seo from "$lib/components/Seo.svelte";
   import Bio from "$lib/components/Bio.svelte";
-  import License from "$lib/components/License.svelte";
   import ShareLinks from "$lib/components/ShareLinks.svelte";
   import Toc from "$lib/components/Toc.svelte";
   import { enhanceCode } from "$lib/actions/code";
@@ -31,11 +30,18 @@
   <article class="article" use:enhanceCode>
     <header class="post-header">
       <h1>{data.meta.title}</h1>
+      {#if data.meta.summary}
+        <p class="post-subtitle">{data.meta.summary}</p>
+      {/if}
       <div class="meta-row">
         <p class="post-meta">
           <time datetime={data.meta.date}>{formatDate(new Date(data.meta.date))}</time>
           <span aria-hidden="true">·</span>
           <span>{data.meta.readingTime} min read</span>
+          {#if data.meta.category}
+            <span aria-hidden="true">·</span>
+            <a class="post-cat" href="/tags/{termSlug(data.meta.category)}">{data.meta.category}</a>
+          {/if}
         </p>
         <ShareLinks slug={data.meta.slug} title={data.meta.title} />
       </div>
@@ -43,45 +49,43 @@
 
     <Content />
 
-    {#if data.meta.tags.length}
-      <ul class="post-tags">
-        {#each data.meta.tags as tag (tag)}
-          <li><a href="/tags/{termSlug(tag)}">{tag}</a></li>
-        {/each}
-      </ul>
-    {/if}
+    <div class="article-meta">
+      {#if data.meta.tags.length}
+        <ul class="post-tags">
+          {#each data.meta.tags as tag (tag)}
+            <li><a href="/tags/{termSlug(tag)}">{tag}</a></li>
+          {/each}
+        </ul>
+      {/if}
+      <p class="colophon">
+        <a href={githubUrl}>Source on GitHub</a> ·
+        <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>
+      </p>
+    </div>
 
     <footer class="post-footer">
       <Bio />
 
-      <div class="share-row">
-        <ShareLinks slug={data.meta.slug} title={data.meta.title} />
-      </div>
-
-      <p class="published">
-        Published {formatDate(new Date(data.meta.date))} ·
-        <a href={githubUrl}>View on GitHub</a>
-      </p>
-
       <div class="questions">
-        <h2>Questions &amp; Comments</h2>
+        <h2>Questions &amp; comments</h2>
         <p>
-          Please use <a href={`${site.repo}/discussions`}>GitHub Discussions</a> for any questions
-          related to this post, or <a href={`${site.repo}/issues`}>open an issue</a> if you've
-          found a bug or want to make a feature request.
+          Please use <a href={`${site.repo}/discussions`}>GitHub Discussions</a> for questions, or
+          <a href={`${site.repo}/issues`}>open an issue</a> for bugs and feature requests.
         </p>
       </div>
 
-      <License />
-
       <nav class="post-nav" aria-label="Adjacent posts">
         {#if data.newer}
-          <a class="prev" href="/{data.newer.slug}" rel="prev">← {data.newer.title}</a>
-        {:else}
-          <span></span>
+          <a class="nav-card prev" href="/{data.newer.slug}" rel="prev">
+            <span class="nav-label">← Newer</span>
+            <span class="nav-title">{data.newer.title}</span>
+          </a>
         {/if}
         {#if data.older}
-          <a class="next" href="/{data.older.slug}" rel="next">{data.older.title} →</a>
+          <a class="nav-card next" href="/{data.older.slug}" rel="next">
+            <span class="nav-label">Older →</span>
+            <span class="nav-title">{data.older.title}</span>
+          </a>
         {/if}
       </nav>
     </footer>
@@ -95,6 +99,19 @@
   .post-header h1 {
     margin-bottom: 0.6rem;
   }
+  .post-subtitle {
+    margin: 0 0 1.1rem;
+    font-size: 1.2rem;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  .post-cat {
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .post-cat:hover {
+    text-decoration: underline;
+  }
   .meta-row {
     display: flex;
     flex-wrap: wrap;
@@ -104,11 +121,19 @@
   }
   .post-meta {
     color: var(--muted);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     display: flex;
     gap: 0.4rem;
     align-items: center;
     margin: 0;
+  }
+  /* "About this article" group: tags + provenance/license, right under the body. */
+  .article-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+    margin-top: 2.5rem;
   }
   .post-tags {
     list-style: none;
@@ -116,7 +141,7 @@
     flex-wrap: wrap;
     gap: 0.5rem;
     padding: 0;
-    margin: 3rem 0 0;
+    margin: 0;
   }
   .post-tags a {
     display: inline-block;
@@ -133,43 +158,84 @@
     border-color: var(--accent);
   }
   .post-footer {
-    margin-top: 2.5rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--rule);
   }
-  .share-row {
-    display: flex;
-    justify-content: flex-end;
-  }
-  .published {
-    font-size: 0.85rem;
-    color: var(--muted);
-    margin-top: 1rem;
-  }
+  /* Hairline-bordered callout, matching the pager cards / gallery tiles (one box
+     language site-wide; no filled grey box). */
   .questions {
-    margin-top: 2rem;
+    margin: 1.75rem 0;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
   }
   .questions h2 {
-    font-size: 1.1rem;
+    margin: 0 0 0.3rem;
+    font-size: 1rem;
   }
   .questions p {
+    margin: 0;
     font-size: 0.9rem;
+    color: var(--ink);
   }
+  /* One compact provenance + license line (replaces the separate published row,
+     GitHub line, and the full license paragraph). */
+  .colophon {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+  /* Pager cards: a small label over the adjacent post's title; the whole card
+     is the target and its border warms to accent on hover. */
+  /* Flex (not grid) so a lone card — when there's no newer/older neighbour —
+     fills the row instead of stranding it in one half. */
   .post-nav {
     display: flex;
-    justify-content: space-between;
     gap: 1rem;
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--rule);
-    font-size: 0.9rem;
+    margin-top: 2.5rem;
   }
-  .post-nav a {
-    color: var(--accent);
+  .nav-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    color: var(--ink);
     text-decoration: none;
-    max-width: 45%;
+    transition: border-color 0.15s;
   }
-  .post-nav .next {
+  .nav-card:hover {
+    border-color: var(--accent);
+  }
+  .nav-card.next {
     text-align: right;
-    margin-left: auto;
+  }
+  .nav-label {
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .nav-title {
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--heading);
+  }
+  .nav-card:hover .nav-title {
+    color: var(--accent);
+  }
+  @media (max-width: 32rem) {
+    .post-nav {
+      flex-direction: column;
+    }
+    .nav-card.next {
+      text-align: left;
+    }
   }
 
   /* Sticky TOC sidebar on wide screens for include_toc posts. */

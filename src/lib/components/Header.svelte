@@ -108,7 +108,10 @@
     text-decoration: none;
   }
   .nav a:hover {
-    color: var(--accent);
+    color: var(--heading);
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 4px;
   }
   .actions {
     display: flex;

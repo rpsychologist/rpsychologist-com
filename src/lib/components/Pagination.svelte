@@ -29,15 +29,21 @@
     align-items: center;
     justify-content: space-between;
     margin-top: 3rem;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
   .page-link {
-    color: var(--accent);
-    text-decoration: none;
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--rule);
+    text-underline-offset: 0.15em;
+  }
+  .page-link:hover {
+    text-decoration-color: var(--accent);
   }
   .page-link.disabled {
     color: var(--muted);
     opacity: 0.5;
+    text-decoration: none;
   }
   .page-status {
     color: var(--muted);
