@@ -31,7 +31,7 @@
 				I build interactive tools for understanding statistics, and write about applied methods,
 				causal inference, and study design.
 			</p>
-			<p class="cred">PhD · Lic. Clinical Psychologist</p>
+			<p class="cred">PhD · Lic. Psychologist</p>
 			<div class="socials">
 				{#each socials as s (s.name)}
 					<a href={s.href} aria-label={s.label} target="_blank" rel="noopener external">
