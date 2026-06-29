@@ -12,7 +12,7 @@ export const viz: Viz[] = [
 	{
 		title: "Cohen's d",
 		glyph: 'cohend',
-		href: 'https://rpsychologist.com/cohend',
+		href: '/cohend',
 		description: 'Effect size and the overlap between two distributions.'
 	},
 	{

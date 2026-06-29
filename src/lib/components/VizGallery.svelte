@@ -8,7 +8,7 @@
 <ul class="viz-grid">
 	{#each items as v (v.title)}
 		<li>
-			<a href={v.href} rel="external">
+			<a href={v.href} rel={v.href.startsWith('http') ? 'external' : undefined}>
 				<span class="screen"><VizGlyph name={v.glyph} /></span>
 				<span class="name">{v.title}</span>
 				<span class="desc">{v.description}</span>
