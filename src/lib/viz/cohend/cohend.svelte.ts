@@ -129,6 +129,10 @@ export class CohendState {
 	}
 
 	setPreset(name: keyof typeof presets) {
+		// A preset is a discrete click, so it should always animate to the new d.
+		// Clear `immediate` in case a prior drag/pan left it set (e.g. a slider drag
+		// whose pointerup didn't land on the slider) — otherwise the chart snaps.
+		this.immediate = false;
 		this.p.cohend = presets[name];
 		this.syncFromCohend();
 	}

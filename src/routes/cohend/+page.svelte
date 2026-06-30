@@ -95,8 +95,16 @@
 				min="0"
 				max={model.p.sliderMax}
 				step={model.p.sliderStep}
-				bind:value={model.p.cohend}
-				oninput={() => model.syncFromCohend()}
+				value={model.p.cohend}
+				oninput={(e) => {
+					const v = e.currentTarget.valueAsNumber;
+					if (!Number.isFinite(v)) return;
+					// Floor at 0 so the treatment mean can't drop below control (bind would
+					// ignore the min and let a typed -1 push it below). The slider + chart
+					// snapping back to 0 is the visible feedback.
+					model.p.cohend = Math.max(0, v);
+					model.syncFromCohend();
+				}}
 			/>
 		</label>
 		<div class="icons">
@@ -112,6 +120,19 @@
 					<path
 						d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
 					/>
+				</svg>
+			</button>
+			<button
+				class="icon-btn"
+				aria-label="Recenter chart"
+				title="Recenter chart"
+				onclick={() => model.rescale()}
+			>
+				<svg viewBox="0 0 24 24" aria-hidden="true">
+					<path
+						d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"
+					/>
+					<circle cx="12" cy="12" r="2" />
 				</svg>
 			</button>
 			<button class="icon-btn" aria-label="Download SVG" title="Download SVG" onclick={download}>
@@ -159,7 +180,7 @@
 	/>
 
 	<Overlap {model} bind:svg />
-	<p class="fig-hint">Drag the chart to pan · double-click to reset.</p>
+	<p class="fig-hint">Drag the chart to pan · double-click to recenter.</p>
 
 	{#if model.p.showDonuts}
 		<Donuts {model} />
@@ -176,7 +197,9 @@
 		<CommonLanguage {model} />
 	</section>
 
-	<Bio />
+	<div class="bio-wrap">
+		<Bio />
+	</div>
 
 	<section id="faq" class="faq">
 		<h2>FAQ</h2>
@@ -196,7 +219,7 @@
 				</p>
 				<p>
 					You can pan the x-axis by clicking and dragging the visualization. Double-click the
-					visualization to center and rescale it.
+					visualization to recenter and rescale it.
 				</p>
 			</div>
 		</details>
@@ -360,9 +383,17 @@
 	.hero,
 	.intro,
 	.cl-section,
+	.bio-wrap,
 	.faq {
 		max-width: 700px;
 		margin-inline: auto;
+	}
+	/* Set off from the explanation above and the FAQ below; the bio is a
+	   secondary attribution block, not part of the prose flow. */
+	.bio-wrap {
+		margin-top: 2.5rem;
+		padding-top: 1.5rem;
+		border-top: 1px solid var(--rule);
 	}
 	.hero {
 		text-align: center;

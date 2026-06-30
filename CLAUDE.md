@@ -112,6 +112,27 @@ artifact. Don't "fix" these toward realism — the exact values are the point, a
 the comments flag this. This is the one area where longer derivation comments are
 expected.
 
+## `src/lib/viz` — interactive viz apps & their state
+
+Each full-page viz app (e.g. `cohend`) keeps its reactive state in a **class** in
+`<name>.svelte.ts`, not a function factory. The house pattern:
+
+- The class holds editable params plus `$state`/`$derived` **fields**, and methods
+  that mutate state while preserving invariants (e.g. `CohendState` keeps `cohend`
+  and the means mutually consistent via `syncFromCohend`/`syncFromMeans`). The
+  invariant-bearing methods are why this is a class and not a loose state bag.
+- Instantiate **per-component** in the route — `const model = new CohendState()` in
+  `+page.svelte` — never a module-level singleton. The page is prerendered/SSR'd, so
+  a shared instance would bleed state across requests.
+- Apply persisted + URL state from `onMount` (`model.init(location.search)`) so SSR
+  and the first client render share the plain defaults.
+- Keep private store handles truly private (`#store`). Call methods as
+  `model.foo()`; if you ever pass one as a bare event callback, wrap it
+  (`() => model.foo()`) or `this` is lost.
+
+Shared state primitives live in `core/state` (`Persisted`, `queryParams`); pure
+numerical model code sits in a sibling `model.ts` with `model.test.ts`.
+
 ## Code comments
 
 Comment to explain **why**, not **what**. The code already shows what it does;

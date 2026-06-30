@@ -20,9 +20,11 @@
 
 	type NumKey = 'M0' | 'M1' | 'SD' | 'CER' | 'sliderMax' | 'sliderStep';
 
-	// Controlled numeric input: write only a finite, in-range value. The HTML
-	// min/max attributes don't clamp *typed* input, so we re-check them here —
-	// otherwise SD=0 divides by zero (NaN chart) and M0>M1 yields a negative d.
+	// Live-apply numeric input, but only a finite, in-range value. The HTML min/max
+	// attributes don't clamp *typed* input, so we re-check here — otherwise SD=0
+	// divides by zero (NaN chart) and M0>M1 yields a negative d. Out-of-range
+	// keystrokes are ignored silently because the user may still be mid-typing
+	// ("1" on the way to "125"); the explanatory message is deferred to `commitNum`.
 	function setNum(
 		key: NumKey,
 		e: Event & { currentTarget: HTMLInputElement },
@@ -35,7 +37,44 @@
 		if (min !== undefined && v < min) return;
 		if (max !== undefined && v > max) return;
 		model.p[key] = v;
+		if (fieldError?.key === key) fieldError = null;
 		sync?.();
+	}
+
+	// The constraints are intentional (the means stay ordered so Cohen's d can't go
+	// negative, and SD stays positive). Validating per keystroke would flash
+	// spurious errors while typing a valid target, so feedback fires on `change`
+	// (blur/Enter): explain the rule and snap the field back to the last good value,
+	// so a rejected entry can't sit there silently disagreeing with the chart.
+	let fieldError = $state<{ key: NumKey; msg: string } | null>(null);
+	function rangeMsg(key: NumKey): string {
+		switch (key) {
+			case 'M0':
+				return `${model.p.muZeroLabel} mean can't be above the ${model.p.muOneLabel} mean (${model.p.M1}).`;
+			case 'M1':
+				return `${model.p.muOneLabel} mean can't be below the ${model.p.muZeroLabel} mean (${model.p.M0}).`;
+			case 'SD':
+				return 'Standard deviation must be at least 1.';
+			case 'CER':
+				return 'Control event rate must be between 0 and 100.';
+			case 'sliderMax':
+				return 'Slider max must be at least 0.1.';
+			case 'sliderStep':
+				return 'Step size must be at least 0.001.';
+		}
+	}
+	function commitNum(
+		key: NumKey,
+		e: Event & { currentTarget: HTMLInputElement },
+		min: number | undefined,
+		max: number | undefined
+	) {
+		const v = e.currentTarget.valueAsNumber;
+		const bad =
+			!Number.isFinite(v) || (min !== undefined && v < min) || (max !== undefined && v > max);
+		if (!bad) return;
+		fieldError = { key, msg: rangeMsg(key) };
+		e.currentTarget.value = String(model.p[key]);
 	}
 
 	// Transient confirmation, mirroring the old MUI snackbar. aria-live announces
@@ -89,7 +128,7 @@
 	step: number | string,
 	sync?: () => void
 )}
-	<label class="field">
+	<label class="field" class:invalid={fieldError?.key === key}>
 		<span>{label}</span>
 		<input
 			type="number"
@@ -97,30 +136,41 @@
 			{min}
 			{max}
 			{step}
+			aria-invalid={fieldError?.key === key}
 			oninput={(e) => setNum(key, e, min, max, sync)}
+			onchange={(e) => commitNum(key, e, min, max)}
 		/>
 	</label>
+	{#if fieldError?.key === key}
+		<p class="field-error" role="alert">{fieldError.msg}</p>
+	{/if}
 {/snippet}
 
-{#snippet sectionHead(title: string, id: string, text: string)}
+{#snippet sectionHead(title: string, id: string, text?: string)}
 	<div class="group-head">
 		<h3>{title}</h3>
-		<span class="info">
-			<button
-				type="button"
-				class="info-btn"
-				aria-label="About {title}"
-				aria-expanded={openInfo === id}
-				onclick={() => toggleInfo(id)}
-			>
-				?
-			</button>
-			{#if openInfo === id}
-				<span class="info-pop" role="tooltip" transition:fly={{ y: 4, duration: 120 }}>
-					{text}
-				</span>
-			{/if}
-		</span>
+		<!-- Help is reserved for sections whose meaning isn't obvious from the label
+		     (the stats behind Parameters/Presets, the gauges Display toggles). Labels
+		     and Colors carry no popover — a `?` on every section would imply the panel
+		     isn't self-explanatory. -->
+		{#if text}
+			<span class="info">
+				<button
+					type="button"
+					class="info-btn"
+					aria-label="About {title}"
+					aria-expanded={openInfo === id}
+					onclick={() => toggleInfo(id)}
+				>
+					?
+				</button>
+				{#if openInfo === id}
+					<span class="info-pop" role="tooltip" transition:fly={{ y: 4, duration: 120 }}>
+						{text}
+					</span>
+				{/if}
+			</span>
+		{/if}
 	</div>
 {/snippet}
 
@@ -142,7 +192,7 @@
 		{@render sectionHead(
 			'Parameters',
 			'params',
-			"Set the means and standard deviation directly — Cohen's d updates to match. Control event rate is the baseline event proportion, used for number-needed-to-treat."
+			"Set the means and standard deviation directly — Cohen's d updates to match. Control event rate is the baseline event proportion, used only by the number-needed-to-treat gauge."
 		)}
 		{@render numField(`Mean 1 (${model.p.muZeroLabel})`, 'M0', 0, model.p.M1, 'any', () =>
 			model.syncFromMeans()
@@ -152,7 +202,7 @@
 		)}
 		{@render numField('Standard deviation', 'SD', 1, undefined, 'any', () => model.syncFromMeans())}
 		{@render numField('Control event rate (%)', 'CER', 0, 100, 1)}
-		<p class="hint">Tip: double-click the chart to rescale.</p>
+		<p class="hint">Tip: double-click the chart to recenter.</p>
 	</section>
 
 	<section class="group">
@@ -175,54 +225,45 @@
 		</div>
 	</section>
 
-	<section class="group">
-		{@render sectionHead(
-			'Labels',
-			'labels',
-			'Rename the two groups and the x-axis as shown on the chart.'
-		)}
-		<label class="field text">
-			<span>Group 1</span>
-			<input type="text" bind:value={model.p.muZeroLabel} aria-label="Group 1 label" />
-		</label>
-		<label class="field text">
-			<span>Group 2</span>
-			<input type="text" bind:value={model.p.muOneLabel} aria-label="Group 2 label" />
-		</label>
-		<label class="field text">
-			<span>X-axis</span>
-			<input type="text" bind:value={model.p.xLabel} aria-label="x-axis label" />
-		</label>
-	</section>
+	<!-- Presentation controls (labels, colors, gauge toggle) are collapsed together
+	     so the statistical Parameters/Presets dominate the first screen. -->
+	<details class="group collapsible">
+		<summary><h3>Display settings</h3></summary>
+		<div class="collapsible-body">
+			<p class="sub">Labels</p>
+			<label class="field text">
+				<span>Group 1</span>
+				<input type="text" bind:value={model.p.muZeroLabel} aria-label="Group 1 label" />
+			</label>
+			<label class="field text">
+				<span>Group 2</span>
+				<input type="text" bind:value={model.p.muOneLabel} aria-label="Group 2 label" />
+			</label>
+			<label class="field text">
+				<span>X-axis</span>
+				<input type="text" bind:value={model.p.xLabel} aria-label="x-axis label" />
+			</label>
 
-	<section class="group">
-		{@render sectionHead(
-			'Colors',
-			'colors',
-			'Fill colors for the two distributions and their overlap region.'
-		)}
-		<div class="colors">
-			<ColorInput label={model.p.muZeroLabel} bind:value={model.p.colorDist1} />
-			<ColorInput label="Overlap" bind:value={model.p.colorOverlap} />
-			<ColorInput label={model.p.muOneLabel} bind:value={model.p.colorDist2} />
+			<p class="sub">Colors</p>
+			<div class="colors">
+				<ColorInput label={model.p.muZeroLabel} bind:value={model.p.colorDist1} />
+				<ColorInput label="Overlap" bind:value={model.p.colorOverlap} />
+				<ColorInput label={model.p.muOneLabel} bind:value={model.p.colorDist2} />
+			</div>
+
+			<label class="check">
+				<input type="checkbox" bind:checked={model.p.showDonuts} />
+				<span>Effect-size gauges</span>
+			</label>
+			<p class="hint">
+				Cohen’s U₃, % overlap, probability of superiority, and NNT, shown beneath the chart.
+			</p>
 		</div>
-	</section>
+	</details>
 
-	<section class="group">
-		{@render sectionHead(
-			'Display',
-			'display',
-			'Toggle the effect-size gauges (Cohen’s U₃, % overlap, probability of superiority, NNT) shown beneath the chart.'
-		)}
-		<label class="check">
-			<input type="checkbox" bind:checked={model.p.showDonuts} />
-			<span>Effect-size gauges</span>
-		</label>
-	</section>
-
-	<details class="group advanced">
+	<details class="group collapsible">
 		<summary><h3>Advanced — slider range</h3></summary>
-		<div class="advanced-body">
+		<div class="collapsible-body">
 			{@render numField('Max', 'sliderMax', 0.1, undefined, 'any')}
 			{@render numField('Step size', 'sliderStep', 0.001, undefined, 'any')}
 		</div>
@@ -248,14 +289,32 @@
 				Not saved
 			{/if}
 		</p>
-		<button class="btn-primary" type="button" onclick={onSave}>
-			{model.hasSaved ? 'Update saved' : 'Save to browser'}
+		<button
+			class="btn-primary"
+			type="button"
+			disabled={model.hasSaved && !model.isDirty}
+			onclick={onSave}
+		>
+			{model.hasSaved ? 'Save changes' : 'Save to browser'}
 		</button>
 		<div class="minor-actions">
-			<button class="btn-ghost" type="button" disabled={!model.hasSaved} onclick={onClear}>
+			<button
+				class="btn-ghost"
+				type="button"
+				disabled={!model.hasSaved}
+				title="Remove the settings saved in this browser"
+				onclick={onClear}
+			>
 				Clear saved
 			</button>
-			<button class="btn-ghost" type="button" onclick={() => model.reset()}>Reset</button>
+			<button
+				class="btn-ghost"
+				type="button"
+				title="Restore every setting to its default value"
+				onclick={() => model.reset()}
+			>
+				Reset to defaults
+			</button>
 		</div>
 	</section>
 </aside>
@@ -284,6 +343,10 @@
 		border-left: 1px solid var(--rule);
 		box-shadow: var(--shadow-md);
 		overflow-y: auto;
+		/* Reserve the scrollbar gutter permanently so opening a foldout (which tips
+		   the panel into overflow) doesn't make a classic scrollbar appear and shove
+		   all the content left. No-op where scrollbars are overlaid. */
+		scrollbar-gutter: stable;
 	}
 	/* Small screens: a full-width temporary drawer you dismiss to see the viz. */
 	@media (max-width: 48rem) {
@@ -333,9 +396,15 @@
 		padding-top: 0.85rem;
 	}
 	/* Hairline divider between sections chunks the panel without the extra
-	   whitespace that pure gaps would add (the panel is height-constrained). */
+	   whitespace that pure gaps would add (the panel is height-constrained). The
+	   margin balances the rule between the two sections — the group's padding-top
+	   sits below the line, this margin above it — so the divider stops hugging the
+	   section above. `:not(.actions)` preserves the sticky footer's margin-top:auto. */
 	.group + .group {
 		border-top: 1px solid var(--rule);
+	}
+	.group + .group:not(.actions) {
+		margin-top: 0.85rem;
 	}
 	/* Sticky footer: the panel scrolls but Save/Clear/Reset stay visible, so the
 	   primary actions never fall below the fold on a short viewport. Negative
@@ -452,6 +521,16 @@
 		font-size: 0.75rem;
 		color: var(--muted);
 	}
+	/* Validation feedback for a rejected numeric entry (e.g. Treatment < Control). */
+	.field-error {
+		margin: -0.15rem 0 0;
+		font-size: 0.72rem;
+		line-height: 1.3;
+		color: #b3261e;
+	}
+	.field.invalid input {
+		border-color: #b3261e;
+	}
 	/* One swatch per row so they don't wrap 2-then-1. */
 	.colors {
 		display: flex;
@@ -525,9 +604,13 @@
 			background 0.15s,
 			border-color 0.15s;
 	}
-	.btn-primary:hover {
+	.btn-primary:hover:not(:disabled) {
 		background: var(--accent-hover);
 		border-color: var(--accent-hover);
+	}
+	.btn-primary:disabled {
+		opacity: 0.4;
+		cursor: default;
 	}
 	.minor-actions {
 		display: flex;
@@ -556,22 +639,23 @@
 		cursor: default;
 	}
 
-	/* Advanced (rare slider max/step) collapsed by default so the common controls
-	   dominate the first screen. The <details> marker is replaced by a chevron. */
-	.advanced {
+	/* Collapsible sections (Display settings, Advanced) closed by default so the
+	   statistical controls dominate the first screen. The <details> marker is
+	   replaced by a chevron. */
+	.collapsible {
 		gap: 0;
 	}
-	.advanced summary {
+	.collapsible summary {
 		display: flex;
 		align-items: center;
 		gap: 0.35rem;
 		cursor: pointer;
 		list-style: none;
 	}
-	.advanced summary::-webkit-details-marker {
+	.collapsible summary::-webkit-details-marker {
 		display: none;
 	}
-	.advanced summary::before {
+	.collapsible summary::before {
 		content: '';
 		width: 0.5rem;
 		height: 0.5rem;
@@ -580,17 +664,36 @@
 		transform: rotate(-45deg);
 		transition: transform 0.15s;
 	}
-	.advanced[open] summary::before {
+	.collapsible[open] summary::before {
 		transform: rotate(45deg);
 	}
-	.advanced summary h3 {
+	.collapsible summary h3 {
 		margin: 0;
 	}
-	.advanced-body {
+	.collapsible-body {
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
 		padding-top: 0.6rem;
+	}
+	/* Advanced is the last foldout, so when the panel scrolls (the footer's
+	   margin-top:auto collapses) its open body would sit flush against the sticky
+	   footer. Give that body room to breathe. Scoped to the last collapsible so the
+	   Display→Advanced divider keeps its symmetric spacing. */
+	.collapsible:last-of-type .collapsible-body {
+		padding-bottom: 0.85rem;
+	}
+	/* Sub-group labels inside Display settings (Labels / Colors). */
+	.sub {
+		margin: 0.5rem 0 0;
+		font-size: 0.68rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: var(--muted);
+	}
+	.collapsible-body > .sub:first-child {
+		margin-top: 0;
 	}
 	.save-status {
 		margin: 0 0 0.1rem;
@@ -601,10 +704,15 @@
 		color: var(--ink);
 	}
 
-	/* Transient save/clear confirmation (replaces the old MUI snackbar). Sits at
-	   the top of the sticky footer, so it's always on screen when it fires. */
+	/* Transient save/clear confirmation (replaces the old MUI snackbar). Floats
+	   just above the sticky footer's top border, anchored to .actions (which is
+	   `position: sticky`, so it's the containing block). Out of normal flow so it
+	   never reflows the footer — otherwise its appearance shoves the divider up. */
 	.toast {
-		margin-bottom: 0.2rem;
+		position: absolute;
+		left: 1.1rem;
+		right: 1.1rem;
+		bottom: calc(100% + 0.4rem);
 		padding: 0.5rem 0.75rem;
 		border-radius: var(--radius-sm);
 		font-size: 0.82rem;
@@ -612,6 +720,7 @@
 		text-align: center;
 		background: var(--accent-soft);
 		color: var(--accent);
+		box-shadow: 0 2px 8px rgb(0 0 0 / 0.12);
 	}
 	.toast.err {
 		background: color-mix(in srgb, red 14%, var(--panel));

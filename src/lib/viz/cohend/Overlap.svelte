@@ -37,8 +37,15 @@
 		m1.set(model.p.M1, { duration: model.immediate ? 0 : 400 });
 	});
 
-	// Horizontal pan offset (data units), reset on double-click.
+	// Horizontal pan offset (data units). A rescale request — double-click or the
+	// toolbar's recenter button — clears it via this effect, so re-fitting always
+	// recenters too. Driving it off the token (not the dblclick handler) is what
+	// lets the out-of-component button reset pan without reaching into this state.
 	let pan = $state(0);
+	$effect(() => {
+		model.rescaleToken;
+		pan = 0;
+	});
 
 	// Frozen domain (M0 - 3·SD to M1 + 3·SD), recomputed only on init/rescale —
 	// not on every d change. This is what keeps the control distribution fixed on
@@ -115,10 +122,7 @@
 				ondrag: onDrag,
 				onend: () => (model.immediate = false)
 			}}
-			ondblclick={() => {
-				model.rescale();
-				pan = 0;
-			}}
+			ondblclick={() => model.rescale()}
 		>
 			<defs>
 				<marker
