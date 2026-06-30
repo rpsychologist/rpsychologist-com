@@ -16,6 +16,12 @@
 	--accent: #2563eb; /* blue — interactive controls & live figures ONLY */
 	--accent-hover: #1d4ed8;
 	--accent-soft: #e8effd;
+	/* Viz-family accent: a mid-teal in the cohend overlap family (the chart's
+	   "where the two distributions mix" colour is the deeper #234651). Used for a
+	   figure's chrome — slider, gauge arcs, in-tool buttons — so the tool reads in
+	   one family instead of competing blues. Lifted off the true overlap fill so it
+	   doesn't read as heavy/dim as chrome; comfortably AA on white for button text. */
+	--viz-accent: #2a6678;
 	--on-accent: #fff; /* text/icon color on an --accent fill */
 	--track: #d4d4d4; /* unfilled slider groove */
 	--marginal: #d97706; /* amber-600 — the pinned reference, distinct from accent */
@@ -54,6 +60,7 @@
 	--accent: #5b91f5;
 	--accent-hover: #84acf8;
 	--accent-soft: rgba(91, 145, 245, 0.16);
+	--viz-accent: #4f8ba0; /* overlap teal lifted off the dark bg for contrast */
 	--on-accent: #0b1220; /* dark ink reads clearly on the light dark-mode accent */
 	--track: #3a3a3a;
 	--marginal: #fbbf24;

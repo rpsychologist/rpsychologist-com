@@ -37,10 +37,11 @@
 		m1.set(model.p.M1, { duration: model.immediate ? 0 : 400 });
 	});
 
-	// Horizontal pan offset (data units). A rescale request — double-click or the
-	// toolbar's recenter button — clears it via this effect, so re-fitting always
-	// recenters too. Driving it off the token (not the dblclick handler) is what
-	// lets the out-of-component button reset pan without reaching into this state.
+	// Horizontal pan offset (data units). A rescale request (double-click, or any
+	// out-of-component caller bumping rescaleToken) clears it via this effect, so
+	// re-fitting always recenters too. Driving it off the token rather than the
+	// dblclick handler lets an external caller reset pan without reaching into
+	// this state.
 	let pan = $state(0);
 	$effect(() => {
 		model.rescaleToken;

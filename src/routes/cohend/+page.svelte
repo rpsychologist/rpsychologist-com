@@ -87,113 +87,108 @@
 		</p>
 	</div>
 
-	<div class="control-bar">
-		<label class="d-input">
-			<span>Cohen's <em>d</em></span>
-			<input
-				type="number"
-				min="0"
-				max={model.p.sliderMax}
-				step={model.p.sliderStep}
-				value={model.p.cohend}
-				oninput={(e) => {
-					const v = e.currentTarget.valueAsNumber;
-					if (!Number.isFinite(v)) return;
-					// Floor at 0 so the treatment mean can't drop below control (bind would
-					// ignore the min and let a typed -1 push it below). The slider + chart
-					// snapping back to 0 is the visible feedback.
-					model.p.cohend = Math.max(0, v);
-					model.syncFromCohend();
-				}}
-			/>
-		</label>
-		<div class="icons">
-			<!-- The settings panel holds the bulk of the tool (means, SD, CER, labels,
+	<!-- The interactive tool (controls, chart, gauges, settings drawer) shares one
+	     accent: the overlap teal, not the royal site accent. display:contents so the
+	     wrapper retints without adding a box that would alter layout or trap the
+	     fixed settings drawer. The prose + gallery below keep the site accent. -->
+	<div class="viz-tool">
+		<div class="control-bar">
+			<label class="d-input">
+				<span>Cohen's <em>d</em></span>
+				<input
+					type="number"
+					min="0"
+					max={model.p.sliderMax}
+					step={model.p.sliderStep}
+					value={model.p.cohend}
+					oninput={(e) => {
+						const v = e.currentTarget.valueAsNumber;
+						if (!Number.isFinite(v)) return;
+						// Floor at 0 so the treatment mean can't drop below control (bind would
+						// ignore the min and let a typed -1 push it below). The slider + chart
+						// snapping back to 0 is the visible feedback.
+						model.p.cohend = Math.max(0, v);
+						model.syncFromCohend();
+					}}
+				/>
+			</label>
+			<div class="icons">
+				<!-- The settings panel holds the bulk of the tool (means, SD, CER, labels,
 			     colors), so it carries a visible label — a bare gear hides how much
 			     lives behind it. The remaining controls stay icon-only. -->
-			<button
-				class={['icon-btn', 'labeled', { on: settingsOpen }]}
-				aria-label="Settings"
-				aria-expanded={settingsOpen}
-				onclick={() => (settingsOpen = !settingsOpen)}
-			>
-				<svg viewBox="0 0 24 24" aria-hidden="true">
-					<circle cx="12" cy="12" r="3" />
-					<path
-						d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
-					/>
-				</svg>
-				<span class="btn-label">Settings</span>
-			</button>
-			<button
-				class="icon-btn"
-				aria-label="Recenter chart"
-				title="Recenter chart"
-				onclick={() => model.rescale()}
-			>
-				<svg viewBox="0 0 24 24" aria-hidden="true">
-					<path
-						d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"
-					/>
-					<circle cx="12" cy="12" r="2" />
-				</svg>
-			</button>
-			<button class="icon-btn" aria-label="Download SVG" title="Download SVG" onclick={download}>
-				<svg viewBox="0 0 24 24" aria-hidden="true">
-					<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
-				</svg>
-			</button>
-			<button class="icon-btn" aria-label="Share" title="Share" onclick={() => (shareOpen = true)}>
-				<svg viewBox="0 0 24 24" aria-hidden="true">
-					<circle cx="18" cy="5" r="3" />
-					<circle cx="6" cy="12" r="3" />
-					<circle cx="18" cy="19" r="3" />
-					<path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" />
-				</svg>
-			</button>
-			<a class="icon-btn" href="#faq" aria-label="Help" title="Help">
-				<svg viewBox="0 0 24 24" aria-hidden="true">
-					<circle cx="12" cy="12" r="10" />
-					<path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-					<line x1="12" y1="17" x2="12.01" y2="17" />
-				</svg>
-			</a>
+				<button
+					class={['icon-btn', 'labeled', { on: settingsOpen }]}
+					aria-label="Settings"
+					aria-expanded={settingsOpen}
+					onclick={() => (settingsOpen = !settingsOpen)}
+				>
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<circle cx="12" cy="12" r="3" />
+						<path
+							d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+						/>
+					</svg>
+					<span class="btn-label">Settings</span>
+				</button>
+				<!-- Utility cluster, separated from the labeled Settings pill so the bar
+			     reads "primary control | utilities". Recenter is double-click +
+			     fig-hint already; Help duplicated the FAQ below — both dropped. -->
+				<span class="icon-divider" aria-hidden="true"></span>
+				<button class="icon-btn" aria-label="Download SVG" title="Download SVG" onclick={download}>
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
+					</svg>
+				</button>
+				<button
+					class="icon-btn"
+					aria-label="Share"
+					title="Share"
+					onclick={() => (shareOpen = true)}
+				>
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<circle cx="18" cy="5" r="3" />
+						<circle cx="6" cy="12" r="3" />
+						<circle cx="18" cy="19" r="3" />
+						<path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" />
+					</svg>
+				</button>
+			</div>
 		</div>
+
+		<Slider
+			id="cohend-d"
+			min={0}
+			max={model.p.sliderMax}
+			step={model.p.sliderStep}
+			format={d2}
+			bind:value={model.p.cohend}
+			oninput={() => model.syncFromCohend()}
+			onpointerdown={(e) => {
+				dragStartX = e.clientX;
+				model.immediate = false;
+			}}
+			onpointermove={(e) => {
+				// Only a real drag (past a small threshold) updates immediately; a click —
+				// which often emits a tiny pointermove — keeps animating, so re-clicking
+				// mid-transition doesn't snap.
+				if (Math.abs(e.clientX - dragStartX) > 4) model.immediate = true;
+			}}
+			onpointerup={() => (model.immediate = false)}
+		/>
+
+		<Overlap {model} bind:svg />
+		<p class="fig-hint">Drag the chart to pan · double-click to recenter.</p>
+
+		{#if model.p.showDonuts}
+			<Donuts {model} />
+		{/if}
+
+		{#if settingsOpen}
+			<Settings {model} bind:open={settingsOpen} />
+		{/if}
+
+		<ShareDialog {model} bind:open={shareOpen} />
 	</div>
-
-	<Slider
-		id="cohend-d"
-		min={0}
-		max={model.p.sliderMax}
-		step={model.p.sliderStep}
-		format={d2}
-		bind:value={model.p.cohend}
-		oninput={() => model.syncFromCohend()}
-		onpointerdown={(e) => {
-			dragStartX = e.clientX;
-			model.immediate = false;
-		}}
-		onpointermove={(e) => {
-			// Only a real drag (past a small threshold) updates immediately; a click —
-			// which often emits a tiny pointermove — keeps animating, so re-clicking
-			// mid-transition doesn't snap.
-			if (Math.abs(e.clientX - dragStartX) > 4) model.immediate = true;
-		}}
-		onpointerup={() => (model.immediate = false)}
-	/>
-
-	<Overlap {model} bind:svg />
-	<p class="fig-hint">Drag the chart to pan · double-click to recenter.</p>
-
-	{#if model.p.showDonuts}
-		<Donuts {model} />
-	{/if}
-
-	{#if settingsOpen}
-		<Settings {model} bind:open={settingsOpen} />
-	{/if}
-
-	<ShareDialog {model} bind:open={shareOpen} />
 
 	<section class="cl-section">
 		<h2>A Common Language Explanation</h2>
@@ -450,7 +445,15 @@
 	}
 	.icons {
 		display: flex;
+		align-items: center;
 		gap: 0.25rem;
+	}
+	/* Splits the labeled Settings pill from the icon-only utilities. */
+	.icon-divider {
+		width: 1px;
+		align-self: stretch;
+		margin: 0.2rem 0.4rem;
+		background: var(--rule);
 	}
 	.icon-btn {
 		display: inline-flex;
@@ -499,6 +502,11 @@
 		stroke-width: 2;
 		stroke-linecap: round;
 		stroke-linejoin: round;
+	}
+
+	.viz-tool {
+		display: contents;
+		--accent: var(--viz-accent);
 	}
 
 	.cl-section {

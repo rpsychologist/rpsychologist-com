@@ -6,11 +6,12 @@
 	import type { CohendState } from './cohend.svelte';
 
 	// Four gauges translating Cohen's d into interpretable quantities. U3, overlap,
-	// and probability of superiority are proportions: a blue arc fills to the value.
-	// NNT is an unbounded count, not a proportion, so it gets no progress arc — a
-	// filled arc would read as a percentage and invite the wrong "fuller = bigger"
-	// comparison. It renders as a neutral full-ring medallion with the count in the
-	// centre, visibly a different kind of quantity from the three blue gauges.
+	// and probability of superiority are simple proportions: a single arc fills to
+	// the value. NNT is a count, but its donut is the reciprocal decomposition (as
+	// in the original tool): the ring stacks the control event rate (CER, those who
+	// respond at baseline) and the treatment's added responders (ARR = 1/NNT) over
+	// an empty remainder, with NNT itself in the centre. A real ring keeps the row
+	// balanced and is more informative than a bare number.
 	// Fractions are tweened so the rings (and the NNT count, via 1/arr) ease.
 	interface Props {
 		model: CohendState;
@@ -42,40 +43,43 @@
 
 	const R = 46;
 	const arcGen = arc();
-	function ringPath(frac: number) {
+	function ringArc(start: number, end: number) {
 		return (
 			arcGen({
 				innerRadius: R - 11,
 				outerRadius: R,
-				startAngle: 0,
-				endAngle: 2 * Math.PI * frac
+				startAngle: 2 * Math.PI * start,
+				endAngle: 2 * Math.PI * end
 			} as DefaultArcObject) ?? ''
 		);
 	}
-	const ring = ringPath(1);
-	const wedge = (frac: number) => ringPath(frac);
+	const ring = ringArc(0, 1);
+	const wedge = (frac: number) => ringArc(0, frac);
+
+	// CER is a proportion in [0,1]; the NNT ring stacks it under the ARR wedge.
+	const cer = $derived(model.p.CER / 100);
 
 	// Labels read from the tweened values so every number counts up in step with
 	// its arc (matching the old animated donut labels).
 	const gauges = $derived([
-		{ label: 'Cohen’s U₃', frac: fracs.current.u3, center: pct(fracs.current.u3), count: false },
+		{ label: 'Cohen’s U₃', frac: fracs.current.u3, center: pct(fracs.current.u3), nnt: false },
 		{
 			label: '% Overlap',
 			frac: fracs.current.overlap,
 			center: pct(fracs.current.overlap),
-			count: false
+			nnt: false
 		},
 		{
 			label: 'Probability of Superiority',
 			frac: fracs.current.cles,
 			center: pct(fracs.current.cles),
-			count: false
+			nnt: false
 		},
 		{
 			label: 'Number Needed to Treat',
 			frac: fracs.current.arr,
 			center: fracs.current.arr > 0 ? nntFmt(1 / fracs.current.arr) : '∞',
-			count: true
+			nnt: true
 		}
 	]);
 </script>
@@ -84,10 +88,14 @@
 	{#each gauges as g (g.label)}
 		<figure class="donut">
 			<svg viewBox="-60 -60 120 120" role="img" aria-label="{g.label}: {g.center}">
-				{#if g.count}
-					<path d={ring} class="ring-count" />
+				<path d={ring} class="ring-bg" />
+				{#if g.nnt}
+					<!-- Stacked: baseline responders (CER) then treatment's added
+					     responders (ARR = g.frac), clamped so a rounding overshoot
+					     can't wrap past the full ring. -->
+					<path d={ringArc(0, cer)} class="ring-cer" />
+					<path d={ringArc(cer, Math.min(1, cer + g.frac))} class="ring-fg" />
 				{:else}
-					<path d={ring} class="ring-bg" />
 					<path d={wedge(g.frac)} class="ring-fg" />
 				{/if}
 				<text class="center" text-anchor="middle" dominant-baseline="central">{g.center}</text>
@@ -121,12 +129,12 @@
 		fill: var(--track);
 	}
 	.ring-fg {
-		fill: #4a7fb5;
+		fill: var(--viz-accent);
 	}
-	/* NNT is a count, not a proportion: a complete neutral ring frames the number
-	   without implying a percentage. */
-	.ring-count {
-		fill: var(--track);
+	/* NNT baseline (CER) wedge — a neutral grey for "would respond anyway", set
+	   off from the accent ARR wedge that follows it. */
+	.ring-cer {
+		fill: var(--muted);
 	}
 	.center {
 		fill: var(--ink);
