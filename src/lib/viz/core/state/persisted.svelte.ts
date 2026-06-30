@@ -37,21 +37,36 @@ export class Persisted<T extends object> {
 		}
 	}
 
-	save() {
-		if (!browser) return;
+	/** The raw stored blob (for dirty-checking), or null if nothing is saved. */
+	raw(): string | null {
+		if (!browser) return null;
 		try {
-			localStorage.setItem(this.#key, JSON.stringify(this.current));
+			return localStorage.getItem(this.#key);
 		} catch {
-			// ignore storage failures (private mode, quota)
+			return null;
 		}
 	}
 
-	clear() {
-		if (!browser) return;
+	/** Returns whether the write succeeded, so callers can confirm to the user. */
+	save(): boolean {
+		if (!browser) return false;
+		try {
+			localStorage.setItem(this.#key, JSON.stringify(this.current));
+			return true;
+		} catch {
+			// storage failure (private mode, quota)
+			return false;
+		}
+	}
+
+	/** Returns whether the removal succeeded. */
+	clear(): boolean {
+		if (!browser) return false;
 		try {
 			localStorage.removeItem(this.#key);
+			return true;
 		} catch {
-			// ignore
+			return false;
 		}
 	}
 }

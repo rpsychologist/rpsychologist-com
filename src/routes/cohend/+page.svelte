@@ -65,7 +65,7 @@
 	path="/cohend"
 />
 
-<div class="page">
+<div class="page" class:settings-open={settingsOpen}>
 	<header class="hero">
 		<h1>Interpreting Cohen's <em>d</em> Effect Size</h1>
 		<p class="subtitle">An Interactive Visualization</p>
@@ -101,8 +101,9 @@
 		</label>
 		<div class="icons">
 			<button
-				class="icon-btn"
+				class={['icon-btn', { on: settingsOpen }]}
 				aria-label="Settings"
+				aria-expanded={settingsOpen}
 				title="Settings"
 				onclick={() => (settingsOpen = !settingsOpen)}
 			>
@@ -157,15 +158,18 @@
 		onpointerup={() => (model.immediate = false)}
 	/>
 
-	<Settings {model} bind:open={settingsOpen} />
-	<ShareDialog {model} bind:open={shareOpen} />
-
 	<Overlap {model} bind:svg />
 	<p class="fig-hint">Drag the chart to pan · double-click to reset.</p>
 
 	{#if model.p.showDonuts}
 		<Donuts {model} />
 	{/if}
+
+	{#if settingsOpen}
+		<Settings {model} bind:open={settingsOpen} />
+	{/if}
+
+	<ShareDialog {model} bind:open={shareOpen} />
 
 	<section class="cl-section">
 		<h2>A Common Language Explanation</h2>
@@ -313,9 +317,45 @@
 	   px (not rem) because the target dimensions are specific and the site's root
 	   font is 18px. */
 	.page {
+		--panel-w: 320px;
+		/* Drawer footprint: its width plus a breathing gap. */
+		--reserve: calc(var(--panel-w) + 1.5rem);
+		box-sizing: border-box;
 		max-width: 1232px;
 		margin: 0 auto;
 		padding: 2.5rem 1.25rem 4rem;
+		/* Anchor for the open-state `left` shift. position:relative (not transform)
+		   so the drawer — which is position:fixed and rendered inside .page — still
+		   anchors to the viewport; a transform would make .page its containing
+		   block. Both `left` and `max-width` animate so the shift is smooth. */
+		position: relative;
+		left: 0;
+		transition:
+			left 0.2s ease,
+			max-width 0.2s ease;
+	}
+	/* When the drawer opens, shrink the centering area by the drawer footprint and
+	   re-center the page in what's left — the old layout gave its content a
+	   margin-right of the drawer width and let the centered container re-center.
+	   Capping max-width keeps the viz full width until the leftover space is
+	   narrower than it (then it shrinks); the left shift of half the footprint
+	   keeps the result centered in the visible area rather than hugging the
+	   drawer. */
+	.page.settings-open {
+		max-width: min(1232px, calc(100vw - var(--reserve) - 2.5rem));
+		left: calc(-1 * var(--reserve) / 2);
+	}
+	/* Small screens: the drawer is a full-width overlay, so don't reserve or shift. */
+	@media (max-width: 48rem) {
+		.page.settings-open {
+			max-width: 1232px;
+			left: 0;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.page {
+			transition: none;
+		}
 	}
 	.hero,
 	.intro,
@@ -391,7 +431,8 @@
 		cursor: pointer;
 		transition: color 0.15s;
 	}
-	.icon-btn:hover {
+	.icon-btn:hover,
+	.icon-btn.on {
 		color: var(--accent);
 	}
 	.icon-btn svg {

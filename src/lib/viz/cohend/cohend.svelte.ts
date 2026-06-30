@@ -79,6 +79,26 @@ export class CohendState {
 	/** Set while a value is being dragged so the consumer can skip tweening. */
 	immediate = $state(false);
 
+	/** Serialized snapshot of what's in localStorage (null = nothing saved).
+	 * Drives the panel's "saved / unsaved changes" indicators. */
+	#savedJSON = $state<string | null>(null);
+	get hasSaved(): boolean {
+		return this.#savedJSON !== null;
+	}
+	#dirtyCache = false;
+	/** True when there's a saved blob and the current params differ from it.
+	 * During a drag (`immediate`) the per-frame stringify is skipped and the last
+	 * value is reused — there's no UX gain in updating mid-drag, and this also
+	 * avoids a spurious flash when *panning* the chart (which sets `immediate` but
+	 * changes no params). `onpointerup`/`onend` clear `immediate`, re-running this
+	 * so the status resolves accurately on release. (`#dirtyCache` is a plain memo,
+	 * not reactive state, so writing it here can't cause a reactive loop.) */
+	readonly isDirty = $derived.by(() => {
+		if (this.immediate) return this.#dirtyCache;
+		this.#dirtyCache = this.#savedJSON !== null && JSON.stringify(this.p) !== this.#savedJSON;
+		return this.#dirtyCache;
+	});
+
 	/** The editable parameters (a reactive object). */
 	get p(): CohendParams {
 		return this.#store.current;
@@ -125,6 +145,7 @@ export class CohendState {
 	 */
 	init(search: string) {
 		this.#store.restore();
+		this.#savedJSON = this.#store.raw();
 		const patch = readParams(codecMap, search);
 		Object.assign(this.p, patch);
 		// Re-establish the d ⇄ means invariant from whichever side the URL set.
@@ -139,11 +160,17 @@ export class CohendState {
 		return buildQuery(codecMap, this.p, defaults);
 	}
 
-	save() {
-		this.#store.save();
+	/** Persist current params; returns success so the panel can toast/confirm. */
+	save(): boolean {
+		const ok = this.#store.save();
+		if (ok) this.#savedJSON = JSON.stringify(this.p);
+		return ok;
 	}
 
-	clearSaved() {
-		this.#store.clear();
+	/** Remove the saved blob; returns success. */
+	clearSaved(): boolean {
+		const ok = this.#store.clear();
+		if (ok) this.#savedJSON = null;
+		return ok;
 	}
 }
