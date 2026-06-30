@@ -17,7 +17,7 @@
 </script>
 
 <button
-	class="theme-toggle"
+	class="theme-toggle card-sm"
 	onclick={toggle}
 	aria-label="Toggle dark mode"
 	title="Toggle dark mode"
@@ -59,9 +59,6 @@
 		justify-content: center;
 		width: 36px;
 		height: 36px;
-		border: 1px solid var(--rule);
-		border-radius: var(--radius-sm);
-		background: var(--panel);
 		color: var(--muted);
 		cursor: pointer;
 		transition:

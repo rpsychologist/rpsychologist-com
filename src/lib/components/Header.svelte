@@ -35,7 +35,7 @@
 		<div class="actions">
 			{#each socials as s (s.name)}
 				<a
-					class="social"
+					class="social icon-link"
 					href={s.href}
 					aria-label={s.label}
 					target="_blank"
@@ -94,7 +94,7 @@
 			<div class="mobile-socials">
 				{#each socials as s (s.name)}
 					<a
-						class="social"
+						class="social icon-link"
 						href={s.href}
 						aria-label={s.label}
 						target="_blank"
@@ -115,7 +115,7 @@
 		border-bottom: 1px solid var(--rule);
 	}
 	.bar {
-		max-width: 72rem;
+		max-width: var(--container);
 		margin: 0 auto;
 		padding: 0.6rem 1.25rem;
 		display: flex;
@@ -149,14 +149,8 @@
 		align-items: center;
 		gap: 0.6rem;
 	}
-	.social {
-		color: var(--muted);
-		display: inline-flex;
-		transition: color 0.15s;
-	}
-	.social:hover {
-		color: var(--accent);
-	}
+	/* Colour + hover come from the global .icon-link; .social stays as the
+	   layout/visibility hook (hidden on mobile below). */
 	.menu-toggle {
 		display: none;
 		align-items: center;

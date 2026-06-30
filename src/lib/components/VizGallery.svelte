@@ -8,7 +8,7 @@
 <ul class="viz-grid">
 	{#each items as v (v.title)}
 		<li>
-			<a href={v.href} rel={v.href.startsWith('http') ? 'external' : undefined}>
+			<a class="card" href={v.href} rel={v.href.startsWith('http') ? 'external' : undefined}>
 				<span class="screen"><VizGlyph name={v.glyph} /></span>
 				<span class="name">{v.title}</span>
 				<span class="desc">{v.description}</span>
@@ -37,9 +37,6 @@
 		gap: 0.75rem;
 		flex: 1;
 		padding: 0.85rem;
-		background: var(--panel);
-		border: 1px solid var(--rule);
-		border-radius: var(--radius);
 		text-decoration: none;
 		color: var(--ink);
 		transition: border-color 0.15s;

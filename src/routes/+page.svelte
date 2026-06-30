@@ -135,14 +135,9 @@
 		padding-bottom: 0.5rem;
 		border-bottom: 1px solid var(--rule);
 	}
+	/* Identity comes from the global .eyebrow; only the margin differs here. */
 	.eyebrow {
 		margin: 0;
-		font-family: var(--font-heading);
-		font-size: 0.78rem;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
-		color: var(--muted);
 	}
 	/* Mirror the header link at the foot so a scroll-to-end reader isn't dead-ended. */
 	.block-foot {

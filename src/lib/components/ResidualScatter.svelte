@@ -135,7 +135,7 @@
 	const fmt = format('+.2f');
 </script>
 
-<figure class="resid">
+<figure class="card resid">
 	<div class="sliders">
 		<label class="slider">
 			<span class="slider-label">Correlation between comorbidity and income </span>
@@ -345,9 +345,6 @@
 	.resid {
 		margin: 2rem 0;
 		padding: 1.25rem 1.25rem 1rem;
-		border: 1px solid var(--rule);
-		border-radius: var(--radius);
-		background: var(--panel);
 		box-shadow: var(--shadow);
 	}
 	/* The card is tall (two auxiliary panels above the main scatter), so the sliders

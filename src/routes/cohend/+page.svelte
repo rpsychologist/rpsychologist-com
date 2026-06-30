@@ -96,6 +96,7 @@
 			<label class="d-input">
 				<span>Cohen's <em>d</em></span>
 				<input
+					class="card-sm"
 					type="number"
 					min="0"
 					max={model.p.sliderMax}
@@ -460,9 +461,6 @@
 		width: 4.5rem;
 		font: inherit;
 		padding: 0.3rem 0.5rem;
-		border: 1px solid var(--rule);
-		border-radius: var(--radius-sm);
-		background: var(--panel);
 		color: var(--ink);
 	}
 	.icons {
@@ -477,27 +475,8 @@
 		margin: 0.2rem 0.4rem;
 		background: var(--rule);
 	}
-	.icon-btn {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		width: 34px;
-		height: 34px;
-		border: none;
-		background: none;
-		/* Between --muted and --ink: the toolbar icons are functional, so they
-		   should sit clearly above muted decoration without reading as body text. */
-		color: color-mix(in srgb, var(--ink), var(--muted));
-		border-radius: var(--radius-sm);
-		cursor: pointer;
-		transition:
-			color 0.15s,
-			border-color 0.15s;
-	}
-	.icon-btn:hover,
-	.icon-btn.on {
-		color: var(--accent);
-	}
+	/* Base .icon-btn (box, default colour, accent hover) is the global one in
+	   article.css; only the labeled pill variant is local. */
 	/* The labeled settings button reads as a distinct control (bordered pill) so the
 	   panel behind it is discoverable, not hidden behind a bare glyph. */
 	.icon-btn.labeled {

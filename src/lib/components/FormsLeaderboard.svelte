@@ -94,7 +94,7 @@
 	);
 </script>
 
-<figure class="leader">
+<figure class="card leader">
 	<div class="controls">
 		<span class="controls-label">Enter into the model:</span>
 		{#each forms as f (f.key)}
@@ -126,9 +126,6 @@
 	.leader {
 		margin: 2rem 0;
 		padding: 1.25rem 1.25rem 1rem;
-		border: 1px solid var(--rule);
-		border-radius: var(--radius);
-		background: var(--panel);
 		box-shadow: var(--shadow);
 	}
 	.controls {

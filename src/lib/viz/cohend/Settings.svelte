@@ -181,7 +181,12 @@
 >
 	<header class="panel-head">
 		<h2>Settings</h2>
-		<button class="close" type="button" aria-label="Close settings" onclick={() => (open = false)}>
+		<button
+			class="close icon-btn"
+			type="button"
+			aria-label="Close settings"
+			onclick={() => (open = false)}
+		>
 			<svg viewBox="0 0 24 24" aria-hidden="true">
 				<path d="M18 6 6 18M6 6l12 12" />
 			</svg>
@@ -364,21 +369,13 @@
 		font-size: 1rem;
 		color: var(--heading);
 	}
+	/* Box + accent hover from the global .icon-btn; close is a touch smaller and
+	   sits muted by default, and pulls flush to the panel edge. */
 	.close {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
 		width: 30px;
 		height: 30px;
 		margin-right: -0.4rem;
-		border: none;
-		background: none;
 		color: var(--muted);
-		border-radius: var(--radius-sm);
-		cursor: pointer;
-	}
-	.close:hover {
-		color: var(--accent);
 	}
 	.close svg {
 		width: 18px;

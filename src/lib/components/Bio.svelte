@@ -21,7 +21,13 @@
 		<div class="bio-follow">
 			<span class="bio-label">Follow</span>
 			{#each follow as f (f.name)}
-				<a href={f.href} aria-label={f.label} target="_blank" rel="noopener external">
+				<a
+					class="icon-link"
+					href={f.href}
+					aria-label={f.label}
+					target="_blank"
+					rel="noopener external"
+				>
 					<Icon name={f.name} size={18} />
 				</a>
 			{/each}
@@ -67,12 +73,5 @@
 	.bio-label {
 		color: var(--muted);
 	}
-	.bio-follow a {
-		display: inline-flex;
-		color: var(--muted);
-		transition: color 0.15s;
-	}
-	.bio-follow a:hover {
-		color: var(--accent);
-	}
+	/* Icon links use the global .icon-link (muted → accent on hover). */
 </style>

@@ -22,7 +22,7 @@
 	const h = (p: number) => `${Math.min(100, (p / barMax) * 100)}%`;
 </script>
 
-<figure class="dist">
+<figure class="card dist">
 	<div class="controls">
 		<div class="sliders">
 			<label>
@@ -130,9 +130,6 @@
 	.dist {
 		margin: 2rem 0;
 		padding: 1.25rem;
-		border: 1px solid var(--rule);
-		border-radius: var(--radius);
-		background: var(--panel);
 		box-shadow: var(--shadow);
 	}
 	.controls {

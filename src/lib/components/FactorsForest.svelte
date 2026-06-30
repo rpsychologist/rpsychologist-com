@@ -131,7 +131,7 @@
 	const tw = Tween.of(() => coefByKey, { duration: 420, easing: cubicOut });
 </script>
 
-<figure class="forest">
+<figure class="card forest">
 	<div class="controls">
 		<span class="controls-label">Choose adjustment variables:</span>
 		{#each scenario.covariates as cov (cov.key)}
@@ -255,9 +255,6 @@
 	.forest {
 		margin: 2rem 0;
 		padding: 1.25rem 1.25rem 1rem;
-		border: 1px solid var(--rule);
-		border-radius: var(--radius);
-		background: var(--panel);
 		box-shadow: var(--shadow);
 	}
 	.controls {

@@ -66,7 +66,7 @@
 		margin-top: 4rem;
 	}
 	.inner {
-		max-width: 72rem;
+		max-width: var(--container);
 		margin: 0 auto;
 		padding: 3rem 1.25rem 1.5rem;
 		display: grid;
@@ -112,7 +112,7 @@
 		color: #fff;
 	}
 	.legal {
-		max-width: 72rem;
+		max-width: var(--container);
 		margin: 0 auto;
 		padding: 1.25rem;
 		border-top: 1px solid rgba(255, 255, 255, 0.08);

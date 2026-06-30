@@ -41,7 +41,7 @@
 
 <dialog
 	bind:this={dialog}
-	class="share"
+	class="share card-sm"
 	onclose={() => {
 		open = false;
 		copied = '';
@@ -76,9 +76,6 @@
 <style>
 	.share {
 		max-width: min(32rem, 92vw);
-		border: 1px solid var(--rule);
-		border-radius: var(--radius-sm);
-		background: var(--panel);
 		color: var(--ink);
 		padding: 1.25rem;
 	}

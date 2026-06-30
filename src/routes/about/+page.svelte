@@ -100,15 +100,7 @@
 </Container>
 
 <style>
-	.eyebrow {
-		margin: 0 0 0.4rem;
-		font-family: var(--font-heading);
-		font-size: 0.78rem;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
-		color: var(--muted);
-	}
+	/* .eyebrow identity is global (article.css); about uses the default margin. */
 	.article h1 {
 		margin: 0 0 1rem;
 		letter-spacing: -0.025em;

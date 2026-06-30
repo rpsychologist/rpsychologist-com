@@ -279,7 +279,7 @@
 	});
 </script>
 
-<figure class="cells">
+<figure class="card cells">
 	<div class="header">
 		<div class="controls">
 			<div class="status">
@@ -415,9 +415,6 @@
 	.cells {
 		margin: 2rem 0;
 		padding: 1.25rem;
-		border: 1px solid var(--rule);
-		border-radius: var(--radius);
-		background: var(--panel);
 		box-shadow: var(--shadow);
 	}
 	.header {

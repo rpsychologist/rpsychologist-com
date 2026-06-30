@@ -104,7 +104,7 @@
 	);
 </script>
 
-<figure class="explorer">
+<figure class="card explorer">
 	<div class="sliders">
 		<label class="slider">
 			<span class="slider-label">Overlap between online slots and online betting</span>
@@ -160,9 +160,6 @@
 	.explorer {
 		margin: 2rem 0;
 		padding: 1.25rem 1.25rem 1rem;
-		border: 1px solid var(--rule);
-		border-radius: var(--radius);
-		background: var(--panel);
 		box-shadow: var(--shadow);
 	}
 	.sliders {

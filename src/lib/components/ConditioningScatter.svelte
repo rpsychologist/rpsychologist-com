@@ -39,7 +39,7 @@
 	const fmt = format('+.2f');
 </script>
 
-<figure class="cond">
+<figure class="card cond">
 	<div class="controls">
 		<button
 			class={['fig-pill', { on: adjusted }]}
@@ -149,9 +149,6 @@
 	.cond {
 		margin: 2rem 0;
 		padding: 1.25rem;
-		border: 1px solid var(--rule);
-		border-radius: var(--radius);
-		background: var(--panel);
 		box-shadow: var(--shadow);
 	}
 	.controls {

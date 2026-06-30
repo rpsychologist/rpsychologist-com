@@ -39,7 +39,8 @@
 	--shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.04);
 	--shadow-md: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.06);
 
-	--measure: 42rem;
+	--measure: 42rem; /* reading column width */
+	--container: 72rem; /* full-bleed chrome width (header, footer) */
 	--font-sans:
 		system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
 		sans-serif;
@@ -246,6 +247,69 @@ h6 {
 	border-top: 1px solid var(--rule);
 	padding-top: 0.6rem;
 	margin-top: 0.6rem;
+}
+
+/* ── Structural primitives: one frame, one kicker, one icon button ──────────
+   Surfaces and chrome that recur across the project. Components add these
+   classes and keep only their own padding/layout local, so the frame, the
+   section kicker, and the icon buttons can't drift token-by-token. */
+
+/* The figure/surface card: hairline frame on the panel colour. `.card-sm` is the
+   tighter radius used by small framed controls (toggles, inputs, swatches). */
+.card {
+	background: var(--panel);
+	border: 1px solid var(--rule);
+	border-radius: var(--radius);
+}
+.card-sm {
+	background: var(--panel);
+	border: 1px solid var(--rule);
+	border-radius: var(--radius-sm);
+}
+
+/* Section kicker over a heading: Plex Sans, uppercase, letterspaced, muted.
+   Pages override only the margin to fit their local spacing. */
+.eyebrow {
+	margin: 0 0 0.4rem;
+	font-family: var(--font-heading);
+	font-size: 0.78rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var(--muted);
+}
+
+/* Bare icon link (social glyphs): inherits the surrounding size, warms to accent
+   on hover. The boxed variant `.icon-btn` adds a square hit area + radius for
+   toolbar/close buttons; both read --accent at the use site, so a retinted tool
+   (e.g. cohend's --viz-accent) gets the right colour automatically. */
+.icon-link {
+	display: inline-flex;
+	color: var(--muted);
+	transition: color 0.15s;
+}
+.icon-link:hover {
+	color: var(--accent);
+}
+.icon-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	padding: 0;
+	border: none;
+	background: none;
+	color: color-mix(in srgb, var(--ink), var(--muted));
+	border-radius: var(--radius-sm);
+	cursor: pointer;
+	transition:
+		color 0.15s,
+		border-color 0.15s;
+}
+.icon-btn:hover,
+.icon-btn.on {
+	color: var(--accent);
 }
 
 /* ── Figure controls: one design language for every interactive figure ──────

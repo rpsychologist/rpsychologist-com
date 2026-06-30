@@ -13,7 +13,7 @@
 </script>
 
 <label class="color-input">
-	<input type="color" bind:value {id} aria-label={label} {onchange} />
+	<input type="color" class="card-sm" bind:value {id} aria-label={label} {onchange} />
 	{#if label}<span>{label}</span>{/if}
 </label>
 
@@ -30,9 +30,6 @@
 		inline-size: 2rem;
 		block-size: 1.6rem;
 		padding: 0;
-		border: 1px solid var(--rule);
-		border-radius: var(--radius-sm);
-		background: var(--panel);
 		cursor: pointer;
 	}
 </style>
