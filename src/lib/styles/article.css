@@ -1,8 +1,9 @@
 /* Reading typography and the shared palette used by the figures.
    Neutral paper + near-black ink; blue is reserved for *interactive* things
    (figure controls, live readouts), so the reading column never competes with
-   the figures. Plex Mono is the "instrument" voice — every piece of data and
-   apparatus (metadata, figure labels, code, numbers) is set in it.
+   the figures. Plex Mono is functional-only — code and aligned numeric columns,
+   where monospacing earns its place; labels/metadata/captions stay Plex Sans (an
+   earlier "decorative mono" pass was pulled back as reading generic).
    Components read these variables, so the palette cascades. */
 
 :root {
@@ -77,7 +78,9 @@ html {
 	background: var(--bg);
 	color: var(--ink);
 	font-family: var(--font-sans);
-	font-size: 18px;
+	/* Whole type scale keys off this — everything else is in rem, so this is the
+	   single knob for overall text size (the px-locked figure layouts don't move). */
+	font-size: 19px;
 	-webkit-font-smoothing: antialiased;
 	text-rendering: optimizeLegibility;
 	-webkit-tap-highlight-color: transparent;

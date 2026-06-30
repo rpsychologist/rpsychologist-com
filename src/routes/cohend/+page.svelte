@@ -412,6 +412,28 @@
 		color: var(--muted);
 		margin: 0;
 	}
+	/* This page is wrapped in `.page`, not `.article`, so the site's prose-link
+	   treatment (article.css `.article a`) doesn't reach the byline + FAQ links.
+	   Without this they fall back to UA-default blue and go purple once visited.
+	   Mirror the canonical treatment here: ink text, quiet rule underline that
+	   warms to accent on hover. (VizGallery/Bio links carry their own scoped
+	   styles and aren't affected.) */
+	.byline a,
+	.faq .answer a {
+		color: var(--ink);
+		text-decoration: underline;
+		text-decoration-color: var(--rule);
+		text-decoration-thickness: 1px;
+		text-underline-offset: 0.15em;
+		transition:
+			text-decoration-color 0.15s,
+			color 0.15s;
+	}
+	.byline a:hover,
+	.faq .answer a:hover {
+		color: var(--heading);
+		text-decoration-color: var(--accent);
+	}
 	.intro {
 		margin-bottom: 1.5rem;
 	}
