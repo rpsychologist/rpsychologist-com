@@ -108,11 +108,13 @@
 			/>
 		</label>
 		<div class="icons">
+			<!-- The settings panel holds the bulk of the tool (means, SD, CER, labels,
+			     colors), so it carries a visible label — a bare gear hides how much
+			     lives behind it. The remaining controls stay icon-only. -->
 			<button
-				class={['icon-btn', { on: settingsOpen }]}
+				class={['icon-btn', 'labeled', { on: settingsOpen }]}
 				aria-label="Settings"
 				aria-expanded={settingsOpen}
-				title="Settings"
 				onclick={() => (settingsOpen = !settingsOpen)}
 			>
 				<svg viewBox="0 0 24 24" aria-hidden="true">
@@ -121,6 +123,7 @@
 						d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
 					/>
 				</svg>
+				<span class="btn-label">Settings</span>
 			</button>
 			<button
 				class="icon-btn"
@@ -457,14 +460,36 @@
 		height: 34px;
 		border: none;
 		background: none;
-		color: var(--muted);
+		/* Between --muted and --ink: the toolbar icons are functional, so they
+		   should sit clearly above muted decoration without reading as body text. */
+		color: color-mix(in srgb, var(--ink), var(--muted));
 		border-radius: var(--radius-sm);
 		cursor: pointer;
-		transition: color 0.15s;
+		transition:
+			color 0.15s,
+			border-color 0.15s;
 	}
 	.icon-btn:hover,
 	.icon-btn.on {
 		color: var(--accent);
+	}
+	/* The labeled settings button reads as a distinct control (bordered pill) so the
+	   panel behind it is discoverable, not hidden behind a bare glyph. */
+	.icon-btn.labeled {
+		width: auto;
+		gap: 0.4rem;
+		padding: 0 0.7rem;
+		border: 1px solid var(--rule);
+		color: var(--ink);
+	}
+	.icon-btn.labeled:hover,
+	.icon-btn.labeled.on {
+		border-color: var(--accent);
+		color: var(--accent);
+	}
+	.btn-label {
+		font-size: 0.85rem;
+		font-weight: 500;
 	}
 	.icon-btn svg {
 		width: 19px;

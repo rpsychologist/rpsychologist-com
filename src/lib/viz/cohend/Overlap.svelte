@@ -3,11 +3,11 @@
 	import { Tween } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 	import { scaleLinear } from 'd3-scale';
-	import { area } from 'd3-shape';
+	import { area, line } from 'd3-shape';
 	import { format } from 'd3-format';
 	import { normalPdf } from '$lib/stats/distributions';
 	import { drag } from '../core/actions/drag';
-	import type { CohendState } from './cohend.svelte';
+	import { defaults, type CohendState } from './cohend.svelte';
 
 	// Two equal-variance normal curves separated by Cohen's d, overlap shaded
 	// solid. Proportions are dynamic and taken verbatim from the old Overlap.js:
@@ -70,7 +70,7 @@
 	// stable. The treatment curve is this same path shifted by `dx`, and the
 	// overlap is this same path clipped to the treatment's shape (the old viz's
 	// trick). So a drag updates only a transform, never re-runs the pdf math.
-	const bellPath = $derived.by(() => {
+	const bell = $derived.by(() => {
 		const sd = model.p.SD;
 		const m0 = model.p.M0;
 		const a = m0 - 5 * sd;
@@ -78,12 +78,23 @@
 		const n = 160;
 		const pts = new Array<number>(n + 1);
 		for (let i = 0; i <= n; i++) pts[i] = a + ((b - a) * i) / n;
-		return (
-			area<number>()
-				.x((xv) => x(xv))
-				.y0(h)
-				.y1((xv) => h - y(normalPdf(xv, m0, sd)))(pts) ?? ''
-		);
+		const yc = (xv: number) => h - y(normalPdf(xv, m0, sd));
+		return {
+			fill:
+				area<number>()
+					.x((xv) => x(xv))
+					.y0(h)
+					.y1(yc)(pts) ?? '',
+			// Top curve only (no baseline chord), stroked to draw the overlap's
+			// leading edge. The control curve clipped to the treatment shape is the
+			// near-black overlap's lit boundary against the treatment — the old viz's
+			// bright separation line. Stroking the filled area instead would also
+			// stroke the baseline, leaving a stray line along the axis in dark mode.
+			top:
+				line<number>()
+					.x((xv) => x(xv))
+					.y(yc)(pts) ?? ''
+		};
 	});
 
 	// Horizontal shift of the treatment curve, in screen px (tweened, cheap).
@@ -106,7 +117,19 @@
 		const unitsPerPx = (domain0[1] - domain0[0]) / w;
 		pan += e.dx * unitsPerPx;
 	}
+
+	// The default control fill is near-black and disappears against the dark-theme
+	// page background. Tag the path while the colour is still the default so CSS can
+	// lift it in dark mode; a custom colour drops the tag and renders verbatim.
+	const controlIsDefault = $derived(model.p.colorDist1 === defaults.colorDist1);
 </script>
+
+<!-- White dashed mean line. The distribution fills are fixed colours
+     (theme-independent), so the same white reads on both the dark navy/slate
+     curves and the light-blue treatment peak. -->
+{#snippet meanLine(xp: number)}
+	<line x1={xp} x2={xp} y1={h - y(yMax)} y2={h} class="mean" />
+{/snippet}
 
 <div class="chart" bind:clientWidth={cw}>
 	{#if w > 0}
@@ -116,7 +139,9 @@
 			height={totalH}
 			viewBox="0 0 {cw} {totalH}"
 			role="img"
-			aria-label="Two overlapping normal distributions separated by Cohen's d"
+			aria-label="Two overlapping normal distributions separated by Cohen's d of {fmtD(
+				model.p.cohend
+			)}"
 			use:drag={{
 				onstart: () => (model.immediate = true),
 				ondrag: onDrag,
@@ -141,7 +166,7 @@
 				</clipPath>
 				<!-- the treatment bell's shape, used to clip the overlap region -->
 				<clipPath id="cohend-treat-clip">
-					<path d={bellPath} transform="translate({dx}, 0)" />
+					<path d={bell.fill} transform="translate({dx}, 0)" />
 				</clipPath>
 			</defs>
 
@@ -150,11 +175,13 @@
 				     reuse the one bell path: control as-is, treatment shifted by dx,
 				     overlap = control clipped to the treatment shape. -->
 				<g clip-path="url(#cohend-clip)">
-					<path d={bellPath} fill={model.p.colorDist1} />
-					<path d={bellPath} fill={model.p.colorDist2} transform="translate({dx}, 0)" />
-					<path d={bellPath} fill={model.p.colorOverlap} clip-path="url(#cohend-treat-clip)" />
-					<line x1={xM0} x2={xM0} y1={h - y(yMax)} y2={h} class="mean" />
-					<line x1={xM1} x2={xM1} y1={h - y(yMax)} y2={h} class="mean" />
+					<path d={bell.fill} fill={model.p.colorDist1} class:control-default={controlIsDefault} />
+					<path d={bell.fill} fill={model.p.colorDist2} transform="translate({dx}, 0)" />
+					<path d={bell.fill} fill={model.p.colorOverlap} clip-path="url(#cohend-treat-clip)" />
+					<!-- bright edge tracing where the overlap meets the treatment -->
+					<path d={bell.top} class="overlap-edge" clip-path="url(#cohend-treat-clip)" />
+					{@render meanLine(xM0)}
+					{@render meanLine(xM1)}
 				</g>
 
 				<!-- d label + unstandardized difference -->
@@ -224,15 +251,34 @@
 	.chart svg:active {
 		cursor: grabbing;
 	}
+	/* Lift the near-black default control fill off the dark-theme background
+	   (#161616). Only applies while the colour is the default (see controlIsDefault);
+	   a CSS rule beats the inline `fill` presentation attribute, so the override is
+	   automatic and a user's custom colour — which drops the class — wins again. */
+	:global(html[data-theme='dark']) .control-default {
+		fill: #243247;
+	}
 	.axis {
 		stroke: var(--rule);
 		stroke-width: 1;
 	}
+	/* Fixed colour (not a theme token): the line sits on the fixed-colour
+	   distribution fills, so it must contrast those, not the page background. */
 	.mean {
-		stroke: var(--bg);
-		stroke-width: 1;
-		stroke-dasharray: 4 3;
-		opacity: 0.7;
+		stroke: #fff;
+		stroke-width: 1.25;
+		stroke-dasharray: 2 2;
+	}
+	/* A light edge reads as "light showing between the two distributions" in both
+	   themes: it matches the white paper in light mode (the old viz's effect, where
+	   the page showed through) and stays a crisp bright line on the dark overlap in
+	   dark mode. The page colour can't do this in dark mode — the dark page is
+	   darker than the overlap fill, so a bg-matched edge would barely register. */
+	.overlap-edge {
+		fill: none;
+		stroke: #fff;
+		stroke-opacity: 0.9;
+		stroke-width: 1.5;
 	}
 	.arrow {
 		stroke: var(--muted);

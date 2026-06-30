@@ -33,9 +33,11 @@ export interface CohendParams {
 }
 
 // Defaults are internally consistent: M1 = M0 + d·SD = 100 + 0.8·15 = 112.
-// Distribution colours match the original tool exactly (control = dark navy,
-// treatment = light blue, overlap = solid black) for visual parity; they remain
-// user-customizable.
+// Distribution colours: control = near-black navy, treatment = light cyan. The
+// overlap is a teal (a blend of the two) rather than the original tool's pure
+// black — black made the figure read as a heavy solid mass against the site's
+// light paper; the teal reads as "where they mix" while lowering the visual
+// weight. All three remain user-customizable.
 export const defaults: CohendParams = {
 	M0: 100,
 	M1: 112,
@@ -47,8 +49,8 @@ export const defaults: CohendParams = {
 	muOneLabel: 'Treatment',
 	sliderMax: 2,
 	sliderStep: 0.01,
-	colorDist1: '#30394f',
-	colorOverlap: '#000000',
+	colorDist1: '#13171e',
+	colorOverlap: '#234651',
 	colorDist2: '#6aceeb',
 	showDonuts: true
 };

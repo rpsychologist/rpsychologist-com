@@ -5,10 +5,13 @@
 	import { format } from 'd3-format';
 	import type { CohendState } from './cohend.svelte';
 
-	// Four gauges translating Cohen's d into interpretable quantities. U3,
-	// overlap, and probability of superiority are proportions (arc = the value);
-	// NNT is a count, so its arc tracks the absolute risk reduction (1/NNT) while
-	// the centre shows the count itself. Fractions are tweened so the rings ease.
+	// Four gauges translating Cohen's d into interpretable quantities. U3, overlap,
+	// and probability of superiority are proportions: a blue arc fills to the value.
+	// NNT is an unbounded count, not a proportion, so it gets no progress arc — a
+	// filled arc would read as a percentage and invite the wrong "fuller = bigger"
+	// comparison. It renders as a neutral full-ring medallion with the count in the
+	// centre, visibly a different kind of quantity from the three blue gauges.
+	// Fractions are tweened so the rings (and the NNT count, via 1/arr) ease.
 	interface Props {
 		model: CohendState;
 	}
@@ -55,17 +58,24 @@
 	// Labels read from the tweened values so every number counts up in step with
 	// its arc (matching the old animated donut labels).
 	const gauges = $derived([
-		{ label: 'Cohen’s U₃', frac: fracs.current.u3, center: pct(fracs.current.u3) },
-		{ label: '% Overlap', frac: fracs.current.overlap, center: pct(fracs.current.overlap) },
+		{ label: 'Cohen’s U₃', frac: fracs.current.u3, center: pct(fracs.current.u3), count: false },
+		{
+			label: '% Overlap',
+			frac: fracs.current.overlap,
+			center: pct(fracs.current.overlap),
+			count: false
+		},
 		{
 			label: 'Probability of Superiority',
 			frac: fracs.current.cles,
-			center: pct(fracs.current.cles)
+			center: pct(fracs.current.cles),
+			count: false
 		},
 		{
 			label: 'Number Needed to Treat',
 			frac: fracs.current.arr,
-			center: fracs.current.arr > 0 ? nntFmt(1 / fracs.current.arr) : '∞'
+			center: fracs.current.arr > 0 ? nntFmt(1 / fracs.current.arr) : '∞',
+			count: true
 		}
 	]);
 </script>
@@ -74,8 +84,12 @@
 	{#each gauges as g (g.label)}
 		<figure class="donut">
 			<svg viewBox="-60 -60 120 120" role="img" aria-label="{g.label}: {g.center}">
-				<path d={ring} class="ring-bg" />
-				<path d={wedge(g.frac)} class="ring-fg" />
+				{#if g.count}
+					<path d={ring} class="ring-count" />
+				{:else}
+					<path d={ring} class="ring-bg" />
+					<path d={wedge(g.frac)} class="ring-fg" />
+				{/if}
 				<text class="center" text-anchor="middle" dominant-baseline="central">{g.center}</text>
 			</svg>
 			<figcaption>{g.label}</figcaption>
@@ -108,6 +122,11 @@
 	}
 	.ring-fg {
 		fill: #4a7fb5;
+	}
+	/* NNT is a count, not a proportion: a complete neutral ring frames the number
+	   without implying a percentage. */
+	.ring-count {
+		fill: var(--track);
 	}
 	.center {
 		fill: var(--ink);
