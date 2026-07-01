@@ -30,7 +30,7 @@
 
 	<article class="article" use:enhanceCode>
 		<header class="post-header">
-			<h1>{data.meta.title}</h1>
+			<h1 class="display">{data.meta.title}</h1>
 			{#if data.meta.summary}
 				<p class="post-subtitle">{data.meta.summary}</p>
 			{/if}

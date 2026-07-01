@@ -26,7 +26,7 @@
 <Container wide>
 	<section class="intro">
 		<div class="intro-text">
-			<h1>Kristoffer Magnusson</h1>
+			<h1 class="display">Kristoffer Magnusson</h1>
 			<p class="tagline">
 				I build interactive tools for understanding statistics, and write about applied methods,
 				causal inference, and study design.
@@ -94,9 +94,6 @@
 	}
 	.intro h1 {
 		margin: 0 0 0.6rem;
-		font-size: 2.4rem;
-		letter-spacing: -0.025em;
-		color: var(--heading);
 	}
 	.tagline {
 		margin: 0 0 0.9rem;

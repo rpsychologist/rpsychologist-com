@@ -67,7 +67,7 @@
 
 <div class="page" class:settings-open={settingsOpen}>
 	<header class="hero">
-		<h1>Interpreting Cohen's <em>d</em> Effect Size</h1>
+		<h1 class="display">Interpreting Cohen's <em>d</em> Effect Size</h1>
 		<p class="subtitle">An Interactive Visualization</p>
 		<p class="byline">Created by <a href={resolve('/about')}>Kristoffer Magnusson</a></p>
 	</header>
