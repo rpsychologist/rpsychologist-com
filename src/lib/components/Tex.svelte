@@ -1,8 +1,9 @@
 <script lang="ts">
 	// Inline LaTeX rendered with KaTeX, so every mathematical symbol in the
-	// interactive figures stays LaTeX rather than Unicode. KaTeX stylesheet is
-	// loaded once in app.html.
+	// interactive figures stays LaTeX rather than Unicode. CSS imported here so
+	// non-post routes using Tex (viz apps) get it; Vite dedupes with PostLayout.
 	import katex from 'katex';
+	import 'katex/dist/katex.min.css';
 
 	let { math, display = false }: { math: string; display?: boolean } = $props();
 

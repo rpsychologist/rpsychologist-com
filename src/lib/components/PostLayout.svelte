@@ -6,6 +6,11 @@
 </script>
 
 <script>
+	// Bundled locally (not CDN) so the stylesheet always matches the installed
+	// katex version that rendered the markup; scoped here so math-less routes
+	// (home, /viz) don't pay for it.
+	import 'katex/dist/katex.min.css';
+
 	let { children } = $props();
 </script>
 

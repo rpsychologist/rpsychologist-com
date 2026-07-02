@@ -29,7 +29,10 @@ const FrontmatterSchema = z.object({
 
 /** @param {string} body */
 function readingTime(body) {
-	const words = body.trim().split(/\s+/).filter(Boolean).length;
+	// Fenced code blocks aren't read at prose speed; on the R-heavy posts they
+	// would otherwise dominate the estimate.
+	const prose = body.replace(/^(```|~~~)[\s\S]*?^\1.*$/gm, '');
+	const words = prose.trim().split(/\s+/).filter(Boolean).length;
 	return Math.max(1, Math.round(words / WORDS_PER_MINUTE));
 }
 

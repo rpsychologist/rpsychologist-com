@@ -105,13 +105,11 @@ const config = {
 			directives: {
 				'default-src': ['self'],
 				'script-src': ['self', 'https://static.cloudflareinsights.com'],
-				'style-src': [
-					'self',
-					'unsafe-inline',
-					'https://fonts.googleapis.com',
-					'https://cdn.jsdelivr.net'
-				],
-				'font-src': ['self', 'https://fonts.gstatic.com', 'https://cdn.jsdelivr.net', 'data:'],
+				// unsafe-inline: Shiki emits style="" attributes, which hashes can't
+				// cover. Fonts (Fontsource) and KaTeX CSS are self-hosted, so the only
+				// remaining third party is the analytics beacon.
+				'style-src': ['self', 'unsafe-inline'],
+				'font-src': ['self', 'data:'],
 				'img-src': ['self', 'data:'],
 				'connect-src': ['self', 'https://cloudflareinsights.com'],
 				'base-uri': ['self'],

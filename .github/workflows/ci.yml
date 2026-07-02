@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [master, sveltekit-migration]
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Reads the pinned version from the packageManager field.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # svelte-check + prettier --check
+      - run: pnpm check
+
+      - run: pnpm run lint
+
+      # Vitest (lib/stats + viz model code)
+      - run: pnpm test
+
+      # Full prerender (adapter strict mode fails on missing pages) + Pagefind index.
+      - run: pnpm build

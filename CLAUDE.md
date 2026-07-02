@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 SvelteKit rewrite of the site (migrated from Gatsby). Svelte 5 (runes), fully
 prerendered to static files via `adapter-static`, deployed on Netlify. Package
-manager is **pnpm** (`pnpm@9.15.9`); Node `>=22.12 <23` (see `.nvmrc`).
+manager is **pnpm** (see the `packageManager` field); Node `>=22.12` (see `.nvmrc`).
 
 The root `README.md` is stale — it describes the old Gatsby/React site and its
 per-visualization theme packages. Ignore it for architecture; trust the code.
@@ -58,8 +58,7 @@ The split is deliberate. If you make the listing read post `.metadata` directly
 (resolving the glob eagerly), you recouple the list to every post bundle and
 lose code-splitting. Keep metadata flowing through `virtual:posts`.
 
-`zod` is currently in `dependencies` but is only used by this build-time plugin;
-it belongs in `devDependencies`.
+`zod` is only used by this build-time plugin and lives in `devDependencies`.
 
 ### Markdown → component (svelte.config.js)
 
