@@ -52,6 +52,7 @@
 
 	// Climber trials
 	const CLIMB_TIME = 5; // rim to summit; paced so the head steps ~1.4px per 30fps frame
+	const HOLD = 1.6; // seconds the completed path stays fully drawn at the mode before it fades
 	const LINGER = 1.1; // seconds the dot rests at the mode, fading, before removal
 	const MAX_TRIALS = 4; // concurrent climbers (click can spawn; oldest drops)
 	const MAX_CLIMB_VERTS = 260; // scratch-buffer cap (≈ RANGE/STEP + 2 per trail × trials)
@@ -380,7 +381,8 @@
 			for (let k = 0; k <= hi; k++) wl.push(pts[k]);
 			wl.push(head);
 
-			const alpha = tr.done > 0 ? Math.max(0, 1 - tr.done / LINGER) : 1;
+			// Hold the finished path fully drawn for HOLD seconds, then fade over LINGER.
+			const alpha = tr.done > HOLD ? Math.max(0, 1 - (tr.done - HOLD) / LINGER) : 1;
 			let shown = wl;
 			if (tr.done > 0) {
 				// Retract the tail into the head so the comet collapses onto the dot.
@@ -464,7 +466,8 @@
 					tr.head = Math.min(tr.pts.length - 1, tr.head + dt * tr.speed);
 				else tr.done += dt;
 			}
-			if (trials.some((tr) => tr.done >= LINGER)) trials = trials.filter((tr) => tr.done < LINGER);
+			if (trials.some((tr) => tr.done >= HOLD + LINGER))
+				trials = trials.filter((tr) => tr.done < HOLD + LINGER);
 
 			nextSpawn -= dt;
 			if (nextSpawn <= 0) {
