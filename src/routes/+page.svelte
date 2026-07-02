@@ -6,7 +6,7 @@
 	import Container from '$lib/components/Container.svelte';
 	import PostList from '$lib/components/PostList.svelte';
 	import VizGallery from '$lib/components/VizGallery.svelte';
-	import HeroMotif from '$lib/components/HeroMotif.svelte';
+	import HeroGaussianMesh from '$lib/components/HeroGaussianMesh.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import Seo from '$lib/components/Seo.svelte';
 
@@ -25,22 +25,24 @@
 
 <Container wide>
 	<section class="intro">
+		<HeroGaussianMesh class="hero-deco" />
 		<div class="intro-text">
-			<h1 class="display">Kristoffer Magnusson</h1>
+			<h1 class="display greeting">Hi, I'm<br />Kristoffer.</h1>
 			<p class="tagline">
 				I build interactive tools for understanding statistics, and write about applied methods,
 				causal inference, and study design.
 			</p>
-			<p class="cred">PhD · Lic. Psychologist</p>
-			<div class="socials">
-				{#each socials as s (s.name)}
-					<a href={s.href} aria-label={s.label} target="_blank" rel="noopener external">
-						<Icon name={s.name} size={18} />
-					</a>
-				{/each}
+			<div class="meta">
+				<p class="cred">PhD · Lic. Psychologist</p>
+				<div class="socials">
+					{#each socials as s (s.name)}
+						<a href={s.href} aria-label={s.label} target="_blank" rel="noopener external">
+							<Icon name={s.name} size={18} />
+						</a>
+					{/each}
+				</div>
 			</div>
 		</div>
-		<div class="motif-wrap"><HeroMotif /></div>
 	</section>
 
 	<section class="block">
@@ -71,39 +73,52 @@
 		margin-bottom: 1rem;
 		border-bottom: 1px solid var(--rule);
 	}
-	/* Text sits above the ambient motif, constrained left so the two don't clash. */
+	/* The Gaussian mesh sits in a contained "screen" on the right. Hidden from the
+	   a11y tree (decorative), dropped on narrow screens where it would crowd the
+	   text, but pointer-interactive: clicking launches a gradient-ascent climber.
+	   The panel surface, border, edge-fade, and climbers are owned by the component. */
+	.intro :global(.hero-deco) {
+		position: absolute;
+		top: 1.25rem;
+		bottom: 1.25rem;
+		right: 0;
+		width: min(30rem, 48%);
+		z-index: 0;
+	}
+	@media (max-width: 52rem) {
+		.intro :global(.hero-deco) {
+			display: none;
+		}
+	}
+	/* Type carries the hero; the colorful gallery below is the visual identity, so
+	   the headline block is kept to a readable measure and the rest stays open. */
 	.intro-text {
 		position: relative;
 		z-index: 1;
 		max-width: 38rem;
 	}
-	.motif-wrap {
-		position: absolute;
-		inset: 0 -1rem 0 auto;
-		z-index: 0;
-		width: 22rem;
-		max-width: 42%;
-		display: flex;
-		align-items: center;
-		pointer-events: none;
-	}
-	@media (max-width: 52rem) {
-		.motif-wrap {
-			display: none;
-		}
-	}
+	/* The greeting is the "loud" moment; the <br> sets the deliberate two-line
+	   rhythm ("Hi, I'm" / "Kristoffer.") so the name lands as its own beat. */
 	.intro h1 {
-		margin: 0 0 0.6rem;
+		margin: 0 0 0.9rem;
 	}
 	.tagline {
-		margin: 0 0 0.9rem;
-		font-size: 1.05rem;
-		line-height: 1.6;
+		margin: 0 0 1.3rem;
+		max-width: 34rem;
+		font-size: var(--text-lg);
+		line-height: 1.55;
 		color: var(--ink);
 	}
+	/* Credential + socials read as one footing line under the lead. */
+	.meta {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 0.75rem 1.25rem;
+	}
 	.cred {
-		margin: 0 0 1.1rem;
-		font-size: 0.92rem;
+		margin: 0;
+		font-size: var(--text-sm);
 		color: var(--muted);
 	}
 	.socials {
@@ -116,7 +131,7 @@
 		transition: color 0.15s;
 	}
 	.socials a:hover {
-		color: var(--accent);
+		color: var(--accent-signal);
 	}
 
 	.block {
@@ -153,7 +168,7 @@
 	}
 	.more:hover {
 		text-decoration: underline;
-		text-decoration-color: var(--accent);
+		text-decoration-color: var(--accent-signal);
 		text-underline-offset: 0.15em;
 	}
 </style>

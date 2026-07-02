@@ -50,6 +50,6 @@
 		transition: color 0.15s;
 	}
 	.share a:hover {
-		color: var(--accent);
+		color: var(--accent-signal);
 	}
 </style>

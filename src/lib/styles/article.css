@@ -14,9 +14,19 @@
 	--heading: #0f0f0f; /* headings */
 	--muted: #6e6e6e;
 	--rule: #e6e6e6; /* hairline borders */
-	--accent: #2563eb; /* blue — interactive controls & live figures ONLY */
-	--accent-hover: #1d4ed8;
-	--accent-soft: #e8effd;
+	/* Brand teal — the interactive signal (controls, hover, focus, figure chrome),
+	   drawn from the site's own viz/poster palette instead of a generic blue so
+	   chrome and content read as one family. Body-text links stay ink+underline
+	   (keeps the reading column calm); this colours the *chrome* affordances. */
+	--accent: #0e7490;
+	--accent-hover: #0b5b72;
+	--accent-soft: #dcebef;
+	/* Graphics-only signal: a brighter cyan for affordances that aren't text —
+	   icon hovers, hover underlines, focus rings, tile borders. These need only
+	   ~3:1 (graphics), so it can be more vivid than --accent, which must stay AA
+	   (4.5:1) because it also colours text. Teal at text-legible contrast is
+	   inherently muted; this is where the interactive "pop" lives. */
+	--accent-signal: #0891b2;
 	/* Viz-family accent: a mid-teal in the cohend overlap family (the chart's
 	   "where the two distributions mix" colour is the deeper #234651). Used for a
 	   figure's chrome — slider, gauge arcs, in-tool buttons — so the tool reads in
@@ -72,9 +82,10 @@
 	--heading: #fafafa;
 	--muted: #9a9a9a;
 	--rule: #2c2c2c;
-	--accent: #5b91f5;
-	--accent-hover: #84acf8;
-	--accent-soft: rgba(91, 145, 245, 0.16);
+	--accent: #5aa7bd; /* teal lifted for contrast on the dark bg */
+	--accent-hover: #7dc0d2;
+	--accent-soft: rgba(90, 167, 189, 0.16);
+	--accent-signal: #45c0dc; /* brighter cyan signal, lifted for the dark bg */
 	--viz-accent: #4f8ba0; /* overlap teal lifted off the dark bg for contrast */
 	--on-accent: #0b1220; /* dark ink reads clearly on the light dark-mode accent */
 	--track: #3a3a3a;
@@ -336,7 +347,7 @@ h4 {
 	transition: color 0.15s;
 }
 .icon-link:hover {
-	color: var(--accent);
+	color: var(--accent-signal);
 }
 .icon-btn {
 	display: inline-flex;
@@ -367,7 +378,7 @@ h4 {
 /* Visible keyboard focus for every interactive control. :where() keeps the
    specificity at 0 so a component can still override it locally if needed. */
 :where(a, button, summary):focus-visible {
-	outline: 2px solid var(--accent);
+	outline: 2px solid var(--accent-signal);
 	outline-offset: 2px;
 }
 

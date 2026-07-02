@@ -42,7 +42,7 @@
 		transition: border-color 0.15s;
 	}
 	.viz-grid a:hover {
-		border-color: var(--accent);
+		border-color: var(--accent-signal);
 	}
 	/* Glyph floats on the card itself, separated from the label by a hairline —
      a single frame (the card), not a box-in-a-box. */

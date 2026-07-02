@@ -141,7 +141,7 @@
 	.nav a:hover {
 		color: var(--heading);
 		text-decoration: underline;
-		text-decoration-color: var(--accent);
+		text-decoration-color: var(--accent-signal);
 		text-underline-offset: 4px;
 	}
 	.actions {
