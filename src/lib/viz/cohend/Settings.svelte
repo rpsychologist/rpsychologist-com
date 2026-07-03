@@ -4,7 +4,7 @@
 	import { cubicOut } from 'svelte/easing';
 	import ColorInput from '../core/components/ColorInput.svelte';
 	import Toast from '../core/components/Toast.svelte';
-	import { presets, type CohendState } from './cohend.svelte';
+	import { presets, LABEL_MAX, type CohendState } from './cohend.svelte';
 
 	// Fixed full-height right drawer (like the original tool's MUI drawer). The
 	// page reserves room for it (see .page.settings-open in +page.svelte).
@@ -266,17 +266,34 @@
 		<summary><h3>Display settings</h3></summary>
 		<div class="collapsible-body">
 			<p class="sub">Labels</p>
+			<!-- maxlength matches the share/restore validation (LABEL_MAX), so any
+			     label typed here survives a link round-trip. -->
 			<label class="field text">
 				<span>Group 1</span>
-				<input type="text" bind:value={model.p.muZeroLabel} aria-label="Group 1 label" />
+				<input
+					type="text"
+					maxlength={LABEL_MAX}
+					bind:value={model.p.muZeroLabel}
+					aria-label="Group 1 label"
+				/>
 			</label>
 			<label class="field text">
 				<span>Group 2</span>
-				<input type="text" bind:value={model.p.muOneLabel} aria-label="Group 2 label" />
+				<input
+					type="text"
+					maxlength={LABEL_MAX}
+					bind:value={model.p.muOneLabel}
+					aria-label="Group 2 label"
+				/>
 			</label>
 			<label class="field text">
 				<span>X-axis</span>
-				<input type="text" bind:value={model.p.xLabel} aria-label="x-axis label" />
+				<input
+					type="text"
+					maxlength={LABEL_MAX}
+					bind:value={model.p.xLabel}
+					aria-label="x-axis label"
+				/>
 			</label>
 
 			<p class="sub">Colors</p>

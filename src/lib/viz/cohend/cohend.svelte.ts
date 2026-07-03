@@ -8,7 +8,8 @@ import { Persisted } from '../core/state/persisted.svelte';
 import {
 	buildQuery,
 	numFixed,
-	str,
+	strMax,
+	strMatch,
 	bool,
 	readParams,
 	type CodecMap
@@ -94,11 +95,26 @@ const numRange = {
 	sliderStep: { min: 0.001 }
 } satisfies Partial<Record<keyof CohendParams, { min: number; max?: number }>>;
 
+// String constraints, also shared by URL decode and restore. Labels are capped
+// so a crafted link can't inject a huge string into the SVG/layout (the
+// settings inputs carry the same maxlength, so the cap is lossless for
+// anything the UI can produce). Colors are pinned to the #rrggbb form the
+// color input emits — every rendering sink is escape-safe anyway, but this
+// closes the exotic-value space (`url(#…)` paint refs etc.) at the door.
+export const LABEL_MAX = 120;
+const HEX_COLOR = /^#[0-9a-f]{6}$/i;
+const labelKeys = ['xLabel', 'muZeroLabel', 'muOneLabel'] as const;
+const colorKeys = ['colorDist1', 'colorOverlap', 'colorDist2'] as const;
+
 // Restore-time validator (type and finiteness are checked by Persisted itself).
 function validParam(key: keyof CohendParams, value: CohendParams[keyof CohendParams]): boolean {
-	if (!(key in numRange)) return true;
-	const r: { min: number; max?: number } = numRange[key as keyof typeof numRange];
-	return (value as number) >= r.min && (value as number) <= (r.max ?? Infinity);
+	if (key in numRange) {
+		const r: { min: number; max?: number } = numRange[key as keyof typeof numRange];
+		return (value as number) >= r.min && (value as number) <= (r.max ?? Infinity);
+	}
+	if ((labelKeys as readonly string[]).includes(key)) return (value as string).length <= LABEL_MAX;
+	if ((colorKeys as readonly string[]).includes(key)) return HEX_COLOR.test(value as string);
+	return true; // showDonuts: Persisted's typeof check suffices
 }
 
 // Continuous params round to 3 decimals in the URL (matching the old app's
@@ -110,12 +126,12 @@ const codecMap: CodecMap<CohendParams> = {
 	M1: { param: 'M1', codec: numFixed(3, numRange.M1.min) },
 	SD: { param: 'SD', codec: numFixed(3, numRange.SD.min) },
 	CER: { param: 'CER', codec: numFixed(2, numRange.CER.min, numRange.CER.max) },
-	muZeroLabel: { param: 'M0lab', codec: str },
-	muOneLabel: { param: 'M1lab', codec: str },
-	xLabel: { param: 'xlab', codec: str },
-	colorDist1: { param: 'c0', codec: str },
-	colorOverlap: { param: 'c1', codec: str },
-	colorDist2: { param: 'c2', codec: str },
+	muZeroLabel: { param: 'M0lab', codec: strMax(LABEL_MAX) },
+	muOneLabel: { param: 'M1lab', codec: strMax(LABEL_MAX) },
+	xLabel: { param: 'xlab', codec: strMax(LABEL_MAX) },
+	colorDist1: { param: 'c0', codec: strMatch(HEX_COLOR) },
+	colorOverlap: { param: 'c1', codec: strMatch(HEX_COLOR) },
+	colorDist2: { param: 'c2', codec: strMatch(HEX_COLOR) },
 	showDonuts: { param: 'donuts', codec: bool }
 };
 

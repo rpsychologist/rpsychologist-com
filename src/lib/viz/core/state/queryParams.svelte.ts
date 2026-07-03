@@ -6,7 +6,9 @@
 
 export interface Codec<T> {
 	encode: (v: T) => string;
-	decode: (s: string) => T;
+	/** `undefined` (or NaN for numbers) marks the value invalid; `readParams`
+	 * skips it and reports it instead of letting it into state. */
+	decode: (s: string) => T | undefined;
 }
 
 export const num: Codec<number> = {
@@ -35,6 +37,19 @@ export const str: Codec<string> = {
 	decode: (s) => s
 };
 
+/** Like `str`, but rejects strings longer than `max` — caps what a crafted
+ * link can inject into layouts/SVG text. */
+export const strMax = (max: number): Codec<string> => ({
+	encode: (v) => v,
+	decode: (s) => (s.length <= max ? s : undefined)
+});
+
+/** A string that must match `re` (e.g. hex colors); anything else is rejected. */
+export const strMatch = (re: RegExp): Codec<string> => ({
+	encode: (v) => v,
+	decode: (s) => (re.test(s) ? s : undefined)
+});
+
 export const bool: Codec<boolean> = {
 	encode: (v) => (v ? '1' : '0'),
 	decode: (s) => s === '1' || s === 'true'
@@ -44,10 +59,10 @@ export type CodecMap<T> = { [K in keyof T]?: { param: string; codec: Codec<T[K]>
 
 /**
  * Decode the params present in `search` into a partial state patch. Params
- * that decode to NaN (malformed or out-of-range — see `numFixed`) can't poison
- * state: they're skipped, and reported in `invalid` so the caller can tell the
- * user the link was only partially applied instead of silently showing
- * defaults as if they were the shared values.
+ * that decode to NaN or `undefined` (malformed, out-of-range, or failing a
+ * string constraint) can't poison state: they're skipped, and reported in
+ * `invalid` so the caller can tell the user the link was only partially
+ * applied instead of silently showing defaults as if they were shared values.
  */
 export function readParams<T extends object>(
 	map: CodecMap<T>,
@@ -62,7 +77,7 @@ export function readParams<T extends object>(
 		const raw = params.get(entry.param);
 		if (raw === null) continue;
 		const value = entry.codec.decode(raw);
-		if (typeof value === 'number' && Number.isNaN(value)) {
+		if (value === undefined || (typeof value === 'number' && Number.isNaN(value))) {
 			invalid.push(key);
 			continue;
 		}
