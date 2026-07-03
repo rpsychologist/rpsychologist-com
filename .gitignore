@@ -8,6 +8,10 @@ node_modules
 # Pagefind index (generated at build)
 /static/pagefind
 
+# Playwright
+/test-results
+/playwright-report
+
 # Env
 .env
 .env.*

@@ -108,3 +108,9 @@ shared validation + `init`/`applySearch`/`shareQuery`), the settings-drawer and
 share-dialog structure, and the embed child-route pattern.
 The charts and donut math are bespoke by design ("share machinery, not charts") —
 resist extracting them until a second app has an actual duplicate.
+
+Every app also gets a Playwright smoke spec (copy `e2e/cohend.spec.ts`): prerender +
+hydration, slider → readout wiring, URL round-trip, invalid-param feedback,
+localStorage save/reload, embed route.
+These run in CI against the real build and are the guard that a `viz/core` change
+made for a new app can't silently break the existing ones.

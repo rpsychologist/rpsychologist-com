@@ -31,3 +31,8 @@ jobs:
 
       # Full prerender (adapter strict mode fails on missing pages) + Pagefind index.
       - run: pnpm build
+
+      # Playwright smoke (e2e/): hydration + state wiring of the viz apps against
+      # the build above (in CI the webServer only runs `pnpm preview`).
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e

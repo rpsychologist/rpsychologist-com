@@ -16,6 +16,7 @@
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json && prettier --check .",
 		"test": "vitest run",
+		"test:e2e": "playwright test",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write ."
 	},
@@ -23,6 +24,7 @@
 		"@eslint/js": "^10.0.1",
 		"@fontsource/ibm-plex-mono": "^5.2.7",
 		"@fontsource/ibm-plex-sans": "^5.2.8",
+		"@playwright/test": "^1.61.1",
 		"@sveltejs/adapter-static": "^3.0.10",
 		"@sveltejs/enhanced-img": "^0.11.0",
 		"@sveltejs/kit": "^2.68.0",

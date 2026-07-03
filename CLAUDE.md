@@ -19,6 +19,7 @@ pnpm build        # vite build, then `pagefind --site build` to index for search
 pnpm preview      # serve the production build locally
 pnpm check        # svelte-kit sync + svelte-check (type/Svelte diagnostics)
 pnpm test         # vitest run (all tests)
+pnpm test:e2e     # playwright smoke (e2e/) against the prerendered build
 
 pnpm test src/lib/stats/regression.test.ts   # single test file
 pnpm vitest                                   # watch mode
@@ -26,7 +27,10 @@ pnpm vitest                                   # watch mode
 
 Tests live next to their source as `*.test.ts` (configured in `vite.config.ts`,
 `test.include = src/**/*.{test,spec}.{js,ts}`). They cover the `lib/stats`
-numerical code; components and routes are not unit-tested.
+numerical code; components and routes are not unit-tested. The viz apps get a
+Playwright smoke spec each in `e2e/` instead — hydration + state wiring against
+the real build (locally the webServer builds first; in CI it reuses the build
+step). These are what catch a `viz/core` change breaking an existing app.
 
 After editing markdown content, `pagefind` only re-indexes on a full `pnpm
 build` — dev search may be stale (the search page guards on `dev` accordingly).
