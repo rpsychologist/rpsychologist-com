@@ -32,6 +32,9 @@
 	const w = $derived(cw - margin.left - margin.right);
 	const h = $derived(totalH - margin.top - margin.bottom);
 
+	// Capturing the initial value is intentional: the Tween needs a starting
+	// point once, and the $effect below keeps it tracking M1.
+	// svelte-ignore state_referenced_locally
 	const m1 = new Tween(model.p.M1, { duration: 400, easing: cubicOut });
 	$effect(() => {
 		m1.set(model.p.M1, { duration: model.immediate ? 0 : 400 });

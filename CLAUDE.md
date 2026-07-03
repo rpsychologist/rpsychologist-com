@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Project: rpsychologist.com
 
 SvelteKit rewrite of the site (migrated from Gatsby). Svelte 5 (runes), fully
-prerendered to static files via `adapter-static`, deployed on Netlify. Package
+prerendered to static files via `adapter-static`, deployed on Cloudflare Pages. Package
 manager is **pnpm** (see the `packageManager` field); Node `>=22.12` (see `.nvmrc`).
 
 The root `README.md` is stale — it describes the old Gatsby/React site and its
@@ -95,10 +95,22 @@ static adapter knows every path to emit:
   build's pagefind step).
 
 `adapter-static` uses `fallback: "404.html"` (the rendered `+error.svelte`),
-which Netlify serves for unmatched paths. CSP is configured in `svelte.config.js`
-in hash mode (it auto-hashes the pre-paint theme script in `app.html` and
-SvelteKit's hydration scripts) — adding an inline script or new external origin
-means updating the CSP directives there.
+which Cloudflare Pages serves for unmatched paths. CSP is configured in `svelte.config.js`
+in hash mode, which auto-hashes only the scripts SvelteKit itself renders (its
+hydration bootstrap). The inline pre-paint theme script in `app.html` is **not**
+auto-hashed — it's interpolated after the policy is built — so its sha256 hash is
+listed by hand in the `script-src` directive. This matters in dev, where
+SvelteKit sends CSP as an HTTP _header_ (governs from byte zero, so an unhashed
+pre-paint script is blocked and its effect flashes); in the prerendered build the
+policy is a `<meta>` after the script, so it runs regardless. Editing that
+script's bytes, or adding an inline script or external origin, means updating the
+CSP directives (recompute the hash).
+
+Viz apps that need a chrome-free embeddable view expose it as a **child route**
+(`/cohend/embed`) that is prerendered as the tool alone — not a `?embed=1` query
+on the main page. The root layout drops the header/footer for any `/…/embed` path
+(prerender-safe, so no flash), and framing headers are scoped to that path in
+`static/_headers`. Share dialogs point their iframe snippet at the embed route.
 
 ## `src/lib/stats` — interactive-visualization domain code
 

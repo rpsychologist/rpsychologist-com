@@ -78,7 +78,13 @@
 		{
 			label: 'Number Needed to Treat',
 			frac: fracs.current.arr,
-			center: fracs.current.arr > 0 ? nntFmt(1 / fracs.current.arr) : '∞',
+			// Switch to ∞ as soon as the *target* NNT is infinite; deriving it from
+			// the tweened arr alone would count up through huge 1/arr values while
+			// the arc eases to zero.
+			center:
+				Number.isFinite(model.effects.nnt) && fracs.current.arr > 0
+					? nntFmt(1 / fracs.current.arr)
+					: '∞',
 			nnt: true
 		}
 	]);

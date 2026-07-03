@@ -98,13 +98,24 @@ const config = {
 			precompress: false,
 			strict: true
 		}),
-		// Hash mode auto-hashes inline scripts/styles (including the pre-paint theme
-		// script in app.html and SvelteKit's hydration inline scripts).
+		// Hash mode auto-hashes only the scripts SvelteKit itself renders (its
+		// hydration bootstrap). It does NOT hash inline scripts in app.html — those
+		// are interpolated after the policy is built — so the pre-paint theme script
+		// there must be hashed manually below. This matters in dev, where SvelteKit
+		// sends CSP as an HTTP *header* (governs from byte zero and would block it);
+		// in the prerendered build the policy is a <meta> that sits after the script,
+		// so it'd run regardless — but listing it keeps dev and prod honest. Recompute
+		// if the script's bytes change (a mismatch is loud: console violation + a
+		// theme flash in dev).
 		csp: {
 			mode: 'hash',
 			directives: {
 				'default-src': ['self'],
-				'script-src': ['self', 'https://static.cloudflareinsights.com'],
+				'script-src': [
+					'self',
+					'https://static.cloudflareinsights.com',
+					'sha256-FMaspm2Nevt8KFmaJAxteu0cllsLfH47rNXafQkLW6w='
+				],
 				// unsafe-inline: Shiki emits style="" attributes, which hashes can't
 				// cover. Fonts (Fontsource) and KaTeX CSS are self-hosted, so the only
 				// remaining third party is the analytics beacon.

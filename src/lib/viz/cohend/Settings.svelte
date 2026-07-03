@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { fly } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import ColorInput from '../core/components/ColorInput.svelte';
+	import Toast from '../core/components/Toast.svelte';
 	import { presets, type CohendState } from './cohend.svelte';
 
 	// Fixed full-height right drawer (like the original tool's MUI drawer). The
@@ -20,6 +22,21 @@
 
 	type NumKey = 'M0' | 'M1' | 'SD' | 'CER' | 'sliderMax' | 'sliderStep';
 
+	// Range check shared by live input and commit. Every bound is inclusive
+	// except SD's zero: the old app allowed any SD ≥ 0, but SD = 0 divides by
+	// zero (NaN chart), so the zero bound is exclusive here.
+	function outOfRange(
+		key: NumKey,
+		v: number,
+		min: number | undefined,
+		max: number | undefined
+	): boolean {
+		if (!Number.isFinite(v)) return true;
+		if (min !== undefined && v < min) return true;
+		if (max !== undefined && v > max) return true;
+		return key === 'SD' && v === 0;
+	}
+
 	// Live-apply numeric input, but only a finite, in-range value. The HTML min/max
 	// attributes don't clamp *typed* input, so we re-check here — otherwise SD=0
 	// divides by zero (NaN chart) and M0>M1 yields a negative d. Out-of-range
@@ -33,9 +50,7 @@
 		sync?: () => void
 	) {
 		const v = e.currentTarget.valueAsNumber;
-		if (!Number.isFinite(v)) return;
-		if (min !== undefined && v < min) return;
-		if (max !== undefined && v > max) return;
+		if (outOfRange(key, v, min, max)) return;
 		model.p[key] = v;
 		if (fieldError?.key === key) fieldError = null;
 		sync?.();
@@ -50,11 +65,11 @@
 	function rangeMsg(key: NumKey): string {
 		switch (key) {
 			case 'M0':
-				return `${model.p.muZeroLabel} mean can't be above the ${model.p.muOneLabel} mean (${model.p.M1}).`;
+				return `${model.p.muZeroLabel} mean must be between 0 and the ${model.p.muOneLabel} mean (${model.p.M1}).`;
 			case 'M1':
 				return `${model.p.muOneLabel} mean can't be below the ${model.p.muZeroLabel} mean (${model.p.M0}).`;
 			case 'SD':
-				return 'Standard deviation must be at least 1.';
+				return 'Standard deviation must be greater than 0.';
 			case 'CER':
 				return 'Control event rate must be between 0 and 100.';
 			case 'sliderMax':
@@ -70,35 +85,35 @@
 		max: number | undefined
 	) {
 		const v = e.currentTarget.valueAsNumber;
-		const bad =
-			!Number.isFinite(v) || (min !== undefined && v < min) || (max !== undefined && v > max);
-		if (!bad) return;
+		if (!outOfRange(key, v, min, max)) return;
 		fieldError = { key, msg: rangeMsg(key) };
 		e.currentTarget.value = String(model.p[key]);
 	}
 
-	// Transient confirmation, mirroring the old MUI snackbar. aria-live announces
-	// it to screen readers; it auto-dismisses.
-	let toast = $state<{ msg: string; kind: 'ok' | 'err' } | null>(null);
+	// Transient confirmation, mirroring the old MUI snackbar; auto-dismisses.
+	let toast = $state<{ msg: string; kind: 'status' | 'error' } | null>(null);
 	let toastTimer: ReturnType<typeof setTimeout>;
-	function flash(msg: string, kind: 'ok' | 'err' = 'ok') {
+	function flash(msg: string, kind: 'status' | 'error' = 'status') {
 		toast = { msg, kind };
 		clearTimeout(toastTimer);
 		toastTimer = setTimeout(() => (toast = null), 2600);
 	}
 	function onSave() {
 		const ok = model.save();
-		flash(ok ? 'Settings saved in this browser' : "Couldn't save settings", ok ? 'ok' : 'err');
+		flash(
+			ok ? 'Settings saved in this browser' : "Couldn't save settings",
+			ok ? 'status' : 'error'
+		);
 	}
 	function onClear() {
 		const ok = model.clearSaved();
-		flash(ok ? 'Saved settings cleared' : "Couldn't clear settings", ok ? 'ok' : 'err');
+		flash(ok ? 'Saved settings cleared' : "Couldn't clear settings", ok ? 'status' : 'error');
 	}
 
 	// Per-section help (replaces the removed guided tour). One popover open at a
 	// time, keyed by section id; toggled by its (?) button. Closes on Escape or a
-	// pointerdown outside any `.info` wrapper. The listeners only exist while a
-	// popover is open, so there's no idle global handler.
+	// pointerdown outside any `.info` wrapper. The pointerdown listener only
+	// exists while a popover is open, so there's no idle global handler.
 	let openInfo = $state<string | null>(null);
 	function toggleInfo(id: string) {
 		openInfo = openInfo === id ? null : id;
@@ -108,15 +123,26 @@
 		const onDown = (e: PointerEvent) => {
 			if (!(e.target as Element).closest('.info')) openInfo = null;
 		};
-		const onKey = (e: KeyboardEvent) => {
-			if (e.key === 'Escape') openInfo = null;
-		};
 		window.addEventListener('pointerdown', onDown);
-		window.addEventListener('keydown', onKey);
-		return () => {
-			window.removeEventListener('pointerdown', onDown);
-			window.removeEventListener('keydown', onKey);
-		};
+		return () => window.removeEventListener('pointerdown', onDown);
+	});
+
+	// Escape dismisses the innermost layer: an open help popover first, then the
+	// drawer. The component only exists while the drawer is open, so the window
+	// listener is scoped to it.
+	function onWindowKeydown(e: KeyboardEvent) {
+		if (e.key !== 'Escape') return;
+		if (openInfo !== null) openInfo = null;
+		else open = false;
+	}
+
+	// Move focus into the drawer on open so keyboard/screen-reader users land in
+	// what they just opened (the toggle button refocuses itself on close — see
+	// CohendTool). Also stop a pending toast timeout from firing after unmount.
+	let panel = $state<HTMLElement>();
+	onMount(() => {
+		panel?.focus();
+		return () => clearTimeout(toastTimer);
 	});
 </script>
 
@@ -174,9 +200,13 @@
 	</div>
 {/snippet}
 
+<svelte:window onkeydown={onWindowKeydown} />
+
 <aside
+	bind:this={panel}
 	class="settings-panel"
 	aria-label="Visualization settings"
+	tabindex="-1"
 	transition:fly={{ x: 360, duration: 200, easing: cubicOut }}
 >
 	<header class="panel-head">
@@ -205,7 +235,7 @@
 		{@render numField(`Mean 2 (${model.p.muOneLabel})`, 'M1', model.p.M0, undefined, 'any', () =>
 			model.syncFromMeans()
 		)}
-		{@render numField('Standard deviation', 'SD', 1, undefined, 'any', () => model.syncFromMeans())}
+		{@render numField('Standard deviation', 'SD', 0, undefined, 'any', () => model.syncFromMeans())}
 		{@render numField('Control event rate (%)', 'CER', 0, 100, 1)}
 		<p class="hint">Tip: double-click the chart to recenter.</p>
 	</section>
@@ -276,13 +306,8 @@
 
 	<section class="group actions">
 		{#if toast}
-			<div
-				class={['toast', toast.kind]}
-				role="status"
-				aria-live="polite"
-				transition:fly={{ y: 12, duration: 180, easing: cubicOut }}
-			>
-				{toast.msg}
+			<div class="toast-slot">
+				<Toast kind={toast.kind}>{toast.msg}</Toast>
 			</div>
 		{/if}
 		<p class="save-status" class:dirty={model.isDirty}>
@@ -352,6 +377,11 @@
 		   the panel into overflow) doesn't make a classic scrollbar appear and shove
 		   all the content left. No-op where scrollbars are overlaid. */
 		scrollbar-gutter: stable;
+	}
+	/* Programmatic focus target only (tabindex="-1"); not keyboard-reachable, so
+	   no visible ring needed on the container itself. */
+	.settings-panel:focus {
+		outline: none;
 	}
 	/* Small screens: a full-width temporary drawer you dismiss to see the viz. */
 	@media (max-width: 48rem) {
@@ -701,26 +731,15 @@
 		color: var(--ink);
 	}
 
-	/* Transient save/clear confirmation (replaces the old MUI snackbar). Floats
-	   just above the sticky footer's top border, anchored to .actions (which is
-	   `position: sticky`, so it's the containing block). Out of normal flow so it
-	   never reflows the footer — otherwise its appearance shoves the divider up. */
-	.toast {
+	/* Transient save/clear confirmation (replaces the old MUI snackbar). The card
+	   itself is the shared core Toast; this slot floats it just above the sticky
+	   footer's top border, anchored to .actions (which is `position: sticky`, so
+	   it's the containing block). Out of normal flow so it never reflows the
+	   footer — otherwise its appearance shoves the divider up. */
+	.toast-slot {
 		position: absolute;
 		left: 1.1rem;
 		right: 1.1rem;
 		bottom: calc(100% + 0.4rem);
-		padding: 0.5rem 0.75rem;
-		border-radius: var(--radius-sm);
-		font-size: 0.82rem;
-		font-weight: 500;
-		text-align: center;
-		background: var(--accent-soft);
-		color: var(--accent);
-		box-shadow: 0 2px 8px rgb(0 0 0 / 0.12);
-	}
-	.toast.err {
-		background: color-mix(in srgb, red 14%, var(--panel));
-		color: #b3261e;
 	}
 </style>

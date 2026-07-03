@@ -1,40 +1,42 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { resolve } from '$app/paths';
-	import { format } from 'd3-format';
 	import Seo from '$lib/components/Seo.svelte';
 	import Tex from '$lib/components/Tex.svelte';
 	import Bio from '$lib/components/Bio.svelte';
 	import VizGallery from '$lib/components/VizGallery.svelte';
 	import { viz } from '$lib/viz';
-	import Slider from '$lib/viz/core/components/Slider.svelte';
-	import { downloadSvg } from '$lib/viz/core/util/svgExport';
-	import Overlap from '$lib/viz/cohend/Overlap.svelte';
-	import Donuts from '$lib/viz/cohend/Donuts.svelte';
-	import Settings from '$lib/viz/cohend/Settings.svelte';
-	import ShareDialog from '$lib/viz/cohend/ShareDialog.svelte';
+	import Toast from '$lib/viz/core/components/Toast.svelte';
+	import CohendTool from '$lib/viz/cohend/CohendTool.svelte';
 	import CommonLanguage from '$lib/viz/cohend/CommonLanguage.svelte';
-	import { CohendState } from '$lib/viz/cohend/cohend.svelte';
+	import { CohendState, type DroppedState } from '$lib/viz/cohend/cohend.svelte';
 
 	const model = new CohendState();
-	let svg = $state<SVGSVGElement>();
+	// Owned here (not in CohendTool) so the page can shift its layout when the
+	// settings drawer opens; the tool binds it.
 	let settingsOpen = $state(false);
-	let shareOpen = $state(false);
-	let dragStartX = 0;
+
+	// Params/saved keys init rejected as invalid. Surfaced instead of failing
+	// silently: a recipient of a mangled share link (or a stale saved blob after
+	// a schema change) would otherwise mistake the defaults for the shared state.
+	let dropped = $state<DroppedState | null>(null);
 
 	// Apply saved state + URL params after mount so SSR and first client render
-	// share the defaults (the page is prerendered).
-	onMount(() => model.init(location.search));
-
-	const d2 = format('.2f');
+	// share the defaults (the page is prerendered). The chrome-free embed lives at
+	// its own prerendered route (/cohend/embed), so there's no `?embed=1` handling
+	// here — nothing to collapse, nothing to flash.
+	onMount(() => {
+		const d = model.init(location.search);
+		if (!d.saved.length && !d.link.length) return;
+		dropped = d;
+		// Long enough to read both sentences; the × dismisses sooner.
+		const timer = setTimeout(() => (dropped = null), 10000);
+		return () => clearTimeout(timer);
+	});
 
 	// Related tools, surfaced in context for visitors who land directly on this
 	// page (most do, via search) and never see the global /viz gallery.
 	const more = viz.filter((v) => v.href !== '/cohend');
-
-	function download() {
-		if (svg) downloadSvg(svg, 'rpsychologist-cohend.svg');
-	}
 
 	// LaTeX kept in the script (a `{` inside a Svelte attribute is parsed as an
 	// expression delimiter, so braces in \frac{}{} must live in JS strings).
@@ -87,109 +89,24 @@
 		</p>
 	</div>
 
-	<!-- The interactive tool (controls, chart, gauges, settings drawer) shares one
-	     accent: the overlap teal, not the royal site accent. display:contents so the
-	     wrapper retints without adding a box that would alter layout or trap the
-	     fixed settings drawer. The prose + gallery below keep the site accent. -->
-	<div class="viz-tool">
-		<div class="control-bar">
-			<label class="d-input">
-				<span>Cohen's <em>d</em></span>
-				<input
-					class="card-sm"
-					type="number"
-					min="0"
-					max={model.p.sliderMax}
-					step={model.p.sliderStep}
-					value={model.p.cohend}
-					oninput={(e) => {
-						const v = e.currentTarget.valueAsNumber;
-						if (!Number.isFinite(v)) return;
-						// Floor at 0 so the treatment mean can't drop below control (bind would
-						// ignore the min and let a typed -1 push it below). The slider + chart
-						// snapping back to 0 is the visible feedback.
-						model.p.cohend = Math.max(0, v);
-						model.syncFromCohend();
-					}}
-				/>
-			</label>
-			<div class="icons">
-				<!-- The settings panel holds the bulk of the tool (means, SD, CER, labels,
-			     colors), so it carries a visible label — a bare gear hides how much
-			     lives behind it. The remaining controls stay icon-only. -->
-				<button
-					class={['icon-btn', 'labeled', { on: settingsOpen }]}
-					aria-label="Settings"
-					aria-expanded={settingsOpen}
-					onclick={() => (settingsOpen = !settingsOpen)}
-				>
-					<svg viewBox="0 0 24 24" aria-hidden="true">
-						<circle cx="12" cy="12" r="3" />
-						<path
-							d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
-						/>
-					</svg>
-					<span class="btn-label">Settings</span>
-				</button>
-				<!-- Utility cluster, separated from the labeled Settings pill so the bar
-			     reads "primary control | utilities". Recenter is double-click +
-			     fig-hint already; Help duplicated the FAQ below — both dropped. -->
-				<span class="icon-divider" aria-hidden="true"></span>
-				<button class="icon-btn" aria-label="Download SVG" title="Download SVG" onclick={download}>
-					<svg viewBox="0 0 24 24" aria-hidden="true">
-						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
-					</svg>
-				</button>
-				<button
-					class="icon-btn"
-					aria-label="Share"
-					title="Share"
-					onclick={() => (shareOpen = true)}
-				>
-					<svg viewBox="0 0 24 24" aria-hidden="true">
-						<circle cx="18" cy="5" r="3" />
-						<circle cx="6" cy="12" r="3" />
-						<circle cx="18" cy="19" r="3" />
-						<path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" />
-					</svg>
-				</button>
-			</div>
+	{#if dropped}
+		<div class="notice-slot">
+			<Toast ondismiss={() => (dropped = null)}>
+				{#if dropped.link.length}
+					This link had invalid values for
+					{#each dropped.link as p, i (p)}{i > 0 ? ', ' : ''}<code>{p}</code>{/each} — showing the defaults
+					instead.
+				{/if}
+				{#if dropped.saved.length}
+					Your saved settings had invalid values for
+					{#each dropped.saved as p, i (p)}{i > 0 ? ', ' : ''}<code>{p}</code>{/each} — showing the defaults
+					instead.
+				{/if}
+			</Toast>
 		</div>
+	{/if}
 
-		<Slider
-			id="cohend-d"
-			min={0}
-			max={model.p.sliderMax}
-			step={model.p.sliderStep}
-			format={d2}
-			bind:value={model.p.cohend}
-			oninput={() => model.syncFromCohend()}
-			onpointerdown={(e) => {
-				dragStartX = e.clientX;
-				model.immediate = false;
-			}}
-			onpointermove={(e) => {
-				// Only a real drag (past a small threshold) updates immediately; a click —
-				// which often emits a tiny pointermove — keeps animating, so re-clicking
-				// mid-transition doesn't snap.
-				if (Math.abs(e.clientX - dragStartX) > 4) model.immediate = true;
-			}}
-			onpointerup={() => (model.immediate = false)}
-		/>
-
-		<Overlap {model} bind:svg />
-		<p class="fig-hint">Drag the chart to pan · double-click to recenter.</p>
-
-		{#if model.p.showDonuts}
-			<Donuts {model} />
-		{/if}
-
-		{#if settingsOpen}
-			<Settings {model} bind:open={settingsOpen} />
-		{/if}
-
-		<ShareDialog {model} bind:open={shareOpen} />
-	</div>
+	<CohendTool {model} bind:settingsOpen />
 
 	<section class="cl-section">
 		<h2>A Common Language Explanation</h2>
@@ -442,72 +359,28 @@
 		line-height: 1.6;
 	}
 
-	.control-bar {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
-		flex-wrap: wrap;
-		margin-bottom: 0.4rem;
+	/* Invalid-state notice: the shared core Toast, floated bottom-center by this
+	   slot so it never reflows the page. Centered via auto margins, not a
+	   transform — the Toast's fly transition animates transform and would fight
+	   a translateX(-50%). */
+	.notice-slot {
+		position: fixed;
+		inset-inline: 0;
+		bottom: 1.25rem;
+		z-index: 80; /* above the settings drawer (60) and its popovers (70) */
+		margin-inline: auto;
+		width: fit-content;
+		max-width: min(36rem, calc(100vw - 2rem));
 	}
-	.d-input {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.5rem;
-		font-size: 0.95rem;
-		color: var(--muted);
-	}
-	.d-input input {
-		width: 4.5rem;
-		font: inherit;
-		padding: 0.3rem 0.5rem;
-		color: var(--ink);
-	}
-	.icons {
-		display: flex;
-		align-items: center;
-		gap: 0.25rem;
-	}
-	/* Splits the labeled Settings pill from the icon-only utilities. */
-	.icon-divider {
-		width: 1px;
-		align-self: stretch;
-		margin: 0.2rem 0.4rem;
-		background: var(--rule);
-	}
-	/* Base .icon-btn (box, default colour, accent hover) is the global one in
-	   article.css; only the labeled pill variant is local. */
-	/* The labeled settings button reads as a distinct control (bordered pill) so the
-	   panel behind it is discoverable, not hidden behind a bare glyph. */
-	.icon-btn.labeled {
-		width: auto;
-		gap: 0.4rem;
-		padding: 0 0.7rem;
-		border: 1px solid var(--rule);
-		color: var(--ink);
-	}
-	.icon-btn.labeled:hover,
-	.icon-btn.labeled.on {
-		border-color: var(--accent);
-		color: var(--accent);
-	}
-	.btn-label {
-		font-size: 0.85rem;
-		font-weight: 500;
-	}
-	.icon-btn svg {
-		width: 19px;
-		height: 19px;
-		fill: none;
-		stroke: currentColor;
-		stroke-width: 2;
-		stroke-linecap: round;
-		stroke-linejoin: round;
-	}
-
-	.viz-tool {
-		display: contents;
-		--accent: var(--viz-accent);
+	.notice-slot code {
+		/* Plain mono, not the global boxed-chip treatment: chips detach the list's
+		   commas ("SD , CER") and read too busy inside a small toast. */
+		background: none;
+		border: none;
+		padding: 0;
+		font-family: var(--font-mono);
+		font-size: 0.78rem;
+		color: var(--heading);
 	}
 
 	.cl-section {

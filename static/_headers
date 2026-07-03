@@ -4,3 +4,15 @@
   X-Frame-Options: DENY
   Permissions-Policy: geolocation=(), microphone=(), camera=()
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+
+# Viz embed routes are <iframe> targets, so they must be frameable cross-origin.
+# They're distinct paths, so scope framing to them: drop the global
+# X-Frame-Options DENY and allow any framer via CSP frame-ancestors.
+# VERIFY AT CUTOVER on Cloudflare Pages with a real cross-origin iframe on a
+# deploy preview — per-path header override/unset semantics differ by host
+# (Cloudflare Pages supports `! Header` to unset a value set by a broader rule;
+# if that doesn't take effect, restructure so `/*` doesn't set X-Frame-Options
+# and instead deny framing per-path, or enforce anti-framing at the edge).
+/cohend/embed
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
