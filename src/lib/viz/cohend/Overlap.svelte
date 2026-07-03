@@ -49,7 +49,7 @@
 	// this state.
 	let pan = $state(0);
 	$effect(() => {
-		model.rescaleToken;
+		void model.rescaleToken; // read = subscribe; the token's value is meaningless
 		pan = 0;
 	});
 
@@ -58,7 +58,7 @@
 	// screen while the treatment curve slides. `untrack` reads the params without
 	// subscribing, so the domain only updates when `rescaleToken` bumps.
 	const domain0 = $derived.by(() => {
-		model.rescaleToken;
+		void model.rescaleToken; // read = subscribe; the token's value is meaningless
 		return untrack(
 			() => [model.p.M0 - 3 * model.p.SD, model.p.M1 + 3 * model.p.SD] as [number, number]
 		);

@@ -275,6 +275,8 @@ export class CohendState {
 		// No `defaults` here: a checked group emits ALL its keys even when still at
 		// their default (like the old app), so toggling a box visibly changes the
 		// link. The receiving side fills any absent key from `defaults` anyway.
+		// Transient local, serialized and discarded; never held in reactive state.
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity
 		const params = new URLSearchParams(buildQuery(sub, this.p).slice(1));
 		if (opts.donuts === false) params.set('donuts', '0');
 		const qs = params.toString();

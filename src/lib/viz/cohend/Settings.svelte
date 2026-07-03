@@ -17,6 +17,9 @@
 		open?: boolean;
 	}
 
+	// `open` is only ever written here (the drawer exists only while open), but
+	// writes to a $bindable propagate to the parent; the rule can't see that.
+	// eslint-disable-next-line no-useless-assignment
 	let { model, open = $bindable(false) }: Props = $props();
 
 	const presetNames = ['small', 'medium', 'large'] as const;

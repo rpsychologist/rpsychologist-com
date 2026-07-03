@@ -68,6 +68,8 @@ export function readParams<T extends object>(
 	map: CodecMap<T>,
 	search: string
 ): { patch: Partial<T>; invalid: (keyof T)[] } {
+	// Transient local, read and discarded; never held in reactive state.
+	// eslint-disable-next-line svelte/prefer-svelte-reactivity
 	const params = new URLSearchParams(search);
 	const patch: Partial<T> = {};
 	const invalid: (keyof T)[] = [];
@@ -92,6 +94,8 @@ export function buildQuery<T extends object>(
 	values: T,
 	defaults?: Partial<T>
 ): string {
+	// Transient local, serialized and discarded; never held in reactive state.
+	// eslint-disable-next-line svelte/prefer-svelte-reactivity
 	const params = new URLSearchParams();
 	for (const key of Object.keys(map) as (keyof T)[]) {
 		const entry = map[key];

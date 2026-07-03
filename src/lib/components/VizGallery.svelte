@@ -8,6 +8,9 @@
 <ul class="viz-grid">
 	{#each items as v (v.title)}
 		<li>
+			<!-- hrefs are data and may be external; the site deploys at the root, so
+			     there is no base path for resolve() to add. -->
+			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 			<a class="card" href={v.href} rel={v.href.startsWith('http') ? 'external' : undefined}>
 				<span class="screen"><VizGlyph name={v.glyph} /></span>
 				<span class="name">{v.title}</span>

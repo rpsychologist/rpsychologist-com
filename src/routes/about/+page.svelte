@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { site } from '$lib/config';
 	import Container from '$lib/components/Container.svelte';
 	import Icon from '$lib/components/Icon.svelte';
@@ -30,7 +31,7 @@
 		<p>
 			I also have a background in web development, and I still work part-time as a web developer
 			(mostly React/NextJS/Node). I have created various
-			<a href="/viz">interactive visualizations of statistical concepts</a>.
+			<a href={resolve('/viz')}>interactive visualizations of statistical concepts</a>.
 		</p>
 
 		<!-- Horizontal facts strip carries the structure a tall sidebar can't, without
