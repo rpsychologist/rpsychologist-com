@@ -1,5 +1,5 @@
 <script lang="ts">
-	// Shown at the foot of the `?embed=1` viz-only view so an embedded copy still
+	// Shown at the foot of the `/cohend/embed` route so an embedded copy still
 	// credits the source (the old app's <EmbedAttribution>).
 </script>
 

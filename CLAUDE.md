@@ -140,9 +140,16 @@ Each full-page viz app (e.g. `cohend`) keeps its reactive state in a **class** i
 - Keep private store handles truly private (`#store`). Call methods as
   `model.foo()`; if you ever pass one as a bare event callback, wrap it
   (`() => model.foo()`) or `this` is lost.
+- Charts must not shift layout: the parent container reserves the chart's space
+  (CSS `aspect-ratio`), so drawing on hydration causes no CLS. Measure rendered
+  width (`bind:clientWidth`) and draw the SVG 1:1 rather than `viewBox`-scaling.
 
 Shared state primitives live in `core/state` (`Persisted`, `queryParams`); pure
 numerical model code sits in a sibling `model.ts` with `model.test.ts`.
+
+`cohend` is the template the other viz apps copy; its app-specific architecture
+(file map, state flow, URL params, share/embed) is documented in
+`src/lib/viz/cohend/README.md`.
 
 ## Code comments
 
