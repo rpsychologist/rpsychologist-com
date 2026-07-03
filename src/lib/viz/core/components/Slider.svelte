@@ -9,6 +9,8 @@
 		max: number;
 		step?: number;
 		label?: string;
+		/** Accessible name for the input when there is no visible `label`. */
+		ariaLabel?: string;
 		id?: string;
 		format?: (v: number) => string;
 		oninput?: () => void;
@@ -23,6 +25,7 @@
 		max,
 		step = 0.01,
 		label,
+		ariaLabel,
 		id,
 		format = (v) => String(v),
 		oninput,
@@ -31,23 +34,28 @@
 		onpointerup
 	}: Props = $props();
 
+	// Fallback so a visible label still points at the input when no id is passed.
+	const uid = $props.id();
+	const inputId = $derived(id ?? `slider-${uid}`);
+
 	const pct = $derived(max > min ? ((value - min) / (max - min)) * 100 : 0);
 </script>
 
 <div class="slider">
 	{#if label}
-		<label for={id} class="slider-label">
+		<label for={inputId} class="slider-label">
 			<span>{label}</span>
 			<span class="slider-value">{format(value)}</span>
 		</label>
 	{/if}
 	<input
-		{id}
+		id={inputId}
 		class="fig-range"
 		type="range"
 		{min}
 		{max}
 		{step}
+		aria-label={label ? undefined : ariaLabel}
 		bind:value
 		style="--pct: {pct}%"
 		{oninput}

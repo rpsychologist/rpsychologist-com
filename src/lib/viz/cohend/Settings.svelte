@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { fly } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
+	import { prefersReducedMotion } from 'svelte/motion';
 	import ColorInput from '../core/components/ColorInput.svelte';
 	import Toast from '../core/components/Toast.svelte';
 	import { presets, LABEL_MAX, type CohendState } from './cohend.svelte';
@@ -186,12 +187,20 @@
 					class="info-btn"
 					aria-label="About {title}"
 					aria-expanded={openInfo === id}
+					aria-controls="info-pop-{id}"
 					onclick={() => toggleInfo(id)}
 				>
 					?
 				</button>
 				{#if openInfo === id}
-					<span class="info-pop" role="tooltip" transition:fly={{ y: 4, duration: 120 }}>
+					<!-- Click-toggled disclosure content (not role="tooltip", which implies
+					     hover/focus triggering); it follows its button in DOM order, so
+					     aria-expanded + reading order is the whole contract. -->
+					<span
+						class="info-pop"
+						id="info-pop-{id}"
+						transition:fly={{ y: 4, duration: prefersReducedMotion.current ? 0 : 120 }}
+					>
 						{text}
 					</span>
 				{/if}
@@ -207,7 +216,7 @@
 	class="settings-panel"
 	aria-label="Visualization settings"
 	tabindex="-1"
-	transition:fly={{ x: 360, duration: 200, easing: cubicOut }}
+	transition:fly={{ x: 360, duration: prefersReducedMotion.current ? 0 : 200, easing: cubicOut }}
 >
 	<header class="panel-head">
 		<h2>Settings</h2>

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
-	import { Tween } from 'svelte/motion';
+	import { Tween, prefersReducedMotion } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 	import { scaleLinear } from 'd3-scale';
 	import { area, line } from 'd3-shape';
@@ -37,7 +37,9 @@
 	// svelte-ignore state_referenced_locally
 	const m1 = new Tween(model.p.M1, { duration: 400, easing: cubicOut });
 	$effect(() => {
-		m1.set(model.p.M1, { duration: model.immediate ? 0 : 400 });
+		m1.set(model.p.M1, {
+			duration: model.immediate || prefersReducedMotion.current ? 0 : 400
+		});
 	});
 
 	// Horizontal pan offset (data units). A rescale request (double-click, or any

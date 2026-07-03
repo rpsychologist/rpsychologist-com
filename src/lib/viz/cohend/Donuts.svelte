@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Tween } from 'svelte/motion';
+	import { Tween, prefersReducedMotion } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 	import { arc, type DefaultArcObject } from 'd3-shape';
 	import { format } from 'd3-format';
@@ -37,7 +37,7 @@
 				cles: e.cles,
 				arr: Number.isFinite(e.nnt) ? 1 / e.nnt : 0
 			},
-			{ duration: model.immediate ? 0 : 400 }
+			{ duration: model.immediate || prefersReducedMotion.current ? 0 : 400 }
 		);
 	});
 

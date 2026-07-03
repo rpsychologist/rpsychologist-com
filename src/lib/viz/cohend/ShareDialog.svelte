@@ -119,6 +119,7 @@
 <dialog
 	bind:this={dialog}
 	class="share card-sm"
+	aria-labelledby="share-title"
 	onclick={onBackdropClick}
 	onclose={() => {
 		open = false;
@@ -126,7 +127,7 @@
 	}}
 >
 	<form method="dialog" class="head">
-		<h2>Share</h2>
+		<h2 id="share-title">Share</h2>
 		<button class="close" aria-label="Close">×</button>
 	</form>
 
@@ -193,12 +194,13 @@
 		{/if}
 
 		<div class="field">
-			<span class="label">{mode === 'embed' ? 'Embed code' : 'Link'}</span>
+			<!-- Only one of the two controls exists at a time, so they can share the id. -->
+			<label class="label" for="share-output">{mode === 'embed' ? 'Embed code' : 'Link'}</label>
 			<div class="combo">
 				{#if mode === 'embed'}
-					<textarea class="mono" readonly rows="4" value={embedCode}></textarea>
+					<textarea id="share-output" class="mono" readonly rows="4" value={embedCode}></textarea>
 				{:else}
-					<input class="mono" readonly value={shareUrl} />
+					<input id="share-output" class="mono" readonly value={shareUrl} />
 				{/if}
 				<button class="fig-pill" type="button" onclick={copy}>
 					{copied ? 'Copied' : 'Copy'}

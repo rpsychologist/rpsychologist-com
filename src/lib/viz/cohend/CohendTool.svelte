@@ -113,6 +113,7 @@
 
 	<Slider
 		id="cohend-d"
+		ariaLabel="Cohen's d"
 		min={0}
 		max={model.p.sliderMax}
 		step={model.p.sliderStep}
