@@ -126,8 +126,8 @@
 				<p>
 					Toggle the ellipses in the settings drawer; they mark the regions expected to hold 50, 80,
 					95, and 99% of the data under a bivariate normal with the sample's moments.
-					<strong>Protip:</strong> turn off "Edit points" and you can click an ellipse to highlight it
-					and read off its probability.
+					<strong>Protip:</strong> click an ellipse to highlight it and read off its probability (except
+					in Add mode, where clicks place new points).
 				</p>
 				<h3>Slope chart</h3>
 				<p>

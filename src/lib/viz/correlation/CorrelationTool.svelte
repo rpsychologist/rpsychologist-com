@@ -23,6 +23,20 @@
 
 	const f2 = format('.2f');
 	const pct = format('.0%');
+	// Trimmed display for the rho input: after point edits rho snaps to the
+	// exact sample r, and the raw float (0.6923076923…) is unreadable. The full
+	// value shows only while the field is focused for editing. Not d3-format:
+	// its default minus is U+2212, which <input type=number> rejects — the
+	// field would go blank for every negative rho.
+	const f3 = (v: number) => String(Number(v.toFixed(3)));
+	let rhoFocused = $state(false);
+
+	// Readout names: Pre/Post in slope mode (the chart no longer shows x/y),
+	// else the axis labels, truncated so a long CSV header can't blow up the
+	// readout column.
+	const short = (s: string) => (s.length > 14 ? s.slice(0, 13) + '…' : s);
+	const xName = $derived(model.p.plotType === 'slope' ? 'Pre' : short(model.p.xLabel));
+	const yName = $derived(model.p.plotType === 'slope' ? 'Post' : short(model.p.yLabel));
 
 	let svg = $state<SVGSVGElement>();
 	let downloadOpen = $state(false);
@@ -36,15 +50,26 @@
 		wasSettingsOpen = settingsOpen;
 	});
 
-	// Close the download menu on any outside pointerdown or Escape; the
-	// listener only exists while the menu is open (cohend popover pattern).
+	// Close the download menu on any outside pointerdown, or on Escape (which
+	// returns focus to the trigger — outside clicks move focus themselves).
+	// The listeners only exist while the menu is open.
+	let downloadBtn = $state<HTMLButtonElement>();
 	$effect(() => {
 		if (!downloadOpen) return;
 		const onDown = (e: PointerEvent) => {
 			if (!(e.target as Element).closest('.download-menu')) downloadOpen = false;
 		};
+		const onKey = (e: KeyboardEvent) => {
+			if (e.key !== 'Escape') return;
+			downloadOpen = false;
+			downloadBtn?.focus();
+		};
 		window.addEventListener('pointerdown', onDown);
-		return () => window.removeEventListener('pointerdown', onDown);
+		window.addEventListener('keydown', onKey);
+		return () => {
+			window.removeEventListener('pointerdown', onDown);
+			window.removeEventListener('keydown', onKey);
+		};
 	});
 
 	function pick(fn: () => void) {
@@ -67,8 +92,10 @@
 				type="number"
 				min="-1"
 				max="1"
-				step="0.001"
-				value={model.p.rho}
+				step="0.01"
+				value={rhoFocused ? model.p.rho : f3(model.p.rho)}
+				onfocus={() => (rhoFocused = true)}
+				onblur={() => (rhoFocused = false)}
 				oninput={(e) => {
 					const v = e.currentTarget.valueAsNumber;
 					// Clamp instead of reject: past ±1 the transform's sqrt(1 - rho²)
@@ -96,12 +123,14 @@
 			</button>
 			<span class="icon-divider" aria-hidden="true"></span>
 			<span class="download-menu">
+				<!-- Deliberately not role="menu": that pattern promises arrow-key
+				     navigation; three tabbable buttons in a popover need none. -->
 				<button
+					bind:this={downloadBtn}
 					class="icon-btn"
 					aria-label="Download PNG, SVG, or CSV"
 					title="Download"
 					aria-expanded={downloadOpen}
-					aria-haspopup="menu"
 					onclick={() => (downloadOpen = !downloadOpen)}
 				>
 					<svg viewBox="0 0 24 24" aria-hidden="true">
@@ -109,22 +138,19 @@
 					</svg>
 				</button>
 				{#if downloadOpen}
-					<div class="menu" role="menu" aria-label="Download">
+					<div class="menu">
 						<button
-							role="menuitem"
 							onclick={() =>
 								pick(() => svg && downloadSvgAsPng(svg, 'rpsychologist-correlation.png'))}
 						>
 							PNG image
 						</button>
 						<button
-							role="menuitem"
 							onclick={() => pick(() => svg && downloadSvg(svg, 'rpsychologist-correlation.svg'))}
 						>
 							SVG image
 						</button>
 						<button
-							role="menuitem"
 							onclick={() => pick(() => downloadCsv(model.p.data, model.p.xLabel, model.p.yLabel))}
 						>
 							CSV data
@@ -176,14 +202,20 @@
 					>{model.stats ? pct(model.stats.cor ** 2) : '—'}</span
 				>
 			</p>
-			<Venn {model} />
+			<Venn {model} {xName} {yName} />
 			{#if model.stats}
+				{@const b1 = model.stats.slope}
 				<div class="stats" data-testid="descriptives">
-					<p>y = {f2(model.stats.intercept)} + {f2(model.stats.slope)}*x</p>
-					<p>Mean(y) = {f2(model.stats.muHatNewY)}</p>
-					<p>Mean(x) = {f2(model.stats.muHatNewX)}</p>
-					<p>SD(y) = {f2(model.stats.sigmaHatNewY)}</p>
-					<p>SD(x) = {f2(model.stats.sigmaHatNewX)}</p>
+					<p>
+						{yName} = {f2(model.stats.intercept)}
+						{b1 < 0 ? '−' : '+'}
+						{f2(Math.abs(b1))}·{xName}
+					</p>
+					<p>Mean({yName}) = {f2(model.stats.muHatNewY)}</p>
+					<p>Mean({xName}) = {f2(model.stats.muHatNewX)}</p>
+					<p>SD({yName}) = {f2(model.stats.sigmaHatNewY)}</p>
+					<p>SD({xName}) = {f2(model.stats.sigmaHatNewX)}</p>
+					<p>n = {model.p.data.length}</p>
 				</div>
 			{/if}
 		</div>

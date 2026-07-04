@@ -6,6 +6,7 @@
 	import ColorInput from '../core/components/ColorInput.svelte';
 	import Slider from '../core/components/Slider.svelte';
 	import Toast from '../core/components/Toast.svelte';
+	import { typedSettle } from '../core/util/typedInput';
 	import { presetList } from './datasets';
 	import { downloadCsv, parseCsvPoints } from './csv';
 	import { LABEL_MAX, type CorrelationState } from './correlation.svelte';
@@ -36,13 +37,14 @@
 		return false;
 	}
 
-	// Live-apply valid keystrokes; moments re-transform the sample immediately
-	// (the old app's explicit Update button is replaced by the cohend drawer's
-	// live semantics). Out-of-range keystrokes are ignored silently — the user
-	// may be mid-typing — and the message fires on change (blur/Enter).
-	function setNum(key: NumKey, e: Event & { currentTarget: HTMLInputElement }) {
-		const v = e.currentTarget.valueAsNumber;
-		if (outOfRange(key, v)) return;
+	// Live-apply valid input; moments re-transform the sample (the old app's
+	// explicit Update button is replaced by the cohend drawer's live
+	// semantics). Typed digits settle via `typedSettle` before applying;
+	// steppers/arrows stay immediate. Out-of-range keystrokes are ignored
+	// silently — the user may be mid-typing — and the message fires on change
+	// (blur/Enter).
+	const settle = typedSettle();
+	function applyNum(key: NumKey, v: number) {
 		if (key === 'n') {
 			model.p.n = v;
 		} else {
@@ -55,6 +57,14 @@
 			});
 		}
 		if (fieldError?.key === key) fieldError = null;
+	}
+	function setNum(key: NumKey, e: Event & { currentTarget: HTMLInputElement }) {
+		const v = e.currentTarget.valueAsNumber;
+		if (outOfRange(key, v)) {
+			settle.cancel(); // don't let an earlier valid keystroke land later
+			return;
+		}
+		settle.run(e, () => applyNum(key, v));
 	}
 
 	let fieldError = $state<{ key: NumKey; msg: string } | null>(null);
@@ -71,7 +81,11 @@
 	}
 	function commitNum(key: NumKey, e: Event & { currentTarget: HTMLInputElement }) {
 		const v = e.currentTarget.valueAsNumber;
-		if (!outOfRange(key, v)) return;
+		if (!outOfRange(key, v)) {
+			settle.flush(); // Enter/blur applies a still-settling typed value now
+			return;
+		}
+		settle.cancel();
 		fieldError = { key, msg: rangeMsg(key) };
 		e.currentTarget.value = String(model.p[key]);
 	}
@@ -140,7 +154,11 @@
 	let panel = $state<HTMLElement>();
 	onMount(() => {
 		panel?.focus();
-		return () => clearTimeout(toastTimer);
+		return () => {
+			clearTimeout(toastTimer);
+			// Escape-close mid-type: apply the typed value rather than drop it.
+			settle.flush();
+		};
 	});
 </script>
 
@@ -262,7 +280,7 @@
 		{@render sectionHead(
 			'Display',
 			'display',
-			'The slope chart redraws each (x, y) pair as a Pre–Post line. Ellipses mark the regions holding 50/80/95/99% of the fitted bivariate normal — click an ellipse to see its level (turn off point editing first).'
+			'The slope chart redraws each (x, y) pair as a Pre–Post line. Ellipses mark the regions holding 50/80/95/99% of the fitted bivariate normal — click an ellipse to see its level (not while adding points).'
 		)}
 		<label class="check">
 			<input

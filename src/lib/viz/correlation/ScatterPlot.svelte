@@ -100,27 +100,39 @@
 	}
 
 	// Ellipse selection is view state, not model state (old local useState).
+	// Only Add mode blocks it (a click there places a point); Drag/Delete act on
+	// circles alone, so ellipse clicks are unambiguous. The old app disabled
+	// selection during any edit mode — relaxation approved 2026-07-04.
 	let ellipseLevel = $state<number | null>(null);
 	function toggleEllipse(level: number) {
-		if (model.p.showPointEdit) return; // old: clicks disabled while editing
+		if (canAdd) return;
 		ellipseLevel = ellipseLevel === level ? null : level;
 	}
 	const ELLIPSE_LEVELS = [0.99, 0.95, 0.8, 0.5]; // painted large -> small
 
-	// Regression line endpoints (slope mode: the mean(x) -> mean(y) segment).
+	// Regression line (slope mode: the mean(x) -> mean(y) segment), positioned
+	// entirely via transform (translate + skewY) like the residual/slope lines:
+	// bare x/y attributes don't transition, so they'd jump on parameter changes
+	// while the points glide. Slope mode uses band left edges, not centers: the
+	// group this renders in already translates by bw/2 (same as the points).
 	const reg = $derived.by(() => {
 		if (!model.stats) return null;
 		const { intercept: b0, slope: b1, muHatNewX, muHatNewY } = model.stats;
 		const { xMin, xMax } = model.p;
 		if (slope) {
 			return {
-				x1: xBand(COND_A)! + bw / 2,
-				x2: xBand(COND_B)! + bw / 2,
-				y1: y(muHatNewX),
-				y2: y(muHatNewY)
+				x0: xBand(COND_A)!,
+				y0: y(muHatNewX),
+				len: xBand(COND_B)! - xBand(COND_A)!,
+				dy: y(muHatNewY) - y(muHatNewX)
 			};
 		}
-		return { x1: x(xMin), x2: x(xMax), y1: y(b0 + xMin * b1), y2: y(b0 + xMax * b1) };
+		return {
+			x0: x(xMin),
+			y0: y(b0 + xMin * b1),
+			len: x(xMax) - x(xMin),
+			dy: y(b0 + xMax * b1) - y(b0 + xMin * b1)
+		};
 	});
 </script>
 
@@ -133,7 +145,7 @@
 		<ellipse
 			class="ellipse"
 			class:selected={ellipseLevel === level}
-			class:clickable={!model.p.showPointEdit}
+			class:clickable={!canAdd}
 			data-level={level}
 			transform="rotate(45)"
 			cx="0"
@@ -229,7 +241,17 @@
 						{/if}
 
 						{#if model.p.regressionLine && reg}
-							<line class="reg" x1={reg.x1} x2={reg.x2} y1={reg.y1} y2={reg.y2} />
+							<line
+								class="reg"
+								class:no-transition={model.immediate}
+								x1="0"
+								x2={reg.len}
+								y1="0"
+								y2="0"
+								transform="translate({reg.x0}, {reg.y0}) skewY({(Math.atan(reg.dy / reg.len) *
+									180) /
+									Math.PI})"
+							/>
 						{/if}
 
 						{#each model.p.data as [px, py], i (i)}
@@ -248,24 +270,35 @@
 									) - y(py)})"
 								/>
 							{/if}
+							<!-- Primary circle, rendered in BOTH modes so the node persists
+							     across the toggle and its transform transition slides it
+							     to/from the Pre column (the old app kept ScatterPoints
+							     mounted with stable keys for exactly this). In slope mode
+							     it is the Pre point; vertical drag edits the data x value. -->
+							{@render circle(
+								i,
+								slope ? xBand(COND_A)! : x(px),
+								slope ? y(px) : y(py),
+								slope ? 'a' : 'xy'
+							)}
 							{#if slope}
-								<!-- Pre point (vertical drag edits the data x value) -->
-								{@render circle(i, xBand(COND_A)!, y(px), 'a')}
 								<!-- Post point: holds its scatter x until shown, so entering
 								     slope mode slides it over (old SlopeChart `show`). -->
 								{@render circle(i, slopeShown ? xBand(COND_B)! : x(px), y(py), 'b')}
+								<!-- Vertical position lives in the transform, not y1/y2: the
+								     translate + skew transition as one, so a Mean/SD change
+								     glides with the points instead of jumping. -->
 								<line
 									class="slope-line"
 									class:hidden={!slopeShown}
 									class:no-transition={model.immediate}
 									x1={xBand(COND_A)}
 									x2={xBand(COND_B)}
-									y1={y(px)}
-									y2={y(px)}
-									transform="skewY({(Math.atan((y(py) - y(px)) / bw) * 180) / Math.PI})"
+									y1="0"
+									y2="0"
+									transform="translate(0, {y(px)}) skewY({(Math.atan((y(py) - y(px)) / bw) * 180) /
+										Math.PI})"
 								/>
-							{:else}
-								{@render circle(i, x(px), y(py), 'xy')}
 							{/if}
 						{/each}
 					</g>
@@ -308,13 +341,17 @@
 					{/each}
 				</g>
 
-				<text
-					class="axis-label"
-					text-anchor="middle"
-					transform="translate({w / 2}, {h + margin.bottom - 5})"
-				>
-					{model.p.xLabel}
-				</text>
+				{#if !slope}
+					<!-- Pre/Post are the tick labels in slope mode; "x" under them
+					     only confuses. -->
+					<text
+						class="axis-label"
+						text-anchor="middle"
+						transform="translate({w / 2}, {h + margin.bottom - 5})"
+					>
+						{model.p.xLabel}
+					</text>
+				{/if}
 				<text
 					class="axis-label"
 					text-anchor="middle"
@@ -368,6 +405,8 @@
 	.reg {
 		stroke: var(--ink);
 		stroke-width: 2px;
+		vector-effect: non-scaling-stroke;
+		transition: transform 0.2s linear;
 	}
 
 	.residual {
@@ -406,6 +445,12 @@
 		fill: #000;
 		fill-opacity: 0.05;
 	}
+	/* The light-mode hover darkens; on a dark paper that's invisible, so
+	   lighten instead. Same for the hard-coded green/red axis-line colours. */
+	:global(html[data-theme='dark']) .ellipse.clickable:not(.selected):hover {
+		fill: #fff;
+		fill-opacity: 0.07;
+	}
 	.ellipse.selected {
 		stroke: #9fdfff;
 		stroke-width: 5px;
@@ -416,6 +461,8 @@
 		stroke: var(--ink);
 		stroke-width: 1px;
 		stroke-opacity: 0.5;
+		/* Decoration on top of the ellipse fills — don't swallow their clicks. */
+		pointer-events: none;
 	}
 	.ellipse-axis.hot.major {
 		stroke: green;
@@ -426,6 +473,12 @@
 		stroke: red;
 		stroke-width: 2px;
 		stroke-opacity: 0.75;
+	}
+	:global(html[data-theme='dark']) .ellipse-axis.hot.major {
+		stroke: #4ade80;
+	}
+	:global(html[data-theme='dark']) .ellipse-axis.hot.minor {
+		stroke: #ff7b72;
 	}
 	.ellipse-label {
 		fill: var(--ink);
@@ -448,7 +501,8 @@
 	@media (prefers-reduced-motion: reduce) {
 		.point,
 		.residual,
-		.slope-line {
+		.slope-line,
+		.reg {
 			transition: none;
 		}
 	}
