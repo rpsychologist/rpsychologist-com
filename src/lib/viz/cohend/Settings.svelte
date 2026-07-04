@@ -5,6 +5,7 @@
 	import { prefersReducedMotion } from 'svelte/motion';
 	import ColorInput from '../core/components/ColorInput.svelte';
 	import Toast from '../core/components/Toast.svelte';
+	import { typedSettle } from '../core/util/typedInput';
 	import { presets, LABEL_MAX, type CohendState } from './cohend.svelte';
 
 	// Fixed full-height right drawer (like the original tool's MUI drawer). The
@@ -46,6 +47,9 @@
 	// divides by zero (NaN chart) and M0>M1 yields a negative d. Out-of-range
 	// keystrokes are ignored silently because the user may still be mid-typing
 	// ("1" on the way to "125"); the explanatory message is deferred to `commitNum`.
+	// Typed digits settle via `typedSettle` before applying; steppers/arrows
+	// stay immediate.
+	const settle = typedSettle();
 	function setNum(
 		key: NumKey,
 		e: Event & { currentTarget: HTMLInputElement },
@@ -54,10 +58,15 @@
 		sync?: () => void
 	) {
 		const v = e.currentTarget.valueAsNumber;
-		if (outOfRange(key, v, min, max)) return;
-		model.p[key] = v;
-		if (fieldError?.key === key) fieldError = null;
-		sync?.();
+		if (outOfRange(key, v, min, max)) {
+			settle.cancel(); // don't let an earlier valid keystroke land later
+			return;
+		}
+		settle.run(e, () => {
+			model.p[key] = v;
+			if (fieldError?.key === key) fieldError = null;
+			sync?.();
+		});
 	}
 
 	// The constraints are intentional (the means stay ordered so Cohen's d can't go
@@ -89,7 +98,11 @@
 		max: number | undefined
 	) {
 		const v = e.currentTarget.valueAsNumber;
-		if (!outOfRange(key, v, min, max)) return;
+		if (!outOfRange(key, v, min, max)) {
+			settle.flush(); // Enter/blur applies a still-settling typed value now
+			return;
+		}
+		settle.cancel();
 		fieldError = { key, msg: rangeMsg(key) };
 		e.currentTarget.value = String(model.p[key]);
 	}
@@ -146,7 +159,11 @@
 	let panel = $state<HTMLElement>();
 	onMount(() => {
 		panel?.focus();
-		return () => clearTimeout(toastTimer);
+		return () => {
+			clearTimeout(toastTimer);
+			// Escape-close mid-type: apply the typed value rather than drop it.
+			settle.flush();
+		};
 	});
 </script>
 
