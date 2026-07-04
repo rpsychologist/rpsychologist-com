@@ -75,10 +75,10 @@ and flash the prerendered defaults.
 - `$lib/stats/distributions` — `normalPdf/normalCdf/normalQuantile` (replaces jstat).
 - `$lib/viz/core`: `Slider`, `ColorInput`, `Toast`, `state/persisted.svelte.ts`,
   `state/queryParams.svelte.ts` (codec helpers: `numFixed`, `strMax`, `strMatch`,
-  `bool`), `util/svgExport.ts`, `actions/drag.ts`.
-- `ResponsiveSvg` and `DownloadButton` also sit in `core/components` but are currently
-  unused — cohend measures width via `bind:clientWidth` and uses a plain icon button.
-  Adopt or delete them when porting app #2; don't treat them as proven.
+  `bool`), `util/svgExport.ts` (SVG + PNG download), `actions/drag.ts`.
+  (`ResponsiveSvg`/`DownloadButton` were speculative core components; neither
+  cohend nor correlation adopted them, so they were deleted at app #2 —
+  measure width via `bind:clientWidth` and use plain buttons instead.)
 
 ## Design rules (apply to every viz app, not just cohend)
 

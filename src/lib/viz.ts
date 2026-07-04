@@ -18,7 +18,7 @@ export const viz: Viz[] = [
 	{
 		title: 'Correlation',
 		glyph: 'correlation',
-		href: 'https://rpsychologist.com/correlation',
+		href: '/correlation',
 		description: 'What a correlation coefficient looks like as a scatter.'
 	},
 	{
