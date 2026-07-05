@@ -345,7 +345,7 @@
 	</details>
 
 	<details class="group collapsible">
-		<summary><h3>Data file</h3></summary>
+		<summary><h3>Import &amp; export</h3></summary>
 		<div class="collapsible-body">
 			<button
 				class="btn-outline"
