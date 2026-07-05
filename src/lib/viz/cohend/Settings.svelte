@@ -750,10 +750,11 @@
 		padding-top: 0.6rem;
 	}
 	/* Advanced is the last foldout, so when the panel scrolls (the footer's
-	   margin-top:auto collapses) its open body would sit flush against the sticky
-	   footer. Give that body room to breathe. Scoped to the last collapsible so the
-	   Display→Advanced divider keeps its symmetric spacing. */
-	.collapsible:last-of-type .collapsible-body {
+	   margin-top:auto collapses) it would sit flush against the sticky footer.
+	   Padding on the details itself, not the body: the body only exists while
+	   open, so a closed section needs the room too. Scoped to the last
+	   collapsible so the Display→Advanced divider keeps its symmetric spacing. */
+	.collapsible:last-of-type {
 		padding-bottom: 0.85rem;
 	}
 	/* Sub-group labels inside Display settings (Labels / Colors). */

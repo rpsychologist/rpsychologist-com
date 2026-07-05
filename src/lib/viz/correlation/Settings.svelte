@@ -733,7 +733,9 @@
 		gap: 0.5rem;
 		padding-top: 0.6rem;
 	}
-	.collapsible:last-of-type .collapsible-body {
+	/* On the details itself, not the body: the body only exists while open,
+	   and a closed last section would sit flush against the actions footer. */
+	.collapsible:last-of-type {
 		padding-bottom: 0.85rem;
 	}
 	.save-status {
