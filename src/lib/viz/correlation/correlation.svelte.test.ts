@@ -2,7 +2,7 @@
 // path and the reducer-equivalent methods; restore-validation itself is pinned
 // by persisted.test.ts (sanitizeStored) and the bounds live in validParam.
 import { describe, expect, it } from 'vitest';
-import { CorrelationState, defaults } from './correlation.svelte';
+import { CorrelationState, defaults, N_MAX } from './correlation.svelte';
 import { anscombe1 } from './datasets';
 import { sampleStats, type Point } from './model';
 
@@ -141,6 +141,22 @@ describe('loadCsv', () => {
 			sampleStats(pts).muHatNewX + 4 * sampleStats(pts).sigmaHatNewX,
 			10
 		);
+	});
+
+	it('clamps an oversized file to N_MAX and reports the truncation', () => {
+		const s = freshState();
+		const pts: Point[] = Array.from({ length: N_MAX + 25 }, (_, i) => [i, i] as Point);
+		const res = s.loadCsv(pts, 'x', 'y');
+		expect(res).toEqual({ loaded: N_MAX, truncated: true });
+		expect(s.p.data).toHaveLength(N_MAX);
+		expect(s.p.data).toEqual(pts.slice(0, N_MAX));
+	});
+
+	it('leaves a within-cap file untouched and reports no truncation', () => {
+		const s = freshState();
+		const pts: Point[] = Array.from({ length: 10 }, (_, i) => [i, i] as Point);
+		expect(s.loadCsv(pts, 'x', 'y')).toEqual({ loaded: 10, truncated: false });
+		expect(s.p.data).toHaveLength(10);
 	});
 });
 

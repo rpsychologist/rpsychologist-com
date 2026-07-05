@@ -91,6 +91,14 @@ export const defaults: CorrelationParams = {
 };
 
 export const LABEL_MAX = 120;
+
+// Cap on the sample size. Each point is an SVG <circle> carrying a transform
+// transition and a drag handler, so a slider move re-lays-out every node; past
+// ~a thousand that janks. The old app left n unbounded — a rough edge we don't
+// replicate. Enforced on the drawer input (reject), CSV import (clamp), and
+// restore (reject). Well past what this pedagogical scatter ever needs.
+export const N_MAX = 1000;
+
 const HEX_COLOR = /^#[0-9a-f]{6}$/i;
 
 // Restore bounds: a value outside these is rejected back to its default, never
@@ -98,7 +106,7 @@ const HEX_COLOR = /^#[0-9a-f]{6}$/i;
 // divides by zero in the standardization.
 const numRange = {
 	rho: { min: -1, max: 1 },
-	n: { min: 1 },
+	n: { min: 1, max: N_MAX },
 	SD0: { min: Number.MIN_VALUE },
 	SD1: { min: Number.MIN_VALUE },
 	sigmaHatX: { min: Number.MIN_VALUE },
@@ -309,12 +317,18 @@ export class CorrelationState {
 	}
 
 	/** Old loadCsv: adopts the points and labels, rescales; `n` and the preset
-	 * select deliberately stay stale, like the old app. */
-	loadCsv(points: Point[], xLabel: string, yLabel: string) {
+	 * select deliberately stay stale, like the old app. Oversized files are
+	 * clamped to N_MAX (see the constant) — a file the user chose is truncated
+	 * with notice rather than rejected outright. Returns how many points were
+	 * kept so the caller can report the clamp. */
+	loadCsv(points: Point[], xLabel: string, yLabel: string): { loaded: number; truncated: boolean } {
 		this.immediate = false;
-		this.#adoptData(points, { rescale: true });
+		const truncated = points.length > N_MAX;
+		const kept = truncated ? points.slice(0, N_MAX) : points;
+		this.#adoptData(kept, { rescale: true });
 		this.p.xLabel = xLabel.slice(0, LABEL_MAX);
 		this.p.yLabel = yLabel.slice(0, LABEL_MAX);
+		return { loaded: kept.length, truncated };
 	}
 
 	/** Back to the page-load sample and default parameters (old reset action
@@ -357,10 +371,17 @@ export class CorrelationState {
 		const dropped = this.#store.restore().map(String);
 		this.#savedJSON = this.#store.raw();
 		// Cross-field checks sanitizeStored can't see: the sample arrays must
-		// agree in length for recorrelate's index pairing, and the frame must be
-		// a real rectangle. Reject the whole slice back to the fresh sample.
+		// agree in length for recorrelate's index pairing, the frame must be a
+		// real rectangle, and the sample can't exceed N_MAX (a crafted URL could
+		// carry consistent oversized arrays that pass per-field validation).
+		// Reject the whole slice back to the fresh sample.
 		const { x, y, data } = this.p;
-		if (x.length !== y.length || data.length !== x.length || data.length < 2) {
+		if (
+			x.length !== y.length ||
+			data.length !== x.length ||
+			data.length < 2 ||
+			data.length > N_MAX
+		) {
 			if (this.#savedJSON !== null && !dropped.includes('data')) dropped.push('data');
 			this.#adoptData(
 				this.#initial.x.map((v, i) => [v, this.#initial!.y[i]] as Point),

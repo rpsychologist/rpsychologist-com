@@ -9,7 +9,7 @@
 	import { typedSettle } from '../core/util/typedInput';
 	import { presetList } from './datasets';
 	import { downloadCsv, parseCsvPoints } from './csv';
-	import { LABEL_MAX, type CorrelationState } from './correlation.svelte';
+	import { LABEL_MAX, N_MAX, type CorrelationState } from './correlation.svelte';
 
 	// Fixed full-height right drawer; structure and interaction rules copied from
 	// the cohend drawer (the house template): numeric params live-apply on valid
@@ -29,11 +29,12 @@
 	type NumKey = 'M0' | 'M1' | 'SD0' | 'SD1' | 'n';
 
 	// SD bounds are exclusive at zero (a zero sigma divides by zero in the
-	// standardization); n must be a positive integer for the draw.
+	// standardization); n must be a positive integer, capped at N_MAX so the SVG
+	// scatter stays smooth (see N_MAX).
 	function outOfRange(key: NumKey, v: number): boolean {
 		if (!Number.isFinite(v)) return true;
 		if ((key === 'SD0' || key === 'SD1') && v <= 0) return true;
-		if (key === 'n' && (v < 1 || !Number.isInteger(v))) return true;
+		if (key === 'n' && (v < 1 || v > N_MAX || !Number.isInteger(v))) return true;
 		return false;
 	}
 
@@ -74,7 +75,7 @@
 			case 'SD1':
 				return 'Standard deviations must be greater than 0.';
 			case 'n':
-				return 'Sample size must be a whole number of at least 1.';
+				return `Sample size must be a whole number between 1 and ${N_MAX}.`;
 			default:
 				return 'Value must be a number.';
 		}
@@ -118,8 +119,13 @@
 		reader.onload = () => {
 			const parsed = parseCsvPoints(String(reader.result));
 			if (parsed) {
-				model.loadCsv(parsed.points, parsed.xLabel, parsed.yLabel);
-				flash(`Loaded ${parsed.points.length} points from ${file.name}`);
+				const { loaded, truncated } = model.loadCsv(parsed.points, parsed.xLabel, parsed.yLabel);
+				flash(
+					truncated
+						? `Loaded the first ${loaded} of ${parsed.points.length} points from ${file.name} (capped at ${N_MAX})`
+						: `Loaded ${loaded} points from ${file.name}`,
+					truncated ? 'error' : 'status'
+				);
 			} else {
 				flash('Could not read any (x, y) rows from that file', 'error');
 			}
@@ -162,13 +168,14 @@
 	});
 </script>
 
-{#snippet numField(label: string, key: NumKey, min: number, step: number | string)}
+{#snippet numField(label: string, key: NumKey, min: number, step: number | string, max?: number)}
 	<label class="field" class:invalid={fieldError?.key === key}>
 		<span>{label}</span>
 		<input
 			type="number"
 			value={model.p[key]}
 			{min}
+			{max}
 			{step}
 			aria-invalid={fieldError?.key === key}
 			oninput={(e) => setNum(key, e)}
@@ -250,7 +257,7 @@
 				{/each}
 			</select>
 		</label>
-		{@render numField('Sample size', 'n', 1, 1)}
+		{@render numField('Sample size', 'n', 1, 1, N_MAX)}
 		<button class="btn-outline" type="button" onclick={() => model.newSample()}>
 			New sample
 		</button>
