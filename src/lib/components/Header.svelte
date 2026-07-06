@@ -1,16 +1,18 @@
 <script lang="ts">
 	import Icon from './Icon.svelte';
 	import Logo from './Logo.svelte';
+	import SearchModal from './SearchModal.svelte';
 	import ThemeToggle from './ThemeToggle.svelte';
 
 	import { site } from '$lib/config';
 	import { resolve } from '$app/paths';
 
+	// Search is the icon + ⌘K modal in .actions (see SearchModal); the /search
+	// page still exists as the no-JS/deep-link fallback but isn't linked here.
 	const nav = [
 		{ label: 'Posts', href: resolve('/posts') },
 		{ label: 'Visualizations', href: resolve('/viz') },
-		{ label: 'About', href: resolve('/about') },
-		{ label: 'Search', href: resolve('/search') }
+		{ label: 'About', href: resolve('/about') }
 	];
 	const socials = [
 		{ name: 'bluesky', href: site.social.bluesky, label: 'Bluesky' },
@@ -33,6 +35,7 @@
 		</nav>
 
 		<div class="actions">
+			<SearchModal />
 			{#each socials as s (s.name)}
 				<a
 					class="social icon-link"

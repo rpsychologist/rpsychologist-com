@@ -111,8 +111,13 @@ const config = {
 			mode: 'hash',
 			directives: {
 				'default-src': ['self'],
+				// wasm-unsafe-eval: Pagefind compiles wasm. Today that happens inside its
+				// worker, which a <meta>-delivered CSP doesn't govern — search works by
+				// accident. This keeps it working if the CSP ever moves to an HTTP header
+				// or Pagefind drops the worker. (Allows wasm compilation only, not JS eval.)
 				'script-src': [
 					'self',
+					'wasm-unsafe-eval',
 					'https://static.cloudflareinsights.com',
 					'sha256-FMaspm2Nevt8KFmaJAxteu0cllsLfH47rNXafQkLW6w='
 				],

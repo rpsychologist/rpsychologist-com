@@ -53,7 +53,10 @@ test('invalid URL params fall back to defaults with feedback', async ({ page }) 
 	await page.goto('/cohend?SD=0&d=oops');
 	await chartReady(page);
 
-	await expect(page.getByRole('status')).toContainText(/invalid values for.*SD/);
+	// Filtered: the search modal's Pagefind announce regions are also role=status.
+	await expect(page.getByRole('status').filter({ hasText: 'invalid' })).toContainText(
+		/invalid values for.*SD/
+	);
 	await expect(chart(page)).toHaveAccessibleName(/Cohen's d of 0\.80/);
 });
 

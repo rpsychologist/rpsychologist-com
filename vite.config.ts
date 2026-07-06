@@ -4,11 +4,12 @@ import { defineConfig } from 'vitest/config';
 import browserslist from 'browserslist';
 import { browserslistToTargets } from 'lightningcss';
 import { postsData } from './vite-plugin-posts.js';
+import { servePagefind } from './vite-plugin-pagefind.js';
 
 export default defineConfig({
 	// enhancedImages must run before sveltekit so it can transform <enhanced:img>
 	// and ?enhanced imports emitted by the markdown image transform.
-	plugins: [enhancedImages(), postsData(), sveltekit()],
+	plugins: [enhancedImages(), postsData(), sveltekit(), servePagefind()],
 	css: {
 		transformer: 'lightningcss',
 		// Targets come from the `browserslist` field in package.json. Note:

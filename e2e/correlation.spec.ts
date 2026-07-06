@@ -95,7 +95,10 @@ test('an invalid saved blob falls back to defaults with feedback', async ({ page
 	await page.goto('/correlation');
 	await chartReady(page);
 
-	await expect(page.getByRole('status')).toContainText(/invalid values for.*rho/);
+	// Filtered: the search modal's Pagefind announce regions are also role=status.
+	await expect(page.getByRole('status').filter({ hasText: 'invalid' })).toContainText(
+		/invalid values for.*rho/
+	);
 	await expect(page.getByRole('spinbutton', { name: 'Correlation' })).toHaveValue('0');
 
 	await page.evaluate(() => localStorage.clear());

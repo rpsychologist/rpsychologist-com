@@ -1,28 +1,14 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { dev } from '$app/environment';
 	import Container from '$lib/components/Container.svelte';
 	import Seo from '$lib/components/Seo.svelte';
+	import { loadPagefindUI, RESULT_TEMPLATE } from '$lib/search';
 
-	// Pagefind's index + UI are emitted into /pagefind by the `pagefind` CLI after
-	// `vite build`, so they don't exist during `vite dev` (search works in the
-	// production build / preview). Load them via injected tags to bypass Vite's
-	// module resolution of a path that only exists post-build.
+	// Inline Component UI building blocks — the deep-link/no-header-modal
+	// fallback. Own instance name so its state doesn't sync with the header
+	// modal's "default" instance on the same page.
 	onMount(() => {
-		if (dev) return; // index isn't built in dev; avoid a 404
-
-		const css = document.createElement('link');
-		css.rel = 'stylesheet';
-		css.href = '/pagefind/pagefind-ui.css';
-		document.head.appendChild(css);
-
-		const script = document.createElement('script');
-		script.src = '/pagefind/pagefind-ui.js';
-		script.onload = () => {
-			// @ts-expect-error injected global from pagefind-ui.js
-			new window.PagefindUI({ element: '#search', showImages: false, showSubResults: true });
-		};
-		document.body.appendChild(script);
+		loadPagefindUI().catch(() => {});
 	});
 </script>
 
@@ -30,34 +16,32 @@
 
 <Container>
 	<h1>Search</h1>
-	{#if dev}
-		<p class="dev-note">
-			Search runs on a Pagefind index generated at <code>pnpm build</code>. It isn't served by
-			<code>vite dev</code>/<code>preview</code>; test it by serving the build output:
-			<code>pnpm build &amp;&amp; npx serve build</code>.
-		</p>
-	{/if}
-	<div id="search"></div>
+	<div class="search-ui">
+		<pagefind-input instance="page"></pagefind-input>
+		<pagefind-summary instance="page"></pagefind-summary>
+		<pagefind-results instance="page" max-sub-results="3">{@html RESULT_TEMPLATE}</pagefind-results>
+	</div>
 	<noscript>Search requires JavaScript.</noscript>
 </Container>
 
 <style>
-	.dev-note {
-		color: var(--muted);
-		font-size: 0.9rem;
-		background: var(--panel);
-		border: 1px solid var(--rule);
-		border-radius: var(--radius, 8px);
-		padding: 0.75rem 1rem;
-	}
-	#search {
+	.search-ui {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
 		margin-top: 1.5rem;
-		/* Pagefind UI custom properties (themed to match the site). */
-		--pagefind-ui-primary: var(--accent);
-		--pagefind-ui-text: var(--ink);
-		--pagefind-ui-background: var(--bg);
-		--pagefind-ui-border: var(--rule);
-		--pagefind-ui-tag: var(--panel);
-		--pagefind-ui-border-radius: var(--radius, 8px);
+		/* Same token mapping as the header modal (see SearchModal.svelte). */
+		--pf-font: var(--font-sans);
+		--pf-text: var(--ink);
+		--pf-text-muted: var(--muted);
+		--pf-text-secondary: var(--muted);
+		--pf-background: var(--bg);
+		--pf-border: var(--rule);
+		--pf-border-focus: var(--accent);
+		--pf-border-radius: var(--radius);
+		--pf-hover: var(--panel);
+		--pf-outline-focus: var(--accent);
+		--pf-skeleton: var(--panel);
+		--pf-skeleton-shine: var(--rule);
 	}
 </style>

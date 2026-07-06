@@ -15,7 +15,7 @@ per-visualization theme packages. Ignore it for architecture; trust the code.
 
 ```bash
 pnpm dev          # vite dev server
-pnpm build        # vite build, then `pagefind --site build` to index for search
+pnpm build        # vite build, then scripts/pagefind-index.mjs to index for search
 pnpm preview      # serve the production build locally
 pnpm check        # svelte-kit sync + svelte-check (type/Svelte diagnostics)
 pnpm test         # vitest run (all tests)
@@ -32,8 +32,16 @@ Playwright smoke spec each in `e2e/` instead — hydration + state wiring agains
 the real build (locally the webServer builds first; in CI it reuses the build
 step). These are what catch a `viz/core` change breaking an existing app.
 
-After editing markdown content, `pagefind` only re-indexes on a full `pnpm
-build` — dev search may be stale (the search page guards on `dev` accordingly).
+Search: `pagefind` is pinned exactly (no caret) — the Component UI is new in
+1.5 and the template/CSS touch its internals; upgrade deliberately with the
+search e2e as the gate. `scripts/pagefind-index.mjs` builds the index from `build/`
+(Node API, not the CLI — clean URLs need explicit `url`s) and injects **all**
+`data-pagefind-*` markup into the indexed copies (body scoping, code
+down-weighting, type metadata, viz boosts) — never into templates or content,
+so search stays swappable. UI: `SearchModal.svelte` (header, ⌘K) and the
+`/search` fallback, shared glue in `src/lib/search.ts`. In dev/preview the
+index is served from `build/pagefind` by `vite-plugin-pagefind.js` and is
+stale until the next `pnpm build`.
 
 ## Content & post pipeline (the core of the site)
 
