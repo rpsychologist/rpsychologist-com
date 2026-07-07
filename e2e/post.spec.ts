@@ -26,6 +26,24 @@ test('collapsed code folds on landing and after post → post navigation', async
 	await expect(foldBack).toHaveText('Hide code');
 });
 
+test('TOC: narrow disclosure and wide-screen scroll spy', async ({ page }) => {
+	// Narrow: the list is collapsed behind the Contents row and closes again
+	// after picking a section.
+	await page.setViewportSize({ width: 412, height: 900 });
+	await page.goto('/GLMM-part1-lognormal');
+	const list = page.locator('.toc-list');
+	await expect(list).toBeHidden();
+	await page.locator('.toc-summary').click();
+	await expect(list).toBeVisible();
+	await page.locator('.toc-list a[href="#simulate-data"]').click();
+	await expect(list).toBeHidden();
+
+	// Wide: sidebar scroll spy marks the section being read.
+	await page.setViewportSize({ width: 1500, height: 900 });
+	await page.evaluate(() => document.getElementById('summary')?.scrollIntoView());
+	await expect(page.locator('.toc a[aria-current]')).toHaveAttribute('href', '#summary');
+});
+
 test('TOC and code blocks degrade without JS', async ({ browser }) => {
 	const ctx = await browser.newContext({ javaScriptEnabled: false });
 	const page = await ctx.newPage();

@@ -242,17 +242,25 @@
 		}
 	}
 
-	/* Sticky TOC sidebar on wide screens for include_toc posts. */
-	@media (min-width: 64rem) {
+	/* Sidebar TOC on wide screens: the article keeps its exact no-TOC position
+	   (the centered reading column, so the title doesn't jump between posts)
+	   and the TOC hangs in the left gutter, top-aligned with the title. Below
+	   this width the TOC is a collapsed "Contents" row above the title
+	   (breakpoint kept in sync with Toc.svelte). */
+	@media (min-width: 74rem) {
 		.post-layout.has-toc {
 			display: grid;
-			grid-template-columns: 13rem minmax(0, 1fr);
-			gap: 2.5rem;
-			max-width: 64rem;
-			margin-inline: auto;
+			grid-template-columns: 1fr minmax(0, var(--measure)) 1fr;
+		}
+		.post-aside {
+			grid-column: 1;
+			justify-self: end;
+			width: 13rem;
+			margin-right: 2.5rem;
+			padding-top: 3.4rem;
 		}
 		.post-layout.has-toc .article {
-			margin-inline: 0;
+			grid-column: 2;
 		}
 	}
 </style>
