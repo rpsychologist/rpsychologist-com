@@ -77,6 +77,14 @@ test('settings save to localStorage and survive a reload', async ({ page }) => {
 	await page.evaluate(() => localStorage.clear());
 });
 
+test('legacy ?embed=1 URLs redirect to the embed route, params intact', async ({ page }) => {
+	// Permanent legacy support: pre-2.7 embeds framed /cohend?embed=1 directly.
+	await page.goto('/cohend?embed=1&d=1.2&slider=1');
+	await page.waitForURL('/cohend/embed?d=1.2');
+	await chartReady(page);
+	await expect(chart(page)).toHaveAccessibleName(/Cohen's d of 1\.20/);
+});
+
 test('embed route is chrome-free and honors its params', async ({ page }) => {
 	await page.goto('/cohend/embed?d=1.2&donuts=0');
 	await chartReady(page);

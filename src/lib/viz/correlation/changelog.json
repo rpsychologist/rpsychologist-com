@@ -1,0 +1,17 @@
+{
+	"note": "Versions through 0.7.1 predate this changelog; their history was not recorded.",
+	"releases": [
+		{
+			"version": "0.8.0",
+			"date": "2026-07-07",
+			"added": [
+				"Invalid saved settings are flagged with a notice instead of silently falling back to the defaults."
+			],
+			"changed": [
+				"Complete rewrite in Svelte (previously React). Every displayed statistic is unchanged.",
+				"The sample size in the settings drawer is capped at 1000 (previously unbounded, where a large value could hang the browser).",
+				"New visual design, as part of the site-wide redesign."
+			]
+		}
+	]
+}

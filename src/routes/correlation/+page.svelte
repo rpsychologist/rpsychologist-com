@@ -7,6 +7,8 @@
 	import VizGallery from '$lib/components/VizGallery.svelte';
 	import { viz } from '$lib/viz';
 	import Toast from '$lib/viz/core/components/Toast.svelte';
+	import VizCitation from '$lib/components/VizCitation.svelte';
+	import { changelog } from '$lib/viz/correlation/changelog';
 	import CorrelationTool from '$lib/viz/correlation/CorrelationTool.svelte';
 	import { CorrelationState } from '$lib/viz/correlation/correlation.svelte';
 
@@ -57,7 +59,10 @@
 	<header class="hero">
 		<h1 class="display">Interpreting Correlations</h1>
 		<p class="subtitle">An Interactive Visualization</p>
-		<p class="byline">Created by <a href={resolve('/about')}>Kristoffer Magnusson</a></p>
+		<p class="byline">
+			Created by <a href={resolve('/about')}>Kristoffer Magnusson</a> ·
+			<a href={resolve('/correlation/changelog')}>Version {changelog.version}</a>
+		</p>
 	</header>
 
 	<div class="intro">
@@ -179,6 +184,17 @@
 					along the principal directions, where <Tex math={String.raw`\chi^2_2(p)`} /> is the chi-square
 					quantile with 2 degrees of freedom.
 				</p>
+			</div>
+		</details>
+
+		<details>
+			<summary>How do I cite this page?</summary>
+			<div class="answer">
+				<VizCitation
+					{changelog}
+					title="Interpreting correlations: An interactive visualization"
+					changelogHref={resolve('/correlation/changelog')}
+				/>
 			</div>
 		</details>
 

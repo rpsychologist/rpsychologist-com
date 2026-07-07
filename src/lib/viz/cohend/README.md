@@ -21,10 +21,12 @@ in the root `CLAUDE.md` under `src/lib/viz`; this file documents what is specifi
 | `Settings.svelte`         | Right drawer: numeric params, labels, colors, slider range, save/clear/reset with saved/dirty indicators.                                                   |
 | `ShareDialog.svelte`      | Link + embed `<iframe>` snippet with live preview; checkboxes pick which state slices ride along.                                                           |
 | `EmbedAttribution.svelte` | Source credit at the foot of the embed route.                                                                                                               |
+| `changelog.json` + `.ts`  | Release history (semver + dated, Keep a Changelog categories); the `.ts` wraps it in `defineChangelog`. See root `CLAUDE.md` § versioning.                  |
 
 Routes: `src/routes/cohend/+page.svelte` (article page: intro, tool, common-language
-readout, FAQ, formulas, gallery) and `src/routes/cohend/embed/+page.svelte` (chrome-free
-iframe target — a real child route, not a `?embed=1` query; see root `CLAUDE.md`).
+readout, FAQ, formulas, gallery), `src/routes/cohend/embed/+page.svelte` (chrome-free
+iframe target — a real child route, not a `?embed=1` query; see root `CLAUDE.md`), and
+`src/routes/cohend/changelog/+page.svelte` (release history; the cite FAQ links here).
 
 ## State flow
 

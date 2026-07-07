@@ -1,10 +1,16 @@
 import { posts, pageCount, termBySlug } from '$lib/content';
 import { site } from '$lib/config';
+import { viz } from '$lib/viz';
 
 export const prerender = true;
 
 export function GET() {
-	const staticPaths = ['', 'posts', 'viz', 'about', 'tags', 'search'];
+	// Internal viz apps (external hrefs are the not-yet-ported ones) plus each
+	// app's changelog — the changelog URL is citable and should be crawlable.
+	const vizPaths = viz
+		.filter((v) => v.href.startsWith('/'))
+		.flatMap((v) => [v.href.slice(1), `${v.href.slice(1)}/changelog`]);
+	const staticPaths = ['', 'posts', 'viz', 'about', 'tags', 'search', ...vizPaths];
 	const pagePaths = Array.from({ length: pageCount - 1 }, (_, i) => `page/${i + 2}`);
 	const tagPaths = [...termBySlug.keys()].map((slug) => `tags/${slug}`);
 

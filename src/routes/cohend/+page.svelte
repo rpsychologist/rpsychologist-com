@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
 	import { resolve } from '$app/paths';
 	import Seo from '$lib/components/Seo.svelte';
 	import Tex from '$lib/components/Tex.svelte';
@@ -7,9 +8,30 @@
 	import VizGallery from '$lib/components/VizGallery.svelte';
 	import { viz } from '$lib/viz';
 	import Toast from '$lib/viz/core/components/Toast.svelte';
+	import VizCitation from '$lib/components/VizCitation.svelte';
+	import { changelog } from '$lib/viz/cohend/changelog';
 	import CohendTool from '$lib/viz/cohend/CohendTool.svelte';
 	import CommonLanguage from '$lib/viz/cohend/CommonLanguage.svelte';
 	import { CohendState, type DroppedState } from '$lib/viz/cohend/cohend.svelte';
+
+	// Permanent legacy redirect (see the /cohend block in static/_headers,
+	// which makes this page frameable so it can run at all): the old site
+	// embedded this page as /cohend?embed=1&…, so forward those iframes to the
+	// embed route. Permanent by policy — embeds are links teachers built
+	// material on, and the changelog promises old links are never dropped.
+	// `embed` is dropped; so is the old minimal-slider toggle `slider` (the
+	// embed view is already minimal); the state params carry over unchanged
+	// (audited: old and new keys match). Runs during hydration, not onMount,
+	// to shorten the flash inside the iframe.
+	if (browser) {
+		const params = new URLSearchParams(location.search);
+		if (params.get('embed') === '1') {
+			params.delete('embed');
+			params.delete('slider');
+			const qs = params.toString();
+			location.replace(resolve('/cohend/embed') + (qs ? `?${qs}` : ''));
+		}
+	}
 
 	const model = new CohendState();
 	// Owned here (not in CohendTool) so the page can shift its layout when the
@@ -52,13 +74,6 @@
 	};
 
 	const rCode = `CER <- 0.2\nd <- 0.2\n1 / (pnorm(d + qnorm(CER)) - CER)`;
-	const bibtex = `@software{magnussonCohend,
-  author = {Kristoffer Magnusson},
-  title = {Interpreting Cohen's d Effect Size: An Interactive Visualization},
-  url = {https://rpsychologist.com/cohend/},
-  version = {2.6.0},
-  date = {2020},
-}`;
 </script>
 
 <Seo
@@ -71,7 +86,10 @@
 	<header class="hero">
 		<h1 class="display">Interpreting Cohen's <em>d</em> Effect Size</h1>
 		<p class="subtitle">An Interactive Visualization</p>
-		<p class="byline">Created by <a href={resolve('/about')}>Kristoffer Magnusson</a></p>
+		<p class="byline">
+			Created by <a href={resolve('/about')}>Kristoffer Magnusson</a> ·
+			<a href={resolve('/cohend/changelog')}>Version {changelog.version}</a>
+		</p>
 	</header>
 
 	<div class="intro">
@@ -193,15 +211,11 @@
 		<details>
 			<summary>How do I cite this page?</summary>
 			<div class="answer">
-				<p>Cite this page according to your favorite style guide.</p>
-				<p><strong>APA 7</strong></p>
-				<p class="apa">
-					Magnusson, K. (2020). <em
-						>Interpreting Cohen's d effect size: An interactive visualization</em
-					> (Version 2.6.0) [Web App]. R Psychologist. https://rpsychologist.com/cohend/
-				</p>
-				<p><strong>BibTeX</strong></p>
-				<pre class="code"><code>{bibtex}</code></pre>
+				<VizCitation
+					{changelog}
+					title="Interpreting Cohen's d effect size: An interactive visualization"
+					changelogHref={resolve('/cohend/changelog')}
+				/>
 			</div>
 		</details>
 
@@ -406,14 +420,9 @@
 		padding-bottom: 1rem;
 		line-height: 1.6;
 	}
-	.refs,
-	.apa {
+	.refs {
 		font-size: 0.9rem;
 		color: var(--muted);
-	}
-	.apa {
-		padding-left: 2em;
-		text-indent: -2em;
 	}
 	.code {
 		background: var(--panel);

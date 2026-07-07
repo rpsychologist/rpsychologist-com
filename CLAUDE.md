@@ -169,6 +169,31 @@ numerical model code sits in a sibling `model.ts` with `model.test.ts`.
 (file map, state flow, URL params, share/embed) is documented in
 `src/lib/viz/cohend/README.md`.
 
+### Versioning & changelogs (researchers cite these apps)
+
+The maintainer-facing release guide is `RELEASING.md`; keep the two in sync.
+
+Each viz app carries its own semver line, continued from the Gatsby-era numbers
+(citations with those versions exist in print — never reset to 1.0.0). The
+contract is defined around what the app **shows**, not its code: major =
+displayed results change, a state-bearing URL param breaks, or a documented
+control is removed; minor = new capability, outputs/links unchanged; patch =
+visual/UX/perf. Old share-link params are migrated, never dropped.
+
+Mechanics: releases live in `src/lib/viz/<app>/changelog.json` (JSON, not TS,
+so `scripts/check-release-tags.mjs` can read it without alias resolution),
+validated at import by `core/changelog.ts` — bad data fails build/check/tests.
+The newest entry **is** the app's displayed version: the cite FAQ
+(`VizCitation.svelte`, APA + BibTeX derived, never hardcode a version) and the
+prerendered `/[app]/changelog` page (`VizChangelog.svelte`) both read it.
+Releasing a version = bump `changelog.json` and merge: CI auto-creates the
+`<app>-v<x.y.z>` tag when the bump reaches master
+(`.github/workflows/tag-releases.yml` runs the check script with `--create`;
+idempotent, self-heals on the next push). `pnpm check:tags` is the manual
+verifier and will rightly fail on a not-yet-merged bump. Tags are the archival
+substrate: old cited versions stay recoverable without hosting them. No
+version announcements in the UI by design.
+
 ## Code comments
 
 Comment to explain **why**, not **what**. The code already shows what it does;

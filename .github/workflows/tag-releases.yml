@@ -1,0 +1,30 @@
+# Auto-tag viz-app releases: when a version recorded in a
+# src/lib/viz/*/changelog.json reaches master, create its <app>-v<x.y.z> tag
+# on that commit. Tags are the archival substrate for cited versions (see
+# CLAUDE.md § versioning); creating them here makes the tag a side effect of
+# the release itself instead of a manual step. Idempotent — existing tags are
+# skipped — and runs on every master push (no paths filter) so a missed tag
+# self-heals on the next push.
+name: Tag viz releases
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full clone: the script diffs recorded releases against existing
+          # tags, and a shallow checkout fetches no tags.
+          fetch-depth: 0
+
+      # Dependency-free script; the runner's default Node is fine.
+      - run: node scripts/check-release-tags.mjs --create
+
+      - run: git push origin --tags
