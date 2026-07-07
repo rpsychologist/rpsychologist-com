@@ -12,7 +12,6 @@ tags:
    - Multilevel
    - Simulation
    - Statistics
-   - Multilevel
    - Linear mixed-effects model
    - powerlmm
 slug: treatment-response-subgroup

@@ -24,7 +24,14 @@ const FrontmatterSchema = z.object({
 	date: z.union([z.string(), z.date()]),
 	author: z.string(),
 	category: z.string().transform((s) => s.trim()),
-	tags: z.array(z.string()).default([]),
+	// Unique: tags key a client-side {#each}; a duplicate prerenders fine but
+	// crashes hydration (each_key_duplicate), so it must fail here, at build time.
+	tags: z
+		.array(z.string())
+		.default([])
+		.refine((tags) => new Set(tags).size === tags.length, {
+			message: 'duplicate tags'
+		}),
 	slug: z.string(),
 	summary: z.string().optional(),
 	include_toc: z.boolean().optional(),
