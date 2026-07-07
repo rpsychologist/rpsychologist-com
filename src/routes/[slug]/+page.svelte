@@ -25,7 +25,7 @@
 
 <div class="post-layout" class:has-toc={data.meta.includeToc}>
 	{#if data.meta.includeToc}
-		<aside class="post-aside"><Toc /></aside>
+		<aside class="post-aside"><Toc sections={data.meta.toc} /></aside>
 	{/if}
 
 	<article class="article" use:enhanceCode>

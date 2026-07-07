@@ -652,7 +652,9 @@ h4 {
 	opacity: 1;
 }
 
-/* Header bar (language label + copy + optional fold) added by enhanceCode. */
+/* Code-block chrome (bar, buttons, collapsed state), prerendered by the
+   build-time highlighter in svelte.config.js; enhanceCode only wires the
+   buttons. */
 .code-block {
 	margin: 1.5rem 0;
 	border: 1px solid var(--rule);
@@ -700,7 +702,12 @@ h4 {
 	border: 0;
 	border-radius: 0;
 }
-.code-block.collapsed .shiki {
+/* Both rules gate on .js (set pre-paint in app.html): without JS the buttons
+   are dead, so hide them and show collapsed blocks expanded. */
+:root.js .code-block.collapsed .shiki {
+	display: none;
+}
+:root:not(.js) .code-actions {
 	display: none;
 }
 

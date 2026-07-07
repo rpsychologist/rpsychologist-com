@@ -6,7 +6,10 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<script>
 			// Set the theme before first paint to avoid a flash of the wrong palette.
+			// The .js class gates JS-only CSS (e.g. collapsed code blocks) so no-JS
+			// readers aren't left with content they can't reveal.
 			(function () {
+				document.documentElement.classList.add('js');
 				try {
 					var stored = localStorage.getItem('theme');
 					var dark =

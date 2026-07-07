@@ -56,6 +56,9 @@ function decorate(url, content) {
 		// Bylines (date · read time · tag links) on posts and in list snippets are
 		// pure excerpt noise — "Oct 29, 2022 · 1 min read · viz" is no answer.
 		.replaceAll('<p class="post-meta', '<p data-pagefind-ignore class="post-meta')
+		// The prerendered code-block bar is button chrome, not content — indexed,
+		// "Copy"/"Show code" and the language label leak into every code post.
+		.replaceAll('<div class="code-bar">', '<div data-pagefind-ignore class="code-bar">')
 		// Down-weight code blocks: function/package names stay searchable, but
 		// code stops winning excerpts and rankings over prose.
 		.replaceAll('<pre', '<pre data-pagefind-weight="0.2"');

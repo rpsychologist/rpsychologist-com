@@ -56,7 +56,10 @@ they stay decoupled is the key architectural idea:
 1. **Metadata** — `vite-plugin-posts.js` is a Vite plugin exposing a virtual
    module `virtual:posts`. At build time it reads every post's frontmatter with
    `gray-matter`, validates it with a Zod schema, computes reading time, drops
-   drafts, and emits a plain-data array (no components). `src/lib/content.ts`
+   drafts, and emits a plain-data array (no components). For `include_toc`
+   posts it also extracts the TOC here (mdast + github-slugger, ids matching
+   what rehype-slug assigns) so `Toc.svelte` prerenders it — a DOM-scraped TOC
+   appeared at hydration and pushed the article down ~320px on mobile (CLS 0.36). `src/lib/content.ts`
    imports this and derives everything list-shaped: pagination, tags/categories,
    term slugs, prev/next adjacency. List pages, RSS, and sitemap import from
    here and never touch a post's compiled component.
@@ -80,9 +83,12 @@ mdsvex (extensions `.svx`, `.md`) preprocesses posts. The pipeline:
   (injected via absolute path so mdsvex resolves it relative to each doc).
 - **Highlighting**: a single reused Shiki highlighter, dual-theme (CSS variables
   toggled by `[data-theme="dark"]`). Unknown languages fall back to plaintext;
-  `:collapsed=true` marks foldable blocks. The client action
-  `src/lib/actions/code.ts` (`enhanceCode`) adds the language label, copy button,
-  and fold toggle as progressive enhancement.
+  `:collapsed=true` marks foldable blocks. The block chrome (language label,
+  copy/fold buttons, collapsed state) is emitted **at build time** by the
+  highlighter — adding it at hydration shifted the article under the reader.
+  The client action `src/lib/actions/code.ts` (`enhanceCode`) only wires
+  the buttons; CSS gated on `html.js` (a class the `app.html` pre-paint script
+  sets) shows collapsed blocks expanded and hides the buttons for no-JS readers.
 - **remark**: `resolveImages` (custom — rewrites `./img/foo.png` to root-absolute
   `/content/blog/<slug>/...` so `PostImage.svelte` can match it against an
   `?enhanced` glob; resolution must be build-time because only the plugin knows

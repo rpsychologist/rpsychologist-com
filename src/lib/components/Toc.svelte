@@ -1,56 +1,30 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
+	import type { TocSection } from 'virtual:posts';
 
-	type Sub = { id: string; text: string };
-	type Section = { id: string; text: string; subs: Sub[]; open: boolean };
-
-	let sections = $state<Section[]>([]);
-
-	// Built client-side from rendered headings (ids from rehype-slug). Posts use
-	// inconsistent heading levels (some start sections at h1, others at h2), so the
-	// shallowest level present becomes the "section" level and anything deeper is a
-	// collapsible subsection. The post title h1 has no id, so it's filtered out.
-	// Progressive enhancement — no-JS readers just don't get the TOC.
-	onMount(() => {
-		const article = document.querySelector('.article');
-		if (!article) return;
-		const heads = [...article.querySelectorAll<HTMLElement>('h1, h2, h3, h4')].filter(
-			(h) => h.id && !h.closest('.post-header')
-		);
-		if (!heads.length) return;
-
-		const level = (h: HTMLElement) => Number(h.tagName[1]);
-		const min = Math.min(...heads.map(level));
-
-		const out: Section[] = [];
-		for (const h of heads) {
-			const text = (h.textContent ?? '').trim();
-			if (level(h) === min || out.length === 0) {
-				out.push({ id: h.id, text, subs: [], open: false });
-			} else {
-				out[out.length - 1].subs.push({ id: h.id, text });
-			}
-		}
-		sections = out;
-	});
+	// Sections are extracted at build time (vite-plugin-posts) and prerendered —
+	// building the list from the DOM in onMount pushed the article down at
+	// hydration (mobile CLS ~0.36). Only the open/closed state is client-side,
+	// keyed by id so it resets naturally when navigating between posts.
+	let { sections = [] }: { sections?: TocSection[] } = $props();
+	let open = $state<Record<string, boolean>>({});
 </script>
 
 {#if sections.length}
 	<nav class="toc" aria-label="Table of contents">
 		<p class="toc-title">Contents</p>
 		<ul>
-			{#each sections as s, i (s.id)}
+			{#each sections as s (s.id)}
 				<li>
 					{#if s.subs.length}
 						<button
 							class="toc-toggle"
-							aria-expanded={s.open}
-							onclick={() => (sections[i].open = !sections[i].open)}
+							aria-expanded={!!open[s.id]}
+							onclick={() => (open[s.id] = !open[s.id])}
 						>
 							<svg
 								class="chev"
-								class:open={s.open}
+								class:open={open[s.id]}
 								width="11"
 								height="11"
 								viewBox="0 0 24 24"
@@ -65,7 +39,7 @@
 							</svg>
 							<span class="toc-text">{s.text}</span>
 						</button>
-						{#if s.open}
+						{#if open[s.id]}
 							<ul class="toc-sub" transition:slide={{ duration: 150 }}>
 								<li><a href={`#${s.id}`}>Intro</a></li>
 								{#each s.subs as sub (sub.id)}

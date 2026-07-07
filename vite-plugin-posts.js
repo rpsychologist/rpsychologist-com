@@ -2,6 +2,10 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import matter from 'gray-matter';
 import { z } from 'zod';
+import { fromMarkdown } from 'mdast-util-from-markdown';
+import { toString } from 'mdast-util-to-string';
+import { visit } from 'unist-util-visit';
+import GithubSlugger from 'github-slugger';
 
 /**
  * Exposes a `virtual:posts` module with component-free post metadata, parsed
@@ -34,6 +38,41 @@ function readingTime(body) {
 	const prose = body.replace(/^(```|~~~)[\s\S]*?^\1.*$/gm, '');
 	const words = prose.trim().split(/\s+/).filter(Boolean).length;
 	return Math.max(1, Math.round(words / WORDS_PER_MINUTE));
+}
+
+/**
+ * TOC extracted at build time so the aside prerenders with the page — building
+ * it from the DOM in onMount pushed the article down ~320px at hydration on
+ * mobile (CLS 0.36). Ids must match what rehype-slug assigns when mdsvex
+ * compiles the post: both run github-slugger over the headings in document
+ * order (every heading feeds the slugger so duplicate-name counters stay in
+ * sync, even for depths the TOC drops). Posts use inconsistent heading levels
+ * (some sections start at h1, others h2), so the shallowest level present
+ * becomes the "section" level and anything deeper is a subsection.
+ * @param {string} content
+ */
+function extractToc(content) {
+	const slugger = new GithubSlugger();
+	/** @type {{depth: number, text: string, id: string}[]} */
+	const heads = [];
+	visit(fromMarkdown(content), 'heading', (node) => {
+		const text = toString(node).trim();
+		const id = slugger.slug(text);
+		if (node.depth <= 4) heads.push({ depth: node.depth, text, id });
+	});
+	if (!heads.length) return [];
+
+	const min = Math.min(...heads.map((h) => h.depth));
+	/** @type {{id: string, text: string, subs: {id: string, text: string}[]}[]} */
+	const sections = [];
+	for (const h of heads) {
+		if (h.depth === min || sections.length === 0) {
+			sections.push({ id: h.id, text: h.text, subs: [] });
+		} else {
+			sections[sections.length - 1].subs.push({ id: h.id, text: h.text });
+		}
+	}
+	return sections;
 }
 
 /** @param {string} root */
@@ -79,6 +118,7 @@ function loadPosts(root) {
 			summary: fm.summary ?? '',
 			readingTime: readingTime(content),
 			includeToc: fm.include_toc ?? false,
+			toc: fm.include_toc ? extractToc(content) : [],
 			interactive: file.endsWith('.svx')
 		});
 	}

@@ -807,7 +807,7 @@ res <- lapply(ICCS, data.frame) %>%
   do.call(rbind, .)
 ```
 
-|      | Data scale (Integrate)| Data scale (Simulate)| Log scale|
+|Statistic| Data scale (Integrate)| Data scale (Simulate)| Log scale|
 |:-----|----------------------:|---------------------:|---------:|
 |ICC   |                   0.44|                  0.44|       0.5|
 |WI_sd |                 387.71|                387.69|        NA|

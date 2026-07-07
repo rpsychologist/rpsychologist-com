@@ -54,10 +54,30 @@ async function highlight(code, lang, meta) {
 	const collapsed = /collapsed=true/i.test(info);
 	const attrs = `data-language="${language}"${collapsed ? ' data-collapsed="true"' : ''}`;
 	const rendered = hl
-		.codeToHtml(code, { lang: language, themes: shikiThemes, defaultColor: false })
-		// Tag the block so the client enhancer can add a label / copy / fold control.
+		.codeToHtml(code, {
+			lang: language,
+			themes: shikiThemes,
+			defaultColor: false,
+			// github-light's orange (#e36209) is 3.5:1 on white — below WCAG AA for
+			// body text. Primer's darker orange reads the same and passes (5.0:1).
+			colorReplacements: { 'github-light': { '#e36209': '#bc4c00' } }
+		})
 		.replace('<pre ', `<pre ${attrs} `);
-	const html = escapeSvelte(rendered);
+	// The block chrome (bar, buttons, collapsed state) is emitted here, at build
+	// time, so posts prerender in their final layout — adding bars and folding
+	// collapsed blocks at hydration shifted the article under the reader.
+	// enhanceCode only wires the buttons; CSS gated on html.js keeps collapsed
+	// blocks readable without JS.
+	const fold = collapsed
+		? '<button type="button" class="code-fold" aria-expanded="false">Show code</button>'
+		: '';
+	const label = language !== 'text' ? language : '';
+	const block =
+		`<div class="code-block${collapsed ? ' collapsed' : ''}">` +
+		`<div class="code-bar"><span class="code-lang">${label}</span>` +
+		`<div class="code-actions">${fold}<button type="button" class="code-copy">Copy</button></div></div>` +
+		`${rendered}</div>`;
+	const html = escapeSvelte(block);
 	// Official mdsvex pattern: return the highlighted HTML as an {@html `...`} block;
 	// escapeSvelte makes the string safe inside the template literal.
 	return `{@html \`${html}\`}`;
@@ -119,7 +139,7 @@ const config = {
 					'self',
 					'wasm-unsafe-eval',
 					'https://static.cloudflareinsights.com',
-					'sha256-FMaspm2Nevt8KFmaJAxteu0cllsLfH47rNXafQkLW6w='
+					'sha256-nnPyRf3TJGBhR91oc8sJXvDtonYVSMw/wGLCZqf9k+k='
 				],
 				// unsafe-inline: Shiki emits style="" attributes, which hashes can't
 				// cover. Fonts (Fontsource) and KaTeX CSS are self-hosted, so the only
