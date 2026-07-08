@@ -59,6 +59,7 @@
 	const EXT = RANGE * Math.SQRT2;
 
 	const DRAG_SENS = 0.012;
+	const HANDLE_HIT = 16; // px: grab the floor handle to move the point vs rotate
 	const FLING_MAX = 6;
 	const EASE_TAU = 0.5; // fling relaxes to rest (SPEED = 0) on this timescale
 	const REST_VEL = 0.01; // below this the loop stops presenting
@@ -122,6 +123,9 @@
 	let wallS2Sign = 0;
 	let dragging = false;
 	let flingVel = 0;
+	// A pointer drag either rotates the view or moves the (μ, σ²) point — decided
+	// at pointerdown by whether it landed on the floor handle (see onPointerDown).
+	let dragMode: 'rotate' | 'move' = 'rotate';
 	// Drop the discoverability hint once the user has actually rotated (it can
 	// otherwise collide with a label that swings up to the top corner).
 	let hasRotated = $state(false);
@@ -140,6 +144,9 @@
 	// overlay like the gnomon), recomputed each frame in positionLabels.
 	let guidePaths = $state<string[]>([]);
 	let peakDots = $state<{ x: number; y: number }[]>([]);
+	// The current point's foot on the z = 0 floor: the grab handle for moving
+	// (μ, σ²), and the visible base of the drop line.
+	let floorPos = $state<{ x: number; y: number } | null>(null);
 	let dpr = 1;
 	let view = { scale: 1, ox: 0, oy: 0, cw: 0, ch: 0 };
 	let isDark = false;
@@ -458,6 +465,27 @@
 		return { x: view.ox + sx * view.scale, y: view.oy + sy * view.scale };
 	}
 
+	// Inverse of project() on the z = 0 floor: a client point → (μ, σ²). Exact
+	// (orthographic oblique), so dragging is absolute — the point goes under the
+	// cursor's floor position at any rotation, no diagonal-drag surprise. σ² is
+	// heavily foreshortened near edge-on, so this is coarser than the flat
+	// contour; that's why the contour stays the precise input.
+	function unprojectFloor(clientX: number, clientY: number): { mu: number; sigma2: number } {
+		const rect = canvas.getBoundingClientRect();
+		const sx = (clientX - rect.left - view.ox) / view.scale;
+		const sy = (clientY - rect.top - view.oy) / view.scale;
+		const x1 = (sx - CX) / SCALE;
+		const y1 = (CY - sy) / (SCALE * cb);
+		const ca = Math.cos(angle);
+		const sa = Math.sin(angle);
+		const ax = x1 * ca + y1 * sa;
+		const ay = -x1 * sa + y1 * ca;
+		return {
+			mu: MU_MIN + ((ax + RANGE) / (2 * RANGE)) * (MU_MAX - MU_MIN),
+			sigma2: SIGMA2_MIN + ((ay + RANGE) / (2 * RANGE)) * (SIGMA2_MAX - SIGMA2_MIN)
+		};
+	}
+
 	// Screen-space arrowhead: from the projected tip, a two-line chevron ~HEAD_L
 	// px back along the projected shaft, splayed ±HEAD_A. Always faces the
 	// viewer, so it stays a clean arrow at every rotation (a baked 3D head reads
@@ -502,6 +530,7 @@
 		const p = model.p;
 		const hz = zOf(logLikSum(p.sample, p.mu, p.sigma2), model.grid.max);
 		headPos = project(wx(p.mu), wy(p.sigma2), hz);
+		floorPos = project(wx(p.mu), wy(p.sigma2), 0);
 
 		// MLE-summit → wall-peak guides (dashed), echoing the reference's
 		// "marginal peaks". Both peaks sit at ℓ̂, so the guides are horizontal.
@@ -767,6 +796,19 @@
 
 	function onPointerDown(e: PointerEvent) {
 		if (e.button !== 0) return;
+		// Grab the floor handle → move the point; anywhere else → rotate. Moving
+		// preventDefaults so a touch drag on the handle doesn't scroll the page.
+		if (
+			floorPos &&
+			Math.hypot(e.clientX - rectX() - floorPos.x, e.clientY - rectY() - floorPos.y) <= HANDLE_HIT
+		) {
+			dragMode = 'move';
+			(e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+			e.preventDefault();
+			model.setPoint(unprojectFloor(e.clientX, e.clientY));
+			return;
+		}
+		dragMode = 'rotate';
 		dragging = true;
 		flingVel = 0;
 		lastX = e.clientX;
@@ -774,9 +816,17 @@
 		(e.currentTarget as Element).setPointerCapture?.(e.pointerId);
 		kick();
 	}
+	const rectX = () => canvas.getBoundingClientRect().left;
+	const rectY = () => canvas.getBoundingClientRect().top;
 	let lastX = 0;
 	let lastPT = 0;
 	function onPointerMove(e: PointerEvent) {
+		if (dragMode === 'move') {
+			if (e.buttons === 0) return;
+			model.setPoint(unprojectFloor(e.clientX, e.clientY));
+			e.preventDefault();
+			return;
+		}
 		if (!dragging || e.buttons === 0) return;
 		const dx = e.clientX - lastX;
 		if (dx !== 0) hasRotated = true;
@@ -788,6 +838,11 @@
 		lastPT = e.timeStamp;
 	}
 	function onPointerEnd(e: PointerEvent) {
+		if (dragMode === 'move') {
+			(e.currentTarget as Element).releasePointerCapture?.(e.pointerId);
+			dragMode = 'rotate';
+			return;
+		}
 		if (!dragging) return;
 		(e.currentTarget as Element).releasePointerCapture?.(e.pointerId);
 		vel = flingVel;
@@ -821,12 +876,15 @@
 		{#each peakDots as pt, i (i)}
 			<circle class="wall-peak" cx={pt.x} cy={pt.y} r="3.5" />
 		{/each}
+		{#if floorPos}
+			<circle class="floor-handle" cx={floorPos.x} cy={floorPos.y} r="7" />
+		{/if}
 	</svg>
 	<span class="axis-tag" bind:this={muTag}>μ</span>
 	<span class="axis-tag" bind:this={s2Tag}>σ²</span>
 	<span class="axis-tag" bind:this={llTag}>ℓ</span>
 	{#if !hasRotated}
-		<span class="hint">drag to rotate</span>
+		<span class="hint">drag to rotate · drag the ring to move</span>
 	{/if}
 	<p class="visually-hidden">
 		A wireframe surface of the log-likelihood over the mean and variance. The surface rises to a
@@ -889,6 +947,15 @@
 		fill: var(--marginal);
 		stroke: var(--bg);
 		stroke-width: 1.5;
+	}
+	/* The grab handle for moving the point: a hollow ring at the drop-line foot.
+	   Purely visual — the gnomon overlay is click-through and hit-testing is done
+	   in JS against floorPos (see onPointerDown). */
+	.gnomon .floor-handle {
+		fill: color-mix(in srgb, var(--heading) 10%, transparent);
+		stroke: var(--heading);
+		stroke-width: 1.5;
+		opacity: 0.75;
 	}
 	/* Positioned each frame via an inline transform (JS projects the world
 	   anchor), so top/left stay at 0 and only the transform moves them. */

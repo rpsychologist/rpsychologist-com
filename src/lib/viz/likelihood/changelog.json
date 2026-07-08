@@ -9,7 +9,8 @@
 				"Likelihood-based interval on the ℓ(μ) plot: the χ²₁(0.95)/2 ≈ 1.92 drop region is shaded and its endpoints are shown alongside the Wald interval.",
 				"The inference plot annotates the geometry of the three tests (after Buse, 1982); the element for the selected test is highlighted.",
 				"Persistent readout of the estimates: μ̂, σ̂², the maximum log-likelihood, iteration count, and convergence.",
-				"Profile-likelihood silhouettes on the two far walls of the 3D view — ℓₚ(μ) = maxₛ₂ ℓ and ℓ(μ̂, σ²), the surface's ridge cast onto each axis, in the marginal colour — with dashed guides from the MLE summit to each peak."
+				"Profile-likelihood silhouettes on the two far walls of the 3D view — ℓₚ(μ) = maxₛ₂ ℓ and ℓ(μ̂, σ²), the surface's ridge cast onto each axis, in the marginal colour — with dashed guides from the MLE summit to each peak.",
+				"The 3D surface is now draggable: grab the floor handle under the point to move μ and σ² at once (the contour remains the precise input). Dragging elsewhere still rotates."
 			],
 			"changed": [
 				"Complete rewrite in Svelte (previously React). Every displayed statistic is unchanged.",

@@ -108,6 +108,30 @@ test('3D toggle shows the surface or falls back to the contour', async ({ page }
 	await expect(canvas.or(fallback).first()).toBeVisible();
 });
 
+test('dragging the surface floor handle moves both parameters', async ({ page }) => {
+	await page.goto('/likelihood');
+	await ready(page);
+	await page.getByRole('button', { name: '3D surface' }).click();
+
+	// The floor handle only exists once WebGL2 rendered the surface; skip on the
+	// SwiftShader-less fallback rather than fail.
+	const handle = page.locator('.floor-handle');
+	const fallback = page.locator('.gl-note');
+	await expect(handle.or(fallback).first()).toBeVisible();
+	test.skip(await fallback.isVisible(), 'WebGL2 unavailable — contour fallback');
+
+	const muBefore = await page.locator('#likelihood-mu-num').inputValue();
+	const box = (await handle.boundingBox())!;
+	const cx = box.x + box.width / 2;
+	const cy = box.y + box.height / 2;
+	await page.mouse.move(cx, cy);
+	await page.mouse.down();
+	await page.mouse.move(cx + 90, cy - 40, { steps: 12 });
+	await page.mouse.up();
+	// Grabbing the handle drives setPoint, moving μ (and σ²) at once.
+	await expect(page.locator('#likelihood-mu-num')).not.toHaveValue(muBefore);
+});
+
 test('changelog page lists the current release', async ({ page }) => {
 	await page.goto('/likelihood/changelog');
 	await expect(page.getByRole('heading', { level: 1 })).toContainText('Changelog');
