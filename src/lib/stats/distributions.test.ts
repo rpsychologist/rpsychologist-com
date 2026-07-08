@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { normalCdf, normalPdf, normalQuantile } from './distributions';
+import { chiSquareCdf, normalCdf, normalPdf, normalQuantile } from './distributions';
 
 describe('normalPdf', () => {
 	it('peaks at the mean with the standard-normal height', () => {
@@ -52,5 +52,40 @@ describe('normalQuantile', () => {
 	it('returns infinities at the boundaries', () => {
 		expect(normalQuantile(0)).toBe(-Infinity);
 		expect(normalQuantile(1)).toBe(Infinity);
+	});
+});
+
+describe('chiSquareCdf', () => {
+	// Reference values from R's pchisq (options(digits = 16)).
+	it('matches R pchisq at df = 1', () => {
+		expect(chiSquareCdf(3.841459, 1)).toBeCloseTo(0.9500000053468043, 10);
+		expect(chiSquareCdf(1, 1)).toBeCloseTo(0.682689492137086, 10);
+		expect(chiSquareCdf(10, 1)).toBeCloseTo(0.9984345977419975, 10);
+		expect(chiSquareCdf(0.5, 1)).toBeCloseTo(0.5204998778130465, 10);
+	});
+
+	it('matches the df = 2 closed form 1 - exp(-x/2)', () => {
+		for (const x of [0.1, 1, 2, 5, 20]) {
+			expect(chiSquareCdf(x, 2)).toBeCloseTo(1 - Math.exp(-x / 2), 12);
+		}
+		expect(chiSquareCdf(2, 2)).toBeCloseTo(0.6321205588285577, 12);
+	});
+
+	it('matches R pchisq on the continued-fraction branch (x >= a + 1)', () => {
+		expect(chiSquareCdf(4.351, 5)).toBeCloseTo(0.4999369351326777, 10);
+	});
+
+	it('agrees with the erf-based normal CDF via the df = 1 identity', () => {
+		// chi2(1) CDF = 2*Phi(sqrt(x)) - 1; normalCdf carries ~1e-7 erf error,
+		// so this cross-check is capped at that accuracy, not the gamma code's.
+		for (const x of [0.25, 1, 2.5, 6, 9]) {
+			expect(chiSquareCdf(x, 1)).toBeCloseTo(2 * normalCdf(Math.sqrt(x)) - 1, 6);
+		}
+	});
+
+	it('is 0 at and below zero and approaches 1 in the tail', () => {
+		expect(chiSquareCdf(0, 1)).toBe(0);
+		expect(chiSquareCdf(-3, 4)).toBe(0);
+		expect(chiSquareCdf(1000, 1)).toBeCloseTo(1, 12);
 	});
 });

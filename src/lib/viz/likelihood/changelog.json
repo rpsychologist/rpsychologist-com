@@ -1,0 +1,26 @@
+{
+	"note": "Versions through 0.1.2 predate this changelog; their history was not recorded.",
+	"releases": [
+		{
+			"version": "0.2.0",
+			"date": "2026-07-08",
+			"added": [
+				"3D view of the joint likelihood: the contour plot can toggle to a rotatable surface (heights show the tempered relative likelihood, a monotone transform of ℓ) with the optimizer path and the ℓ(μ)/ℓ(σ²) slices drawn on it; falls back to the contour without WebGL or with reduced motion.",
+				"Likelihood-based interval on the ℓ(μ) plot: the χ²₁(0.95)/2 ≈ 1.92 drop region is shaded and its endpoints are shown alongside the Wald interval.",
+				"The inference plot annotates the geometry of the three tests (after Buse, 1982); the element for the selected test is highlighted.",
+				"Persistent readout of the estimates: μ̂, σ̂², the maximum log-likelihood, iteration count, and convergence."
+			],
+			"changed": [
+				"Complete rewrite in Svelte (previously React). Every displayed statistic is unchanged.",
+				"The inference section's sample-size control is reworded to make clear the statistics treat the fixed estimates as if they came from a sample of size n — no new data are drawn.",
+				"Switching the optimization algorithm now clears the drawn path (previously the path could mix steps from both algorithms).",
+				"The gradient-ascent step size was halved (γ = 0.05) so the early steps no longer overshoot the maximum, and autoplay is paced so the climb is watchable rather than instant.",
+				"New visual design, as part of the site-wide redesign."
+			],
+			"fixed": [
+				"An internal second-derivative formula for σ² was incorrect (it was never displayed).",
+				"Resetting the optimizer could leave its path in an inconsistent state until the next step."
+			]
+		}
+	]
+}

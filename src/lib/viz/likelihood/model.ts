@@ -1,0 +1,265 @@
+// Pure math for the likelihood app: the normal log-likelihood, its
+// derivatives, the two optimizers, the three large-sample tests, and the
+// contour/surface grid. Ported from the old app's utils.js with the hardcoded
+// n = 10 generalized to the sample length (identical results — the sample is
+// always 10) and one never-displayed formula corrected (see
+// hessSigma2Observed).
+//
+// The optimizer constants (gradient-ascent γ and tolerance, Newton tolerance,
+// expected-vs-observed information) are FROZEN: the on-screen path and
+// iteration counts are displayed results under the app's semver contract.
+// Don't "tune" them.
+
+import { chiSquareCdf, normalCdf } from '../../stats/distributions';
+
+export interface OptimPoint {
+	mu: number;
+	sigma2: number;
+}
+
+export interface StepResult {
+	next: OptimPoint;
+	converged: boolean;
+}
+
+// The fixed pedagogical frame (old app): data are drawn from N(100, 225) and
+// every chart windows μ to μ_θ ± 5σ_θ and σ² to [1, 1500].
+export const MU_THETA = 100;
+export const SIGMA2_THETA = 225;
+export const MU_MIN = MU_THETA - 5 * Math.sqrt(SIGMA2_THETA); // 25
+export const MU_MAX = MU_THETA + 5 * Math.sqrt(SIGMA2_THETA); // 175
+export const SIGMA2_MIN = 1;
+export const SIGMA2_MAX = 1500;
+
+/** Log-likelihood contribution of a single observation under N(mu, sigma2). */
+export function logLikPoint(y: number, mu: number, sigma2: number): number {
+	return -0.5 * Math.log(2 * Math.PI * sigma2) - (y - mu) ** 2 / (2 * sigma2);
+}
+
+export function sumSquares(sample: number[], mu: number): number {
+	let ss = 0;
+	for (const y of sample) ss += (y - mu) ** 2;
+	return ss;
+}
+
+/** Joint log-likelihood ℓ(mu, sigma2) of the sample. */
+export function logLikSum(sample: number[], mu: number, sigma2: number): number {
+	const n = sample.length;
+	return (
+		(-n / 2) * Math.log(2 * Math.PI) -
+		n * Math.log(Math.sqrt(sigma2)) -
+		sumSquares(sample, mu) / (2 * sigma2)
+	);
+}
+
+/** Score for mu: ∂ℓ/∂μ = (n/σ²)(μ̂ − μ). */
+export function scoreMu(n: number, mu: number, muHat: number, sigma2: number): number {
+	return (n / sigma2) * (muHat - mu);
+}
+
+/** Fisher information for mu: I(μ) = n/σ² = −∂²ℓ/∂μ². */
+export function infoMu(n: number, sigma2: number): number {
+	return n / sigma2;
+}
+
+/** Score for sigma2: ∂ℓ/∂σ² = −n/(2σ²) + SS/(2σ⁴). */
+export function scoreSigma2(sample: number[], mu: number, sigma2: number): number {
+	const n = sample.length;
+	return -n / (2 * sigma2) + sumSquares(sample, mu) / (2 * sigma2 * sigma2);
+}
+
+/** Observed ∂²ℓ/∂(σ²)² = n/(2σ⁴) − SS/σ⁶. The old app's version of this
+ * formula was wrong (and unused/never displayed); this is the correct one,
+ * pinned by a numerical-second-difference test. */
+export function hessSigma2Observed(sample: number[], mu: number, sigma2: number): number {
+	const n = sample.length;
+	return n / (2 * sigma2 ** 2) - sumSquares(sample, mu) / sigma2 ** 3;
+}
+
+/** Expected ∂²ℓ/∂(σ²)² = −n/(2σ⁴) (what the Newton overlay/step uses:
+ * Fisher scoring, exactly like the old app). */
+export function hessSigma2Expected(n: number, sigma2: number): number {
+	return -n / (2 * sigma2 ** 2);
+}
+
+/** Second-order Taylor approximation of ℓ around the expansion point, in the
+ * offset t (old quadraticApprox with its `step` divisor folded in by callers). */
+export function quadraticApprox(t: number, ll: number, grad: number, hess: number): number {
+	return ll + grad * t + 0.5 * hess * t * t;
+}
+
+/** Relative (estimated) log-likelihood −n(x − μ)²/(2σ²): the curvature-plot
+ * curve, maximal at 0 when x = μ (old estimatedLogLik). */
+export function relLogLik(n: number, mu: number, x: number, sigma2: number): number {
+	return (-n / 2) * ((x - mu) ** 2 / sigma2);
+}
+
+// γ halved from the old app's 0.1 (approved 0.2.0 change, in the changelog):
+// at 0.1 the first step from the default start overshot the maximum in μ and
+// tripled σ², which read as a bug rather than "steps proportional to the
+// gradient". Still frozen — see the header note.
+const GA_GAMMA = 0.05;
+const GA_TOL = 0.001;
+
+/**
+ * One gradient-ascent iteration. Iterates in standardized space — the sample
+ * z-scores, μ mapped to (μ − μ̂)/σ̂ and σ² to σ²/σ̂² — because a fixed γ in
+ * raw data units (σ² in the hundreds) would diverge; the old app did the same
+ * and the info card tells the user so. Convergence is judged on the CURRENT
+ * point's gradients (pre-step), like the old app.
+ */
+export function gradientAscentStep(
+	sampleZ: number[],
+	muHat: number,
+	sigma2Hat: number,
+	cur: OptimPoint
+): StepResult {
+	const n = sampleZ.length;
+	const sigmaHat = Math.sqrt(sigma2Hat);
+	const muZ = (cur.mu - muHat) / sigmaHat;
+	const s2Z = cur.sigma2 / sigma2Hat;
+	const gradMu = scoreMu(n, muZ, 0, s2Z);
+	const gradSigma2 = scoreSigma2(sampleZ, muZ, s2Z);
+	const next = {
+		mu: (muZ + GA_GAMMA * gradMu) * sigmaHat + muHat,
+		sigma2: (s2Z + GA_GAMMA * gradSigma2) * sigma2Hat
+	};
+	const converged = Math.abs(gradSigma2) < GA_TOL && Math.abs(gradMu) < GA_TOL;
+	return { next, converged };
+}
+
+const NEWTON_TOL = 0.0001;
+
+/**
+ * One Newton-Raphson iteration using EXPECTED information (Fisher scoring),
+ * like the old app: I(μ) = n/σ², I(σ²) = n/(2σ⁴). For μ this makes each step
+ * land exactly on μ̂; σ² takes a few steps. Converged when the UPDATED point
+ * is within tolerance of the MLEs (old semantics).
+ */
+export function newtonStep(
+	sample: number[],
+	muHat: number,
+	sigma2Hat: number,
+	cur: OptimPoint
+): StepResult {
+	const n = sample.length;
+	const gradMu = scoreMu(n, cur.mu, muHat, cur.sigma2);
+	const infMu = infoMu(n, cur.sigma2);
+	const gradSigma2 = scoreSigma2(sample, cur.mu, cur.sigma2);
+	const infSigma2 = -hessSigma2Expected(n, cur.sigma2);
+	const next = {
+		mu: cur.mu + gradMu / infMu,
+		sigma2: cur.sigma2 + gradSigma2 / infSigma2
+	};
+	const converged =
+		Math.abs(next.sigma2 - sigma2Hat) < NEWTON_TOL && Math.abs(next.mu - muHat) < NEWTON_TOL;
+	return { next, converged };
+}
+
+/** Likelihood-ratio test of H0: μ = μ0 (σ² profiled out under both):
+ * LR = −2[ℓ(μ0, σ̂0²) − ℓ(μ̂, σ̂²)] = n·ln(σ̂0²/σ̂²), ~χ²(1). */
+export function lrTest(
+	sigma2Hat: number,
+	sigma2Null: number,
+	n: number
+): { stat: number; pval: number } {
+	const stat = n * Math.log(sigma2Null / sigma2Hat);
+	return { stat, pval: 1 - chiSquareCdf(stat, 1) };
+}
+
+/** Wald test: Z = (μ̂ − μ0)/se, se = √(σ̂²/n) = I(μ̂, σ̂²)^{-1/2}. */
+export function waldTest(
+	muHat: number,
+	muNull: number,
+	sigma2Hat: number,
+	n: number
+): { z: number; se: number; pval: number } {
+	const se = Math.sqrt(sigma2Hat / n);
+	const z = (muHat - muNull) / se;
+	return { z, se, pval: 2 * (1 - normalCdf(Math.abs(z))) };
+}
+
+/** Score test: S = U(μ0, σ̂0²)²/I(μ0, σ̂0²), ~χ²(1). */
+export function scoreTest(u: number, info: number): { stat: number; pval: number } {
+	const stat = (u * u) / info;
+	return { stat, pval: 1 - chiSquareCdf(stat, 1) };
+}
+
+// χ²₁(0.95)/2: the log-likelihood drop that inverts the LRT into a 95%
+// interval (R: qchisq(.95, 1)/2).
+export const LL_DROP_95 = 1.920729410347063;
+
+/** 95% likelihood interval for μ on the drawn ℓ(μ | σ²) slice. The slice is
+ * exactly quadratic in μ, so the drop inverts in closed form:
+ * μ̂ ± √(2·drop·σ²/n). Coincides with the Wald CI when σ² = σ̂². */
+export function likelihoodIntervalMu(
+	muHat: number,
+	sigma2: number,
+	n: number,
+	drop = LL_DROP_95
+): [number, number] {
+	const half = Math.sqrt((2 * drop * sigma2) / n);
+	return [muHat - half, muHat + half];
+}
+
+/** Wald 95% CI: μ̂ ± 1.96·√(σ̂²/n). */
+export function waldIntervalMu(muHat: number, sigma2Hat: number, n: number): [number, number] {
+	const half = 1.959963984540054 * Math.sqrt(sigma2Hat / n);
+	return [muHat - half, muHat + half];
+}
+
+// ---------------------------------------------------------------------------
+// Contour / surface grid
+
+export interface LogLikGrid {
+	/** Row-major ℓ values, rows = sigma2 index, cols = mu index (what
+	 * d3-contour expects as its `values` with size [cols, rows]). */
+	values: Float64Array;
+	cols: number;
+	rows: number;
+	muMin: number;
+	muStep: number;
+	sigma2Min: number;
+	sigma2Step: number;
+	max: number;
+}
+
+/** ℓ evaluated on a cols×rows grid over the fixed frame (old createGrid,
+ * 100×100). Shared by the 2D contour and the 3D surface. */
+export function logLikGrid(sample: number[], cols = 100, rows = 100): LogLikGrid {
+	const muStep = (MU_MAX - MU_MIN) / cols;
+	const sigma2Step = (SIGMA2_MAX - SIGMA2_MIN) / rows;
+	const values = new Float64Array(cols * rows);
+	let max = -Infinity;
+	for (let j = 0, k = 0; j < rows; ++j) {
+		const sigma2 = SIGMA2_MIN + j * sigma2Step;
+		for (let i = 0; i < cols; ++i, ++k) {
+			const v = logLikSum(sample, MU_MIN + i * muStep, sigma2);
+			values[k] = v;
+			if (v > max) max = v;
+		}
+	}
+	return { values, cols, rows, muMin: MU_MIN, muStep, sigma2Min: SIGMA2_MIN, sigma2Step, max };
+}
+
+/**
+ * Serialize a d3-contour MultiPolygon (grid-index coordinates) to an SVG path,
+ * mapping each vertex through the caller's grid→screen transforms. Replaces
+ * the old app's d3-geo geoPath dependency (~10 lines vs a package).
+ */
+export function contourRingsToPath(
+	coordinates: number[][][][],
+	sx: (gx: number) => number,
+	sy: (gy: number) => number
+): string {
+	let d = '';
+	for (const polygon of coordinates) {
+		for (const ring of polygon) {
+			for (let i = 0; i < ring.length; i++) {
+				d += `${i === 0 ? 'M' : 'L'}${sx(ring[i][0]).toFixed(2)},${sy(ring[i][1]).toFixed(2)}`;
+			}
+			d += 'Z';
+		}
+	}
+	return d;
+}

@@ -30,7 +30,7 @@ export const viz: Viz[] = [
 	{
 		title: 'Likelihood',
 		glyph: 'likelihood',
-		href: 'https://rpsychologist.com/likelihood',
+		href: '/likelihood',
 		description: 'Likelihood, probability, and maximum likelihood estimation.'
 	},
 	{

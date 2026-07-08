@@ -1,9 +1,10 @@
 // Normal-distribution primitives for the interactive viz apps. The old Gatsby
 // tools leaned on jstat for these; we roll our own so the math is a tiny,
 // unit-tested, dependency-free part of the stats tier (the migration plan's
-// "no jstat" decision). Three functions cover everything the viz apps need:
-// the density (bell curves), the CDF (overlap / U3 / probability of
-// superiority), and the quantile / inverse CDF (number needed to treat).
+// "no jstat" decision). The normal density (bell curves), CDF (overlap / U3 /
+// probability of superiority), and quantile (number needed to treat) cover the
+// earlier apps; the chi-square CDF backs the likelihood app's LRT/Score
+// p-values.
 
 const SQRT_2 = Math.SQRT2;
 const SQRT_2PI = Math.sqrt(2 * Math.PI);
@@ -84,4 +85,65 @@ export function normalQuantile(p: number, mean = 0, sd = 1): number {
 	x = x - u / (1 + (x * u) / 2);
 
 	return mean + sd * x;
+}
+
+// ln Γ(z) via Lanczos (g = 7, 9 terms); relative error < 1e-13 for z > 0,
+// which is all the incomplete gamma below ever passes (z = df/2).
+const LANCZOS = [
+	0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
+	-176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6,
+	1.5056327351493116e-7
+];
+
+function lnGamma(z: number): number {
+	z -= 1;
+	let x = LANCZOS[0];
+	for (let i = 1; i < LANCZOS.length; i++) x += LANCZOS[i] / (z + i);
+	const t = z + 7.5;
+	return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(t) - t + Math.log(x);
+}
+
+// Regularized lower incomplete gamma P(a, x), Numerical Recipes §6.2: the
+// series converges fast for x < a + 1, the continued fraction (modified Lentz)
+// for x >= a + 1; each is used only on its own side of that split.
+function lowerGammaP(a: number, x: number): number {
+	if (x <= 0) return 0;
+	const scale = Math.exp(-x + a * Math.log(x) - lnGamma(a));
+
+	if (x < a + 1) {
+		let ap = a;
+		let term = 1 / a;
+		let sum = term;
+		for (let i = 0; i < 300; i++) {
+			ap += 1;
+			term *= x / ap;
+			sum += term;
+			if (Math.abs(term) < Math.abs(sum) * 1e-15) break;
+		}
+		return sum * scale;
+	}
+
+	const FPMIN = 1e-300;
+	let b = x + 1 - a;
+	let c = 1 / FPMIN;
+	let d = 1 / b;
+	let h = d;
+	for (let i = 1; i <= 300; i++) {
+		const an = -i * (i - a);
+		b += 2;
+		d = an * d + b;
+		if (Math.abs(d) < FPMIN) d = FPMIN;
+		c = b + an / c;
+		if (Math.abs(c) < FPMIN) c = FPMIN;
+		d = 1 / d;
+		const del = d * c;
+		h *= del;
+		if (Math.abs(del - 1) < 1e-15) break;
+	}
+	return 1 - scale * h;
+}
+
+/** Cumulative distribution function P(X <= x) for chi-square with k degrees of freedom. */
+export function chiSquareCdf(x: number, k: number): number {
+	return lowerGammaP(k / 2, x / 2);
 }
