@@ -74,8 +74,10 @@ export class LikelihoodState {
 	/** True while a Newton-Raphson step should tween the charts (the old
 	 * `animating`: gradient ascent runs a step per frame and must not tween). */
 	animating = $state(false);
-	/** 2D contour vs 3D surface; deliberately not persisted. */
-	jointView = $state<JointView>('contour');
+	/** 2D contour vs 3D surface; deliberately not persisted. Defaults to the
+	 * surface where available — JointLogLik downgrades to the contour under
+	 * reduced motion or when WebGL init fails. */
+	jointView = $state<JointView>('surface');
 
 	/** Optimizer trail; path[0] is the run's starting point. */
 	path = $state<OptimPoint[]>([]);

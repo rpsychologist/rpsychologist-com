@@ -80,21 +80,25 @@
 				</p>
 				<h3>Explore the log-likelihood</h3>
 				<p>
-					Every plot is live: drag the point on the ℓ(μ) and ℓ(σ²) curves, or drag the point on the
-					contour plot to move both parameters at once. The tangent line shows the score — the
-					derivative of the log-likelihood — which is zero at the maximum. The shaded band on the
-					ℓ(μ) plot is the 95% likelihood interval at the current σ², shown next to the Wald
-					interval below the plot.
+					Every plot is live: drag the point on the ℓ(μ) and ℓ(σ²) curves, or drag it on the joint
+					plot — the 3D floor handle or the contour point — to move both parameters at once. The
+					tangent line shows the score — the derivative of the log-likelihood — which is zero at the
+					maximum. The shaded band on the ℓ(μ) plot is the 95% likelihood interval at the current
+					σ², shown next to the Wald interval below the plot.
 				</p>
 				<h3>Run an optimizer</h3>
 				<p>
-					Pick gradient ascent or Newton-Raphson and press play (or step with +1/−1). The path is
-					drawn on the contour plot, and the <strong>3D surface</strong> toggle shows the same climb
-					as a hill — drag the surface to rotate it. The highlighted curves through the current
-					point are exactly the ℓ(μ) and ℓ(σ²) plots above, drawn on the surface. Height is the
-					relative likelihood <Tex math={String.raw`(L/\hat L)^{1/50}`} /> rather than ℓ itself — a monotone
-					transform, so the peak and every climb are unchanged (the same reason maximizing the log-likelihood
-					is legitimate), but the summit is visible: raw ℓ renders as a plateau with one cliff, and raw
+					Pick gradient ascent or Newton-Raphson and press play (or step with +1/−1). The climb is
+					drawn on the joint plot, which opens as a rotatable <strong>3D surface</strong> — drag to
+					rotate, grab the floor handle to move the point, or switch to <strong>Contour</strong> for
+					precise readouts. The teal curves through the current point are the ℓ(μ) and ℓ(σ²) slices
+					above, drawn on the surface; the amber curves on the back walls are the <em>profile</em>
+					likelihoods — the ridge cast onto each axis, which the likelihood-ratio test and profile interval
+					are built on. Height is the relative likelihood <Tex
+						math={String.raw`(L/\hat L)^{1/50}`}
+					/> rather than ℓ itself — a monotone transform, so the peak and every climb are unchanged (the
+					same reason maximizing the log-likelihood is legitimate), but the summit is visible: raw ℓ renders
+					as a plateau with one cliff, and raw
 					<Tex math="L" /> as a needle.
 				</p>
 				<h3>Inference</h3>

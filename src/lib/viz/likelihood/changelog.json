@@ -14,6 +14,7 @@
 			],
 			"changed": [
 				"Complete rewrite in Svelte (previously React). Every displayed statistic is unchanged.",
+				"The joint view now opens on the 3D surface where available; the contour becomes the precise-input and fallback view (reduced-motion and no-WebGL visitors still get the contour).",
 				"The inference section's sample-size control is reworded to make clear the statistics treat the fixed estimates as if they came from a sample of size n — no new data are drawn.",
 				"Switching the optimization algorithm now clears the drawn path (previously the path could mix steps from both algorithms).",
 				"The gradient-ascent step size was halved (γ = 0.05) so the early steps no longer overshoot the maximum, and autoplay is paced so the climb is watchable rather than instant.",

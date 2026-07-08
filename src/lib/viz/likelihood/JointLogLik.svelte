@@ -1,8 +1,10 @@
 <script lang="ts">
-	// Joint (μ, σ²) view with the 2D ⇄ 3D toggle (new in 0.2.0). The contour is
-	// the default and the fallback: the 3D option is hidden under reduced
-	// motion and the view flips back here if WebGL init fails. Both views sit
-	// in the same aspect-ratio box so toggling causes no layout shift.
+	// Joint (μ, σ²) view with the 2D ⇄ 3D toggle (new in 0.2.0). The surface is
+	// the default where available; the contour is the precise-input and fallback
+	// view — the 3D option is hidden under reduced motion, and the view flips
+	// back to the contour if WebGL init fails (the default 'surface' state is
+	// guarded by show3dToggle below, so those users still get the contour). Both
+	// views sit in the same aspect-ratio box so toggling causes no layout shift.
 	import { prefersReducedMotion } from 'svelte/motion';
 	import ContourLogLik from './ContourLogLik.svelte';
 	import SurfaceLogLik from './SurfaceLogLik.svelte';
