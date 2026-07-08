@@ -22,10 +22,17 @@
 	   (down to ~0.001 of peak within a few log-units). At K = 50 the μ
 	   parabola, the gentle σ² ridge, and the likelihood's skew in σ² (steep
 	   toward 0, shallow toward large values) are all visible, and z → 0
-	   smoothly in the trench with no clamp kink. */
+	   smoothly in the trench with no clamp kink.
+
+	   Two faint profile-likelihood silhouettes ride the rearmost walls: ℓₚ(μ) =
+	   maxₛ₂ ℓ along the μ-axis (on the far σ² wall) and ℓ(μ̂, σ²) along the
+	   σ²-axis (on the far μ wall) — the surface's ridge cast onto each axis,
+	   with dashed guides from the MLE summit to each peak. Which walls are
+	   rearmost flips with rotation (edgeSigns/buildWalls); there is no depth
+	   buffer, so this only keeps the silhouettes off the front of the mesh. */
 	import { untrack } from 'svelte';
 	import type { LikelihoodState } from './likelihood.svelte';
-	import { logLikSum, MU_MAX, MU_MIN, SIGMA2_MAX, SIGMA2_MIN } from './model';
+	import { logLikSum, MU_MAX, MU_MIN, profileMu, SIGMA2_MAX, SIGMA2_MIN } from './model';
 
 	interface Props {
 		model: LikelihoodState;
@@ -39,7 +46,10 @@
 	const TILT = 1.06;
 	const TEMPER_K = 50; // z = exp((ℓ−ℓ̂)/K); see header comment
 	const LINE_EVERY = 4; // wireframe walks every 4th grid line
-	const SLICE_N = 100; // vertices per highlighted slice curve
+	const SLICE_N = 100; // vertices per highlighted slice / wall curve
+	const WALL_ALPHA = 0.85; // wall silhouettes read as real curves, a touch under the slices
+	const WALL_MU_OFF = 2 * SLICE_N + 2; // μ-wall first vertex in sliceData
+	const WALL_S2_OFF = 3 * SLICE_N + 2; // σ²-wall first vertex
 
 	const W = 560;
 	const H = 440;
@@ -61,6 +71,9 @@
 	const PATH: [number, number, number] = [225 / 255, 112 / 255, 85 / 255];
 	// Slice curves use the app accent; resolved from CSS at init.
 	let accent: [number, number, number] = [45 / 255, 122 / 255, 122 / 255];
+	// Profile-wall silhouettes use --marginal (amber): distinct from the teal
+	// slices and the coral path, so the three roles read apart. From CSS at init.
+	let marginalCol: [number, number, number] = [217 / 255, 119 / 255, 6 / 255];
 
 	const MAX_PATH_VERTS = 1024;
 
@@ -103,6 +116,10 @@
 
 	let angle = 0.7;
 	let vel = 0;
+	// Which far walls the profile silhouettes are pinned to; -1/+1 per axis,
+	// 0 = not yet built. Flips as rotation changes which walls are rearmost.
+	let wallMuSign = 0;
+	let wallS2Sign = 0;
 	let dragging = false;
 	let flingVel = 0;
 	// Drop the discoverability hint once the user has actually rotated (it can
@@ -119,6 +136,10 @@
 	// Screen position of the current-(μ,σ²) dot on the surface — an SVG overlay
 	// styled like the 2D contour's dot, so the two joint views match.
 	let headPos = $state<{ x: number; y: number } | null>(null);
+	// Dashed MLE-summit → wall-peak guides and the two wall-peak dots (SVG
+	// overlay like the gnomon), recomputed each frame in positionLabels.
+	let guidePaths = $state<string[]>([]);
+	let peakDots = $state<{ x: number; y: number }[]>([]);
 	let dpr = 1;
 	let view = { scale: 1, ox: 0, oy: 0, cw: 0, ch: 0 };
 	let isDark = false;
@@ -132,9 +153,9 @@
 		return isDark ? [0.05, 0.05, 0.06] : [0.98, 0.97, 0.96];
 	}
 
-	// --viz-accent as GL RGB (supports #rrggbb and rgb(...) forms).
-	function cssAccent(): [number, number, number] {
-		const v = getComputedStyle(canvas).getPropertyValue('--viz-accent').trim();
+	// A CSS custom property as GL RGB (supports #rrggbb and rgb(...) forms).
+	function cssVarRgb(name: string, fallback: [number, number, number]): [number, number, number] {
+		const v = getComputedStyle(canvas).getPropertyValue(name).trim();
 		const hex = v.match(/^#([0-9a-f]{6})$/i);
 		if (hex) {
 			const n = parseInt(hex[1], 16);
@@ -142,7 +163,7 @@
 		}
 		const rgb = v.match(/[\d.]+/g);
 		if (rgb && rgb.length >= 3) return [+rgb[0] / 255, +rgb[1] / 255, +rgb[2] / 255];
-		return accent;
+		return fallback;
 	}
 
 	let gl: WebGL2RenderingContext | null = null;
@@ -163,8 +184,9 @@
 	const FLOOR_VERTS = 8;
 	const lineData = new Float32Array((MAX_PATH_VERTS + FLOOR_VERTS) * 4); // frame + path
 	// Two slice curves through the current point (the 1D plots drawn ON the
-	// surface) + a 2-vertex drop line from the point to the floor.
-	const sliceData = new Float32Array((SLICE_N * 2 + 2) * 4);
+	// surface), a 2-vertex drop line to the floor, then the two profile
+	// silhouettes on the far walls (μ-wall + σ²-wall, SLICE_N each).
+	const sliceData = new Float32Array((SLICE_N * 4 + 2) * 4);
 	let pathVerts = 0; // current path vertex count in lineData (after the frame)
 
 	const glf = (n: number) => (Number.isInteger(n) ? n.toFixed(1) : String(n));
@@ -231,6 +253,45 @@
 	// smooth decay to 0 in the σ²→0 trench.
 	function zOf(v: number, top: number): number {
 		return Math.exp((v - top) / TEMPER_K) * Z_HEIGHT;
+	}
+
+	// Rearmost wall per axis from the current azimuth: a μ-profile sits on the
+	// σ² edge with larger mean projected depth (∝ cos angle), a σ²-profile on
+	// the μ edge tracking sin angle.
+	function edgeSigns() {
+		return { mu: Math.cos(angle) >= 0 ? 1 : -1, s2: Math.sin(angle) >= 0 ? 1 : -1 };
+	}
+
+	// Write the two profile silhouettes into the wall region of sliceData for
+	// the current rearmost walls: ℓₚ(μ) over the μ-axis, ℓ(μ̂, σ²) over the
+	// σ²-axis (sqrt-spaced, like the σ² slice). Cheap (2·SLICE_N verts); called
+	// on sample change and whenever rotation flips a wall.
+	function buildWalls() {
+		const g = model.grid;
+		const sample = model.p.sample;
+		const muHat = model.muHat;
+		const s = edgeSigns();
+		wallMuSign = s.mu;
+		wallS2Sign = s.s2;
+		const wallY = s.mu * RANGE; // μ-profile pinned to a σ² edge
+		const wallX = s.s2 * RANGE; // σ²-profile pinned to a μ edge
+		let o = WALL_MU_OFF * 4;
+		for (let i = 0; i < SLICE_N; i++) {
+			const mu = MU_MIN + ((MU_MAX - MU_MIN) * i) / (SLICE_N - 1);
+			sliceData[o++] = wx(mu);
+			sliceData[o++] = wallY;
+			sliceData[o++] = zOf(profileMu(sample, mu), g.max);
+			sliceData[o++] = WALL_ALPHA;
+		}
+		const sqrtMax = Math.sqrt(SIGMA2_MAX);
+		for (let i = 0; i < SLICE_N; i++) {
+			const t = 1 + ((sqrtMax - 1) * i) / (SLICE_N - 1);
+			const s2 = t * t;
+			sliceData[o++] = wallX;
+			sliceData[o++] = wy(s2);
+			sliceData[o++] = zOf(logLikSum(sample, muHat, s2), g.max);
+			sliceData[o++] = WALL_ALPHA;
+		}
 	}
 
 	function surfacePositions(): Float32Array {
@@ -441,6 +502,19 @@
 		const p = model.p;
 		const hz = zOf(logLikSum(p.sample, p.mu, p.sigma2), model.grid.max);
 		headPos = project(wx(p.mu), wy(p.sigma2), hz);
+
+		// MLE-summit → wall-peak guides (dashed), echoing the reference's
+		// "marginal peaks". Both peaks sit at ℓ̂, so the guides are horizontal.
+		const zPk = zOf(profileMu(p.sample, model.muHat), model.grid.max);
+		const summit = project(wx(model.muHat), wy(model.sigma2Hat), zPk);
+		const muPk = project(wx(model.muHat), wallMuSign * RANGE, zPk);
+		const s2Pk = project(wallS2Sign * RANGE, wy(model.sigma2Hat), zPk);
+		const f = (n: number) => n.toFixed(1);
+		guidePaths = [
+			`M${f(summit.x)},${f(summit.y)}L${f(muPk.x)},${f(muPk.y)}`,
+			`M${f(summit.x)},${f(summit.y)}L${f(s2Pk.x)},${f(s2Pk.y)}`
+		];
+		peakDots = [muPk, s2Pk];
 	}
 
 	function draw() {
@@ -480,6 +554,9 @@
 		// stands off the 1px wireframe.
 		g.bindVertexArray(vaoSlices);
 		g.bindBuffer(g.ARRAY_BUFFER, sliceBuf);
+		// Rotation may have swapped which walls are rearmost — rebuild before upload.
+		const es = edgeSigns();
+		if (es.mu !== wallMuSign || es.s2 !== wallS2Sign) buildWalls();
 		g.bufferSubData(g.ARRAY_BUFFER, 0, sliceData);
 		g.uniform3f(u.uColor, accent[0], accent[1], accent[2]);
 		for (const [nx, ny] of NUDGES) {
@@ -490,6 +567,18 @@
 		g.uniform2f(u.uNudge, 0, 0);
 		g.uniform3f(u.uColor, mesh[0], mesh[1], mesh[2]);
 		g.drawArrays(g.LINES, SLICE_N * 2, 2);
+		// Profile silhouettes on the two rearmost walls: the surface's ridge cast
+		// onto each axis. Drawn in --marginal (amber) in the same four-nudge ~2px
+		// pass as the slices so they read as real curves, distinct from the teal
+		// slices, against the dense wireframe (mesh colour dissolved into it,
+		// badly in dark mode). They sit at the back edges, clear of the slices.
+		g.uniform3f(u.uColor, marginalCol[0], marginalCol[1], marginalCol[2]);
+		for (const [nx, ny] of NUDGES) {
+			g.uniform2f(u.uNudge, nx, ny);
+			g.drawArrays(g.LINE_STRIP, WALL_MU_OFF, SLICE_N);
+			g.drawArrays(g.LINE_STRIP, WALL_S2_OFF, SLICE_N);
+		}
+		g.uniform2f(u.uNudge, 0, 0);
 
 		// The current-position dot is an SVG overlay (styled like the 2D
 		// contour's), not a GL point — see positionLabels / the template.
@@ -540,7 +629,8 @@
 			return;
 		}
 		isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-		accent = cssAccent();
+		accent = cssVarRgb('--viz-accent', accent);
+		marginalCol = cssVarRgb('--marginal', marginalCol);
 		resize();
 
 		const ro = new ResizeObserver(() => resize());
@@ -549,7 +639,8 @@
 		const themeObs = new MutationObserver(() => {
 			if (!gl) return;
 			isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-			accent = cssAccent(); // the accent may differ per theme
+			accent = cssVarRgb('--viz-accent', accent); // colours may differ per theme
+			marginalCol = cssVarRgb('--marginal', marginalCol);
 			const bg = pageBg();
 			gl.clearColor(bg[0], bg[1], bg[2], 1);
 			draw();
@@ -667,6 +758,10 @@
 		sliceData[o++] = 0;
 		sliceData[o++] = 0.35;
 
+		// New sample → new profiles; angle is unchanged so draw() wouldn't
+		// rebuild the walls on its own.
+		buildWalls();
+
 		if (gl) draw();
 	});
 
@@ -717,9 +812,15 @@
 		{#each axisPaths as d, i (i)}
 			<path {d} />
 		{/each}
+		{#each guidePaths as d, i (i)}
+			<path class="guide" {d} />
+		{/each}
 		{#if headPos}
 			<circle class="param-point" cx={headPos.x} cy={headPos.y} r="6" />
 		{/if}
+		{#each peakDots as pt, i (i)}
+			<circle class="wall-peak" cx={pt.x} cy={pt.y} r="3.5" />
+		{/each}
 	</svg>
 	<span class="axis-tag" bind:this={muTag}>μ</span>
 	<span class="axis-tag" bind:this={s2Tag}>σ²</span>
@@ -774,6 +875,18 @@
 	/* Same treatment as the 2D contour's current-position dot. */
 	.gnomon .param-point {
 		fill: var(--heading);
+		stroke: var(--bg);
+		stroke-width: 1.5;
+	}
+	.gnomon .guide {
+		fill: none;
+		stroke: var(--muted);
+		stroke-width: 1;
+		stroke-dasharray: 3 3;
+		opacity: 0.55;
+	}
+	.gnomon .wall-peak {
+		fill: var(--marginal);
 		stroke: var(--bg);
 		stroke-width: 1.5;
 	}

@@ -94,6 +94,21 @@ export function relLogLik(n: number, mu: number, x: number, sigma2: number): num
 	return (-n / 2) * ((x - mu) ** 2 / sigma2);
 }
 
+/**
+ * μ-profile ℓₚ(μ) = maxₛ₂ ℓ(μ, σ²), attained at σ̂²(μ) = SS(μ)/n. The ridge of
+ * the surface projected onto the μ-axis, drawn as the μ-wall silhouette in the
+ * 3D view. Peaks at ℓ̂ when μ = μ̂, and dominates every fixed-σ² slice — unlike
+ * a slice it is the object the LRT / profile likelihood interval invert.
+ *
+ * There is no matching profileSigma2: because μ̂ maximizes ℓ for every σ²,
+ * profiling μ out just fixes μ = μ̂, so the σ²-profile is logLikSum(·, μ̂, σ²)
+ * (a slice at μ̂) and the σ²-wall reuses that directly.
+ */
+export function profileMu(sample: number[], mu: number): number {
+	const sigma2 = sumSquares(sample, mu) / sample.length;
+	return logLikSum(sample, mu, sigma2);
+}
+
 // γ halved from the old app's 0.1 (approved 0.2.0 change, in the changelog):
 // at 0.1 the first step from the default start overshot the maximum in μ and
 // tripled σ², which read as a bug rather than "steps proportional to the

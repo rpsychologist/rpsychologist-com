@@ -8,7 +8,8 @@
 				"3D view of the joint likelihood: the contour plot can toggle to a rotatable surface (heights show the tempered relative likelihood, a monotone transform of ℓ) with the optimizer path and the ℓ(μ)/ℓ(σ²) slices drawn on it; falls back to the contour without WebGL or with reduced motion.",
 				"Likelihood-based interval on the ℓ(μ) plot: the χ²₁(0.95)/2 ≈ 1.92 drop region is shaded and its endpoints are shown alongside the Wald interval.",
 				"The inference plot annotates the geometry of the three tests (after Buse, 1982); the element for the selected test is highlighted.",
-				"Persistent readout of the estimates: μ̂, σ̂², the maximum log-likelihood, iteration count, and convergence."
+				"Persistent readout of the estimates: μ̂, σ̂², the maximum log-likelihood, iteration count, and convergence.",
+				"Profile-likelihood silhouettes on the two far walls of the 3D view — ℓₚ(μ) = maxₛ₂ ℓ and ℓ(μ̂, σ²), the surface's ridge cast onto each axis, in the marginal colour — with dashed guides from the MLE summit to each peak."
 			],
 			"changed": [
 				"Complete rewrite in Svelte (previously React). Every displayed statistic is unchanged.",

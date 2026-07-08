@@ -13,6 +13,7 @@ import {
 	MU_MAX,
 	MU_MIN,
 	newtonStep,
+	profileMu,
 	quadraticApprox,
 	relLogLik,
 	scoreMu,
@@ -217,6 +218,20 @@ describe('intervals', () => {
 		const target = logLikSum(Y, MU_HAT, sigma2) - LL_DROP_95;
 		expect(logLikSum(Y, lo, sigma2)).toBeCloseTo(target, 8);
 		expect(logLikSum(Y, hi, sigma2)).toBeCloseTo(target, 8);
+	});
+});
+
+describe('profile likelihood', () => {
+	it('μ-profile peaks at ℓ̂ at μ = μ̂', () => {
+		expect(profileMu(Y, MU_HAT)).toBeCloseTo(logLikSum(Y, MU_HAT, SIGMA2_HAT), 10);
+	});
+
+	it('μ-profile dominates every fixed-σ² slice', () => {
+		for (const mu of [70, 90, MU_HAT, 120]) {
+			for (const sigma2 of [50, 100, 139.9196, 400]) {
+				expect(profileMu(Y, mu)).toBeGreaterThanOrEqual(logLikSum(Y, mu, sigma2) - 1e-9);
+			}
+		}
 	});
 });
 
