@@ -38,12 +38,6 @@
 </script>
 
 <div class="optimizer">
-	<p class="lead">
-		For more challenging models, we often need an <strong>optimization algorithm</strong> — we let the
-		computer iteratively climb toward the top of the hill. Use the controls to watch gradient ascent or
-		Newton-Raphson find the maximum likelihood estimates.
-	</p>
-
 	<div class="controls">
 		<label class="algo">
 			<span>Algorithm</span>
@@ -99,6 +93,12 @@
 					onclick={() => (infoOpen = !infoOpen)}>?</button
 				>
 			</div>
+
+			<p class="iter">
+				Iterations: <span data-testid="iterations"
+					>{model.count}{#if model.converged}<span class="converged">(converged)</span>{/if}</span
+				>
+			</p>
 		{/if}
 	</div>
 
@@ -151,19 +151,33 @@
 
 <style>
 	.optimizer {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-	}
-	.lead {
-		margin: 0;
-		line-height: 1.6;
+		position: relative;
 	}
 	.controls {
 		display: flex;
 		align-items: end;
 		gap: 1rem;
 		flex-wrap: wrap;
+	}
+	.iter {
+		margin: 0;
+		align-self: end;
+		/* Line box matches the .ctrl button height so the text centers on the
+		   button row instead of sitting on its bottom edge. */
+		line-height: 2.2rem;
+		font-size: 0.9rem;
+		color: var(--muted);
+		font-variant-numeric: tabular-nums;
+	}
+	.iter span {
+		color: var(--heading);
+		font-weight: 600;
+	}
+	.iter .converged {
+		/* Margin, not a whitespace text node — Svelte's whitespace handling
+		   collapsed the latter ("59(converged)"). */
+		margin-left: 0.35rem;
+		color: var(--viz-accent);
 	}
 	.algo {
 		display: flex;
@@ -220,11 +234,19 @@
 		opacity: 0.4;
 		cursor: default;
 	}
+	/* Popover, not in flow: opening it must not change the sticky strip's height
+	   (that would shove the plots on every toggle). Overlays the content below. */
 	.card {
+		position: absolute;
+		top: calc(100% + 0.5rem);
+		left: 0;
+		z-index: 41;
+		width: min(40rem, 90vw);
 		padding: 0.9rem 1.1rem;
 		background: var(--panel);
 		border: 1px solid var(--rule);
 		border-radius: var(--radius-sm);
+		box-shadow: 0 6px 24px rgb(0 0 0 / 0.14);
 		font-size: 0.9rem;
 		line-height: 1.55;
 	}

@@ -55,6 +55,14 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.4rem;
+		/* Fit the whole surface on a laptop: both views are 1/0.75 aspect, so at
+		   full content width the canvas (~890px) plus the two pinned bars
+		   (~15rem) overflows a 15" MacBook viewport — you'd rotate a hill you
+		   can only ever half-see. Cap width so canvas + pinned chrome fits;
+		   the max() keeps it usable on short-but-wide windows. */
+		max-width: max(35rem, calc((100vh - 15rem) / 0.75));
+		margin-inline: auto;
+		width: 100%;
 	}
 	.view-toggle {
 		display: inline-flex;

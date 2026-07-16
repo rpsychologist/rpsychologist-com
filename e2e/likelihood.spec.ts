@@ -43,6 +43,12 @@ test('gradient ascent runs to convergence and reset clears the path', async ({ p
 	// The optimizer lands on the MLEs, so current ℓ equals max ℓ (−38.89;
 	// d3-format renders the minus as U+2212).
 	await expect(page.getByTestId('estimates')).toContainText('−38.89');
+	// The trail polyline lives in the contour view; the joint view defaults to
+	// the 3D surface where WebGL is available, so switch to Contour to inspect
+	// it (the toggle is absent on the reduced-motion / no-WebGL contour fallback,
+	// where the view is already the contour).
+	const contourBtn = page.getByRole('button', { name: 'Contour' });
+	if (await contourBtn.isVisible()) await contourBtn.click();
 	await expect(page.locator('.trail')).toBeVisible();
 
 	await page.getByRole('button', { name: 'Reset to the starting point' }).click();

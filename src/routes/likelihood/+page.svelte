@@ -57,7 +57,9 @@
 			story for the simplest interesting case, a normal model with unknown mean and variance: first
 			what the likelihood <em>is</em>, then how an optimizer climbs it to find the maximum, and
 			finally how the likelihood ratio, Wald, and score tests all read their answers off the same
-			curve. Everything is interactive — drag, click, and break things.
+			curve. Throughout, the mean is the parameter of interest and the variance a nuisance parameter
+			— estimated along the way, but never tested. Everything is interactive — drag, click, and
+			break things.
 		</p>
 	</div>
 
@@ -80,11 +82,12 @@
 				</p>
 				<h3>Explore the log-likelihood</h3>
 				<p>
-					Every plot is live: drag the point on the ℓ(μ) and ℓ(σ²) curves, or drag it on the joint
-					plot — the 3D floor handle or the contour point — to move both parameters at once. The
-					tangent line shows the score — the derivative of the log-likelihood — which is zero at the
-					maximum. The shaded band on the ℓ(μ) plot is the 95% likelihood interval at the current
-					σ², shown next to the Wald interval below the plot.
+					The two slices are live and read as a pair: drag the point on the ℓ(μ) or ℓ(σ²) curve to
+					vary one parameter while the other is held fixed. The tangent line shows the score — the
+					derivative of the log-likelihood — which is zero at the peak. The shaded band on the ℓ(μ)
+					slice is the 95% likelihood interval at the current σ²; its width is the estimate's
+					precision, reported beneath the slices. The joint view shows both parameters at once —
+					drag the 3D floor handle or the contour point to move them together.
 				</p>
 				<h3>Run an optimizer</h3>
 				<p>

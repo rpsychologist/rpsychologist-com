@@ -132,8 +132,11 @@
 		align-items: end;
 		padding: 0.7rem 0.9rem;
 		margin-bottom: 1rem;
-		background: color-mix(in srgb, var(--bg) 92%, transparent);
-		backdrop-filter: blur(6px);
+		/* Opaque on purpose: the bar pins over body text, and every translucent
+		   treatment (color-mix + backdrop-filter) ghosted the prose through it on
+		   some browsers. Legibility of pinned controls must not depend on
+		   effects support. */
+		background: var(--bg);
 		border: 1px solid var(--rule);
 		border-radius: var(--radius-sm);
 	}

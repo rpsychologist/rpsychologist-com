@@ -151,13 +151,13 @@
 	let view = { scale: 1, ox: 0, oy: 0, cw: 0, ch: 0 };
 	let isDark = false;
 
+	// The surface's clear colour = the page's paper colour. Read `--bg` directly
+	// (resolved through the CSS cascade — media query *and* data-theme), not the
+	// element background-color: `body` has none (it's transparent), so scraping
+	// it and leaning on an isDark fallback let the surface disagree with the page
+	// and render a black panel when the two theme signals diverged.
 	function pageBg(): [number, number, number] {
-		for (const el of [document.body, document.documentElement]) {
-			const m = getComputedStyle(el).backgroundColor.match(/[\d.]+/g);
-			if (m && m.length >= 3 && !(m.length >= 4 && +m[3] === 0))
-				return [+m[0] / 255, +m[1] / 255, +m[2] / 255];
-		}
-		return isDark ? [0.05, 0.05, 0.06] : [0.98, 0.97, 0.96];
+		return cssVarRgb('--bg', isDark ? [0.05, 0.05, 0.06] : [0.98, 0.97, 0.96]);
 	}
 
 	// A CSS custom property as GL RGB (supports #rrggbb and rgb(...) forms).

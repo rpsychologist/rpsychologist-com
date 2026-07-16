@@ -22,9 +22,6 @@
 		{ id: 'score', label: 'Score' }
 	];
 
-	const eqHypo = $derived(
-		String.raw`H_0: \mu = ${model.p.muNull} \quad \text{versus} \quad H_1: \mu \ne ${model.p.muNull}`
-	);
 	const eqLR = $derived(
 		String.raw`\begin{aligned}
 		\text{LR} &= -2[\ell(\mu_{0}, \hat\sigma^2_{0}) - \ell(\hat\mu, \hat\sigma^2)]\\
@@ -49,8 +46,6 @@
 </script>
 
 <div class="tests">
-	<p class="hypo"><Tex display math={eqHypo} /></p>
-
 	<div class="tablist" role="tablist" aria-label="Hypothesis test">
 		{#each tabs as t (t.id)}
 			<button
@@ -133,9 +128,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.4rem;
-	}
-	.hypo {
-		margin: 0;
 	}
 	.tablist {
 		display: flex;

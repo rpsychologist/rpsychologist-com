@@ -19,8 +19,7 @@
 		MU_MAX,
 		MU_MIN,
 		quadraticApprox,
-		scoreMu,
-		waldIntervalMu
+		scoreMu
 	} from './model';
 	import { defaults, type LikelihoodState } from './likelihood.svelte';
 
@@ -118,10 +117,10 @@
 		return toPath(pts);
 	});
 
-	// Likelihood interval on THIS slice at the current σ² vs the Wald CI (which
-	// always uses σ̂²); they coincide exactly when σ² = σ̂².
+	// Likelihood-interval band on THIS slice at the current σ². The numeric
+	// readout (and the Wald comparison) lives under the slices pair in
+	// LikelihoodTool; here we only shade the region.
 	const li = $derived(likelihoodIntervalMu(model.muHat, pt.current.sigma2, sample.length));
-	const wald = $derived(waldIntervalMu(model.muHat, model.sigma2Hat, sample.length));
 	const dropLL = $derived(logLikSum(sample, model.muHat, pt.current.sigma2) - LL_DROP_95);
 
 	let dragStart = 0;
@@ -239,10 +238,6 @@
 		</div>
 	{/if}
 </div>
-<p class="interval-readout" data-testid="intervals">
-	Likelihood interval (at current σ²): [{f2(li[0])}, {f2(li[1])}] · Wald 95% CI: [{f2(wald[0])},
-	{f2(wald[1])}]
-</p>
 
 <style>
 	.chart {
@@ -327,11 +322,5 @@
 		color: var(--ink);
 		white-space: nowrap;
 		pointer-events: none;
-	}
-	.interval-readout {
-		margin: 0.3rem 0 0;
-		font-size: 0.85rem;
-		color: var(--muted);
-		font-variant-numeric: tabular-nums;
 	}
 </style>

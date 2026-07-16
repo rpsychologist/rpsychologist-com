@@ -1,7 +1,8 @@
 <script lang="ts">
-	// Persistent estimate strip (new in 0.2.0): the MLEs, the log-likelihood at
-	// the maximum and at the current point, and the optimizer's progress — the
-	// old app buried these in the optimizer cards.
+	// Persistent estimate strip (new in 0.2.0): the MLEs plus the log-likelihood
+	// at the maximum and at the current point — the "how far below the peak am
+	// I" pairing that motivates finding the MLEs. The iteration count lives with
+	// the optimizer controls, where the concept is introduced.
 	import { format } from 'd3-format';
 	import Tex from '$lib/components/Tex.svelte';
 	import type { LikelihoodState } from './likelihood.svelte';
@@ -31,13 +32,6 @@
 		<dt><Tex math={String.raw`\ell(\mu, \sigma^2)`} /></dt>
 		<dd>{f2(model.ll)}</dd>
 	</div>
-	<div>
-		<dt>Iterations</dt>
-		<dd data-testid="iterations">
-			{model.count}{#if model.converged}
-				<span class="converged">(converged)</span>{/if}
-		</dd>
-	</div>
 </dl>
 
 <style>
@@ -65,11 +59,5 @@
 		margin: 0;
 		color: var(--heading);
 		font-weight: 600;
-	}
-	.converged {
-		margin-left: 0.3rem;
-		color: var(--viz-accent);
-		font-weight: 600;
-		font-size: 0.85rem;
 	}
 </style>

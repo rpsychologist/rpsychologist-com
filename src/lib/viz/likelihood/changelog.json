@@ -6,15 +6,17 @@
 			"date": "2026-07-08",
 			"added": [
 				"3D view of the joint likelihood: the contour plot can toggle to a rotatable surface (heights show the tempered relative likelihood, a monotone transform of ℓ) with the optimizer path and the ℓ(μ)/ℓ(σ²) slices drawn on it; falls back to the contour without WebGL or with reduced motion.",
-				"Likelihood-based interval on the ℓ(μ) plot: the χ²₁(0.95)/2 ≈ 1.92 drop region is shaded and its endpoints are shown alongside the Wald interval.",
+				"Likelihood-based interval on the ℓ(μ) slice: the χ²₁(0.95)/2 ≈ 1.92 drop region is shaded, and its width — the precision of the estimate — is reported beneath the slices pair.",
 				"The inference plot annotates the geometry of the three tests (after Buse, 1982); the element for the selected test is highlighted.",
-				"Persistent readout of the estimates: μ̂, σ̂², the maximum log-likelihood, iteration count, and convergence.",
+				"Persistent readout of the estimates: μ̂, σ̂², and the log-likelihood at the maximum and at the current point (the iteration count and convergence sit with the optimizer controls).",
 				"Profile-likelihood silhouettes on the two far walls of the 3D view — ℓₚ(μ) = maxₛ₂ ℓ and ℓ(μ̂, σ²), the surface's ridge cast onto each axis, in the marginal colour — with dashed guides from the MLE summit to each peak.",
 				"The 3D surface is now draggable: grab the floor handle under the point to move μ and σ² at once (the contour remains the precise input). Dragging elsewhere still rotates."
 			],
 			"changed": [
 				"Complete rewrite in Svelte (previously React). Every displayed statistic is unchanged.",
 				"The joint view now opens on the 3D surface where available; the contour becomes the precise-input and fallback view (reduced-motion and no-WebGL visitors still get the contour).",
+				"The ℓ(σ²) slice is drawn in the same orientation as ℓ(μ) (the parameter on the x-axis) so the two read as a matched pair, and its plot window is framed to σ² ≤ 700 where the curvature lives (values up to 1500 remain settable; the marker pins as an arrow beyond the frame).",
+				"The \"Finding the MLE\" section is one instrument: the optimizer run controls sit directly above the plots, and on wide screens the two slices sit beside the joint surface, so all three views plus the controls fit a laptop viewport at once; narrower screens stack the same pieces.",
 				"The inference section's sample-size control is reworded to make clear the statistics treat the fixed estimates as if they came from a sample of size n — no new data are drawn.",
 				"Switching the optimization algorithm now clears the drawn path (previously the path could mix steps from both algorithms).",
 				"The gradient-ascent step size was halved (γ = 0.05) so the early steps no longer overshoot the maximum, and autoplay is paced so the climb is watchable rather than instant.",
