@@ -58,4 +58,4 @@ export const RESULT_TEMPLATE = `<script type="text/pagefind-template">
 		</ul>
 		{{/if}}
 	</li>
-<\/script>`;
+</script>`;

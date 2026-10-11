@@ -17,10 +17,14 @@ test("cohen's d ranks the viz app top-3, badged as Viz", async ({ page }) => {
 	await openModalAndSearch(page, "cohen's d");
 	// The app competes with posts that carry the same phrase in their titles,
 	// so pin it loosely (top 3) rather than demanding #1.
-	const hrefs = await page
-		.locator('.pf-result .pf-result-link')
-		.evaluateAll((links) => links.map((a) => a.getAttribute('href')));
-	expect(hrefs.slice(0, 3)).toContain('/cohend');
+	// Results stream in, so poll: reading the list once can catch it half-filled.
+	await expect
+		.poll(() =>
+			page
+				.locator('.pf-result .pf-result-link')
+				.evaluateAll((links) => links.slice(0, 3).map((a) => a.getAttribute('href')))
+		)
+		.toContain('/cohend');
 	const vizResult = page.locator('.pf-result', {
 		has: page.locator('.pf-result-link[href="/cohend"]')
 	});

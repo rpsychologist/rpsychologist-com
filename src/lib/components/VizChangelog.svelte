@@ -36,6 +36,8 @@
 <div class="page">
 	<header class="hero">
 		<h1 class="display">Changelog</h1>
+		<!-- appHref is the app's route, passed as a plain string by its page. -->
+		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 		<p class="subtitle"><a href={appHref}>{name}</a></p>
 	</header>
 
@@ -67,8 +69,11 @@
 				<span class="meta">
 					<time datetime={release.date}>{formatDate(release.date)}</time>
 					·
+					<!-- GitHub links, external. -->
+					<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 					<a href={tagUrl(changelog.app, release.version)}>source</a>
 					{#if older}
+						<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 						· <a href={compareUrl(changelog.app, older.version, release.version)}>diff</a>
 					{/if}
 				</span>

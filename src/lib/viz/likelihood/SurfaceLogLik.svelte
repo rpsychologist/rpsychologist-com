@@ -785,7 +785,7 @@
 		sliceData[o++] = wx(cur.mu);
 		sliceData[o++] = wy(cur.sigma2);
 		sliceData[o++] = 0;
-		sliceData[o++] = 0.35;
+		sliceData[o] = 0.35;
 
 		// New sample → new profiles; angle is unchanged so draw() wouldn't
 		// rebuild the walls on its own.

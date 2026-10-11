@@ -19,6 +19,8 @@
 	<div class="search-ui">
 		<pagefind-input instance="page"></pagefind-input>
 		<pagefind-summary instance="page"></pagefind-summary>
+		<!-- Static template from src/lib/search.ts, no user input. -->
+		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 		<pagefind-results instance="page" max-sub-results="3">{@html RESULT_TEMPLATE}</pagefind-results>
 	</div>
 	<noscript>Search requires JavaScript.</noscript>

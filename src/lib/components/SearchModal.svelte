@@ -82,6 +82,8 @@
 	</pagefind-modal-header>
 	<pagefind-modal-body>
 		<pagefind-summary></pagefind-summary>
+		<!-- Static template from src/lib/search.ts, no user input. -->
+		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 		<pagefind-results max-sub-results="3">{@html RESULT_TEMPLATE}</pagefind-results>
 	</pagefind-modal-body>
 	<pagefind-modal-footer>
