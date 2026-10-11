@@ -72,8 +72,19 @@ const apps = {
 	},
 	powerlmmjs: {
 		url: 'https://powerlmmjs.rpsychologist.com/',
-		chart: 'svg[aria-label*="ower"], .recharts-wrapper, main svg',
-		crop: { x: 0, y: 0, w: 1 }
+		chart: '.recharts-wrapper',
+		// Overhangs the box: the last tick label and the axis title spill past it.
+		crop: { x: -0.01, y: 0, w: 1.03 },
+		// The chart is a fixed 400px tall; at this width a 4:3 frame holds all of it.
+		viewport: { width: 1030, height: 900 },
+		// Mantine ignores prefers-color-scheme and keeps the scheme in localStorage;
+		// a welcome dialog covers the chart on every fresh visit.
+		setup: async (page, theme) => {
+			await page.evaluate((t) => localStorage.setItem('mantine-color-scheme-value', t), theme);
+			await page.reload();
+			await page.waitForLoadState('networkidle');
+			await page.getByRole('button', { name: 'Skip' }).click();
+		}
 	}
 };
 
@@ -82,11 +93,11 @@ const browser = await chromium.launch({
 	// Software WebGL so the likelihood surface renders headless.
 	args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader']
 });
-for (const [name, { url, chart, crop, setup }] of Object.entries(apps)) {
+for (const [name, { url, chart, crop, setup, viewport }] of Object.entries(apps)) {
 	if (only.length && !only.includes(name)) continue;
 	for (const theme of ['light', 'dark']) {
 		const page = await browser.newPage({
-			viewport: { width: 1280, height: 900 },
+			viewport: viewport ?? { width: 1280, height: 900 },
 			deviceScaleFactor: 2,
 			colorScheme: theme
 		});
