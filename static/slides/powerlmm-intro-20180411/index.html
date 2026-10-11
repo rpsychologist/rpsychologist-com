@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Power Analysis for Longitudinal 2- and 3-Level Models</title>
+    <meta charset="utf-8">
+    <meta name="author" content="Kristoffer Magnusson  @krstoffr  http://rpsychologist.com" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-47065595-1', 'rpsychologist.com');
+      ga('send', 'pageview');
+    
+    </script>
+    <link rel="stylesheet" href="css/rpsy.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Power Analysis for Longitudinal 2- and 3-Level Models
+## Challenges and Some Solutions Using the R Package powerlmm
+### Kristoffer Magnusson <i class='twitter-logo-bw'></i> <span class="citation">@krstoffr</span> <br><a href="http://rpsychologist.com" class="uri">http://rpsychologist.com</a>
+### April 11, 2018 Stockholm University
+
+---
+
+
+
+
+class: inverse, middle
+## Overview
+
+- Short primer on power
+
+- Power analysis using `powerlmm`
+  - 2-level models
+  - 3-level models
+
+---
+class: inverse, center, middle
+
+## A Power Primer
+
+---
+## Power function
+.pull-left[
+- A power function is a method to **evaluate a statistical test**.
+
+- Gives us a test's **sensitivity** as a function of a hypothetical true effect.
+
+- For a single value, the power function tells us how often a statistical test would correctly 
+reject H0—*if* the hypotetical effect was actually true.
+
+- Often done for **sample size planning**.
+  - Or to choose between different statistical tests.
+]
+.pull-right[
+&lt;img src="slides_files/figure-html/unnamed-chunk-1-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+.center[
+![](images/neyman_pearson.jpeg)
+]
+]
+
+---
+class: center, middle, inverse
+
+## About `powerlmm`
+
+--
+
+R package designed to perform power analyses for 2- and 3-level models.  
+
+--
+
+Offers both fast and accurate analytical solutions, as well as convenient simulation methods.
+
+---
+class: center, inverse, middle
+
+# Multilevel models
+## 2-level models
+
+---
+class: center, middle
+## 2-level model
+![](images/2lvl.png)
+
+---
+## Random intercept-only
+.pull-left[
+![](images/2lvl_random_intercept.png)
+]
+.pull-right[
+- Random intercept-only model
+
+- Variation in baseline levels
+
+- Parallel slopes
+]
+
+---
+## Random intercept &amp; slope
+.pull-left[
+![](images/2lvl_random_slope_intercept.png)
+]
+.pull-right[
+- Variation in baseline levels
+
+- Variation in change over time
+
+- Possible correlation between intercepts and slopes
+]
+
+---
+## And let's not forget level 1
+.pull-left[
+![](images/2lvl_random_slope_intercept_error.png)
+]
+.pull-right[
+- Within-subjects error
+
+- Variation around the subject-specific latent slope
+]
+
+---
+class: center, middle, inverse
+
+## How to calculate power for 2-level models?
+
+---
+class: middle, inverse
+background-color: #34495e
+
+## Introducing `powerlmm`'s syntax
+
+--
+
+The `study_parameters()` function.
+
+---
+### `study_parameters()`: Setup
+
+```r
+library(powerlmm)
+p &lt;- study_parameters(n1 = 11,
+                      n2 = 50,
+                      icc_pre_subject = 0.5, 
+                      var_ratio = 0.02, 
+                      cohend = 0.5)
+```
+
+--
+**Standardized inputs**
+
+- Not all parameters of a LMM affect power. 
+
+- Often it's the relative magnitude that matters. 
+
+- I use standardized inputs in this talk, however `study_parameters()` also accepts the raw parameter values.
+
+---
+### `study_parameters()`: n1
+
+```r
+library(powerlmm)
+*p &lt;- study_parameters(n1 = 11,
+                      n2 = 50,
+                      icc_pre_subject = 0.5, 
+                      var_ratio = 0.02, 
+                      cohend = 0.5)
+```
+
+- `n1` is the number of equally spaced time points.
+
+- Argument `T_end` indicates duration, defaults to `n1 - 1`. 
+
+- Currently, only **linear change** accross time is supported. 
+
+---
+### `study_parameters()`: n2
+
+```r
+library(powerlmm)
+p &lt;- study_parameters(n1 = 11,
+*                     n2 = 50,
+                      icc_pre_subject = 0.5, 
+                      var_ratio = 0.02, 
+                      cohend = 0.5)
+```
+
+- `n2` is the number of subjects per treatment.
+
+- Can be unbalanced `n2 = per_treatment(5, 50)`
+
+---
+### `study_parameters()`: Pretest ICC? 🤔️
+
+```r
+library(powerlmm)
+p &lt;- study_parameters(n1 = 11,
+                      n2 = 50, 
+*                     icc_pre_subject = 0.5,
+                      var_ratio = 0.02, 
+                      cohend = 0.5)
+```
+
+- `icc_pre_subject` is the amount of the total baseline variance the is between-subjects. 
+$$
+\texttt{icc_pre_subject} = \frac{\text{var(subject_intercepts)}}{\text{var(subject_intercepts) + var(within-subject_error)}}
+$$
+--
+
+- `icc_pre_subject` would be the 2-level ICC if there was no random slopes.
+
+--
+
+- Argument `cor_subject` indicates the correlation between intercepts and slopes.
+
+---
+### `study_parameters()`: Variance ratio? 🤔️
+
+```r
+library(powerlmm)
+p &lt;- study_parameters(n1 = 11,
+                      n2 = 50, 
+                      icc_pre_subject = 0.5, 
+*                     var_ratio = 0.02,
+                      cohend = 0.5)
+```
+
+- `var_ratio` is the ratio of total random slope variance over the level-1 residual variance.
+$$
+\texttt{var_ratio} = \frac{\text{var(subject_slopes)}}{\text{var(within-subject_error)}}
+$$
+
+---
+### `study_parameters()`: the effect size
+
+```r
+library(powerlmm)
+p &lt;- study_parameters(n1 = 11,
+                      n2 = 50,
+                      icc_pre_subject = 0.5,
+                      var_ratio = 0.02,
+*                     cohend = 0.5)
+```
+
+.pull-left.center[
+![](images/jacobcohen.jpg)
+]
+.pull-right[
+**Standardized effect sizes**
+- `cohend` indicates the standardized differences between the two groups
+at posttest.
+
+- Different denominators possible:
+
+  - Baseline SD (default).
+
+  - Posttest SD.
+
+  - Random slope SD.
+]
+
+---
+class: inverse, center, middle
+
+## &lt;i class="twa twa-fire"&gt;&lt;/i&gt;
+
+--
+
+### How to deal with missing data?
+
+---
+
+```r
+library(powerlmm)
+p &lt;- study_parameters(n1 = 11,
+                      n2 = 50, 
+                      icc_pre_subject = 0.5, 
+                      var_ratio = 0.02, 
+*                     dropout = dropout_weibull(proportion = 0.4,
+*                                               rate = 1),
+                      cohend = 0.5)
+```
+
+--
+
+.pull-left[
+`dropout_weibull(...)`
+
+- `proportion` is the total dropout at the last time point. 
+
+- `rate` &gt; 1 indicate that more dropout occur later during treatment, and `rate` &lt; 1 that it occurs early during treatment.
+- Also support `dropout = dropout_manual(...)`. 
+
+- Can differ per treatment group, if combined with `per_treatment(...)` 
+]
+.pull-right[
+&lt;img src="slides_files/figure-html/unnamed-chunk-5-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+ 
+ ]
+
+---
+class: inverse, center, middle
+
+## "OK, but show me the power!"
+
+--
+Just call `get_power(...)`.
+
+---
+### `get_power(...)`
+
+
+
+
+
+```r
+get_power(p)
+```
+
+```
+
+     Power Analysis for Longitudinal Linear Mixed-Effects Models
+            with missing data and unbalanced designs 
+
+              n1 = 11
+              n2 = 50  (treatment)
+                   50  (control)
+                   100 (total)
+         dropout =  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10 (time)
+                    0,  5, 10, 14, 18, 23, 26, 30, 34, 37, 40 (%, control)
+                    0,  5, 10, 14, 18, 23, 26, 30, 34, 37, 40 (%, treatment)
+icc_pre_subjects = 0.5
+       var_ratio = 0.02
+       Cohen's d = 0.5
+              df = 98
+           alpha = 0.05
+           power = 42 %
+```
+
+--
+
+Let's also see what power is without dropout.
+
+```r
+get_power(update(p, dropout = 0))$power
+```
+
+```
+[1] 0.5369149
+```
+---
+class:center, inverse, middle
+## 3-level models
+---
+class: center, middle
+## 3-level model
+![](images/3lvl.png)
+
+
+---
+class: center, middle
+## 3-level model (partially nested)
+![](images/3lvl_pn.png)
+---
+## Random intercept-only
+.pull-left[
+![](images/3lvl_random_intercept.png)
+]
+.pull-right[
+- Subjects now vary around their cluster's average.
+
+- Clusters' intercepts vary.
+]
+
+---
+## Random slope-only
+.pull-left[
+![](images/3lvl_random_slope.png)
+]
+.pull-right[
+- Only clusters' slopes vary.
+
+- Reasonable if allocation is random.
+]
+
+---
+## Random intercept &amp; slope
+.pull-left[
+![](images/3lvl_random_intercept_slope.png)
+]
+.pull-right[
+- Clusters can differ both in intercepts and slopes.
+
+- Cluster-level intercepts and slopes can be correlated.
+]
+
+
+---
+### Why you should care
+&lt;img src="slides_files/figure-html/unnamed-chunk-9-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+class: inverse, middle
+background-color: #34495e
+
+## Power analysis for 3-level models
+
+--
+
+### Extending `study_parameters()`
+
+---
+### `study_parameters()`: n2
+
+```r
+library(powerlmm)
+p &lt;- study_parameters(n1 = 11,
+*                     n2 = 5,
+                      n3 = 4, 
+                      icc_pre_subject = 0.5, 
+                      icc_pre_cluster = 0.1, 
+                      icc_slope = 0.05,
+                      var_ratio = 0.02, 
+                      cohend = 0.5) 
+```
+
+- `n2` is now the number of subjects per cluster. 
+
+---
+### `study_parameters()`: n3
+
+```r
+library(powerlmm)
+p &lt;- study_parameters(n1 = 11,
+                      n2 = 5, 
+*                     n3 = 4,
+                      icc_pre_subject = 0.5, 
+                      icc_pre_cluster = 0.1, 
+                      icc_slope = 0.05,
+                      var_ratio = 0.02, 
+                      cohend = 0.5) 
+```
+
+- `n3` is the number of clusters per treatment.
+
+---
+### `study_parameters()`: pretest ICC
+
+```r
+library(powerlmm)
+p &lt;- study_parameters(n1 = 11,
+                      n2 = 5, 
+                      n3 = 4, 
+*                     icc_pre_subject = 0.5,
+                      icc_pre_cluster = 0.1, 
+                      icc_slope = 0.05,
+                      var_ratio = 0.02, 
+                      cohend = 0.5) 
+```
+
+- `icc_pre_subject` now also includes the level-3 intercept variance.
+
+$$
+{\small
+\frac{\text{var(subject_intercepts) + var(cluster_intercepts)}}{\text{var(subject_intercepts) + var(cluster_intercepts) + var(within-subject_error)}}
+}
+$$
+
+---
+### `study_parameters()`: pretest ICC
+
+```r
+library(powerlmm)
+p &lt;- study_parameters(n1 = 11,
+                      n2 = 5, 
+                      n3 = 4, 
+                      icc_pre_subject = 0.5, 
+*                     icc_pre_cluster = 0.1,
+                      icc_slope = 0.05,
+                      var_ratio = 0.02, 
+                      cohend = 0.5) 
+```
+
+- `icc_pre_cluster` indicates the amount of baseline variance at the cluster level.
+
+$$
+{\small
+\frac{\text{var(cluster_intercepts)}}{\text{var(subject_intercepts) + var(cluster_intercepts) + var(within-subject_error)}}
+}
+$$
+- `cor_cluster` indicates cluster-level correlation between intercept and slopes.
+
+
+---
+### `study_parameters()`: icc_slope
+
+```r
+library(powerlmm)
+p &lt;- study_parameters(n1 = 11,
+                      n2 = 5, 
+                      n3 = 4, 
+                      icc_pre_subject = 0.5, 
+                      icc_pre_cluster = 0.1, 
+*                     icc_slope = 0.05,
+                      var_ratio = 0.02, 
+                      cohend = 0.5) 
+```
+
+- The proportion of the total slope variance located at the cluster level.
+
+$$
+\texttt{icc_slope} = \frac{\text{var(cluster_slopes)}}{\text{var(subject_slopes) + var(cluster_slopes)}}
+$$
+- Can be viewed as the correlation between the latent slopes of any two subjects belonging to the same cluster.
+
+
+---
+
+### `study_parameters()`: The rest
+
+```r
+library(powerlmm)
+p &lt;- study_parameters(n1 = 11,
+                      n2 = 5, 
+                      n3 = 4, 
+                      icc_pre_subject = 0.5, 
+                      icc_pre_cluster = 0.1, 
+                      icc_slope = 0.05, 
+*                     var_ratio = 0.02,
+*                     dropout = ...,
+*                     cohend = 0.5)
+```
+
+- The remaining arguments are unchanged from the 2-level model. 
+
+- Except that `var_ratio` now also includes the 3-level random slope in the numerator.
+
+---
+class: inverse, center, middle
+
+## &lt;i class="twa twa-fire"&gt;&lt;/i&gt;
+
+--
+
+### "What if cluster sizes are not balanced?"
+
+--
+
+Introducing `unequal_clusters(...)` 
+
+---
+### `unequal_clusters(...)`
+
+.center[.img60[![](images/3lvl_unbalanced.png)]]
+
+--
+
+```r
+p &lt;- study_parameters(n1 = 11,
+*                     n2 = unequal_clusters(2, 9),
+                      icc_pre_subject = 0.5,
+                      icc_slope = 0.05,
+                      var_ratio = 0.03,
+                      cohend = 0.5)
+```
+
+
+---
+class: inverse, middle, center
+
+## "I don't know the exact cluster sizes!"
+
+--
+
+Assume cluster sizes are drawn from a distribution.
+
+---
+## Sample cluster sizes  
+
+&lt;img src="slides_files/figure-html/unnamed-chunk-17-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+### Sample cluster sizes
+
+```r
+*n2 &lt;- unequal_clusters(func = runif(n = 5, min = 2, max = 30))
+p &lt;- study_parameters(n1 = 11,
+*                     n2 = n2,
+                      icc_pre_subject = 0.5,
+                      icc_slope = 0.05,
+                      var_ratio = 0.03,
+                      cohend = 0.5)
+```
+
+- N.B., cluster sizes are assumed to be the same in the treatment and control group. 
+
+- Use `n2 = per_treatment(n2, n2)`, to sample each group independently.
+
+---
+### Sample cluster sizes
+Let's do two realizations.
+
+```r
+set.seed(5445)
+get_power(p)$power
+```
+
+```
+[1] 0.3504035
+```
+
+```r
+get_power(p)$power
+```
+
+```
+[1] 0.2414357
+```
+
+--
+
+.center[
+# 🤔️
+]
+
+---
+### Get the expected power
+We can average over multiple realizations, based on randomly generated cluster sizes, to get the expected power.
+
+```r
+get_power(p, 
+*         R = 50,
+          progress = FALSE)$power
+```
+
+```
+[1] 0.3291297
+```
+
+The argument `cores` can be used to run this in parallel on multiple CPU cores.
+
+---
+class: inverse, center, middle
+
+## &lt;i class="twa twa-fire"&gt;&lt;/i&gt;
+
+--
+
+### "The control group is unclustered"
+
+Partially nested studies
+
+---
+### `study_parameters()`: Partially nesting
+
+```r
+library(powerlmm)
+p &lt;- study_parameters(n1 = 11,
+                      n2 = 5, 
+                      n3 &lt;- 4, 
+                      icc_pre_subject = 0.5, 
+                      icc_pre_cluster = 0.1, 
+                      icc_slope = 0.05,
+                      var_ratio = 0.02, 
+*                     partially_nested = TRUE,
+                      cohend = 0.5) 
+```
+
+Just add `partially_nested = TRUE`, to remove the third level from the control group.
+
+--
+
+**However**, this leads us to another problem...
+
+---
+class: inverse, middle, center
+
+## ⚠️
+
+## Degrees of freedom
+
+--
+
+For some designs, like partially nested studies, exact *dfs* are hard to specify, and they must be approximated.
+
+---
+### Choice of *dfs* matters
+
+For situations with few clusters, we calculate power using the non-central *t*-distribution.
+.pull-left[
+#### Different *df* options
+* Ignore the problem (Wald test).
+
+* Use between-clusters *dfs*.
+
+* Approximated *dfs* from data (Satterthwaite).
+]
+.pull-right[
+&lt;img src="slides_files/figure-html/unnamed-chunk-22-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+]
+
+---
+## Comparing *dfs* 
+
+Substantial difference if few clusters are included.
+
+.pull-left[
+
+```r
+p &lt;- sp(n1 = 11,
+        n2 = 20,
+        n3 = 3,
+        icc_pre_subject = 0.5,
+        cor_subject = -0.5,
+        icc_slope = 0.1,
+        var_ratio = 0.03,
+        partially_nested = TRUE,
+        cohend = 1)
+```
+]
+
+--
+
+.pull-right[
+
+
+
+```r
+get_power(p, df = 9999)$power
+```
+
+```
+[1] 0.8537807
+```
+
+
+
+```r
+get_power(p, df = "between")$power
+```
+
+```
+[1] 0.3897371
+```
+
+
+
+```r
+get_power(p, df = "satterth")$power
+```
+
+```
+[1] 0.6733066
+```
+]
+
+
+
+---
+class: inverse, middle, center
+
+## 🤔️
+
+--
+
+## "I have no idea what parameter values are reasonable"
+
+--
+
+One option is to look at the model implied SDs, variance-covariance matrices, etc.
+
+---
+## Unreasonable model?
+
+.pull-left[
+
+```r
+p &lt;- sp(n1 = 11,
+        n2 = 5,
+        icc_pre_subject = 0.5,
+        icc_slope = 0.05,
+        var_ratio = 0.3,
+        cohend = 0.5)
+```
+]
+
+--
+
+.pull-right[
+
+```r
+get_sds(p) %&gt;% plot
+```
+
+&lt;img src="slides_files/figure-html/unnamed-chunk-29-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+SD at posttest is 4x the pretest SD. I do not expect that much heterogeneity. 
+
+]
+
+---
+## Unreasonable model?
+
+```r
+get_VPC(p) %&gt;% plot
+```
+
+&lt;img src="slides_files/figure-html/unnamed-chunk-31-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+## Unreasonable model?
+
+```r
+get_correlation_matrix(p) %&gt;% plot
+```
+
+&lt;img src="slides_files/figure-html/unnamed-chunk-33-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+class:  inverse, middle
+
+## &lt;i class="twa twa-fire"&gt;&lt;/i&gt;
+
+--
+
+## "Wait, I've heard you need at least 30 clusters?"
+
+--
+
+- Not really true.
+
+--
+
+- But it is true, that few clusters can be a problem.
+
+--
+
+  - at least for estimating variance components.
+
+--
+
+- It is easy to test this using `powerlmm`'s `simulate()` method.
+
+---
+### `simulate()`: Test the model's performance
+Let's see if 4 clusters per treatment is enough.
+
+```r
+p &lt;- study_parameters(n1 = 11,
+                      n2 = 30,
+                      n3 = 4,
+                      icc_pre_subject = 0.5,
+                      cor_subject = -0.5,
+                      var_ratio = 0.02,
+                      icc_slope = 0.05,
+                      cohend = 0)
+
+res &lt;- simulate(p, 
+                nsim = 5000, 
+                satterthwaite = TRUE, 
+                cores = 15)
+```
+
+---
+### `summary()`: view the results
+
+```r
+summary(res)
+```
+
+```
+Model:  correct 
+  Random effects
+
+         parameter M_est theta est_rel_bias prop_zero is_NA
+ subject_intercept 100.0 100.0     -0.00040      0.00     0
+     subject_slope   1.9   1.9      0.00129      0.00     0
+     cluster_slope   0.1   0.1      0.00831      0.11     0
+             error 100.0 100.0      0.00036      0.00     0
+       cor_subject  -0.5  -0.5     -0.00653      0.00     0
+
+  Fixed effects
+
+      parameter    M_est theta M_se SD_est Power Power_bw Power_satt
+    (Intercept) -0.01586     0 1.05   1.04 0.047       NA        NaN
+      treatment  0.00878     0 1.48   1.48 0.049       NA        NaN
+           time -0.00116     0 0.22   0.22 0.071       NA        NaN
+ time:treatment  0.00047     0 0.30   0.30 0.072    0.026      0.048
+---
+Number of simulations: 5000  | alpha:  0.05
+Time points (n1):  11
+Subjects per cluster (n2 x n3):  30 x 4 (treatment)
+                                 30 x 4 (control)
+Total number of subjects:  240 
+```
+
+---
+### `summary()`: view the results
+
+```r
+summary(res)
+```
+
+.center[![](images/success.gif)]
+
+---
+class: inverse, middle, center
+
+## Summary
+### Factors that influence power
+
+---
+### Summary: Factors that influence power
+
+#### 2-level
+- Variance ratio (random slopes) 😱 😱
+- Total number of subjects &lt;i class="twa twa-fire"&gt;&lt;/i&gt;&lt;i class="twa twa-fire"&gt;&lt;/i&gt;
+- Number of time points
+- Effect size
+  - Pretest ICCs (if standardized ES)
+- Missing data
+- Balance
+
+--
+
+#### 3-level (in addition to 2-level factors)
+- 3-level random slope (`icc_slope`) 😱 😱 😱 
+  - Number of clusters &lt;i class="twa twa-fire"&gt;&lt;/i&gt; &lt;i class="twa twa-fire"&gt;&lt;/i&gt;
+  - Cluster imbalance
+- *If random intercept-only*
+  - Total number of subjects (`n2` `\(\times\)` `n3`) 🤑
+
+--
+
+.center[** Several of these factors interact** 😭]
+
+---
+class: inverse, middle
+
+# Roadmap for `powerlmm`
+
+--
+
+- More effect sizes ✅
+
+--
+
+- Beyond linear change; polynomials, piecewise, or categorical time. 
+
+--
+
+- Non-ignorable missing data processes.
+
+--
+
+- Power for 3-way interactions (tx moderators).
+
+--
+
+- Clusters as a crossed factor ("subject-level randomization").
+
+--
+
+- Power for alternative model that account for clustering
+
+--
+
+- Better simulation support for custom models.
+
+---
+class: center, inverse, bottom
+
+## Thanks!
+
+
+.pull-left[
+.left[
+#### Contact
+&lt;i class="twitter-logo"&gt;&lt;/i&gt; [@krstoffr](http://twitter.com/krstoffr)
+
+[http://rpsychologist.com](http://rpsychologist.com)
+]
+]
+.pull-right[
+.left[
+More tutorials and examples are included in `powerlmm`'s documentation. 
+
+Found a bug? Report it here: [https://github.com/rpsychologist/powerlmm](https://github.com/rpsychologist/powerlmm).
+
+Technical paper is under review.
+]
+]
+---
+class: inverse, bottom
+#.center[❤️]
+
+Slides created using the R package [`xaringan`](https://github.com/yihui/xaringan), which is powered by [`remarkjs`](https://github.com/gnab/remark).
+
+#### Fonts
+- [`FiraCode`](https://github.com/tonsky/FiraCode): Copyright (c) Nikita Prokopov http://tonsky.me
+- [`Lato`](https://fonts.google.com/specimen/Lato): Copyright (c) Łukasz Dziedzic
+- [`Open Sans`](https://fonts.google.com/specimen/Open+Sans): Copyright (c) Steve Matteson 
+- [`Noto Serif`](https://fonts.google.com/specimen/Noto+Serif): Copyright (c) Google
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"countIncrementalSlides": false,
+"highlightStyle": "github",
+"highlightLines": true,
+"ratio": "4:3"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,4 +1,5 @@
 node_modules
+.pnpm-store
 
 # SvelteKit / Vite build output
 /build
@@ -28,6 +29,12 @@ node_modules
 *.log
 npm-debug.log*
 pnpm-debug.log*
+
+# Old Gatsby build/source copied in from the Mac; only vendored slices are committed
+/legacy
+
+# Local Claude Code config
+.claude/
 
 # Local development
 TODO.md

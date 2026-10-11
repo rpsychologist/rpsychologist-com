@@ -13,6 +13,7 @@
 	import '@fontsource/ibm-plex-mono/latin-600.css';
 	import '$lib/styles/article.css';
 	import { page } from '$app/state';
+	import { beforeNavigate } from '$app/navigation';
 	import Header from '$lib/components/Header.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import { site } from '$lib/config';
@@ -24,6 +25,18 @@
 	// it's known at prerender — the static HTML for an embed route ships without
 	// chrome, so there's no flash. (No real page slug ends in `/embed`.)
 	const bare = $derived(page.url.pathname.endsWith('/embed'));
+
+	// Old apps served verbatim from static/ (pre-Gatsby apps, the Gatsby
+	// snapshot) aren't SvelteKit routes: the client router would render its 404
+	// for them, so links there need a real page load. Keep in sync with static/
+	// and the search exclusion in scripts/pagefind-index.mjs.
+	const staticApp = /^\/(d3|slides|thesis|pvalue|therapist-effects)(\/|$)/;
+	beforeNavigate(({ to, type, cancel }) => {
+		if (type !== 'link' || !to || to.url.origin !== location.origin) return;
+		if (!staticApp.test(to.url.pathname)) return;
+		cancel();
+		location.href = to.url.href;
+	});
 </script>
 
 <svelte:head>

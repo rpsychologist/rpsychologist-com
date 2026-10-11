@@ -1,0 +1,161 @@
+/* Large desktop */
+@media (min-width: 1200px) { 
+  line#mu1, line#mu2 {
+  stroke-width: 2px;
+}
+}
+
+/* Portrait tablet to landscape and desktop */
+@media (min-width: 768px) and (max-width: 979px) { 
+  line#mu1, line#mu2 {
+  stroke-width: 2px;
+}
+}
+
+/* Landscape phone to portrait tablet */
+@media (max-width: 767px) { 
+    line#mu1, line#mu2 {
+  stroke-width: 1px;
+}
+}
+
+/* Landscape phones and down */
+@media (max-width: 480px) { 
+line#mu1, line#mu2 {
+  stroke-width: 1px;
+}
+} 
+
+.tooltip_overlap {
+  color:white;
+  border-radius: 5px;
+  padding: 10px;
+  background-color: black;
+}
+
+#viz {
+  background-color: #FFF;
+  border-radius: 10px;
+  padding-top:10px;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+  stroke-width: 1px;
+
+}
+.beta_line {
+  stroke: black;
+  stroke-width: 2px;
+}
+path#dist1 {
+	fill: none;
+	stroke: #34495e;
+	stroke-width: 2px;
+	stroke-dasharray: 2,2;
+}
+path#dist2{
+	fill: #6ACEEB;
+	stroke: #6ACEEB;
+	stroke-width: 0px;
+
+}
+path#dist2.h0 {
+  fill: #c0392b
+}
+line#mu1 {
+  fill: none;
+  stroke: none;
+  stroke-dasharray: 2,2;
+}
+line#mu2 {
+  fill: none;
+  stroke: white;
+  stroke-dasharray: 2,2;
+}
+line#mu_connect {
+    fill: none;
+    stroke: black;
+    stroke-width: 2px;
+}
+line#z_crit {
+    fill: none;
+    stroke: black;
+    stroke-width: 2px;
+	
+}
+.poly {
+	stroke: #c0392b;
+	fill: #c0392b;
+}
+#beta {
+  fill: #30394F;
+  stroke: #30394F;
+}
+
+li.list-group-item {
+  border: 0;
+}
+@media (max-width: 992px) { 
+.donuts {
+  font-size: 12px;
+}
+svg .perc {
+  font-size: 14px;
+  font-family: "museo_slab500";
+  fill: #3498db;
+}
+}
+@media (min-width: 993px) { 
+svg .perc {
+  font-family: "museo_slab500";
+  fill: #3498db;
+  font-size: 25px;
+}
+}
+.donuts svg {
+  display: block;
+  margin: 0 auto;
+}
+
+p.donuts {
+ text-align: center; 
+ font-weight: bold;
+}
+div#beta_donut svg .perc {
+fill: #30394F;
+}
+div#alpha_donut svg .perc {
+fill: #c0392b;
+}
+div#power_donut svg .perc {
+fill: #3498db;
+}
+div#n_donut svg .perc {
+  fill: #16a085;
+}
+.interpret {
+	background-color: #16A085;
+	color: white;
+	border-radius: 6px;
+	padding: 14px;
+}
+div#accordion {
+	color:black;
+}
+.cohen_float {
+   font-family: "museo_slab500";
+   font-size:20px;
+}
+
+
+
+
+

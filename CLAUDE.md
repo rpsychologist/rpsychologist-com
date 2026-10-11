@@ -130,6 +130,39 @@ on the main page. The root layout drops the header/footer for any `/…/embed` p
 (prerender-safe, so no flash), and framing headers are scoped to that path in
 `static/_headers`. Share dialogs point their iframe snippet at the embed route.
 
+## Old apps served verbatim from `static/`
+
+Some URLs are served by old builds copied into `static/`, not by SvelteKit:
+
+- **Pre-Gatsby apps** — `static/{d3,slides,thesis}/`,
+  committed as-is (they were gitignored on the Gatsby site and lived only on the
+  Mac). Cited in print; never move them.
+- **Gatsby snapshot** of the not-yet-ported p-values and therapist-effects apps
+  — `/pvalue/`, `/therapist-effects/`, their hashed root bundles, `page-data/`,
+  `static/static/`, `icons/`. Copied by `scripts/vendor-gatsby-snapshot.mjs`
+  from the old production build (`legacy/blog/public`; `legacy/` is the Mac's
+  gitignored old checkout); the file list is `scripts/gatsby-snapshot-files.txt`.
+  When a port ships, delete its snapshot files in the same change. Only the two
+  pages' `page-data` is vendored, so the old header's links 404 in Gatsby's
+  router and fall back to a full load of the new site — keep it that way.
+
+What that implies:
+
+- The path prefixes are listed in three places — the `beforeNavigate` full-load
+  rule in `src/routes/+layout.svelte` (the client router would otherwise render
+  its own 404 for them), the search exclusion in `scripts/pagefind-index.mjs`,
+  and `legacy: true` entries in `src/lib/viz.ts`. A port removes its prefix
+  from all three.
+- `pnpm dev` 404s them (Vite doesn't serve directory indexes from `static/`);
+  use `pnpm build && pnpm preview`. The prerender crawler has the same blind
+  spot, hence `prerender.handleHttpError` in `svelte.config.js`.
+- The old site registered a service worker (`gatsby-plugin-offline`).
+  `static/sw.js` is its kill switch (unregisters, clears caches, reloads tabs it
+  controlled) and must stay deployed indefinitely; `_headers` marks it
+  `no-cache`.
+- `static/` is ignored by Prettier and ESLint. `e2e/legacy.spec.ts` is the only
+  check that the vendored files still resolve.
+
 ## `src/lib/stats` — interactive-visualization domain code
 
 Pure, tested numerical code (linear algebra, regression, conditioning, residuals)

@@ -11,6 +11,8 @@ const gitignorePath = path.resolve(import.meta.dirname, '.gitignore');
 
 export default defineConfig(
 	includeIgnoreFile(gitignorePath),
+	// Copied-in old builds (Gatsby snapshot, pre-Gatsby apps); not our source.
+	{ ignores: ['static/**'] },
 	js.configs.recommended,
 	ts.configs.recommended,
 	svelte.configs.recommended,

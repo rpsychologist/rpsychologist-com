@@ -95,7 +95,10 @@ function isNoise(url) {
 		url.startsWith('/page/') ||
 		url === '/posts' ||
 		url === '/search' ||
-		url.endsWith('/embed')
+		url.endsWith('/embed') ||
+		// Old standalone apps copied into static/ verbatim; their markup isn't
+		// shaped for search (no titles/excerpts worth showing).
+		/^\/(d3|slides|thesis)\//.test(url)
 	);
 }
 

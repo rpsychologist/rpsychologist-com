@@ -26,3 +26,8 @@
 /cohend
   ! X-Frame-Options
   Content-Security-Policy: frame-ancestors *
+
+# Kill switch for the old Gatsby service worker (see static/sw.js): browsers
+# must revalidate it, or returning visitors keep the old worker longer.
+/sw.js
+  Cache-Control: no-cache

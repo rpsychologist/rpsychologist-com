@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import adapter from '@sveltejs/adapter-static';
 import { mdsvex, escapeSvelte } from 'mdsvex';
@@ -118,6 +119,15 @@ const config = {
 			precompress: false,
 			strict: true
 		}),
+		prerender: {
+			// The prerender server doesn't resolve directory indexes in static/, so
+			// links to the old apps there (/d3/NHST/, /pvalue -> index.html) 404 at
+			// build time though Cloudflare Pages serves them.
+			handleHttpError: ({ path, message }) => {
+				if (existsSync(`static${path.replace(/\/?$/, '/')}index.html`)) return;
+				throw new Error(message);
+			}
+		},
 		// Hash mode auto-hashes only the scripts SvelteKit itself renders (its
 		// hydration bootstrap). It does NOT hash inline scripts in app.html — those
 		// are interpolated after the policy is built — so the pre-paint theme script

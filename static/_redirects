@@ -24,3 +24,15 @@
 /tr/cohend  /cohend  301
 /uz/cohend  /cohend  301
 /vi/cohend  /cohend  301
+
+# Pre-Gatsby app URLs that the Gatsby site already redirected (netlify.toml)
+/d3/cohend       /cohend       301
+/d3/likelihood   /likelihood   301
+/d3/correlation  /correlation  301
+/d3/cohend/      /cohend       301
+/d3/likelihood/  /likelihood   301
+/d3/correlation/ /correlation  301
+
+# The descriptive-adjustment essay was a standalone app at this URL before it
+# became a post at the same slug.
+/descriptive-adjustment/  /descriptive-adjustment  301
