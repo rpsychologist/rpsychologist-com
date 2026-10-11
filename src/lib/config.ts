@@ -14,7 +14,6 @@ export const site = {
 	social: {
 		bluesky: 'https://bsky.app/profile/rpsychologist.com',
 		github: 'https://github.com/rpsychologist',
-		mastodon: 'https://mastodon.rpsychologist.com/@kristoffer',
 		twitter: 'https://twitter.com/krstoffr',
 		linkedin: 'https://www.linkedin.com/in/kristofferm'
 	}

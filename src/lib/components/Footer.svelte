@@ -6,7 +6,6 @@
 
 	const connect = [
 		{ name: 'bluesky', label: 'Bluesky', href: site.social.bluesky },
-		{ name: 'mastodon', label: 'Mastodon', href: site.social.mastodon },
 		{ name: 'x', label: 'Twitter', href: site.social.twitter },
 		{ name: 'github', label: 'GitHub', href: site.social.github },
 		{ name: 'linkedin', label: 'LinkedIn', href: site.social.linkedin }

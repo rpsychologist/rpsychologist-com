@@ -5,7 +5,6 @@
 
 	const follow = [
 		{ name: 'bluesky', href: site.social.bluesky, label: 'Bluesky' },
-		{ name: 'mastodon', href: site.social.mastodon, label: 'Mastodon' },
 		{ name: 'x', href: site.social.twitter, label: 'Twitter' },
 		{ name: 'github', href: site.social.github, label: 'GitHub' }
 	];
