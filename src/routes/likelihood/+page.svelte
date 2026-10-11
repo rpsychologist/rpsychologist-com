@@ -14,7 +14,7 @@
 	// singleton would bleed state across requests.
 	const model = new LikelihoodState();
 
-	const more = viz.filter((v) => v.href !== '/likelihood');
+	const more = viz.filter((v) => !v.legacy && v.href !== '/likelihood');
 
 	// LaTeX kept in the script (braces in \frac{}{} must live in JS strings).
 	const tex = {

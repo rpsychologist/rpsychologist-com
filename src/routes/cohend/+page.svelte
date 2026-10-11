@@ -24,6 +24,8 @@
 	// (audited: old and new keys match). Runs during hydration, not onMount,
 	// to shorten the flash inside the iframe.
 	if (browser) {
+		// Read once before redirecting; nothing renders from it.
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity
 		const params = new URLSearchParams(location.search);
 		if (params.get('embed') === '1') {
 			params.delete('embed');
@@ -58,7 +60,7 @@
 
 	// Related tools, surfaced in context for visitors who land directly on this
 	// page (most do, via search) and never see the global /viz gallery.
-	const more = viz.filter((v) => v.href !== '/cohend');
+	const more = viz.filter((v) => !v.legacy && v.href !== '/cohend');
 
 	// LaTeX kept in the script (a `{` inside a Svelte attribute is parsed as an
 	// expression delimiter, so braces in \frac{}{} must live in JS strings).

@@ -33,7 +33,7 @@
 	});
 
 	// Related tools, surfaced in context for visitors who land directly here.
-	const more = viz.filter((v) => v.href !== '/correlation');
+	const more = viz.filter((v) => !v.legacy && v.href !== '/correlation');
 
 	// LaTeX kept in the script (braces in \frac{}{} must live in JS strings).
 	const tex = {

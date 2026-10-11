@@ -1,5 +1,20 @@
+<script lang="ts" module>
+	// Enhanced Picture objects keyed by basename; typed loosely as in PostImage.
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const thumbs = import.meta.glob<{ default: any }>('/src/lib/assets/viz/*.png', {
+		eager: true,
+		query: { enhanced: true }
+	});
+	const thumb = (name: string) => thumbs[`/src/lib/assets/viz/${name}.png`]?.default;
+	// enhanced:img fails on undefined with an opaque error; name the missing file.
+	const required = (name: string) => {
+		const t = thumb(name);
+		if (!t) throw new Error(`Missing gallery thumbnail src/lib/assets/viz/${name}.png`);
+		return t;
+	};
+</script>
+
 <script lang="ts">
-	import VizGlyph from './VizGlyph.svelte';
 	import type { Viz } from '$lib/viz';
 
 	let { items }: { items: Viz[] } = $props();
@@ -7,12 +22,32 @@
 
 <ul class="viz-grid">
 	{#each items as v (v.title)}
+		{@const dark = thumb(`${v.image}-dark`)}
 		<li>
 			<!-- hrefs are data and may be external; the site deploys at the root, so
 			     there is no base path for resolve() to add. -->
 			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 			<a class="card" href={v.href} rel={v.href.startsWith('http') ? 'external' : undefined}>
-				<span class="screen"><VizGlyph name={v.glyph} /></span>
+				<!-- Prerendered, so the theme isn't known at render time: both
+				     variants ship and CSS shows one; lazy keeps the hidden one unloaded. -->
+				<span class="screen" class:has-dark={dark}>
+					<enhanced:img
+						class="light"
+						src={required(v.image)}
+						alt=""
+						loading="lazy"
+						sizes="(max-width: 32rem) 45vw, 20rem"
+					/>
+					{#if dark}
+						<enhanced:img
+							class="dark"
+							src={dark}
+							alt=""
+							loading="lazy"
+							sizes="(max-width: 32rem) 45vw, 20rem"
+						/>
+					{/if}
+				</span>
 				<span class="name">{v.title}</span>
 				<span class="desc">{v.description}</span>
 			</a>
@@ -47,14 +82,33 @@
 	.viz-grid a:hover {
 		border-color: var(--accent-signal);
 	}
-	/* Glyph floats on the card itself, separated from the label by a hairline —
-     a single frame (the card), not a box-in-a-box. */
+	/* Thumbnails are crops of the real charts. Apps with a dark mode have a dark
+     crop too (scripts/viz-thumbnails.mjs); the rest are white-background
+     screenshots, dimmed in dark mode so they don't glare. */
 	.screen {
-		aspect-ratio: 16 / 10;
-		display: grid;
-		place-items: center;
-		padding: 0.3rem 0.4rem 0.85rem;
-		border-bottom: 1px solid var(--rule);
+		aspect-ratio: 4 / 3;
+		overflow: hidden;
+		border-radius: 4px;
+		background: #fff;
+		border: 1px solid var(--rule);
+	}
+	.screen :global(img) {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+	.screen :global(img.dark) {
+		display: none;
+	}
+	:global([data-theme='dark']) .has-dark :global(img.light) {
+		display: none;
+	}
+	:global([data-theme='dark']) .has-dark :global(img.dark) {
+		display: block;
+	}
+	:global([data-theme='dark']) .screen:not(.has-dark) {
+		filter: brightness(0.82);
 	}
 	.name {
 		font-family: var(--font-heading);

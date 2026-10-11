@@ -5,17 +5,19 @@ import { viz } from '$lib/viz';
 export const prerender = true;
 
 export function GET() {
-	// Internal viz apps (external hrefs are the not-yet-ported ones) plus each
-	// app's changelog — the changelog URL is citable and should be crawlable.
+	// Internal viz apps plus each ported app's changelog — the changelog URL is
+	// citable and should be crawlable. Legacy apps keep their trailing slash.
 	const vizPaths = viz
-		.filter((v) => v.href.startsWith('/'))
+		.filter((v) => v.href.startsWith('/') && !v.legacy)
 		.flatMap((v) => [v.href.slice(1), `${v.href.slice(1)}/changelog`]);
+	const legacyUrls = viz.filter((v) => v.legacy).map((v) => ({ loc: `${site.url}${v.href}` }));
 	const staticPaths = ['', 'posts', 'viz', 'about', 'tags', 'search', ...vizPaths];
 	const pagePaths = Array.from({ length: pageCount - 1 }, (_, i) => `page/${i + 2}`);
 	const tagPaths = [...termBySlug.keys()].map((slug) => `tags/${slug}`);
 
 	const urls: string[] = [
 		...staticPaths.map((p) => ({ loc: `${site.url}/${p}`.replace(/\/$/, '') || site.url })),
+		...legacyUrls,
 		...pagePaths.map((p) => ({ loc: `${site.url}/${p}` })),
 		...tagPaths.map((p) => ({ loc: `${site.url}/${p}` })),
 		...posts.map((p) => ({ loc: `${site.url}/${p.slug}`, lastmod: p.date }))

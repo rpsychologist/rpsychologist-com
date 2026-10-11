@@ -11,11 +11,10 @@
 	import Seo from '$lib/components/Seo.svelte';
 
 	const recent = posts.slice(0, 5);
-	// One clean row on the homepage; the full set lives on /viz.
-	const featured = viz.slice(0, 4);
+	// Hand-picked (`featured` in viz.ts); the full set lives on /viz.
+	const featured = viz.filter((v) => v.featured);
 	const socials = [
 		{ name: 'bluesky', href: site.social.bluesky, label: 'Bluesky' },
-		{ name: 'mastodon', href: site.social.mastodon, label: 'Mastodon' },
 		{ name: 'github', href: site.social.github, label: 'GitHub' },
 		{ name: 'x', href: site.social.twitter, label: 'Twitter' }
 	];

@@ -202,6 +202,17 @@ numerical model code sits in a sibling `model.ts` with `model.test.ts`.
 (file map, state flow, URL params, share/embed) is documented in
 `src/lib/viz/cohend/README.md`.
 
+The gallery (`/viz`, homepage, "more" on app pages) is data in `src/lib/viz.ts`
+rendered by `VizGallery.svelte`; the homepage shows the hand-picked `featured`
+entries. Interactive essays are posts **and** gallery entries (e.g.
+`descriptive-adjustment`, the one `.svx` post): they get a changelog and cite
+block like the apps, with the changelog in `src/lib/viz/<slug>/` and a
+`src/routes/<slug>/changelog/` route next to the `[slug]` post. Thumbnails are 4:3 crops of the real charts in
+`src/lib/assets/viz/<image>.png`, plus `<image>-dark.png` for apps with a dark
+mode; both ship and CSS shows one (the theme isn't known at prerender).
+`scripts/viz-thumbnails.mjs [name]` regenerates them from the running build —
+rerun it when an app's chart changes.
+
 ### Versioning & changelogs (researchers cite these apps)
 
 The maintainer-facing release guide is `RELEASING.md`; keep the two in sync.
