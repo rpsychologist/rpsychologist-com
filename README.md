@@ -1,14 +1,34 @@
 # Source code for https://rpsychologist.com
 
-## Visualizations
+The blog and its interactive visualizations, built with SvelteKit and prerendered to static files.
 
-Each of the visualization has it's own folder `gatsby-theme-rpsych-*`.
-All of the visualizations are not yet ported to React.
+## Development
+
+Requires Node ≥ 22.12 (see `.nvmrc`) and pnpm.
+
+```sh
+pnpm install
+pnpm build     # prerender the site into build/ and index it for search
+pnpm preview   # serve build/ at http://localhost:4173
+```
+
+`pnpm dev` is faster for editing, but it does not serve the search index or the older apps kept under `static/`; check those with `pnpm preview`.
+
+```sh
+pnpm check     # type and Svelte diagnostics, formatting
+pnpm lint      # formatting and ESLint
+pnpm test      # unit tests
+pnpm test:e2e  # browser tests against the built site
+```
+
+## Layout
+
+- `content/blog/` holds the posts, one folder per post.
+- `src/lib/viz/` holds the interactive visualizations; each has its own version and changelog (see `RELEASING.md`).
+- `static/` also contains older apps served as-is: the D3 visualizations (`/d3/…`), slides, the thesis, and copies of the previous site's p-value and therapist-effects pages until they are rewritten.
 
 ## Contributions are welcome
 
 Open an issue if you want to discuss potential contributions.
 
-### Contribute translations
-
-Currently, the Cohen's _d_ page has support for translations. Read the [translation instructions](https://github.com/rpsychologist/rpsychologist-com/blob/master/docs/translation.md) if you want to help!
+Translations of the Cohen's _d_ page are on hold until translation support returns to the rewritten app; see `docs/translation.md` for how they worked.

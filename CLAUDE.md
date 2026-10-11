@@ -8,9 +8,6 @@ SvelteKit rewrite of the site (migrated from Gatsby). Svelte 5 (runes), fully
 prerendered to static files via `adapter-static`, deployed on Cloudflare Pages. Package
 manager is **pnpm** (see the `packageManager` field); Node `>=22.12` (see `.nvmrc`).
 
-The root `README.md` is stale — it describes the old Gatsby/React site and its
-per-visualization theme packages. Ignore it for architecture; trust the code.
-
 ## Commands
 
 ```bash
