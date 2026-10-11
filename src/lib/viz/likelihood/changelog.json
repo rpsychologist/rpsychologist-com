@@ -10,15 +10,22 @@
 				"The inference plot annotates the geometry of the three tests (after Buse, 1982); the element for the selected test is highlighted.",
 				"Persistent readout of the estimates: μ̂, σ̂², and the log-likelihood at the maximum and at the current point (the iteration count and convergence sit with the optimizer controls).",
 				"Profile-likelihood silhouettes on the two far walls of the 3D view — ℓₚ(μ) = maxₛ₂ ℓ and ℓ(μ̂, σ²), the surface's ridge cast onto each axis, in the marginal colour — with dashed guides from the MLE summit to each peak.",
-				"The 3D surface is now draggable: grab the floor handle under the point to move μ and σ² at once (the contour remains the precise input). Dragging elsewhere still rotates."
+				"The 3D surface is now draggable: grab the floor handle under the point to move μ and σ² at once (the contour remains the precise input). Dragging elsewhere still rotates.",
+				"A 3D view of the inference figure: the likelihood surface at the hypothetical n, with the null hypothesis μ = μ₀ drawn across it, its best point (μ₀, σ̂₀²) sliding along the ridge of best variances, and each test's geometry: the likelihood ratio as the drop of the profile likelihood from the summit level, the score as a slope triangle along μ at (μ₀, σ̂₀²), labelled with U (the slope along σ² is zero there), and the Wald distance μ̂ − μ₀ under the slice through the summit. Unlike the 2D figure, the likelihood ratio and score views re-estimate the variance under the null, as the tests do. Moving the sample-size slider shows the whole surface sharpen.",
+				"Both 3D views have a key listing what is drawn for the current view; hovering or tapping an entry picks that element out on the surface, and in the inference view each test opens with its own elements picked out. The MLE and the best point under the null are labelled in place.",
+				"A full-view button on the plots and on the inference figure expands either to the whole browser window (Esc to return), for a larger 3D surface.",
+				"The 3D views have three viewpoints: Angled, and two edge-on side views, in which the surface's outline is exactly the profile likelihood drawn on the wall."
 			],
 			"changed": [
 				"Complete rewrite in Svelte (previously React). Every displayed statistic is unchanged.",
 				"The joint view now opens on the 3D surface where available; the contour becomes the precise-input and fallback view (reduced-motion and no-WebGL visitors still get the contour).",
 				"The ℓ(σ²) slice is drawn in the same orientation as ℓ(μ) (the parameter on the x-axis) so the two read as a matched pair, and its plot window is framed to σ² ≤ 700 where the curvature lives (values up to 1500 remain settable; the marker pins as an arrow beyond the frame).",
-				"The \"Finding the MLE\" section is one instrument: the optimizer run controls sit directly above the plots, and on wide screens the two slices sit beside the joint surface, so all three views plus the controls fit a laptop viewport at once; narrower screens stack the same pieces.",
+				"The \"Finding the MLE\" section is one framed instrument: the optimizer controls and the Contour/3D toggle share its header, and on wide screens the two (now taller, titled) slices sit beside the joint surface, so all three views plus the controls fit a laptop viewport at once; narrower screens stack the same pieces.",
+				"The log-likelihood calculation is laid out as a table: each observation, its log-density, and a bar for its share of the total, summed beside the maximum attainable value at the MLEs.",
+				"The inference section is one framed figure with the null-hypothesis and sample-size sliders in its header; the score and Fisher information at the null moved into the Score tab. p-values are shown in APA style (p < .001 instead of 0.00).",
 				"The inference section's sample-size control is reworded to make clear the statistics treat the fixed estimates as if they came from a sample of size n — no new data are drawn.",
 				"Switching the optimization algorithm now clears the drawn path (previously the path could mix steps from both algorithms).",
+				"Moving the parameters by hand (sliders, inputs, MLE buttons, or dragging on a plot) now ends the optimizer run: the path, iteration count, and convergence flag reset, and the next run starts from the new point. Previously a converged run kept play disabled after the point was moved, and the next step drew a jump the optimizer never made.",
 				"The gradient-ascent step size was halved (γ = 0.05) so the early steps no longer overshoot the maximum, and autoplay is paced so the climb is watchable rather than instant.",
 				"New visual design, as part of the site-wide redesign."
 			],

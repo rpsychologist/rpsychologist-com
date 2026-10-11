@@ -123,22 +123,33 @@ export class LikelihoodState {
 		this.animating = false;
 	}
 
+	/** A manual move of (μ, σ²) ends the run: the new point is the next run's
+	 * start. Keeping the trail would leave `converged` blocking play from the
+	 * new point, and the next step would draw a jump the optimizer never made.
+	 * (Departs from the old app, which kept both.) */
+	#moveByHand() {
+		this.#interrupt();
+		this.path = [];
+		this.#convergedHistory = [];
+		this.converged = false;
+	}
+
 	setMu(v: number, immediate = false) {
 		this.immediate = immediate;
-		this.#interrupt();
+		this.#moveByHand();
 		this.p.mu = clamp(v, MU_MIN, MU_MAX);
 	}
 
 	setSigma2(v: number, immediate = false) {
 		this.immediate = immediate;
-		this.#interrupt();
+		this.#moveByHand();
 		this.p.sigma2 = clamp(v, SIGMA2_MIN, SIGMA2_MAX);
 	}
 
 	/** Chart drags move both parameters at once (old contourDrag). */
 	setPoint(pt: OptimPoint, immediate = true) {
 		this.immediate = immediate;
-		this.#interrupt();
+		this.#moveByHand();
 		this.p.mu = clamp(pt.mu, MU_MIN, MU_MAX);
 		this.p.sigma2 = clamp(pt.sigma2, SIGMA2_MIN, SIGMA2_MAX);
 	}
@@ -146,7 +157,7 @@ export class LikelihoodState {
 	/** Jump a parameter to its MLE (old ButtonMLE). */
 	snapTo(which: 'mu' | 'sigma2') {
 		this.immediate = false;
-		this.#interrupt();
+		this.#moveByHand();
 		if (which === 'mu') this.p.mu = clamp(this.muHat, MU_MIN, MU_MAX);
 		else this.p.sigma2 = clamp(this.sigma2Hat, SIGMA2_MIN, SIGMA2_MAX);
 	}

@@ -28,8 +28,8 @@
 	}
 	let { model }: Props = $props();
 
-	const margin = { top: 46, right: 20, bottom: 40, left: 55 };
-	const ASPECT = 0.4;
+	const margin = { top: 34, right: 16, bottom: 38, left: 44 };
+	const ASPECT = 0.5;
 
 	let cw = $state(0);
 	const w = $derived(cw - margin.left - margin.right);
@@ -81,7 +81,7 @@
 
 	// Tooltip position, clamped to the plot so it stays in-frame with the marker.
 	const tipX = $derived(markerX + margin.left);
-	const tipY = $derived(Math.max(0, Math.min(h, py)) + margin.top - 14);
+	const tipY = $derived(Math.max(28, Math.max(0, Math.min(h, py)) + margin.top - 14));
 
 	// Tangent segment through the point: ±Δμ in data units, mapped to screen.
 	// Screen y grows downward, so the left endpoint (lower ℓ when the score is
@@ -124,126 +124,159 @@
 	const dropLL = $derived(logLikSum(sample, model.muHat, pt.current.sigma2) - LL_DROP_95);
 
 	let dragStart = 0;
+	const f1 = format('.1f');
 	const f2 = format('.2f');
 </script>
 
-<div class="chart" bind:clientWidth={cw}>
-	{#if w > 0}
-		<svg
-			width={cw}
-			height={cw * ASPECT}
-			role="img"
-			aria-label="Log-likelihood of the mean, holding the variance at {f2(model.p.sigma2)}"
-		>
-			<defs>
-				<clipPath id="loglik-mu-clip">
-					<rect x="0" y="-10" width={w} height={h + 10} />
-				</clipPath>
-			</defs>
-			<g transform="translate({margin.left}, {margin.top})">
-				<g clip-path="url(#loglik-mu-clip)">
-					<!-- 95% likelihood-interval band (new in 0.2.0). -->
-					<rect
-						class="li-band"
-						x={x(li[0])}
-						y="0"
-						width={Math.max(0, x(li[1]) - x(li[0]))}
-						height={h}
-					/>
-					<line class="li-drop" x1="0" x2={w} y1={y(dropLL)} y2={y(dropLL)} />
-					<text class="li-label" x={4} y={y(dropLL) - 5}> max ℓ − χ²₁(.95)/2 </text>
-
-					<path class="curve" d={toPath(curve)} />
-
-					{#if newtonPath}
-						<path class="newton" d={newtonPath} />
-					{/if}
-					{#if gaNext}
-						<line
-							class="next-line"
-							x1={x(gaNext.mu)}
-							x2={x(gaNext.mu)}
-							y1={y(LL_MIN)}
-							y2={y(gaNext.ll)}
+<figure class="slice">
+	<p class="slice-title">
+		<Tex math={String.raw`\ell(\mu)`} /> with <Tex math={String.raw`\sigma^2`} /> fixed at {f1(
+			model.p.sigma2
+		)}
+	</p>
+	<div class="chart" bind:clientWidth={cw}>
+		{#if w > 0}
+			<svg
+				width={cw}
+				height={cw * ASPECT}
+				role="img"
+				aria-label="Log-likelihood of the mean, holding the variance at {f2(model.p.sigma2)}"
+			>
+				<defs>
+					<clipPath id="loglik-mu-clip">
+						<rect x="0" y="-10" width={w} height={h + 10} />
+					</clipPath>
+				</defs>
+				<g transform="translate({margin.left}, {margin.top})">
+					<g clip-path="url(#loglik-mu-clip)">
+						<!-- 95% likelihood-interval band (new in 0.2.0). -->
+						<rect
+							class="li-band"
+							x={x(li[0])}
+							y="0"
+							width={Math.max(0, x(li[1]) - x(li[0]))}
+							height={h}
 						/>
-						<circle class="next-point" r="5" cx={x(gaNext.mu)} cy={y(gaNext.ll)} />
-					{/if}
+						<line class="li-drop" x1="0" x2={w} y1={y(dropLL)} y2={y(dropLL)} />
+						<text class="li-label" x={4} y={y(dropLL) - 5}> max ℓ − χ²₁(.95)/2 </text>
 
-					<!-- Tangent (the score at the current μ) + draggable point. -->
-					<g transform="translate({px}, {py})">
-						<line class="deriv" x1={-tangent.dx} x2={tangent.dx} y1={tangent.dy} y2={-tangent.dy} />
+						<path class="curve" d={toPath(curve)} />
+
+						{#if newtonPath}
+							<path class="newton" d={newtonPath} />
+						{/if}
+						{#if gaNext}
+							<line
+								class="next-line"
+								x1={x(gaNext.mu)}
+								x2={x(gaNext.mu)}
+								y1={y(LL_MIN)}
+								y2={y(gaNext.ll)}
+							/>
+							<circle class="next-point" r="5" cx={x(gaNext.mu)} cy={y(gaNext.ll)} />
+						{/if}
+
+						<!-- Tangent (the score at the current μ) + draggable point. -->
+						<g transform="translate({px}, {py})">
+							<line
+								class="deriv"
+								x1={-tangent.dx}
+								x2={tangent.dx}
+								y1={tangent.dy}
+								y2={-tangent.dy}
+							/>
+						</g>
 					</g>
-				</g>
-				<!-- Marker: the draggable point, or a down-arrow at the axis when
+					<!-- Marker: the draggable point, or a down-arrow at the axis when
 				     ℓ(μ) has dropped below the frame. Both drive μ by horizontal drag. -->
-				<g
-					class="marker"
-					transform="translate({markerX}, {offBottom ? h : py})"
-					role="slider"
-					aria-label="Drag to set the mean"
-					aria-valuenow={model.p.mu}
-					aria-valuemin={MU_MIN}
-					aria-valuemax={MU_MAX}
-					tabindex="0"
-					onkeydown={(e) => {
-						if (e.key === 'ArrowLeft') model.setMu(model.p.mu - 1);
-						else if (e.key === 'ArrowRight') model.setMu(model.p.mu + 1);
-					}}
-					use:drag={{
-						onstart: () => (dragStart = model.p.mu),
-						ondrag: (e) =>
-							model.setPoint({ mu: x.invert(x(dragStart) + e.totalX), sigma2: model.p.sigma2 }),
-						onend: () => (model.immediate = false)
-					}}
-				>
-					{#if offBottom}
-						<path class="off-arrow" d="M-5,-11 L5,-11 L0,-2 Z" />
-					{:else}
-						<circle class="param-point" r="6" />
-					{/if}
-				</g>
+					<g
+						class="marker"
+						transform="translate({markerX}, {offBottom ? h : py})"
+						role="slider"
+						aria-label="Drag to set the mean"
+						aria-valuenow={model.p.mu}
+						aria-valuemin={MU_MIN}
+						aria-valuemax={MU_MAX}
+						tabindex="0"
+						onkeydown={(e) => {
+							if (e.key === 'ArrowLeft') model.setMu(model.p.mu - 1);
+							else if (e.key === 'ArrowRight') model.setMu(model.p.mu + 1);
+						}}
+						use:drag={{
+							onstart: () => (dragStart = model.p.mu),
+							ondrag: (e) =>
+								model.setPoint({ mu: x.invert(x(dragStart) + e.totalX), sigma2: model.p.sigma2 }),
+							onend: () => (model.immediate = false)
+						}}
+					>
+						{#if offBottom}
+							<path class="off-arrow" d="M-5,-11 L5,-11 L0,-2 Z" />
+						{:else}
+							<circle class="param-point" r="6" />
+						{/if}
+					</g>
 
-				<g transform="translate(0, {h})">
-					<line x1="0" x2={w} y1="0" y2="0" class="axis" />
-					{#each xTicks as t (t)}
-						<line x1={x(t)} x2={x(t)} y1="0" y2="6" class="axis" />
-						<text x={x(t)} y="20" class="tick" text-anchor="middle">{t}</text>
-					{/each}
-				</g>
-				<g>
-					<line x1="0" x2="0" y1="0" y2={h} class="axis" />
-					{#each yTicks as t (t)}
-						<line x1="-6" x2="0" y1={y(t)} y2={y(t)} class="axis" />
-						<text x="-9" y={y(t)} class="tick" text-anchor="end" dominant-baseline="central">
-							{t}
-						</text>
-					{/each}
-				</g>
+					<g transform="translate(0, {h})">
+						<line x1="0" x2={w} y1="0" y2="0" class="axis" />
+						{#each xTicks as t (t)}
+							<line x1={x(t)} x2={x(t)} y1="0" y2="6" class="axis" />
+							<text x={x(t)} y="20" class="tick" text-anchor="middle">{t}</text>
+						{/each}
+					</g>
+					<g>
+						<line x1="0" x2="0" y1="0" y2={h} class="axis" />
+						{#each yTicks as t (t)}
+							<line x1="-6" x2="0" y1={y(t)} y2={y(t)} class="axis" />
+							<text x="-9" y={y(t)} class="tick" text-anchor="end" dominant-baseline="central">
+								{t}
+							</text>
+						{/each}
+					</g>
 
-				<text class="axis-label" text-anchor="middle" transform="translate({w / 2}, {h + 34})">
-					μ
-				</text>
-				<text
-					class="axis-label"
-					text-anchor="middle"
-					transform="translate({-margin.left + 14}, {h / 2}) rotate(-90)"
-				>
-					ℓ(μ, σ² = {f2(model.p.sigma2)})
-				</text>
-			</g>
-		</svg>
-		<div class="deriv-tip" style="left: {tipX}px; top: {tipY}px">
-			<Tex math={String.raw`\tfrac{\partial}{\partial \mu}\ell =`} />
-			{f2(deriv)}
-		</div>
-	{/if}
-</div>
+					<text class="axis-label" text-anchor="middle" transform="translate({w / 2}, {h + 34})">
+						μ
+					</text>
+				</g>
+			</svg>
+			<div class="deriv-tip" style="left: {tipX}px; top: {tipY}px">
+				<Tex math={String.raw`\tfrac{\partial}{\partial \mu}\ell =`} />
+				{f2(deriv)}
+			</div>
+		{/if}
+	</div>
+	<figcaption>
+		95% likelihood interval for <Tex math={String.raw`\mu`} />:
+		<span class="interval">[{f2(li[0])}, {f2(li[1])}]</span>
+	</figcaption>
+</figure>
 
 <style>
+	.slice {
+		margin: 0;
+		min-width: 0;
+	}
+	/* Titles name the slice in place of a rotated y-label, which was cramped
+	   and repeated the fixed value at two decimals. */
+	.slice-title {
+		margin: 0;
+		font-family: var(--font-heading);
+		font-size: 0.85rem;
+		font-weight: 500;
+		color: var(--heading);
+	}
+	figcaption {
+		margin-top: 0.15rem;
+		font-size: 0.82rem;
+		color: var(--muted);
+		font-variant-numeric: tabular-nums;
+	}
+	.interval {
+		white-space: nowrap;
+	}
 	.chart {
 		position: relative;
 		width: 100%;
-		aspect-ratio: 1 / 0.4;
+		aspect-ratio: 1 / 0.5;
 	}
 	.chart svg {
 		display: block;

@@ -129,13 +129,53 @@ describe('optimizer bookkeeping', () => {
 		expect(s.converged).toBe(false);
 	});
 
-	it('manual edits stop a run but keep the trail; setAlgo clears it', () => {
+	it('a manual move stops a run and clears the trail', () => {
 		const s = new LikelihoodState();
 		s.start();
 		s.step();
 		s.setMu(90);
 		expect(s.running).toBe(false);
-		expect(s.count).toBe(1); // trail stays drawn
+		expect(s.count).toBe(0);
+		expect(s.p.mu).toBe(90);
+	});
+
+	it('moving after convergence lets the next run start from the new point', () => {
+		const s = new LikelihoodState();
+		s.start();
+		while (s.running) s.step();
+		expect(s.converged).toBe(true);
+		s.setPoint({ mu: 120, sigma2: 300 });
+		expect(s.converged).toBe(false);
+		expect(s.count).toBe(0);
+		s.start();
+		expect(s.running).toBe(true);
+		s.step();
+		expect(s.path[0]).toEqual({ mu: 120, sigma2: 300 });
+	});
+
+	it('every manual setter ends the run; inference controls do not', () => {
+		const moves: ((s: LikelihoodState) => void)[] = [
+			(s) => s.setMu(70),
+			(s) => s.setSigma2(200),
+			(s) => s.setPoint({ mu: 70, sigma2: 200 }),
+			(s) => s.snapTo('mu')
+		];
+		for (const move of moves) {
+			const s = new LikelihoodState();
+			s.step();
+			move(s);
+			expect(s.count).toBe(0);
+		}
+		const s = new LikelihoodState();
+		s.step();
+		s.setMuNull(90);
+		s.setN(40);
+		expect(s.count).toBe(1);
+	});
+
+	it('setAlgo clears the trail', () => {
+		const s = new LikelihoodState();
+		s.step();
 		s.setAlgo('newtonRaphson');
 		expect(s.count).toBe(0);
 	});

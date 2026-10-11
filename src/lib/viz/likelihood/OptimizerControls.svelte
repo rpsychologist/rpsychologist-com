@@ -155,16 +155,12 @@
 	}
 	.controls {
 		display: flex;
-		align-items: end;
-		gap: 1rem;
+		align-items: center;
+		gap: 0.6rem 1rem;
 		flex-wrap: wrap;
 	}
 	.iter {
 		margin: 0;
-		align-self: end;
-		/* Line box matches the .ctrl button height so the text centers on the
-		   button row instead of sitting on its bottom edge. */
-		line-height: 2.2rem;
 		font-size: 0.9rem;
 		color: var(--muted);
 		font-variant-numeric: tabular-nums;
@@ -181,14 +177,14 @@
 	}
 	.algo {
 		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
+		align-items: center;
+		gap: 0.5rem;
 		font-size: 0.85rem;
 		color: var(--muted);
 	}
 	.algo select {
 		font: inherit;
-		font-size: 0.95rem;
+		font-size: 0.9rem;
 		color: var(--ink);
 		padding: 0.35rem 0.5rem;
 		background: var(--bg);
@@ -203,8 +199,8 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		width: 2.2rem;
-		height: 2.2rem;
+		width: 2rem;
+		height: 2rem;
 		border: 1px solid var(--rule);
 		border-radius: var(--radius-sm);
 		background: transparent;
@@ -234,7 +230,7 @@
 		opacity: 0.4;
 		cursor: default;
 	}
-	/* Popover, not in flow: opening it must not change the sticky strip's height
+	/* Popover, not in flow: opening it must not change the header's height
 	   (that would shove the plots on every toggle). Overlays the content below. */
 	.card {
 		position: absolute;

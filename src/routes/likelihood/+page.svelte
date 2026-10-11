@@ -94,8 +94,12 @@
 					Pick gradient ascent or Newton-Raphson and press play (or step with +1/−1). The climb is
 					drawn on the joint plot, which opens as a rotatable <strong>3D surface</strong> — drag to
 					rotate, grab the floor handle to move the point, or switch to <strong>Contour</strong> for
-					precise readouts. The teal curves through the current point are the ℓ(μ) and ℓ(σ²) slices
-					above, drawn on the surface; the amber curves on the back walls are the <em>profile</em>
+					precise readouts. The viewpoint buttons in the surface's corner switch between the angled
+					view and two side views: in the two side views you look edge-on along one axis, and the
+					surface's outline is exactly the profile likelihood on the wall. The full-view button at
+					the right of each figure's header expands it to fill the window; press it again or Esc to
+					return. The teal curves through the current point are the ℓ(μ) and ℓ(σ²) slices above,
+					drawn on the surface; the amber curves on the back walls are the <em>profile</em>
 					likelihoods — the ridge cast onto each axis, which the likelihood-ratio test and profile interval
 					are built on. Height is the relative likelihood <Tex
 						math={String.raw`(L/\hat L)^{1/50}`}
@@ -109,7 +113,15 @@
 					The inference section computes the likelihood ratio, Wald, and score tests of H₀: μ = μ₀.
 					Selecting a test highlights its geometry in the figure. The sample-size slider is
 					hypothetical: it rescales the curvature and the tests at the fixed estimates without
-					drawing new data.
+					drawing new data. Switch the figure to <strong>3D</strong> to see the tests in both parameters.
+					The dashed coral line is the null hypothesis and the coral point the best the null can do, with
+					the variance re-estimated (σ̂₀²). As you move μ₀ it slides along the dotted amber ridge, the
+					best variance for each mean, σ̂² + (μ̂ − μ₀)², whose shadow is the amber profile on the wall.
+					For the likelihood ratio, the bracket on the back wall, where the profile likelihood is drawn,
+					is ½·LR; for the score test, a slope triangle at the coral point shows the rise along μ, with
+					its value U (along σ² the slope there is zero); for the Wald test, the floor bracket is μ̂ −
+					μ₀ under the slice through the summit. The 2D figure holds the variance at σ̂² throughout, which
+					is why it is a simplification.
 				</p>
 			</div>
 		</details>

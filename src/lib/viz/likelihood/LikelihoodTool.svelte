@@ -3,22 +3,24 @@
 	// teaching sections (likelihood calculation → finding the MLEs →
 	// inference). The route page owns the prose around the tool; live values
 	// (the sample line, readouts) live in here because they need the model.
-	import { format } from 'd3-format';
 	import Tex from '$lib/components/Tex.svelte';
 	import ControlBar from './ControlBar.svelte';
-	import EstimateReadout from './EstimateReadout.svelte';
 	import SamplePlot from './SamplePlot.svelte';
 	import CalcLogLik from './CalcLogLik.svelte';
 	import LogLikPlotMu from './LogLikPlotMu.svelte';
 	import LogLikPlotSigma from './LogLikPlotSigma.svelte';
 	import JointLogLik from './JointLogLik.svelte';
+	import SurfaceLogLik from './SurfaceLogLik.svelte';
+	import SurfaceKey, { type KeyItem } from './SurfaceKey.svelte';
+	import ExpandButton from './ExpandButton.svelte';
 	import OptimizerControls from './OptimizerControls.svelte';
 	import CurvaturePlot from './CurvaturePlot.svelte';
 	import TestTabs from './TestTabs.svelte';
 	import Slider from '$lib/viz/core/components/Slider.svelte';
 	import { MU_NULL_MAX, MU_NULL_MIN, N_MAX, N_MIN } from './likelihood.svelte';
 	import type { LikelihoodState } from './likelihood.svelte';
-	import { likelihoodIntervalMu } from './model';
+	import { prefersReducedMotion } from 'svelte/motion';
+	import { SIGMA2_MAX } from './model';
 
 	interface Props {
 		model: LikelihoodState;
@@ -29,23 +31,69 @@
 	let highlight = $state<number | null>(null);
 	const setHighlight = (i: number | null) => (highlight = i);
 
-	const f1 = format('.1f');
-	const f2 = format('.2f');
-	const f2n = format('.2n');
-	const sampleLine = $derived(model.p.sample.map((y) => f1(y)).join(', '));
-
-	// Likelihood interval for μ at the current σ² — shown as a full-width line
-	// under the slices pair (it tracks the ℓ(μ) slice's shaded band). Peak width
-	// = estimate precision, the intuition the Inference section formalizes.
-	const li = $derived(likelihoodIntervalMu(model.muHat, model.p.sigma2, model.p.sample.length));
+	// 3D is offered unless motion is reduced or WebGL failed to start; either
+	// way JointLogLik falls back to the contour.
+	let glFailed = $state(false);
+	const show3d = $derived(!prefersReducedMotion.current && !glFailed);
+	function onGlFail() {
+		glFailed = true;
+		model.jointView = 'contour';
+		infView = 'curves';
+	}
+	// Key for the 3D inference view: only what the active test draws.
+	let infEmphasis = $state<string[] | null>(null);
+	// Each test opens with its own geometry picked out, like the 2D figure's
+	// highlight: LR reads the null slice's peak against the profile wall; the
+	// score test reads the μ-slice at the null's best point; Wald, the μ-slice
+	// through the MLE and its floor distance to the null line.
+	const infFocus = $derived(
+		model.p.test === 'LRT'
+			? ['nullSlice', 'profile']
+			: model.p.test === 'score'
+				? ['muSlice']
+				: ['muSlice', 'null']
+	);
+	const keyNull: KeyItem = { id: 'null', swatch: 'null-line', tex: String.raw`H_0\!: \mu = \mu_0` };
+	const keyNullSlice: KeyItem = {
+		id: 'nullSlice',
+		swatch: 'null-slice',
+		tex: String.raw`\ell(\mu_0, \sigma^2)`
+	};
+	const keyRidge: KeyItem = { id: 'ridge', swatch: 'ridge', text: 'ridge: best σ² for each μ' };
+	const infKey = $derived.by((): KeyItem[] => {
+		if (model.p.test === 'LRT')
+			return [
+				keyNull,
+				keyNullSlice,
+				keyRidge,
+				{ id: 'profile', swatch: 'profile', tex: String.raw`\ell_p(\mu)`, text: 'on the wall' }
+			];
+		if (model.p.test === 'score')
+			return [
+				keyNull,
+				keyNullSlice,
+				{ id: 'muSlice', swatch: 'slice', tex: String.raw`\ell(\mu, \hat\sigma_0^2)` },
+				keyRidge
+			];
+		return [
+			keyNull,
+			{
+				id: 'muSlice',
+				swatch: 'slice',
+				tex: String.raw`\ell(\mu, \hat\sigma^2)`,
+				text: 'through the MLE'
+			}
+		];
+	});
+	// Full-window view per instrument (see ExpandButton).
+	let fullMle = $state(false);
+	let fullInf = $state(false);
+	// The inference figure opens on the 2D curves; 3D is opt-in.
+	let infView = $state<'curves' | 'surface'>('curves');
 
 	const eqHypo = $derived(
 		String.raw`H_0: \mu = ${model.p.muNull} \quad \text{versus} \quad H_1: \mu \ne ${model.p.muNull}`
 	);
-	const eqScoreAtNull = $derived(
-		String.raw`U(\mu_0, \hat\sigma_0^2) = \frac{\partial}{\partial \mu_0}\ell(\mu_0, \hat\sigma_0^2) = ${f2n(model.scoreAtNull)}`
-	);
-	const eqInfoAtNull = $derived(String.raw`I(\mu_0, \hat\sigma_0^2) = ${f2n(model.infoAtNull)}`);
 </script>
 
 <div class="viz-tool">
@@ -70,30 +118,16 @@
 
 		<section class="tool-section calc-section">
 			<div class="calc-grid">
-				<!-- Data with its plot; calculation with its result — each cell pairs
-				     a view with the numbers it produces. -->
-				<div class="calc-cell">
-					<SamplePlot {model} {highlight} onhighlight={setHighlight} />
-					<p class="sample-line">Y = [{sampleLine}]</p>
-				</div>
-				<div class="calc-cell">
-					<p class="calc-note">
-						Each observation contributes its density under the candidate parameters — the height of
-						the curve at that point. Multiplying the ten densities gives the joint likelihood; in
-						practice we sum their logs instead, the <em>log-likelihood</em>:
-					</p>
-					<CalcLogLik {model} {highlight} onhighlight={setHighlight} />
-					<p class="calc-note">
-						The combination of parameter values with the largest log-likelihood is the maximum
-						likelihood estimates (MLEs) — the readout compares the best attainable
-						<Tex math={String.raw`\ell(\hat\mu, \hat\sigma^2)`} /> with the current candidate's.
-					</p>
-					<EstimateReadout {model} />
-				</div>
+				<SamplePlot {model} {highlight} onhighlight={setHighlight} />
+				<CalcLogLik {model} {highlight} onhighlight={setHighlight} />
 			</div>
 			<p class="hint">
-				Move the sliders to change the candidate parameters — hover an observation or a term to see
-				them linked.
+				Move the sliders to change the candidate parameters; hover a point or a row to link them.
+			</p>
+			<p class="section-intro after">
+				The combination of parameter values with the largest log-likelihood is the maximum
+				likelihood estimates (MLEs). The table's last row shows that best attainable value, so you
+				can see how far below it the current candidate falls.
 			</p>
 		</section>
 
@@ -109,33 +143,48 @@
 				there is no closed form, so we let an <strong>optimization algorithm</strong> climb the hill instead.
 			</p>
 
-			<!-- In flow above the instrument: on wide screens the bar and all three
-		     plots share the viewport, so it no longer needs to be sticky. -->
-			<div class="optimizer-bar">
-				<OptimizerControls {model} />
+			<p class="section-intro">
+				The width of the peak is the precision of the estimate: the shaded band on the
+				<Tex math={String.raw`\ell(\mu)`} /> slice is the 95% likelihood interval for
+				<Tex math={String.raw`\mu`} /> at the current <Tex math={String.raw`\sigma^2`} />.
+			</p>
+
+			<!-- One instrument, one frame: run controls and the view toggle in its
+			     header; on wide screens the slices stack beside the joint view so the
+			     cross-section relationship fits a single laptop viewport. -->
+			<div class="instrument" class:expanded={fullMle}>
+				<div class="inst-head">
+					<OptimizerControls {model} />
+					<div class="head-end">
+						{#if show3d}
+							<div class="view-toggle" role="group" aria-label="Joint log-likelihood view">
+								<button
+									class:on={model.jointView === 'contour'}
+									aria-pressed={model.jointView === 'contour'}
+									onclick={() => (model.jointView = 'contour')}>Contour</button
+								>
+								<button
+									class:on={model.jointView === 'surface'}
+									aria-pressed={model.jointView === 'surface'}
+									onclick={() => (model.jointView = 'surface')}>3D surface</button
+								>
+							</div>
+						{/if}
+						<ExpandButton bind:expanded={fullMle} label="likelihood plots" />
+					</div>
+				</div>
+				<div class="inst-body">
+					<div class="slices">
+						<LogLikPlotMu {model} />
+						<LogLikPlotSigma {model} />
+					</div>
+					<JointLogLik {model} {show3d} {glFailed} onglfail={onGlFail} />
+				</div>
 			</div>
 			<p class="hint">
 				Drag the point on any plot (the surface's floor ring moves both parameters at once), or pick
 				an algorithm and press play to watch the computer climb.
 			</p>
-
-			<!-- One instrument: on wide screens the two slices stack beside the joint
-		     view so the cross-section relationship is visible in a single viewport
-		     (a 15" laptop fits all three plots plus the pinned bars). Narrower
-		     screens fall back to the staged column. -->
-			<div class="instrument">
-				<div class="slices">
-					<LogLikPlotMu {model} />
-					<LogLikPlotSigma {model} />
-					<p class="ci-readout">
-						The width of the peak is the precision of the estimate: the 95% likelihood interval for
-						<Tex math={String.raw`\mu`} /> at the current
-						<Tex math={String.raw`\sigma^2`} /> is
-						<span class="interval">[{f2(li[0])}, {f2(li[1])}]</span>.
-					</p>
-				</div>
-				<JointLogLik {model} />
-			</div>
 		</section>
 	</div>
 
@@ -143,30 +192,22 @@
 		<h2>Inference</h2>
 		<p class="section-intro">
 			After we've found the MLEs we usually want to make some inferences, so let's focus on three
-			common hypothesis tests. Use the sliders to change the null hypothesis and the hypothetical
-			sample size.
+			common hypothesis tests of the mean.
+		</p>
+		<p class="section-intro">
+			The sample-size slider asks a what-if question. The estimates
+			<Tex math={String.raw`\hat\mu`} /> and <Tex math={String.raw`\hat\sigma^2`} /> stay fixed at the
+			values from the 10 observations above, and the figure and tests show how the same estimates would
+			behave at sample size n; no new data are drawn. Increase n and the peak narrows around the MLE as
+			the <em>Fisher information</em>, the curvature of the log-likelihood, grows. The inverse of
+			the information is the variance of the MLE, so a sharper peak means a more precise estimate.
+			Switch the figure to 3D to watch the whole surface sharpen, in
+			<Tex math={String.raw`\sigma^2`} /> as well as <Tex math={String.raw`\mu`} />.
 		</p>
 
-		<div class="inference-grid">
-			<div class="inference-left">
-				<div class="inference-sliders">
-					<Slider
-						id="likelihood-n"
-						label="Sample size — what if n were…"
-						min={N_MIN}
-						max={N_MAX}
-						step={1}
-						bind:value={model.p.n}
-						oninput={() => model.setN(model.p.n)}
-					/>
-					<p class="slider-help">
-						The estimates <Tex math={String.raw`\hat\mu`} /> and
-						<Tex math={String.raw`\hat\sigma^2`} /> stay fixed at the values from the 10 observations
-						above; the curve and the tests show how the same estimates would behave at sample size n.
-						No new data are drawn. Try increasing n: the peak narrows around the MLE and the
-						<em>Fisher information</em> — the curvature of the log-likelihood — grows. The inverse of
-						the information is the variance of the MLE, so a sharper peak means a more precise estimate.
-					</p>
+		<div class="instrument" class:expanded={fullInf}>
+			<div class="inst-head inf-head">
+				<div class="inf-control">
 					<Slider
 						id="likelihood-munull"
 						label="Null hypothesis (μ₀)"
@@ -176,34 +217,67 @@
 						bind:value={model.p.muNull}
 						oninput={() => model.setMuNull(model.p.muNull)}
 					/>
+					<p class="hypo"><Tex math={eqHypo} /></p>
 				</div>
-				<!-- Directly under the μ₀ slider that sets it, heading the curvature
-				     plot that draws it (moved out of TestTabs, where it sat detached
-				     from its control). -->
-				<p class="hypo"><Tex display math={eqHypo} /></p>
-				<CurvaturePlot {model} />
+				<div class="inf-control">
+					<Slider
+						id="likelihood-n"
+						label="Sample size, what if n were…"
+						min={N_MIN}
+						max={N_MAX}
+						step={1}
+						bind:value={model.p.n}
+						oninput={() => model.setN(model.p.n)}
+					/>
+				</div>
+				<div class="head-end">
+					{#if show3d}
+						<div class="view-toggle" role="group" aria-label="Inference figure view">
+							<button
+								class:on={infView === 'curves'}
+								aria-pressed={infView === 'curves'}
+								onclick={() => (infView = 'curves')}>2D</button
+							>
+							<button
+								class:on={infView === 'surface'}
+								aria-pressed={infView === 'surface'}
+								onclick={() => (infView = 'surface')}>3D</button
+							>
+						</div>
+					{/if}
+					<ExpandButton bind:expanded={fullInf} label="inference figure" />
+				</div>
 			</div>
-			<div class="inference-right">
+			<div class="inst-body inf-body">
+				<div class="inf-figure">
+					{#if infView === 'surface' && show3d}
+						<div class="inf-surface">
+							<SurfaceLogLik
+								{model}
+								mode="inference"
+								emphasis={infEmphasis}
+								onunavailable={onGlFail}
+							/>
+						</div>
+						<SurfaceKey items={infKey} focus={infFocus} onemphasis={(ids) => (infEmphasis = ids)} />
+						{#if model.sigma2Null > SIGMA2_MAX}
+							<p class="hint">
+								At this <Tex math={String.raw`\mu_0`} /> the constrained variance estimate
+								<Tex math={String.raw`\hat\sigma_0^2`} /> lies beyond the plotted range, so only its reading
+								on the profile wall is shown.
+							</p>
+						{/if}
+					{:else}
+						<CurvaturePlot {model} />
+					{/if}
+				</div>
 				<TestTabs {model} />
-				<!-- The score test's ingredients, so it lives with the tests (and
-				     balances the columns' heights). -->
-				<details class="score-details">
-					<summary>Score and Fisher information at the null</summary>
-					<div class="score-panel" data-testid="score-info">
-						<p>
-							The <em>score function</em> is the first derivative of the log-likelihood — how fast ℓ changes
-							at the null:
-						</p>
-						<Tex display math={eqScoreAtNull} />
-						<p>
-							The <em>Fisher information</em> is the negative expected second derivative — the curvature
-							at the null:
-						</p>
-						<Tex display math={eqInfoAtNull} />
-					</div>
-				</details>
 			</div>
 		</div>
+		<p class="hint">
+			Pick a test to highlight its geometry in the figure. In 3D, each test opens with its own
+			elements picked out; hover or tap a key entry to change what stands out.
+		</p>
 	</section>
 </div>
 
@@ -241,42 +315,101 @@
 		color: var(--muted);
 		line-height: 1.5;
 	}
-	.sample-line {
-		margin: 0;
-		font-family: var(--font-mono);
-		font-size: 0.82rem;
-		color: var(--muted);
-		overflow-x: auto;
-	}
 	.calc-grid {
 		display: grid;
 		grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-		gap: 1.25rem;
-		align-items: center;
+		gap: 1.25rem 2.5rem;
+		align-items: start;
 	}
-	.calc-cell {
-		display: flex;
-		flex-direction: column;
-		gap: 0.4rem;
-		min-width: 0;
+	.section-intro.after {
+		margin-top: 1.5rem;
 	}
-	/* Guided derivation around the equation (restores the old app's prose
-	   pairing: sentence → sum → punchline). */
-	.calc-note {
-		margin: 0;
-		font-size: 0.92rem;
-		line-height: 1.55;
-	}
-	/* Optimizer run controls: a plain bordered row above the instrument. */
-	.optimizer-bar {
-		margin-top: 0.75rem;
-		padding: 0.55rem 0.9rem;
-		background: var(--bg);
+	/* One hairline frame per instrument; the header row carries its controls. */
+	.instrument {
+		margin-top: 1.25rem;
 		border: 1px solid var(--rule);
 		border-radius: var(--radius-sm);
 	}
-	.instrument {
-		margin-top: 0.75rem;
+	.inst-head {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.6rem 1.5rem;
+		padding: 0.6rem 1rem;
+		border-bottom: 1px solid var(--rule);
+	}
+	.inst-body {
+		padding: 1rem;
+	}
+	.head-end {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-left: auto;
+	}
+	/* Full view: the same frame pinned over the window, so nothing re-mounts
+	   (WebGL state and rotation survive). Only the header sits above the
+	   figure now, which --chrome hands to the joint view's width cap. */
+	.instrument.expanded {
+		position: fixed;
+		inset: 0;
+		z-index: 100;
+		margin: 0;
+		border: none;
+		border-radius: 0;
+		background: var(--bg);
+		overflow: auto;
+		--chrome: 5.5rem;
+	}
+	/* Header pinned only where it is one row; on phones it wraps tall enough
+	   to crowd the figure, so it scrolls away with the content there. */
+	@media (min-width: 48rem) {
+		.instrument.expanded .inst-head {
+			position: sticky;
+			top: 0;
+			z-index: 1;
+			background: var(--bg);
+		}
+	}
+	@media (min-width: 64rem) {
+		.instrument.expanded .inst-body {
+			grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+		}
+		.instrument.expanded .inf-body {
+			grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+		}
+	}
+	/* Cap the inference surface so the whole hill fits the window. */
+	.instrument.expanded .inf-surface {
+		max-width: calc((100vh - 9rem) / 0.75);
+		margin-inline: auto;
+	}
+	.view-toggle {
+		display: inline-flex;
+		border: 1px solid var(--rule);
+		border-radius: var(--radius-sm);
+		overflow: hidden;
+	}
+	.view-toggle button {
+		padding: 0.3rem 0.8rem;
+		border: none;
+		background: transparent;
+		color: var(--muted);
+		font: inherit;
+		font-size: 0.82rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition:
+			background 0.15s,
+			color 0.15s;
+	}
+	.view-toggle button + button {
+		border-left: 1px solid var(--rule);
+	}
+	.view-toggle button.on {
+		background: var(--viz-accent);
+		color: #fff;
 	}
 	/* Mid widths: the two slices side by side as a matched pair, joint view
 	   below; collapses to one column under 48rem. */
@@ -285,80 +418,51 @@
 		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 		gap: 1.25rem 2rem;
 		align-items: start;
-	}
-	.slices .ci-readout {
-		grid-column: 1 / -1;
+		margin-bottom: 1.25rem;
 	}
 	/* Wide screens: slices stack in a left column beside the joint view, so
-	   slice, surface, and the pinned controls share one viewport. */
+	   slices, surface, and the pinned bar share one viewport. */
 	@media (min-width: 64rem) {
-		.instrument {
+		.inst-body {
 			display: grid;
 			grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
 			gap: 1rem 2rem;
-			align-items: start;
+			align-items: center;
 		}
 		.slices {
 			grid-template-columns: minmax(0, 1fr);
-			gap: 0.75rem;
+			gap: 1rem;
+			margin-bottom: 0;
 		}
 	}
-	.ci-readout {
-		margin: 0.6rem 0 0;
-		max-width: 700px;
-		font-size: 0.9rem;
-		line-height: 1.55;
-		color: var(--muted);
-		font-variant-numeric: tabular-nums;
+	.inf-head {
+		align-items: flex-start;
 	}
-	.ci-readout .interval {
-		white-space: nowrap;
-	}
-	.score-details summary {
-		cursor: pointer;
-		font-size: 0.9rem;
-		color: var(--heading);
-	}
-	.hypo {
-		margin: 0;
-	}
-	.inference-grid {
-		display: grid;
-		grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
-		gap: 1.25rem 2rem;
-		align-items: start;
-		margin-top: 0.75rem;
-	}
-	.inference-left,
-	.inference-right {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
+	.inf-control {
+		flex: 1 1 16rem;
 		min-width: 0;
 	}
-	.inference-sliders {
-		display: flex;
-		flex-direction: column;
-		gap: 0.6rem;
-		max-width: 32rem;
-	}
-	.slider-help {
-		margin: 0;
-		font-size: 0.82rem;
+	.hypo {
+		margin: 0.3rem 0 0;
+		font-size: 0.9rem;
 		color: var(--muted);
-		line-height: 1.5;
 	}
-	.score-panel {
-		font-size: 0.92rem;
-		line-height: 1.55;
+	.inf-body {
+		display: grid;
+		gap: 1rem 2rem;
+		align-items: start;
 	}
-	.score-panel p {
-		margin: 0.3rem 0;
+	@media (min-width: 48rem) {
+		.inf-body {
+			grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+		}
+	}
+	.inf-figure {
+		min-width: 0;
 	}
 	@media (max-width: 48rem) {
 		.calc-grid,
-		.slices,
-		.inference-grid {
+		.slices {
 			grid-template-columns: minmax(0, 1fr);
 		}
 	}

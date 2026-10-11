@@ -29,21 +29,40 @@
 	   σ²-axis (on the far μ wall) — the surface's ridge cast onto each axis,
 	   with dashed guides from the MLE summit to each peak. Which walls are
 	   rearmost flips with rotation (edgeSigns/buildWalls); there is no depth
-	   buffer, so this only keeps the silhouettes off the front of the mesh. */
+	   buffer, so this only keeps the silhouettes off the front of the mesh.
+
+	   mode="inference" (the Inference section's 3D view) is read-only: no
+	   point, path, or floor handle. Heights scale with the hypothetical n
+	   (with the estimates fixed, ℓₙ − ℓ̂ₙ = (n/10)(ℓ − ℓ̂) exactly, since
+	   Σ(yᵢ − μ)² = n[σ̂² + (μ̂ − μ)²]), and it draws the likelihood ratio test's
+	   real two-parameter geometry: the null slice ℓ(μ₀, σ²), its maximum at
+	   (μ₀, σ̂₀²), and on the μ-profile wall — where ℓₚ(μ₀) = ℓ(μ₀, σ̂₀²) — the
+	   drop from the summit level that is ½·LR. */
 	import { untrack } from 'svelte';
 	import type { LikelihoodState } from './likelihood.svelte';
 	import { logLikSum, MU_MAX, MU_MIN, profileMu, SIGMA2_MAX, SIGMA2_MIN } from './model';
 
 	interface Props {
 		model: LikelihoodState;
-		/** WebGL2 unavailable or init failed — the parent falls back to the contour. */
+		mode?: 'explore' | 'inference';
+		/** Key entries being emphasized (SurfaceKey ids); everything else dims. */
+		emphasis?: string[] | null;
+		/** WebGL2 unavailable or init failed — the parent falls back to 2D. */
 		onunavailable?: () => void;
 	}
-	let { model, onunavailable }: Props = $props();
+	let { model, mode = 'explore', emphasis = null, onunavailable }: Props = $props();
+	// Alpha factor for an element under the key's emphasis (1 = untouched).
+	const fU = (v: number) => v.toFixed(2).replace('-', '−');
+	const fadeOf = (id: string) => (emphasis && !emphasis.includes(id) ? 0.12 : 1);
+	const inference = $derived(mode === 'inference');
+	// Height scale for the hypothetical n (see header); 1 when exploring.
+	const zScale = $derived(inference ? model.p.n / model.p.sample.length : 1);
 
 	const RANGE = 2.75; // world half-span for both axes
 	const Z_HEIGHT = 3.0; // world height of the peak
-	const TILT = 1.06;
+	// Tilt: 0 = straight down, π/2 = edge-on (the eye level with the floor).
+	const TILT_DEFAULT = 1.06;
+	const TILT_MAX = Math.PI / 2;
 	const TEMPER_K = 50; // z = exp((ℓ−ℓ̂)/K); see header comment
 	const LINE_EVERY = 4; // wireframe walks every 4th grid line
 	const SLICE_N = 100; // vertices per highlighted slice / wall curve
@@ -53,10 +72,9 @@
 
 	const W = 560;
 	const H = 440;
-	const SCALE = 71;
 	const CX = W / 2;
-	const CY = 268;
 	const EXT = RANGE * Math.SQRT2;
+	const FIT_PAD = 14;
 
 	const DRAG_SENS = 0.012;
 	const HANDLE_HIT = 16; // px: grab the floor handle to move the point vs rotate
@@ -87,8 +105,66 @@
 		[0, -0.75]
 	];
 
-	const cb = Math.cos(TILT);
-	const sb = Math.sin(TILT);
+	// The optimizer path is the thing to watch, so it gets the heaviest stroke:
+	// a ring of ±1.25px offsets plus the centre reads as a ~3.5px line.
+	const PATH_NUDGES: [number, number][] = [
+		[0, 0],
+		...Array.from({ length: 8 }, (_, k): [number, number] => [
+			1.25 * Math.cos((k * Math.PI) / 4),
+			1.25 * Math.sin((k * Math.PI) / 4)
+		])
+	];
+
+	let tilt = TILT_DEFAULT;
+	let cb = Math.cos(tilt);
+	let sb = Math.sin(tilt);
+	// Scene scale and vertical centre, refit whenever the tilt changes.
+	let scl = 64;
+	let cy = 303;
+
+	// Fit for every rotation at this tilt: |y1| ≤ EXT, so the scene spans from
+	// cy − (EXT·cos t + Z_HEIGHT·sin t)·scl (a back edge at peak height, where
+	// the profile walls stand) to cy + EXT·cos t·scl (the front corner), and
+	// ±EXT·scl horizontally. Centred in the W×H frame.
+	function setTilt(t: number) {
+		tilt = Math.max(0, Math.min(TILT_MAX, t));
+		cb = Math.cos(tilt);
+		sb = Math.sin(tilt);
+		const up = EXT * cb + Z_HEIGHT * sb;
+		const down = EXT * cb;
+		scl = Math.min((W - 2 * FIT_PAD) / (2 * EXT), (H - 2 * FIT_PAD) / (up + down));
+		cy = H / 2 + ((up - down) * scl) / 2;
+	}
+	setTilt(TILT_DEFAULT);
+
+	// Named viewpoints. Edge-on looking along σ² (μ across the screen), the
+	// surface's outline above each μ is its maximum over σ², i.e. the profile
+	// ℓₚ(μ) — it lands exactly on the amber wall curve (the height transform is
+	// monotone). Looking along μ, the outline is ℓ(μ̂, σ²), the other wall.
+	const VIEWS = [
+		{
+			id: 'angled',
+			label: 'Angled',
+			title: 'The default angled view',
+			angle: 0.7,
+			tilt: TILT_DEFAULT
+		},
+		{
+			id: 'mu',
+			label: 'Side μ',
+			title: 'Look along σ²: the outline is the profile likelihood of μ',
+			angle: 0,
+			tilt: TILT_MAX
+		},
+		{
+			id: 's2',
+			label: 'Side σ²',
+			title: 'Look along μ: the outline is the likelihood of σ² at μ̂',
+			angle: (3 * Math.PI) / 2,
+			tilt: TILT_MAX
+		}
+	] as const;
+	let viewId = $state<string | null>('angled');
 
 	// World mapping shared by the surface and the path overlay.
 	const wx = (mu: number) => -RANGE + (2 * RANGE * (mu - MU_MIN)) / (MU_MAX - MU_MIN);
@@ -147,6 +223,25 @@
 	// The current point's foot on the z = 0 floor: the grab handle for moving
 	// (μ, σ²), and the visible base of the drop line.
 	let floorPos = $state<{ x: number; y: number } | null>(null);
+	// Inference-mode overlay (SVG, like the gnomon): the null line on the floor,
+	// the summit and the constrained maximum, plus the active test's geometry —
+	// LR: the ½·LR drop on the μ-wall; score: a slope triangle at (μ₀, σ̂₀²);
+	// Wald: the floor distance μ̂ − μ₀ under the slice through the summit.
+	type Pt = { x: number; y: number };
+	type Label = { at: Pt; text: string; anchor: 'start' | 'middle' | 'end' };
+	let lrGeo = $state<{
+		nullFloor: string;
+		ridge: string; // track of (μ₀, σ̂₀²) as μ₀ varies
+		summit: Pt;
+		nullPt: Pt | null; // null when σ̂₀² is past the plotted σ² range
+		wallNull: Pt;
+		lines: string[]; // solid annotation strokes
+		slopeTri: string; // score: filled rise-over-run triangle
+		slopeHyp: string; // its hypotenuse, the tangent
+		slopeLegs: string; // run (horizontal) and rise (vertical)
+		guides: string[]; // dashed guides
+		labels: Label[];
+	} | null>(null);
 	let dpr = 1;
 	let view = { scale: 1, ox: 0, oy: 0, cw: 0, ch: 0 };
 	let isDark = false;
@@ -213,14 +308,14 @@
 	uniform float uPoint;
 	out float vAlpha;
 	const float CX = ${glf(CX)};
-	const float CY = ${glf(CY)};
-	const float SCL = ${glf(SCALE)};
+	uniform float uCY;
+	uniform float uScl;
 	const float EXT = ${glf(EXT)};
 	void main() {
 		float x1 = aPos.x * uRot.x - aPos.y * uRot.y;
 		float y1 = aPos.x * uRot.y + aPos.y * uRot.x;
-		float sx = CX + x1 * SCL;
-		float sy = CY - (y1 * uTilt.x + aPos.z * uTilt.y) * SCL;
+		float sx = CX + x1 * uScl;
+		float sy = uCY - (y1 * uTilt.x + aPos.z * uTilt.y) * uScl;
 		vec2 uv = vec2((uOff.x + sx * uFit + uNudge.x) / uCanvas.x, (uOff.y + sy * uFit + uNudge.y) / uCanvas.y);
 		gl_Position = vec4(uv.x * 2.0 - 1.0, 1.0 - uv.y * 2.0, 0.0, 1.0);
 		float depthA = 0.9 - 0.72 * ((y1 + EXT) / (2.0 * EXT));
@@ -234,6 +329,7 @@
 	in float vAlpha;
 	uniform vec3 uColor;
 	uniform int uMode;
+	uniform float uFade;   // key emphasis: dims the elements not emphasized
 	out vec4 frag;
 	void main() {
 		float a = vAlpha;
@@ -243,6 +339,7 @@
 			float halo = exp(-pr * 3.0) * 0.5;
 			a *= clamp(core + halo, 0.0, 1.0);
 		}
+		a *= uFade;
 		if (a <= 0.001) discard;
 		frag = vec4(uColor, a);
 	}`;
@@ -259,7 +356,14 @@
 	// z from ℓ: tempered relative likelihood (see header). Peak at Z_HEIGHT,
 	// smooth decay to 0 in the σ²→0 trench.
 	function zOf(v: number, top: number): number {
-		return Math.exp((v - top) / TEMPER_K) * Z_HEIGHT;
+		return Math.exp((zScale * (v - top)) / TEMPER_K) * Z_HEIGHT;
+	}
+
+	// A wall seen edge-on collapses to a vertical line at the frame's side, so
+	// it is hidden then (the μ-wall's plane is edge-on when cos(angle) → 0, the
+	// σ²-wall's when sin(angle) → 0).
+	function wallsVisible() {
+		return { mu: Math.abs(Math.cos(angle)) > 0.15, s2: Math.abs(Math.sin(angle)) > 0.15 };
 	}
 
 	// Rearmost wall per axis from the current azimuth: a μ-profile sits on the
@@ -335,13 +439,16 @@
 		for (const name of [
 			'uRot',
 			'uTilt',
+			'uCY',
+			'uScl',
 			'uFit',
 			'uOff',
 			'uCanvas',
 			'uNudge',
 			'uMode',
 			'uPoint',
-			'uColor'
+			'uColor',
+			'uFade'
 		]) {
 			u[name] = g.getUniformLocation(prog, name);
 		}
@@ -460,8 +567,8 @@
 		const sa = Math.sin(angle);
 		const x1 = ax * ca - ay * sa;
 		const y1 = ax * sa + ay * ca;
-		const sx = CX + x1 * SCALE;
-		const sy = CY - (y1 * cb + az * sb) * SCALE;
+		const sx = CX + x1 * scl;
+		const sy = cy - (y1 * cb + az * sb) * scl;
 		return { x: view.ox + sx * view.scale, y: view.oy + sy * view.scale };
 	}
 
@@ -474,8 +581,8 @@
 		const rect = canvas.getBoundingClientRect();
 		const sx = (clientX - rect.left - view.ox) / view.scale;
 		const sy = (clientY - rect.top - view.oy) / view.scale;
-		const x1 = (sx - CX) / SCALE;
-		const y1 = (CY - sy) / (SCALE * cb);
+		const x1 = (sx - CX) / scl;
+		const y1 = (cy - sy) / (scl * cb);
 		const ca = Math.cos(angle);
 		const sa = Math.sin(angle);
 		const ax = x1 * ca + y1 * sa;
@@ -528,9 +635,16 @@
 		axisPaths = [axisPath(MU_TIP), axisPath(S2_TIP), axisPath(LL_TIP)];
 
 		const p = model.p;
-		const hz = zOf(logLikSum(p.sample, p.mu, p.sigma2), model.grid.max);
-		headPos = project(wx(p.mu), wy(p.sigma2), hz);
-		floorPos = project(wx(p.mu), wy(p.sigma2), 0);
+		if (inference) {
+			headPos = null;
+			floorPos = null;
+		} else {
+			const hz = zOf(logLikSum(p.sample, p.mu, p.sigma2), model.grid.max);
+			headPos = project(wx(p.mu), wy(p.sigma2), hz);
+			// Near edge-on the floor projects to a line and can't be inverted, so
+			// the handle (and floor dragging) switches off.
+			floorPos = cb > 0.25 ? project(wx(p.mu), wy(p.sigma2), 0) : null;
+		}
 
 		// MLE-summit → wall-peak guides (dashed), echoing the reference's
 		// "marginal peaks". Both peaks sit at ℓ̂, so the guides are horizontal.
@@ -539,11 +653,102 @@
 		const muPk = project(wx(model.muHat), wallMuSign * RANGE, zPk);
 		const s2Pk = project(wallS2Sign * RANGE, wy(model.sigma2Hat), zPk);
 		const f = (n: number) => n.toFixed(1);
-		guidePaths = [
-			`M${f(summit.x)},${f(summit.y)}L${f(muPk.x)},${f(muPk.y)}`,
-			`M${f(summit.x)},${f(summit.y)}L${f(s2Pk.x)},${f(s2Pk.y)}`
-		];
-		peakDots = [muPk, s2Pk];
+		// Only walls that aren't edge-on get their guide and peak dot.
+		const wv = wallsVisible();
+		const pks = [...(wv.mu ? [muPk] : []), ...(wv.s2 ? [s2Pk] : [])];
+		guidePaths = pks.map((q) => `M${f(summit.x)},${f(summit.y)}L${f(q.x)},${f(q.y)}`);
+		peakDots = pks;
+		lrGeo = inference ? lrGeometry(zPk, summit) : null;
+	}
+
+	function lrGeometry(zPk: number, summit: Pt) {
+		const p = model.p;
+		const f = (n: number) => n.toFixed(1);
+		const seg = (a: Pt, b: Pt) => `M${f(a.x)},${f(a.y)}L${f(b.x)},${f(b.y)}`;
+		const capH = (q: Pt) => `M${f(q.x - 5)},${f(q.y)}L${f(q.x + 5)},${f(q.y)}`;
+		const capV = (q: Pt) => `M${f(q.x)},${f(q.y - 5)}L${f(q.x)},${f(q.y + 5)}`;
+		const mid = (a: Pt, b: Pt) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+		const top = model.grid.max;
+		const mx = wx(p.muNull);
+		const wallY = wallMuSign * RANGE;
+		// ℓₚ(μ₀) = ℓ(μ₀, σ̂₀²): the constrained maximum and its wall shadow share a height.
+		const z0 = zOf(profileMu(p.sample, p.muNull), top);
+		const wallNull = project(mx, wallY, z0);
+		const s0 = model.sigma2Null;
+		const nullPt = s0 <= SIGMA2_MAX ? project(mx, wy(s0), z0) : null;
+		const lines: string[] = [];
+		const guides: string[] = [];
+		const labels: Label[] = [];
+		let slopeTri = '';
+		let slopeHyp = '';
+		let slopeLegs = '';
+
+		if (p.test === 'LRT') {
+			const wallTop = project(mx, wallY, zPk);
+			guides.push(seg(project(wx(model.muHat), wallY, zPk), wallTop));
+			if (nullPt) guides.push(seg(nullPt, wallNull));
+			lines.push(seg(wallTop, wallNull) + capH(wallTop) + capH(wallNull));
+			const m = mid(wallTop, wallNull);
+			labels.push({ at: { x: m.x + 8, y: m.y }, text: '½·LR', anchor: 'start' });
+		} else if (p.test === 'score' && nullPt) {
+			// Slope triangle on the μ-slice at (μ₀, σ̂₀²): run Δμ uphill, rise from
+			// the drawn surface's tangent. Height is a tempered transform of ℓ, so
+			// the triangle shows direction and relative steepness; the exact
+			// magnitude is the U label. No σ² leg: σ̂₀² maximizes ℓ in σ² under the
+			// null, so the slope there is zero and only U(μ) is tested.
+			const zAt = (mu: number, s2: number) => zOf(logLikSum(p.sample, mu, s2), top);
+			const eps = 0.01;
+			const dzdmu = (zAt(p.muNull + eps, s0) - zAt(p.muNull - eps, s0)) / (2 * eps);
+			const dir = dzdmu >= 0 ? 1 : -1;
+			const run = (MU_MAX - MU_MIN) / 4;
+			const muEnd = p.muNull + dir * run;
+			const foot = project(wx(muEnd), wy(s0), z0);
+			const apex = project(wx(muEnd), wy(s0), z0 + Math.abs(dzdmu) * run);
+			slopeTri = `M${f(nullPt.x)},${f(nullPt.y)}L${f(foot.x)},${f(foot.y)}L${f(apex.x)},${f(apex.y)}Z`;
+			slopeHyp = seg(nullPt, apex);
+			slopeLegs = `M${f(nullPt.x)},${f(nullPt.y)}L${f(foot.x)},${f(foot.y)}L${f(apex.x)},${f(apex.y)}`;
+			// Above the apex, clear of the point's own label (which sits below it)
+			// even when rotation foreshortens the triangle to a sliver.
+			labels.push({
+				at: { x: apex.x, y: Math.min(apex.y, nullPt.y) - 14 },
+				text: `U = ${fU(model.scoreAtNull)}`,
+				anchor: apex.x >= nullPt.x ? 'start' : 'end'
+			});
+		} else if (p.test === 'wald') {
+			// μ̂ − μ₀ on the floor at σ̂², under the slice ℓ(μ, σ̂²) whose curvature
+			// at the summit is I(μ̂) — the Wald statistic's two ingredients.
+			const y = wy(model.sigma2Hat);
+			const a = project(mx, y, 0);
+			const b = project(wx(model.muHat), y, 0);
+			lines.push(seg(a, b) + capV(a) + capV(b));
+			guides.push(seg(summit, b));
+			const m = mid(a, b);
+			labels.push({ at: { x: m.x, y: m.y - 12 }, text: 'μ̂ − μ₀', anchor: 'middle' });
+		}
+		// The ridge: for each μ the best σ² is σ̂² + (μ̂ − μ)², at height ℓₚ(μ).
+		// The constrained maximum slides along it as μ₀ moves; the amber μ-profile
+		// on the wall is its shadow. Stops where σ² leaves the plotted range.
+		let ridge = '';
+		for (let i = 0; i < SLICE_N; i++) {
+			const mu = MU_MIN + ((MU_MAX - MU_MIN) * i) / (SLICE_N - 1);
+			const s2 = model.sigma2Hat + (model.muHat - mu) ** 2;
+			if (s2 > SIGMA2_MAX) continue;
+			const q = project(wx(mu), wy(s2), zOf(profileMu(p.sample, mu), top));
+			ridge += `${ridge ? 'L' : 'M'}${f(q.x)},${f(q.y)}`;
+		}
+		return {
+			nullFloor: seg(project(mx, -RANGE, 0), project(mx, RANGE, 0)),
+			ridge,
+			summit,
+			nullPt,
+			wallNull,
+			lines,
+			slopeTri,
+			slopeHyp,
+			slopeLegs,
+			guides,
+			labels
+		};
 	}
 
 	function draw() {
@@ -554,6 +759,8 @@
 		g.useProgram(prog);
 		g.uniform2f(u.uRot, Math.cos(angle), Math.sin(angle));
 		g.uniform2f(u.uTilt, cb, sb);
+		g.uniform1f(u.uCY, cy);
+		g.uniform1f(u.uScl, scl);
 		g.uniform1f(u.uFit, scale);
 		g.uniform2f(u.uOff, ox, oy);
 		g.uniform2f(u.uCanvas, cw, ch);
@@ -562,6 +769,9 @@
 		const mesh = isDark ? MESH_DARK : MESH_LIGHT;
 		g.bindVertexArray(vaoMesh);
 		g.uniform1i(u.uMode, 0);
+		// The surface itself never dims under key emphasis: it is the subject,
+		// not one of the overlays the key picks between.
+		g.uniform1f(u.uFade, 1);
 		g.uniform3f(u.uColor, mesh[0], mesh[1], mesh[2]);
 		g.drawElements(g.LINE_STRIP, meshIdxCount, g.UNSIGNED_INT, 0);
 
@@ -572,10 +782,6 @@
 		// Faint floor box (the gnomon is the SVG overlay).
 		g.uniform3f(u.uColor, mesh[0], mesh[1], mesh[2]);
 		g.drawArrays(g.LINES, 0, FLOOR_VERTS);
-		if (pathVerts >= 2) {
-			g.uniform3f(u.uColor, PATH[0], PATH[1], PATH[2]);
-			g.drawArrays(g.LINE_STRIP, FLOOR_VERTS, pathVerts);
-		}
 
 		// The ℓ(μ) and ℓ(σ²) slice curves through the current point + drop line.
 		// WebGL clamps lineWidth to 1px on nearly all platforms, so the slices
@@ -587,15 +793,29 @@
 		const es = edgeSigns();
 		if (es.mu !== wallMuSign || es.s2 !== wallS2Sign) buildWalls();
 		g.bufferSubData(g.ARRAY_BUFFER, 0, sliceData);
-		g.uniform3f(u.uColor, accent[0], accent[1], accent[2]);
+		// Inference: the second slot holds the null slice ℓ(μ₀, σ²) in the null
+		// colour; the μ-slice (first slot) is shown only for the score and Wald
+		// tests, through (μ₀, σ̂₀²) or the summit respectively.
+		const muSlice = !inference || model.p.test !== 'LRT';
+		const muFade = fadeOf(inference ? 'muSlice' : 'slices');
+		const s2Fade = fadeOf(inference ? 'nullSlice' : 'slices');
 		for (const [nx, ny] of NUDGES) {
 			g.uniform2f(u.uNudge, nx, ny);
-			g.drawArrays(g.LINE_STRIP, 0, SLICE_N);
+			if (muSlice) {
+				g.uniform3f(u.uColor, accent[0], accent[1], accent[2]);
+				g.uniform1f(u.uFade, muFade);
+				g.drawArrays(g.LINE_STRIP, 0, SLICE_N);
+			}
+			const sc = inference ? PATH : accent;
+			g.uniform3f(u.uColor, sc[0], sc[1], sc[2]);
+			g.uniform1f(u.uFade, s2Fade);
 			g.drawArrays(g.LINE_STRIP, SLICE_N, SLICE_N);
 		}
 		g.uniform2f(u.uNudge, 0, 0);
 		g.uniform3f(u.uColor, mesh[0], mesh[1], mesh[2]);
 		g.drawArrays(g.LINES, SLICE_N * 2, 2);
+		g.uniform1f(u.uFade, fadeOf('profile'));
+		const wv = wallsVisible();
 		// Profile silhouettes on the two rearmost walls: the surface's ridge cast
 		// onto each axis. Drawn in --marginal (amber) in the same four-nudge ~2px
 		// pass as the slices so they read as real curves, distinct from the teal
@@ -604,10 +824,25 @@
 		g.uniform3f(u.uColor, marginalCol[0], marginalCol[1], marginalCol[2]);
 		for (const [nx, ny] of NUDGES) {
 			g.uniform2f(u.uNudge, nx, ny);
-			g.drawArrays(g.LINE_STRIP, WALL_MU_OFF, SLICE_N);
-			g.drawArrays(g.LINE_STRIP, WALL_S2_OFF, SLICE_N);
+			if (wv.mu) g.drawArrays(g.LINE_STRIP, WALL_MU_OFF, SLICE_N);
+			if (wv.s2) g.drawArrays(g.LINE_STRIP, WALL_S2_OFF, SLICE_N);
 		}
 		g.uniform2f(u.uNudge, 0, 0);
+
+		// Optimizer path last, over the slices and walls.
+		if (pathVerts >= 2) {
+			g.bindVertexArray(vaoLines);
+			g.bindBuffer(g.ARRAY_BUFFER, lineBuf);
+			g.uniform3f(u.uColor, PATH[0], PATH[1], PATH[2]);
+			g.uniform1f(u.uFade, fadeOf('path'));
+			for (const [nx, ny] of PATH_NUDGES) {
+				g.uniform2f(u.uNudge, nx, ny);
+				g.drawArrays(g.LINE_STRIP, FLOOR_VERTS, pathVerts);
+			}
+			g.uniform2f(u.uNudge, 0, 0);
+		}
+
+		g.uniform1f(u.uFade, 1);
 
 		// The current-position dot is an SVG overlay (styled like the 2D
 		// contour's), not a GL point — see positionLabels / the template.
@@ -701,6 +936,7 @@
 
 		return () => {
 			cancelAnimationFrame(raf);
+			cancelAnimationFrame(viewRaf);
 			raf = 0;
 			ro.disconnect();
 			themeObs.disconnect();
@@ -718,6 +954,12 @@
 		};
 	});
 
+	// Key emphasis changed: redraw with the new fades.
+	$effect(() => {
+		void emphasis;
+		if (gl) untrack(() => draw());
+	});
+
 	// New sample → new surface: re-upload the lattice heights.
 	$effect(() => {
 		const pos = surfacePositions(); // tracks model.grid
@@ -733,9 +975,16 @@
 	// the overlays sit on the analytic surface.
 	$effect(() => {
 		const g = model.grid;
-		const path = model.path;
+		const path = inference ? [] : model.path;
 		const sample = model.p.sample;
-		const cur = { mu: model.p.mu, sigma2: model.p.sigma2 };
+		// Inference: the second slice is the null slice at μ₀ and the drop line
+		// falls from its maximum (μ₀, σ̂₀², clamped to the frame).
+		const cur = inference
+			? { mu: model.p.muNull, sigma2: Math.min(model.sigma2Null, SIGMA2_MAX) }
+			: { mu: model.p.mu, sigma2: model.p.sigma2 };
+		void zScale; // heights depend on n in inference mode
+		// The μ-slice's fixed σ²: through the summit for Wald, else through cur.
+		const muSliceS2 = inference && model.p.test === 'wald' ? model.sigma2Hat : cur.sigma2;
 
 		let pts = path;
 		if (pts.length > MAX_PATH_VERTS) {
@@ -763,8 +1012,8 @@
 		for (let i = 0; i < SLICE_N; i++) {
 			const mu = MU_MIN + ((MU_MAX - MU_MIN) * i) / (SLICE_N - 1);
 			sliceData[o++] = wx(mu);
-			sliceData[o++] = wy(cur.sigma2);
-			sliceData[o++] = zAt(mu, cur.sigma2) + 0.012;
+			sliceData[o++] = wy(muSliceS2);
+			sliceData[o++] = zAt(mu, muSliceS2) + 0.012;
 			sliceData[o++] = 0.9;
 		}
 		const sqrtMax = Math.sqrt(SIGMA2_MAX);
@@ -794,6 +1043,29 @@
 		if (gl) draw();
 	});
 
+	// Swing to a named view: shortest way round in azimuth, eased.
+	let viewRaf = 0;
+	function goTo(v: (typeof VIEWS)[number]) {
+		viewId = v.id;
+		vel = 0;
+		cancelAnimationFrame(viewRaf);
+		const a0 = angle;
+		const t0 = tilt;
+		const dA = ((((v.angle - a0) % TAU) + TAU + Math.PI) % TAU) - Math.PI;
+		const dT = v.tilt - t0;
+		const start = performance.now();
+		const DUR = 650;
+		const step = (now: number) => {
+			const k = Math.min(1, (now - start) / DUR);
+			const e = k < 0.5 ? 4 * k * k * k : 1 - (-2 * k + 2) ** 3 / 2;
+			angle = (((a0 + dA * e) % TAU) + TAU) % TAU;
+			setTilt(t0 + dT * e);
+			draw();
+			if (k < 1) viewRaf = requestAnimationFrame(step);
+		};
+		viewRaf = requestAnimationFrame(step);
+	}
+
 	function onPointerDown(e: PointerEvent) {
 		if (e.button !== 0) return;
 		// Grab the floor handle → move the point; anywhere else → rotate. Moving
@@ -805,7 +1077,7 @@
 			dragMode = 'move';
 			(e.currentTarget as Element).setPointerCapture?.(e.pointerId);
 			e.preventDefault();
-			model.setPoint(unprojectFloor(e.clientX, e.clientY));
+			// No move yet: a bare click on the handle must not end the run.
 			return;
 		}
 		dragMode = 'rotate';
@@ -813,6 +1085,7 @@
 		flingVel = 0;
 		lastX = e.clientX;
 		lastPT = e.timeStamp;
+		cancelAnimationFrame(viewRaf);
 		(e.currentTarget as Element).setPointerCapture?.(e.pointerId);
 		kick();
 	}
@@ -829,7 +1102,11 @@
 		}
 		if (!dragging || e.buttons === 0) return;
 		const dx = e.clientX - lastX;
-		if (dx !== 0) hasRotated = true;
+		// Drag only rotates; tilt changes only through the view buttons.
+		if (dx !== 0) {
+			hasRotated = true;
+			viewId = null;
+		}
 		const dA = -dx * DRAG_SENS;
 		angle = (((angle + dA) % TAU) + TAU) % TAU;
 		const dt = (e.timeStamp - lastPT) / 1000;
@@ -861,35 +1138,113 @@
 >
 	<canvas
 		bind:this={canvas}
-		aria-label="Rotatable 3D surface of the joint log-likelihood; the highlighted path shows the optimizer's steps"
+		aria-label={inference
+			? 'Rotatable 3D surface of the joint log-likelihood at the hypothetical sample size, marking the null hypothesis and the likelihood ratio'
+			: "Rotatable 3D surface of the joint log-likelihood; the highlighted path shows the optimizer's steps"}
 	></canvas>
+	<!-- Named viewpoints; pointerdown stops here so a click doesn't rotate. -->
+	<div class="views" role="group" aria-label="Viewpoint" onpointerdown={(e) => e.stopPropagation()}>
+		{#each VIEWS as v (v.id)}
+			<button
+				type="button"
+				class:on={viewId === v.id}
+				aria-pressed={viewId === v.id}
+				title={v.title}
+				onclick={() => goTo(v)}>{v.label}</button
+			>
+		{/each}
+	</div>
 	<svg class="gnomon" aria-hidden="true">
 		{#each axisPaths as d, i (i)}
 			<path {d} />
 		{/each}
-		{#each guidePaths as d, i (i)}
-			<path class="guide" {d} />
-		{/each}
+		<!-- Summit → wall-peak guides: explore only (in inference they compete
+		     with the ½·LR level guide). -->
+		{#if !inference}
+			{#each guidePaths as d, i (i)}
+				<path class="guide" class:faded={fadeOf('profile') < 1} {d} />
+			{/each}
+		{/if}
 		{#if headPos}
 			<circle class="param-point" cx={headPos.x} cy={headPos.y} r="6" />
 		{/if}
 		{#each peakDots as pt, i (i)}
-			<circle class="wall-peak" cx={pt.x} cy={pt.y} r="3.5" />
+			<circle class="wall-peak" class:faded={fadeOf('profile') < 1} cx={pt.x} cy={pt.y} r="3.5" />
 		{/each}
 		{#if floorPos}
 			<circle class="floor-handle" cx={floorPos.x} cy={floorPos.y} r="7" />
+		{/if}
+		{#if lrGeo}
+			<!-- Each point's label sits on the side facing away from the other
+			     point, so they never collide as the view rotates. -->
+			{@const mleRight = !lrGeo.nullPt || lrGeo.summit.x >= lrGeo.nullPt.x}
+			<g class="lr">
+				<path class="null-floor" class:faded={fadeOf('null') < 1} d={lrGeo.nullFloor} />
+				<path class="ridge" class:faded={fadeOf('ridge') < 1} d={lrGeo.ridge} />
+				{#each lrGeo.guides as d, i (i)}<path class="guide" {d} />{/each}
+				{#each lrGeo.lines as d, i (i)}<path class="bracket" {d} />{/each}
+				{#if lrGeo.slopeTri}
+					<path class="slope-tri" d={lrGeo.slopeTri} />
+					<path class="slope-legs" d={lrGeo.slopeLegs} />
+					<path class="slope-hyp" d={lrGeo.slopeHyp} />
+				{/if}
+				{#each lrGeo.labels as l, i (i)}
+					<text
+						class="lr-label"
+						x={l.at.x}
+						y={l.at.y}
+						text-anchor={l.anchor}
+						dominant-baseline="central">{l.text}</text
+					>
+				{/each}
+				<circle class="param-point" cx={lrGeo.summit.x} cy={lrGeo.summit.y} r="5" />
+				<text
+					class="lr-label pt-label"
+					x={lrGeo.summit.x + (mleRight ? 9 : -9)}
+					y={lrGeo.summit.y - 10}
+					text-anchor={mleRight ? 'start' : 'end'}>MLE</text
+				>
+				<!-- Wald uses only the unrestricted MLE, so the null's best point is
+				     not part of its geometry. -->
+				{#if lrGeo.nullPt && model.p.test !== 'wald'}
+					<circle class="null-point" cx={lrGeo.nullPt.x} cy={lrGeo.nullPt.y} r="5" />
+					<text
+						class="lr-label pt-label"
+						x={lrGeo.nullPt.x + (mleRight ? -9 : 9)}
+						y={lrGeo.nullPt.y + 18}
+						text-anchor={mleRight ? 'end' : 'start'}
+						>best under H₀{#if model.p.test === 'score'}<tspan
+								class="sub"
+								x={lrGeo.nullPt.x + (mleRight ? -9 : 9)}
+								dy="1.2em">flat in σ²</tspan
+							>{/if}</text
+					>
+				{/if}
+				{#if model.p.test === 'LRT'}
+					<circle class="null-point" cx={lrGeo.wallNull.x} cy={lrGeo.wallNull.y} r="3.5" />
+				{/if}
+			</g>
 		{/if}
 	</svg>
 	<span class="axis-tag" bind:this={muTag}>μ</span>
 	<span class="axis-tag" bind:this={s2Tag}>σ²</span>
 	<span class="axis-tag" bind:this={llTag}>ℓ</span>
 	{#if !hasRotated}
-		<span class="hint">drag to rotate · drag the ring to move</span>
+		<span class="hint"
+			>{inference ? 'drag to rotate' : 'drag to rotate · drag the ring to move'}</span
+		>
 	{/if}
 	<p class="visually-hidden">
-		A wireframe surface of the log-likelihood over the mean and variance. The surface rises to a
-		single peak at the maximum likelihood estimates; the highlighted path traces the optimizer's
-		steps toward it. The same information is available in the contour view.
+		{#if inference}
+			A wireframe surface of the log-likelihood over the mean and variance at the hypothetical
+			sample size. The null hypothesis is a line across the surface at the null mean; its highest
+			point is lower than the summit, and twice that difference in log-likelihood is the likelihood
+			ratio statistic. The same test is shown in the 2D figure.
+		{:else}
+			A wireframe surface of the log-likelihood over the mean and variance. The surface rises to a
+			single peak at the maximum likelihood estimates; the highlighted path traces the optimizer's
+			steps toward it. The same information is available in the contour view.
+		{/if}
 	</p>
 </div>
 
@@ -948,6 +1303,65 @@
 		stroke: var(--bg);
 		stroke-width: 1.5;
 	}
+	/* Inference overlay: coral = the null hypothesis (as in the 2D figure). */
+	.gnomon .null-floor {
+		fill: none;
+		stroke: #e17055;
+		stroke-width: 1.5;
+		stroke-dasharray: 5 4;
+		opacity: 0.8;
+	}
+	.gnomon .null-point {
+		fill: #e17055;
+		stroke: var(--bg);
+		stroke-width: 1.5;
+	}
+	.gnomon .bracket {
+		fill: none;
+		stroke: var(--heading);
+		stroke-width: 1.5;
+	}
+	.gnomon .ridge {
+		fill: none;
+		stroke: var(--marginal);
+		stroke-width: 2;
+		stroke-dasharray: 1 4;
+		stroke-linecap: round;
+	}
+	.gnomon .faded {
+		opacity: 0.12;
+	}
+	.gnomon .pt-label {
+		font-weight: 600;
+	}
+	.gnomon .pt-label .sub {
+		font-weight: 400;
+		fill: var(--muted);
+	}
+	.gnomon .slope-tri {
+		fill: var(--viz-accent);
+		fill-opacity: 0.35;
+		stroke: none;
+	}
+	.gnomon .slope-legs {
+		fill: none;
+		stroke: var(--viz-accent);
+		stroke-width: 1;
+		stroke-dasharray: 3 2;
+	}
+	.gnomon .slope-hyp {
+		fill: none;
+		stroke: var(--viz-accent);
+		stroke-width: 2.25;
+		stroke-linecap: round;
+	}
+	.gnomon .lr-label {
+		font-size: 12px;
+		fill: var(--heading);
+		paint-order: stroke;
+		stroke: var(--bg);
+		stroke-width: 3px;
+	}
 	/* The grab handle for moving the point: a hollow ring at the drop-line foot.
 	   Purely visual — the gnomon overlay is click-through and hit-testing is done
 	   in JS against floorPos (see onPointerDown). */
@@ -974,10 +1388,40 @@
 			0 0 3px var(--bg),
 			0 0 3px var(--bg);
 	}
+	.views {
+		position: absolute;
+		top: 0.4rem;
+		left: 0.4rem;
+		display: inline-flex;
+		border: 1px solid var(--rule);
+		border-radius: var(--radius-sm);
+		overflow: hidden;
+		background: var(--bg);
+		text-shadow: none;
+	}
+	.views button {
+		padding: 0.2rem 0.55rem;
+		border: none;
+		background: transparent;
+		color: var(--muted);
+		font: inherit;
+		font-size: 0.75rem;
+		cursor: pointer;
+	}
+	.views button + button {
+		border-left: 1px solid var(--rule);
+	}
+	.views button:hover {
+		color: var(--ink);
+	}
+	.views button.on {
+		color: var(--heading);
+		background: var(--inset);
+	}
 	.hint {
 		position: absolute;
 		right: 0.6rem;
-		top: 0.4rem;
+		bottom: 0.4rem;
 		font-size: 0.72rem;
 		color: var(--muted);
 		pointer-events: none;

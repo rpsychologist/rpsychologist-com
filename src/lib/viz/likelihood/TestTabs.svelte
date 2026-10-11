@@ -12,7 +12,9 @@
 	}
 	let { model }: Props = $props();
 
-	const f2 = format('.2f');
+	const f3 = format('.3f');
+	// APA style: no leading zero, and p < .001 rather than a rounded 0.
+	const fmtP = (p: number) => (p < 0.001 ? '< .001' : `= ${f3(p).replace(/^0/, '')}`);
 	const f3n = format('.3n');
 	const f2n = format('.2n');
 
@@ -36,6 +38,10 @@
 		=& ${f3n(model.tests.wald.z)}
 		\end{aligned}`
 	);
+	const eqScoreAtNull = $derived(
+		String.raw`U(\mu_0, \hat\sigma_0^2) = \frac{\partial}{\partial \mu_0}\ell(\mu_0, \hat\sigma_0^2) = ${f2n(model.scoreAtNull)}`
+	);
+	const eqInfoAtNull = $derived(String.raw`I(\mu_0, \hat\sigma_0^2) = ${f2n(model.infoAtNull)}`);
 	const eqScore = $derived(
 		String.raw`\begin{aligned}
 		S(\mu_0, \hat\sigma_0^2) =& \frac{U(\mu_0, \hat\sigma_0^2)^2}{I(\mu_0, \hat\sigma_0^2)} \\
@@ -76,11 +82,16 @@
 		<Tex display math={eqLR} />
 		<p>
 			Asymptotically LR follows a <Tex math={String.raw`\chi^2`} /> distribution with 1 degree of freedom,
-			which gives <em>p</em> = <span data-testid="pval-LRT">{f2(model.tests.lr.pval)}</span>.
+			which gives <em>p</em>
+			<span data-testid="pval-LRT">{fmtP(model.tests.lr.pval)}</span>.
 		</p>
 		<p class="caveat">
-			Note: the figure is simplified and does not account for the fact that each likelihood is based
-			on a different variance estimate.
+			The 2D figure simplifies this: it holds the variance at <Tex
+				math={String.raw`\hat\sigma^2`}
+			/>
+			for both likelihoods, whereas the test re-estimates it under the null (<Tex
+				math={String.raw`\hat\sigma_0^2`}
+			/>). The 3D view shows the exact version.
 		</p>
 	</div>
 
@@ -98,8 +109,8 @@
 		</p>
 		<Tex display math={eqWald} />
 		<p>
-			Asymptotically <em>Z</em> follows a standard normal distribution, giving <em>p</em> =
-			<span data-testid="pval-wald">{f2(model.tests.wald.pval)}</span>.
+			Asymptotically <em>Z</em> follows a standard normal distribution, giving <em>p</em>
+			<span data-testid="pval-wald">{fmtP(model.tests.wald.pval)}</span>.
 		</p>
 	</div>
 
@@ -118,8 +129,26 @@
 		<Tex display math={eqScore} />
 		<p>
 			Asymptotically S follows a <Tex math={String.raw`\chi^2`} /> distribution with 1 degree of freedom,
-			giving <em>p</em> = <span data-testid="pval-score">{f2(model.tests.score.pval)}</span>.
+			giving <em>p</em>
+			<span data-testid="pval-score">{fmtP(model.tests.score.pval)}</span>.
 		</p>
+		<p class="caveat">
+			The 2D figure draws the tangent at <Tex math={String.raw`\hat\sigma^2`} />; the statistic, and
+			the 3D view, evaluate the score at <Tex math={String.raw`\hat\sigma_0^2`} />, where the slope
+			in the variance direction is zero.
+		</p>
+		<div class="score-info" data-testid="score-info">
+			<p>
+				The <em>score function</em> is the first derivative of the log-likelihood, how fast ℓ changes
+				at the null:
+			</p>
+			<Tex display math={eqScoreAtNull} />
+			<p>
+				The <em>Fisher information</em> is the negative expected second derivative, the curvature at the
+				null:
+			</p>
+			<Tex display math={eqInfoAtNull} />
+		</div>
 	</div>
 </div>
 
@@ -142,6 +171,7 @@
 		color: var(--muted);
 		font: inherit;
 		font-size: 0.9rem;
+		white-space: nowrap;
 		cursor: pointer;
 		transition:
 			color 0.15s,
@@ -165,6 +195,14 @@
 	}
 	.panel p {
 		margin: 0.4rem 0;
+	}
+	[data-testid^='pval-'] {
+		white-space: nowrap;
+	}
+	.score-info {
+		margin-top: 0.6rem;
+		padding-top: 0.4rem;
+		border-top: 1px solid var(--rule);
 	}
 	.caveat {
 		color: var(--muted);

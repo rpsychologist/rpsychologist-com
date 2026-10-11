@@ -60,7 +60,7 @@
 	const slope = $derived(scoreMu(model.p.n, model.p.muNull, model.muHat, model.sigma2Hat));
 
 	const test = $derived(model.p.test);
-	const f1 = format('.1f');
+	const fTick = format('~f');
 
 	// Score tangent through (μ₀, llNull): ±Δμ in data units.
 	const tangent = $derived.by(() => {
@@ -155,7 +155,7 @@
 					{#each yTicks as t (t)}
 						<line x1="-6" x2="0" y1={y(t)} y2={y(t)} class="axis" />
 						<text x="-9" y={y(t)} class="tick" text-anchor="end" dominant-baseline="central">
-							{f1(t)}
+							{fTick(t)}
 						</text>
 					{/each}
 				</g>
