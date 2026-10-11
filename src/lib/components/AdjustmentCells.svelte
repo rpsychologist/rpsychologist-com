@@ -400,13 +400,20 @@
 	<p class="fig-readout">{question}</p>
 
 	<figcaption>
-		<p>
-			Adjusting for {level}
-			{level === 1 ? 'covariate' : 'covariates'} restricts the comparison to within these
-			<strong>{2 ** level}</strong> cells and reports a single slope common to all of them, not {2 **
-				level} separate ones. The typical cell now holds about
-			<strong>{medianN}</strong> people.
-		</p>
+		{#if level === 0}
+			<p>
+				With no adjustment there is a single cell, the whole sample of
+				<strong>{medianN}</strong> people, and the slope is the marginal one.
+			</p>
+		{:else}
+			<p>
+				Adjusting for {level}
+				{level === 1 ? 'covariate' : 'covariates'} restricts the comparison to within these
+				<strong>{2 ** level}</strong> cells and reports a single slope common to all of them, not {2 **
+					level} separate ones. The typical cell now holds about
+				<strong>{medianN}</strong> people.
+			</p>
+		{/if}
 		<p>The dashed line shows the marginal (unadjusted) slope.</p>
 	</figcaption>
 </figure>

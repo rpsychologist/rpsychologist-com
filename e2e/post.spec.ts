@@ -60,3 +60,16 @@ test('TOC and code blocks degrade without JS', async ({ browser }) => {
 
 	await ctx.close();
 });
+
+test('the descriptive-adjustment essay hydrates its figures', async ({ page }) => {
+	// The one .svx post: its figures are components, so a broken import or
+	// hydration error shows up here and nowhere else.
+	const errors: string[] = [];
+	page.on('pageerror', (e) => errors.push(e.message));
+	await page.goto('/descriptive-adjustment');
+	const toggle = page.locator('figure.forest button[aria-pressed]').first();
+	const before = await toggle.getAttribute('aria-pressed');
+	await toggle.click();
+	await expect(toggle).not.toHaveAttribute('aria-pressed', before ?? '');
+	expect(errors).toEqual([]);
+});

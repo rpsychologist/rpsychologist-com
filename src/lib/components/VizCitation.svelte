@@ -8,18 +8,27 @@
 	let {
 		changelog,
 		title,
-		changelogHref
+		changelogHref,
+		path = `/${changelog.app}/`,
+		medium = 'Web App',
+		entryType = 'software'
 	}: {
 		changelog: AppChangelog;
 		title: string;
 		/** Pre-resolved by the route — `resolve()` needs a literal route id. */
 		changelogHref: string;
+		/** The cited address; apps keep the trailing-slash form already in print. */
+		path?: string;
+		/** APA bracketed description, e.g. `Interactive article`. */
+		medium?: string;
+		/** BibTeX entry type, e.g. `online` for an article. */
+		entryType?: string;
 	} = $props();
 
-	const url = $derived(`${site.url}/${changelog.app}/`);
+	const url = $derived(`${site.url}${path}`);
 	const year = $derived(changelog.releases[0].date.slice(0, 4));
 	const bibtex =
-		$derived(`@software{magnusson${changelog.app[0].toUpperCase()}${changelog.app.slice(1)},
+		$derived(`@${entryType}{magnusson${changelog.app[0].toUpperCase()}${changelog.app.slice(1)},
   author = {Kristoffer Magnusson},
   title = {${title}},
   url = {${url}},
@@ -31,12 +40,14 @@
 <p>Cite this page according to your favorite style guide.</p>
 <p>
 	The current version is {changelog.version} — the
+	<!-- changelogHref is the app's changelog route, passed as a plain string. -->
+	<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 	<a href={changelogHref}>changelog</a> records what changed in each release, and what the version numbers
 	mean.
 </p>
 <p><strong>APA 7</strong></p>
 <p class="apa">
-	Magnusson, K. ({year}). <em>{title}</em> (Version {changelog.version}) [Web App]. R Psychologist. {url}
+	Magnusson, K. ({year}). <em>{title}</em> (Version {changelog.version}) [{medium}]. R Psychologist. {url}
 </p>
 <p><strong>BibTeX</strong></p>
 <pre class="code"><code>{bibtex}</code></pre>

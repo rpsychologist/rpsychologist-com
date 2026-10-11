@@ -1,3 +1,18 @@
+---
+title: "Why Adjusted Regression Coefficients Are Less Descriptive Than They Look"
+date: 2026-06-25 12:00
+author: Kristoffer Magnusson
+category: Statistics
+tags:
+  - Statistics
+  - Regression
+  - Causal inference
+  - Descriptive epidemiology
+  - Visualization
+slug: descriptive-adjustment
+summary: An interactive article about how regression adjustment works and the pitfalls of conditional associations in descriptive studies.
+---
+
 <script lang="ts">
   import FactorsForest from "$lib/components/FactorsForest.svelte";
   import FormsLeaderboard from "$lib/components/FormsLeaderboard.svelte";
@@ -6,12 +21,10 @@
   import AdjustmentCells from "$lib/components/AdjustmentCells.svelte";
   import ResidualScatter from "$lib/components/ResidualScatter.svelte";
   import Tex from "$lib/components/Tex.svelte";
+  import VizCitation from "$lib/components/VizCitation.svelte";
+  import { changelog } from "$lib/viz/descriptive-adjustment/changelog";
 
 </script>
-
-# Why Adjusted Regression Coefficients Are Less Descriptive Than They Look
-
-<p class="subtitle">There is no such thing as <em>the</em> association.</p>
 
 <div class="lead">
 
@@ -111,6 +124,17 @@ For **description**, adjustment is usually not the right tool. A descriptive stu
 That is the problem with many "factors associated with" studies. Their language is descriptive, but their method is conditional. Because the design names no exposure and defends no adjustment set, the reported coefficient has no clear target it is meant to recover (Lewer et al., 2025; Westreich & Greenland, 2013). Researchers adjust anyway, under pressure to treat it as the "correct" thing to do even when no causal question has been posed.
 
 The take-home message is simple: let the question determine the method, not the reverse (Conroy & Murray, 2020). State the estimand first (Lesko et al., 2022). If the aim is descriptive, report the crude occurrence or contrast as primary, and treat any adjustment or standardization as a separate, explicitly justified choice. What should be abandoned is the habit of interpreting a column of mutually-adjusted coefficients as though each were a stable fact about the world rather than an artifact of its adjustment set.
+
+## How to cite
+
+<VizCitation
+  {changelog}
+  title="Why adjusted regression coefficients are less descriptive than they look"
+  changelogHref="/descriptive-adjustment/changelog"
+  path="/descriptive-adjustment"
+  medium="Interactive article"
+  entryType="online"
+/>
 
 <hr />
 
