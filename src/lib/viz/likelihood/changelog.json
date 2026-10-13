@@ -2,36 +2,41 @@
 	"note": "Versions through 0.1.2 predate this changelog; their history was not recorded.",
 	"releases": [
 		{
-			"version": "0.2.0",
+			"version": "1.0.0",
 			"date": "2026-07-08",
 			"added": [
-				"3D view of the joint likelihood: the contour plot can toggle to a rotatable surface (heights show the tempered relative likelihood, a monotone transform of ℓ) with the optimizer path and the ℓ(μ)/ℓ(σ²) slices drawn on it; falls back to the contour without WebGL or with reduced motion.",
-				"Likelihood-based interval on the ℓ(μ) slice: the χ²₁(0.95)/2 ≈ 1.92 drop region is shaded, and its width — the precision of the estimate — is reported beneath the slices pair.",
+				"3D view of the joint likelihood: a rotatable surface (heights show the tempered relative likelihood, a monotone transform of ℓ) with the optimizer path and the ℓ(μ)/ℓ(σ²) slices drawn on it. It replaces the contour plot as the joint view; the contour remains only as the fallback where WebGL is unavailable.",
+				"The inference figure marks the 95% intervals at the hypothetical n: the likelihood interval where the profile drops 1.92 below its peak, and the Wald interval where the slice at σ̂² does, with both reported beneath.",
 				"The inference plot annotates the geometry of the three tests (after Buse, 1982); the element for the selected test is highlighted.",
 				"Persistent readout of the estimates: μ̂, σ̂², and the log-likelihood at the maximum and at the current point (the iteration count and convergence sit with the optimizer controls).",
 				"Profile-likelihood silhouettes on the two far walls of the 3D view — ℓₚ(μ) = maxₛ₂ ℓ and ℓ(μ̂, σ²), the surface's ridge cast onto each axis, in the marginal colour — with dashed guides from the MLE summit to each peak.",
-				"The 3D surface is now draggable: grab the floor handle under the point to move μ and σ² at once (the contour remains the precise input). Dragging elsewhere still rotates.",
-				"A 3D view of the inference figure: the likelihood surface at the hypothetical n, with the null hypothesis μ = μ₀ drawn across it, its best point (μ₀, σ̂₀²) sliding along the ridge of best variances, and each test's geometry: the likelihood ratio as the drop of the profile likelihood from the summit level, the score as a slope triangle along μ at (μ₀, σ̂₀²), labelled with U (the slope along σ² is zero there), and the Wald distance μ̂ − μ₀ under the slice through the summit. Unlike the 2D figure, the likelihood ratio and score views re-estimate the variance under the null, as the tests do. Moving the sample-size slider shows the whole surface sharpen.",
+				"The 3D surface is draggable: grab the floor handle under the point to move μ and σ² at once. Dragging elsewhere rotates.",
+				"A 3D view of the inference figure: the likelihood surface at the hypothetical n, with the null hypothesis μ = μ₀ drawn across it, its best point (μ₀, σ̂₀²) sliding along the ridge of best variances, and each test's geometry: the likelihood ratio as the drop of the profile likelihood from the summit level, the score as a slope triangle along μ at (μ₀, σ̂₀²), labelled with U (the slope along σ² is zero there), and the Wald distance μ̂ − μ₀ under the slice through the summit. The likelihood ratio and score views re-estimate the variance under the null, as the tests do. Moving the sample-size slider shows the whole surface sharpen.",
 				"Both 3D views have a key listing what is drawn for the current view; hovering or tapping an entry picks that element out on the surface, and in the inference view each test opens with its own elements picked out. The MLE and the best point under the null are labelled in place.",
-				"A full-view button on the plots and on the inference figure expands either to the whole browser window (Esc to return), for a larger 3D surface.",
-				"The 3D views have three viewpoints: Angled, and two edge-on side views, in which the surface's outline is exactly the profile likelihood drawn on the wall."
+				"A full-view button on the plots and on the inference figure expands either to the whole browser window (Esc to return), for a larger 3D surface; the plots' full view keeps the parameter bar (and, on wider screens, the run controls) pinned above the surface.",
+				"The 3D views have three viewpoints: Angled, and two edge-on side views, in which the surface's outline is exactly the profile likelihood drawn on the wall.",
+				"A new section, \"Likelihood Is Not a Probability\", plots the likelihood of μ for the fixed data (raw L, with its area, which is not 1). Pin the current candidate as A to read off how many times more likely the data are under one candidate than the other; A is also marked on the contour and the 3D surface.",
+				"Gradient ascent has a step-size slider (γ, log scale): a tiny step crawls, the default climbs, and a large step bounces across the peak or overshoots out of the frame, which ends the run with an \"overshot\" note. Changing γ restarts the run from its starting point.",
+				"With an algorithm selected, the joint views preview the next iteration as a faint dashed step from the point (on the 3D surface it runs along the hill), so dragging the point or the step size shows where the next step would land before you press play; for Fisher scoring, the 3D view also draws the quadratic approximation it climbs as dotted curves through the point."
 			],
 			"changed": [
 				"Complete rewrite in Svelte (previously React). Every displayed statistic is unchanged.",
-				"The joint view now opens on the 3D surface where available; the contour becomes the precise-input and fallback view (reduced-motion and no-WebGL visitors still get the contour).",
-				"The ℓ(σ²) slice is drawn in the same orientation as ℓ(μ) (the parameter on the x-axis) so the two read as a matched pair, and its plot window is framed to σ² ≤ 700 where the curvature lives (values up to 1500 remain settable; the marker pins as an arrow beyond the frame).",
-				"The \"Finding the MLE\" section is one framed instrument: the optimizer controls and the Contour/3D toggle share its header, and on wide screens the two (now taller, titled) slices sit beside the joint surface, so all three views plus the controls fit a laptop viewport at once; narrower screens stack the same pieces.",
+				"Reduced-motion visitors get the 3D surface too: it never moves on its own, and for them the viewpoint changes are instant and a released drag doesn't coast.",
+				"The \"Finding the MLE\" section is one framed instrument: the optimizer controls are its header, and the 3D surface fills it. The two separate slice plots, ℓ(μ) and ℓ(σ²), are removed: their curves are drawn on the surface through the current point (and seen edge-on in the side views), the next-step preview replaces their step overlays, and a readout beneath the view gives ℓ and both scores; hovering or tapping a score draws its slope as a triangle along its slice on the surface.",
 				"The log-likelihood calculation is laid out as a table: each observation, its log-density, and a bar for its share of the total, summed beside the maximum attainable value at the MLEs.",
 				"The inference section is one framed figure with the null-hypothesis and sample-size sliders in its header; the score and Fisher information at the null moved into the Score tab. p-values are shown in APA style (p < .001 instead of 0.00).",
 				"The inference section's sample-size control is reworded to make clear the statistics treat the fixed estimates as if they came from a sample of size n — no new data are drawn.",
 				"Switching the optimization algorithm now clears the drawn path (previously the path could mix steps from both algorithms).",
 				"Moving the parameters by hand (sliders, inputs, MLE buttons, or dragging on a plot) now ends the optimizer run: the path, iteration count, and convergence flag reset, and the next run starts from the new point. Previously a converged run kept play disabled after the point was moved, and the next step drew a jump the optimizer never made.",
 				"The gradient-ascent step size was halved (γ = 0.05) so the early steps no longer overshoot the maximum, and autoplay is paced so the climb is watchable rather than instant.",
+				"The second optimizer is now labeled Fisher scoring, which is what it always computed (a Newton step with the expected information in place of the observed Hessian); its path is unchanged.",
+				"On narrow screens the pinned parameter bar runs edge to edge and is about half its former height: symbol labels, each slider at full width, and New Sample beside the μ input; the plots' full view carries it too.",
 				"New visual design, as part of the site-wide redesign."
 			],
 			"fixed": [
 				"An internal second-derivative formula for σ² was incorrect (it was never displayed).",
-				"Resetting the optimizer could leave its path in an inconsistent state until the next step."
+				"Resetting the optimizer could leave its path in an inconsistent state until the next step.",
+				"The 2D inference figure drew the likelihood-ratio drop and the score tangent on the log-likelihood with the variance held at σ̂², so the bracket showed half the squared Wald statistic rather than half the likelihood ratio. It now draws the profile likelihood (the variance re-estimated at every μ), which both tests read, beside the fixed-variance slice, its quadratic approximation at the peak, which the Wald test reads. The gap between the two curves is the disagreement between the tests."
 			]
 		}
 	]

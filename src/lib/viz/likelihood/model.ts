@@ -5,10 +5,10 @@
 // always 10) and one never-displayed formula corrected (see
 // hessSigma2Observed).
 //
-// The optimizer constants (gradient-ascent γ and tolerance, Newton tolerance,
+// The optimizer constants (the DEFAULT gradient-ascent γ, the tolerances,
 // expected-vs-observed information) are FROZEN: the on-screen path and
-// iteration counts are displayed results under the app's semver contract.
-// Don't "tune" them.
+// iteration counts at the defaults are displayed results under the app's
+// semver contract. Don't "tune" them. γ itself is reader-adjustable.
 
 import { chiSquareCdf, normalCdf } from '../../stats/distributions';
 
@@ -82,16 +82,27 @@ export function hessSigma2Expected(n: number, sigma2: number): number {
 	return -n / (2 * sigma2 ** 2);
 }
 
-/** Second-order Taylor approximation of ℓ around the expansion point, in the
- * offset t (old quadraticApprox with its `step` divisor folded in by callers). */
-export function quadraticApprox(t: number, ll: number, grad: number, hess: number): number {
-	return ll + grad * t + 0.5 * hess * t * t;
-}
-
 /** Relative (estimated) log-likelihood −n(x − μ)²/(2σ²): the curvature-plot
  * curve, maximal at 0 when x = μ (old estimatedLogLik). */
 export function relLogLik(n: number, mu: number, x: number, sigma2: number): number {
 	return (-n / 2) * ((x - mu) ** 2 / sigma2);
+}
+
+/** Area under the likelihood curve L(μ) = Πf(yᵢ | μ, σ²) at fixed σ². Since
+ * ℓ is exactly quadratic in μ, L is a scaled Gaussian in μ and the integral is
+ * closed-form: L(μ̂, σ²)·√(2πσ²/n). Not 1 — likelihood is not a density in μ. */
+export function likelihoodAreaMu(sample: number[], sigma2: number): number {
+	const n = sample.length;
+	const muHat = sample.reduce((a, b) => a + b, 0) / n;
+	return Math.exp(logLikSum(sample, muHat, sigma2)) * Math.sqrt((2 * Math.PI * sigma2) / n);
+}
+
+/** Relative profile log-likelihood ℓₚ(x) − ℓ̂ = −(n/2)·ln(1 + (x − μ)²/σ²) at
+ * the fixed estimates μ = μ̂, σ² = σ̂² (since σ̂²(x) = σ̂² + (x − μ̂)²). Its drop
+ * at μ₀ is exactly ½·LR; relLogLik is its quadratic approximation at the
+ * peak, whose drop is ½·Wald. Its slope at μ₀ is the score U(μ₀, σ̂₀²). */
+export function relProfileMu(n: number, mu: number, x: number, sigma2: number): number {
+	return (-n / 2) * Math.log1p((x - mu) ** 2 / sigma2);
 }
 
 /**
@@ -113,7 +124,7 @@ export function profileMu(sample: number[], mu: number): number {
 // at 0.1 the first step from the default start overshot the maximum in μ and
 // tripled σ², which read as a bug rather than "steps proportional to the
 // gradient". Still frozen — see the header note.
-const GA_GAMMA = 0.05;
+export const GA_GAMMA = 0.05;
 const GA_TOL = 0.001;
 
 /**
@@ -127,7 +138,8 @@ export function gradientAscentStep(
 	sampleZ: number[],
 	muHat: number,
 	sigma2Hat: number,
-	cur: OptimPoint
+	cur: OptimPoint,
+	gamma = GA_GAMMA
 ): StepResult {
 	const n = sampleZ.length;
 	const sigmaHat = Math.sqrt(sigma2Hat);
@@ -136,22 +148,23 @@ export function gradientAscentStep(
 	const gradMu = scoreMu(n, muZ, 0, s2Z);
 	const gradSigma2 = scoreSigma2(sampleZ, muZ, s2Z);
 	const next = {
-		mu: (muZ + GA_GAMMA * gradMu) * sigmaHat + muHat,
-		sigma2: (s2Z + GA_GAMMA * gradSigma2) * sigma2Hat
+		mu: (muZ + gamma * gradMu) * sigmaHat + muHat,
+		sigma2: (s2Z + gamma * gradSigma2) * sigma2Hat
 	};
 	const converged = Math.abs(gradSigma2) < GA_TOL && Math.abs(gradMu) < GA_TOL;
 	return { next, converged };
 }
 
-const NEWTON_TOL = 0.0001;
+const FISHER_TOL = 0.0001;
 
 /**
- * One Newton-Raphson iteration using EXPECTED information (Fisher scoring),
- * like the old app: I(μ) = n/σ², I(σ²) = n/(2σ⁴). For μ this makes each step
- * land exactly on μ̂; σ² takes a few steps. Converged when the UPDATED point
- * is within tolerance of the MLEs (old semantics).
+ * One Fisher-scoring iteration: a Newton step with the EXPECTED information
+ * I(μ) = n/σ², I(σ²) = n/(2σ⁴) in place of the observed Hessian. The old app
+ * labeled it Newton-Raphson; the path is unchanged. For μ each step lands
+ * exactly on μ̂; σ² takes a few steps. Converged when the UPDATED point is
+ * within tolerance of the MLEs (old semantics).
  */
-export function newtonStep(
+export function fisherScoringStep(
 	sample: number[],
 	muHat: number,
 	sigma2Hat: number,
@@ -167,8 +180,21 @@ export function newtonStep(
 		sigma2: cur.sigma2 + gradSigma2 / infSigma2
 	};
 	const converged =
-		Math.abs(next.sigma2 - sigma2Hat) < NEWTON_TOL && Math.abs(next.mu - muHat) < NEWTON_TOL;
+		Math.abs(next.sigma2 - sigma2Hat) < FISHER_TOL && Math.abs(next.mu - muHat) < FISHER_TOL;
 	return { next, converged };
+}
+
+/** A step that leaves the plotted frame (or σ² ≤ 0, where ℓ is undefined)
+ * ends a run: the optimizer has overshot the hill. */
+export function outsideFrame(p: OptimPoint): boolean {
+	return (
+		!Number.isFinite(p.mu) ||
+		!Number.isFinite(p.sigma2) ||
+		p.mu < MU_MIN ||
+		p.mu > MU_MAX ||
+		p.sigma2 < SIGMA2_MIN ||
+		p.sigma2 > SIGMA2_MAX
+	);
 }
 
 /** Likelihood-ratio test of H0: μ = μ0 (σ² profiled out under both):
@@ -204,16 +230,17 @@ export function scoreTest(u: number, info: number): { stat: number; pval: number
 // interval (R: qchisq(.95, 1)/2).
 export const LL_DROP_95 = 1.920729410347063;
 
-/** 95% likelihood interval for μ on the drawn ℓ(μ | σ²) slice. The slice is
- * exactly quadratic in μ, so the drop inverts in closed form:
- * μ̂ ± √(2·drop·σ²/n). Coincides with the Wald CI when σ² = σ̂². */
-export function likelihoodIntervalMu(
+/** 95% profile likelihood interval for μ at the fixed estimates and sample
+ * size n: where ℓₚ drops LL_DROP_95 below its peak (the LR test inverted).
+ * From relProfileMu: μ̂ ± √(σ̂²·(e^{2·drop/n} − 1)). Wider than the Wald CI
+ * at small n; the two converge as n grows. */
+export function profileIntervalMu(
 	muHat: number,
-	sigma2: number,
+	sigma2Hat: number,
 	n: number,
 	drop = LL_DROP_95
 ): [number, number] {
-	const half = Math.sqrt((2 * drop * sigma2) / n);
+	const half = Math.sqrt(sigma2Hat * Math.expm1((2 * drop) / n));
 	return [muHat - half, muHat + half];
 }
 

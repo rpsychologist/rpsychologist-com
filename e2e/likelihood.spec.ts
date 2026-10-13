@@ -43,27 +43,20 @@ test('gradient ascent runs to convergence and reset clears the path', async ({ p
 	// The optimizer lands on the MLEs, so current ℓ equals max ℓ (−38.89;
 	// d3-format renders the minus as U+2212).
 	await expect(page.getByTestId('estimates')).toContainText('−38.89');
-	// The trail polyline lives in the contour view; the joint view defaults to
-	// the 3D surface where WebGL is available, so switch to Contour to inspect
-	// it (the toggle is absent on the reduced-motion / no-WebGL contour fallback,
-	// where the view is already the contour).
-	const contourBtn = page.getByRole('button', { name: 'Contour' });
-	if (await contourBtn.isVisible()) await contourBtn.click();
-	await expect(page.locator('.trail')).toBeVisible();
-
+	// The path is drawn in WebGL on the surface, so the counter is the check.
 	await page.getByRole('button', { name: 'Reset to the starting point' }).click();
 	await expect(page.getByTestId('iterations')).toHaveText('0');
-	await expect(page.locator('.trail')).toHaveCount(0);
 });
 
-test('newton-raphson steps show the parabola and count iterations', async ({ page }) => {
+test('fisher scoring previews and counts its steps', async ({ page }) => {
 	await page.goto('/likelihood');
 	await ready(page);
 
-	await page.getByLabel('Algorithm').selectOption('newtonRaphson');
+	await page.getByLabel('Algorithm').selectOption('fisherScoring');
+	// The next step is previewed before it is taken.
+	await expect(page.locator('.ghost')).toBeVisible();
 	await page.getByRole('button', { name: '+1' }).click();
 	await expect(page.getByTestId('iterations')).toContainText('1');
-	await expect(page.locator('.newton').first()).toBeVisible();
 	await page.getByRole('button', { name: '−1' }).click();
 	await expect(page.getByTestId('iterations')).toHaveText('0');
 });
@@ -102,11 +95,10 @@ test('new sample changes the estimates', async ({ page }) => {
 	await expect(page.locator('.sample-point')).toHaveCount(10);
 });
 
-test('3D toggle shows the surface or falls back to the contour', async ({ page }) => {
+test('the joint view is the 3D surface, or the contour fallback', async ({ page }) => {
 	await page.goto('/likelihood');
 	await ready(page);
 
-	await page.getByRole('button', { name: '3D surface' }).click();
 	// Headless Chromium usually has SwiftShader WebGL2, but don't require it:
 	// either the canvas renders or the fallback notice + contour appears.
 	const canvas = page.locator('.surface canvas');
@@ -117,7 +109,6 @@ test('3D toggle shows the surface or falls back to the contour', async ({ page }
 test('dragging the surface floor handle moves both parameters', async ({ page }) => {
 	await page.goto('/likelihood');
 	await ready(page);
-	await page.getByRole('button', { name: '3D surface' }).click();
 
 	// The floor handle only exists once WebGL2 rendered the surface; skip on the
 	// SwiftShader-less fallback rather than fail.
@@ -127,6 +118,9 @@ test('dragging the surface floor handle moves both parameters', async ({ page })
 	test.skip(await fallback.isVisible(), 'WebGL2 unavailable — contour fallback');
 
 	const muBefore = await page.locator('#likelihood-mu-num').inputValue();
+	// Raw mouse events don't scroll, and the browser drops them outside the
+	// viewport — the surface sits far below the fold, so bring it into view.
+	await handle.scrollIntoViewIfNeeded();
 	const box = (await handle.boundingBox())!;
 	const cx = box.x + box.width / 2;
 	const cy = box.y + box.height / 2;
@@ -141,5 +135,94 @@ test('dragging the surface floor handle moves both parameters', async ({ page })
 test('changelog page lists the current release', async ({ page }) => {
 	await page.goto('/likelihood/changelog');
 	await expect(page.getByRole('heading', { level: 1 })).toContainText('Changelog');
-	await expect(page.locator('body')).toContainText('0.2.0');
+	await expect(page.locator('body')).toContainText('1.0.0');
+});
+
+test('the likelihood curve reports its area, which follows σ²', async ({ page }) => {
+	await page.goto('/likelihood');
+	await ready(page);
+	const before = await page.getByTestId('curve-area').textContent();
+	await page.getByRole('slider', { name: 'Variance', exact: true }).press('PageUp');
+	await expect(page.getByTestId('curve-area')).not.toHaveText(before!);
+});
+
+test('pinning a candidate reports the likelihood ratio', async ({ page }) => {
+	await page.goto('/likelihood');
+	await ready(page);
+	await page.getByRole('button', { name: 'Pin as A' }).click();
+	await expect(page.getByTestId('likelihood-ratio')).toContainText('equally likely');
+	await page.getByRole('slider', { name: 'Mean', exact: true }).press('PageUp');
+	await expect(page.getByTestId('likelihood-ratio')).toContainText(
+		'as likely under the current candidate as under A'
+	);
+	await expect(page.locator('.pinned-pt').first()).toBeVisible();
+	await page.getByRole('button', { name: 'Unpin A' }).click();
+	await expect(page.getByTestId('likelihood-ratio')).toHaveCount(0);
+});
+
+test('a large gradient-ascent step size overshoots out of the frame', async ({ page }) => {
+	await page.goto('/likelihood');
+	await ready(page);
+	// Slider position is log10 γ: 0 → γ = 1.
+	await page.locator('#likelihood-gamma').fill('0');
+	await page.getByRole('button', { name: 'Run until convergence' }).click();
+	await expect(page.getByTestId('iterations')).toContainText('overshot', { timeout: 10000 });
+});
+
+test('the point readout and the inference intervals follow the controls', async ({ page }) => {
+	await page.goto('/likelihood');
+	await ready(page);
+	const readout = await page.getByTestId('point-readout').textContent();
+	await page.getByRole('slider', { name: 'Mean', exact: true }).press('ArrowRight');
+	await expect(page.getByTestId('point-readout')).not.toHaveText(readout!);
+	const intervals = await page.getByTestId('intervals').textContent();
+	await page.locator('#likelihood-n').fill('40');
+	await expect(page.getByTestId('intervals')).not.toHaveText(intervals!);
+});
+
+test('reduced-motion visitors get the 3D surface too', async ({ page }) => {
+	await page.emulateMedia({ reducedMotion: 'reduce' });
+	await page.goto('/likelihood');
+	await ready(page);
+	await expect(page.locator('.mle-inst canvas')).toBeVisible();
+	await expect(page.getByRole('button', { name: 'Contour' })).toHaveCount(0);
+	await page.getByRole('button', { name: 'Side μ' }).first().click();
+	await expect(page.getByRole('button', { name: 'Side μ' }).first()).toHaveAttribute(
+		'aria-pressed',
+		'true'
+	);
+});
+
+test('the algorithm info card closes on an outside press or Esc', async ({ page }) => {
+	await page.goto('/likelihood');
+	await ready(page);
+	const info = page.getByTitle('About this algorithm');
+	const card = page.locator('.optimizer .card');
+	await info.click();
+	await expect(card).toBeVisible();
+	await card.click(); // pressing inside keeps it open
+	await expect(card).toBeVisible();
+	await page.getByRole('heading', { name: 'Finding the Maximum Likelihood Estimates' }).click();
+	await expect(card).toHaveCount(0);
+	await info.click();
+	await expect(card).toBeVisible();
+	await page.keyboard.press('Escape');
+	await expect(card).toHaveCount(0);
+	await expect(info).toBeFocused();
+});
+
+test('a score in the readout draws its slope on the surface', async ({ page }) => {
+	await page.goto('/likelihood');
+	await ready(page);
+	const mu = page.getByRole('button', { name: 'Show the slope along μ on the surface' });
+	const fallback = page.locator('.gl-note');
+	await expect(mu.or(fallback).first()).toBeVisible();
+	test.skip(await fallback.isVisible(), 'WebGL2 unavailable — contour fallback');
+	await expect(page.locator('.surface .slope')).toHaveCount(0);
+	await mu.click();
+	await expect(mu).toHaveAttribute('aria-pressed', 'true');
+	await expect(page.locator('.surface .slope')).toHaveCount(1);
+	await mu.click();
+	await page.mouse.move(0, 0);
+	await expect(page.locator('.surface .slope')).toHaveCount(0);
 });

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { defaults, LikelihoodState } from './likelihood.svelte';
-import { MU_MAX, MU_MIN, SIGMA2_MIN } from './model';
+import { MU_MAX, MU_MIN, SIGMA2_MAX, SIGMA2_MIN } from './model';
 
 // R-pinned statistics of the deterministic default sample (see model.test.ts).
 const MU_HAT = 104.38;
@@ -33,6 +33,87 @@ describe('derived sample statistics', () => {
 		expect(s.tests.lr.stat).toBeCloseTo(9.074034180467834, 8);
 		expect(s.tests.wald.z).toBeCloseTo(3.844320686455949, 8);
 		expect(s.tests.score.stat).toBeCloseTo(5.964292306982323, 8);
+	});
+});
+
+describe('gradient ascent step size', () => {
+	it('a new step size restarts the run from its start', () => {
+		const s = new LikelihoodState();
+		s.step();
+		s.step();
+		s.setGamma(0.2);
+		expect(s.path).toEqual([]);
+		expect(s.p.mu).toBe(defaults.mu);
+		expect(s.p.sigma2).toBe(defaults.sigma2);
+		expect(s.p.gamma).toBe(0.2);
+		s.setGamma(99);
+		expect(s.p.gamma).toBe(1);
+	});
+
+	it('a step that overshoots the frame ends the run at the frame edge; undo clears it', () => {
+		const s = new LikelihoodState();
+		s.setGamma(0.4);
+		s.start();
+		while (s.running) s.step();
+		expect(s.diverged).toBe(true);
+		expect(s.converged).toBe(false);
+		expect(s.p.sigma2).toBeLessThanOrEqual(SIGMA2_MAX);
+		const n = s.count;
+		s.step(); // no-op once diverged
+		expect(s.count).toBe(n);
+		s.stepBack();
+		expect(s.diverged).toBe(false);
+	});
+});
+
+describe('next-step preview', () => {
+	it('previews exactly the step that step() takes, and hides when there is none', () => {
+		const s = new LikelihoodState();
+		const preview = s.nextStep!;
+		s.step();
+		expect(s.p.mu).toBe(preview.mu);
+		expect(s.p.sigma2).toBe(preview.sigma2);
+		s.setAlgo('none');
+		expect(s.nextStep).toBeNull();
+		s.setAlgo('fisherScoring');
+		s.snapTo('mu');
+		s.snapTo('sigma2');
+		s.step();
+		expect(s.converged).toBe(true);
+		expect(s.nextStep).toBeNull();
+	});
+});
+
+describe('fisher scoring', () => {
+	it('lands on the ridge at the starting μ, then on the MLE, even via an off-frame σ²', () => {
+		const s = new LikelihoodState();
+		s.setAlgo('fisherScoring');
+		s.setPoint({ mu: 60, sigma2: 50 }, false);
+		s.step();
+		// σ² jumps to σ̂²(μ₀) = σ̂² + (μ₀ − μ̂)², past the frame here — not an overshoot stop.
+		expect(s.diverged).toBe(false);
+		expect(s.p.mu).toBeCloseTo(MU_HAT, 10);
+		expect(s.p.sigma2).toBeCloseTo(SIGMA2_HAT + (60 - MU_HAT) ** 2, 8);
+		s.step();
+		expect(s.converged).toBe(true);
+		expect(s.p.sigma2).toBeCloseTo(SIGMA2_HAT, 8);
+	});
+});
+
+describe('pinned candidate', () => {
+	it('pins the current point and re-reads it against new data', () => {
+		const s = new LikelihoodState();
+		expect(s.llPinned).toBeNull();
+		s.pin();
+		expect(s.pinned).toEqual({ mu: defaults.mu, sigma2: defaults.sigma2 });
+		expect(s.llPinned).toBeCloseTo(s.ll, 12);
+		s.setMu(100);
+		expect(s.pinned?.mu).toBe(defaults.mu);
+		expect(s.llPinned).not.toBeCloseTo(s.ll, 3);
+		s.newSample();
+		expect(Number.isFinite(s.llPinned)).toBe(true);
+		s.unpin();
+		expect(s.llPinned).toBeNull();
 	});
 });
 
@@ -88,9 +169,9 @@ describe('optimizer bookkeeping', () => {
 		expect(s.count).toBeLessThan(1000);
 	});
 
-	it('newton steps tween and converge fast', () => {
+	it('fisher scoring steps tween and converge fast', () => {
 		const s = new LikelihoodState();
-		s.setAlgo('newtonRaphson');
+		s.setAlgo('fisherScoring');
 		s.step();
 		expect(s.animating).toBe(true);
 		s.start();
@@ -176,7 +257,7 @@ describe('optimizer bookkeeping', () => {
 	it('setAlgo clears the trail', () => {
 		const s = new LikelihoodState();
 		s.step();
-		s.setAlgo('newtonRaphson');
+		s.setAlgo('fisherScoring');
 		expect(s.count).toBe(0);
 	});
 

@@ -86,12 +86,10 @@
 			<span data-testid="pval-LRT">{fmtP(model.tests.lr.pval)}</span>.
 		</p>
 		<p class="caveat">
-			The 2D figure simplifies this: it holds the variance at <Tex
-				math={String.raw`\hat\sigma^2`}
-			/>
-			for both likelihoods, whereas the test re-estimates it under the null (<Tex
+			Both likelihoods let the variance adjust: at the null it is re-estimated as <Tex
 				math={String.raw`\hat\sigma_0^2`}
-			/>). The 3D view shows the exact version.
+			/>. That is why the bracket sits on the amber <em>profile</em> curve, the best log-likelihood
+			for each μ, not on the slice at <Tex math={String.raw`\hat\sigma^2`} />.
 		</p>
 	</div>
 
@@ -111,6 +109,13 @@
 		<p>
 			Asymptotically <em>Z</em> follows a standard normal distribution, giving <em>p</em>
 			<span data-testid="pval-wald">{fmtP(model.tests.wald.pval)}</span>.
+		</p>
+		<p class="caveat">
+			The Wald test reads the teal slice, the quadratic that matches the profile's curvature at the
+			peak. The open circle at <Tex math={String.raw`\mu_0`} /> sits at <Tex
+				math={String.raw`-Z^2/2`}
+			/>; where it falls below the profile, Wald overstates the evidence against the null relative
+			to the likelihood ratio.
 		</p>
 	</div>
 
@@ -133,9 +138,9 @@
 			<span data-testid="pval-score">{fmtP(model.tests.score.pval)}</span>.
 		</p>
 		<p class="caveat">
-			The 2D figure draws the tangent at <Tex math={String.raw`\hat\sigma^2`} />; the statistic, and
-			the 3D view, evaluate the score at <Tex math={String.raw`\hat\sigma_0^2`} />, where the slope
-			in the variance direction is zero.
+			The tangent touches the profile curve: its slope there equals the score at <Tex
+				math={String.raw`\hat\sigma_0^2`}
+			/>, where the slope in the variance direction is zero.
 		</p>
 		<div class="score-info" data-testid="score-info">
 			<p>
@@ -180,6 +185,20 @@
 	.tablist button:hover {
 		color: var(--viz-accent);
 	}
+	/* The three tabs need tighter padding in a narrow column (a 360px phone,
+	   or the figure's side column just above the two-column breakpoint). */
+	.tests {
+		container-type: inline-size;
+	}
+	@container (max-width: 21rem) {
+		.tablist {
+			gap: 0;
+		}
+		.tablist button {
+			padding: 0.45rem 0.55rem;
+			font-size: 0.85rem;
+		}
+	}
 	.tablist button.on {
 		color: var(--heading);
 		font-weight: 600;
@@ -192,6 +211,16 @@
 		border-radius: var(--radius-sm);
 		font-size: 0.92rem;
 		line-height: 1.55;
+	}
+	/* Phones: the instrument already frames the panel edge to edge; a second
+	   card inside it would only add padding. */
+	@media (max-width: 48rem) {
+		.panel {
+			padding: 0.4rem 0 0;
+			background: none;
+			border: none;
+			border-radius: 0;
+		}
 	}
 	.panel p {
 		margin: 0.4rem 0;

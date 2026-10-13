@@ -4,18 +4,20 @@ import {
 	hessSigma2Observed,
 	hessSigma2Expected,
 	infoMu,
-	likelihoodIntervalMu,
 	LL_DROP_95,
 	logLikGrid,
 	logLikPoint,
 	logLikSum,
+	likelihoodAreaMu,
 	lrTest,
 	MU_MAX,
 	MU_MIN,
-	newtonStep,
+	fisherScoringStep,
+	outsideFrame,
 	profileMu,
-	quadraticApprox,
 	relLogLik,
+	profileIntervalMu,
+	relProfileMu,
 	scoreMu,
 	scoreSigma2,
 	scoreTest,
@@ -93,22 +95,42 @@ describe('derivatives', () => {
 		expect(hessSigma2Expected(N, 200)).toBeCloseTo(-10 / (2 * 200 ** 2), 15);
 	});
 
-	it('quadraticApprox reproduces ℓ exactly in μ (quadratic direction)', () => {
-		// ℓ(μ) at fixed σ² is exactly quadratic, so the 2nd-order Taylor
-		// expansion around any point is exact.
-		const sigma2 = 150;
-		const mu0 = 95;
-		const ll = logLikSum(Y, mu0, sigma2);
-		const grad = scoreMu(N, mu0, MU_HAT, sigma2);
-		const hess = -infoMu(N, sigma2);
-		for (const t of [-10, -2, 3, 12]) {
-			expect(quadraticApprox(t, ll, grad, hess)).toBeCloseTo(logLikSum(Y, mu0 + t, sigma2), 8);
-		}
-	});
-
 	it('relLogLik peaks at 0 when x = μ', () => {
 		expect(relLogLik(N, 100, 100, 150)).toBeCloseTo(0, 15);
 		expect(relLogLik(N, 100, 90, 150)).toBeLessThan(0);
+	});
+
+	it('relative profile drop is ½·LR, its slope is the score at σ̂₀², and it lies above the slice', () => {
+		const muNull = 80;
+		const s2Null = sumSquares(Y, muNull) / N;
+		// ½·LR at μ₀ = 80: ½·10·ln(σ̂₀²/σ̂²) = 8.289276 in R (the slice would say 21.2).
+		expect(-relProfileMu(N, MU_HAT, muNull, SIGMA2_HAT)).toBeCloseTo(
+			lrTest(SIGMA2_HAT, s2Null, N).stat / 2,
+			10
+		);
+		expect(-relProfileMu(N, MU_HAT, muNull, SIGMA2_HAT)).toBeCloseTo(8.2893, 3);
+		const h = 1e-5;
+		const slope =
+			(relProfileMu(N, MU_HAT, muNull + h, SIGMA2_HAT) -
+				relProfileMu(N, MU_HAT, muNull - h, SIGMA2_HAT)) /
+			(2 * h);
+		expect(slope).toBeCloseTo(scoreMu(N, muNull, MU_HAT, s2Null), 5);
+		for (const x of [30, 80, 104, 150])
+			expect(relProfileMu(N, MU_HAT, x, SIGMA2_HAT)).toBeGreaterThanOrEqual(
+				relLogLik(N, MU_HAT, x, SIGMA2_HAT) - 1e-12
+			);
+	});
+});
+
+describe('why likelihood is not a probability', () => {
+	it('the likelihood curve in μ has a closed-form area that is not 1', () => {
+		for (const s2 of [100, SIGMA2_HAT, 400]) {
+			let area = 0;
+			const dx = 0.01;
+			for (let m = 0; m <= 250; m += dx) area += Math.exp(logLikSum(Y, m, s2)) * dx;
+			expect(likelihoodAreaMu(Y, s2) / area).toBeCloseTo(1, 6);
+			expect(likelihoodAreaMu(Y, s2)).toBeLessThan(1e-10);
+		}
 	});
 });
 
@@ -136,17 +158,17 @@ describe('optimizers', () => {
 		expect(cur.sigma2).toBeCloseTo(SIGMA2_HAT, 1);
 	});
 
-	it('newton lands on μ̂ in one step (quadratic in μ)', () => {
-		const r = newtonStep(Y, MU_HAT, SIGMA2_HAT, { mu: 80, sigma2: 100 });
+	it('fisher scoring lands on μ̂ in one step (quadratic in μ)', () => {
+		const r = fisherScoringStep(Y, MU_HAT, SIGMA2_HAT, { mu: 80, sigma2: 100 });
 		expect(r.next.mu).toBeCloseTo(MU_HAT, 10);
 	});
 
-	it('newton converges to both MLEs in a few steps', () => {
+	it('fisher scoring converges to both MLEs in a few steps', () => {
 		let cur = { mu: 80, sigma2: 100 };
 		let converged = false;
 		let i = 0;
 		for (; i < 100 && !converged; i++) {
-			const r = newtonStep(Y, MU_HAT, SIGMA2_HAT, cur);
+			const r = fisherScoringStep(Y, MU_HAT, SIGMA2_HAT, cur);
 			cur = r.next;
 			converged = r.converged;
 		}
@@ -154,6 +176,39 @@ describe('optimizers', () => {
 		expect(cur.mu).toBeCloseTo(MU_HAT, 4);
 		expect(cur.sigma2).toBeCloseTo(SIGMA2_HAT, 4);
 		expect(i).toBeLessThan(50);
+	});
+});
+
+describe('gradient ascent step size', () => {
+	const sampleZ = Y.map((y) => (y - MU_HAT) / Math.sqrt(SIGMA2_HAT));
+	const run = (gamma: number, start: { mu: number; sigma2: number }, cap = 2000) => {
+		let cur = start;
+		for (let i = 0; i < cap; i++) {
+			const r = gradientAscentStep(sampleZ, MU_HAT, SIGMA2_HAT, cur, gamma);
+			if (r.converged) return { status: 'converged', steps: i };
+			cur = r.next;
+			if (outsideFrame(cur)) return { status: 'left', steps: i };
+		}
+		return { status: 'cap', steps: cap };
+	};
+
+	it('the default γ is the frozen 0.05 path', () => {
+		const cur = { mu: 80, sigma2: 100 };
+		expect(gradientAscentStep(sampleZ, MU_HAT, SIGMA2_HAT, cur)).toEqual(
+			gradientAscentStep(sampleZ, MU_HAT, SIGMA2_HAT, cur, 0.05)
+		);
+	});
+
+	it('small γ crawls, moderate γ climbs, large γ overshoots out of the frame or bounces', () => {
+		const start = { mu: 80, sigma2: 100 };
+		const tiny = run(0.005, start);
+		const ok = run(0.05, start);
+		expect(tiny.status).toBe('converged');
+		expect(ok.status).toBe('converged');
+		expect(tiny.steps).toBeGreaterThan(5 * ok.steps);
+		expect(run(0.4, start).status).toBe('left');
+		// Started near the peak, a large γ bounces across it and never settles.
+		expect(run(0.4, { mu: 104, sigma2: 140 }).status).toBe('cap');
 	});
 });
 
@@ -204,20 +259,33 @@ describe('tests (R-pinned at muNull = 90, n = 10)', () => {
 	});
 });
 
+// Upper 95% profile limit at n = 10: mu + sqrt(s2 * expm1(qchisq(.95, 1) / 10)),
+// R: 112.4752.
+const PROFILE_HI_10 = 112.4752265;
+
 describe('intervals', () => {
-	it('likelihood interval equals the Wald CI at σ² = σ̂² (χ²₁(0.95)/2 = z²/2)', () => {
-		const li = likelihoodIntervalMu(MU_HAT, SIGMA2_HAT, N);
-		const wald = waldIntervalMu(MU_HAT, SIGMA2_HAT, N);
-		expect(li[0]).toBeCloseTo(wald[0], 6);
-		expect(li[1]).toBeCloseTo(wald[1], 6);
+	it('the Wald CI is where the slice at σ̂² drops 1.92 (χ²₁(0.95)/2 = z²/2)', () => {
+		const [lo, hi] = waldIntervalMu(MU_HAT, SIGMA2_HAT, N);
+		expect(relLogLik(N, MU_HAT, lo, SIGMA2_HAT)).toBeCloseTo(-LL_DROP_95, 6);
+		expect(relLogLik(N, MU_HAT, hi, SIGMA2_HAT)).toBeCloseTo(-LL_DROP_95, 6);
 	});
 
-	it('endpoints sit exactly at the 1.92 drop on the drawn slice', () => {
-		const sigma2 = 100; // deliberately not σ̂²
-		const [lo, hi] = likelihoodIntervalMu(MU_HAT, sigma2, N);
-		const target = logLikSum(Y, MU_HAT, sigma2) - LL_DROP_95;
-		expect(logLikSum(Y, lo, sigma2)).toBeCloseTo(target, 8);
-		expect(logLikSum(Y, hi, sigma2)).toBeCloseTo(target, 8);
+	it('the profile interval sits at the 1.92 drop of the profile and is wider than Wald', () => {
+		for (const n of [N, 40]) {
+			const [lo, hi] = profileIntervalMu(MU_HAT, SIGMA2_HAT, n);
+			expect(relProfileMu(n, MU_HAT, lo, SIGMA2_HAT)).toBeCloseTo(-LL_DROP_95, 10);
+			expect(relProfileMu(n, MU_HAT, hi, SIGMA2_HAT)).toBeCloseTo(-LL_DROP_95, 10);
+		}
+		const prof = profileIntervalMu(MU_HAT, SIGMA2_HAT, N);
+		const wald = waldIntervalMu(MU_HAT, SIGMA2_HAT, N);
+		expect(prof[1] - prof[0]).toBeGreaterThan(wald[1] - wald[0]);
+		expect(prof[1]).toBeCloseTo(PROFILE_HI_10, 4);
+		// Converge as n grows (ratio of widths → 1).
+		const w = (n: number) =>
+			(profileIntervalMu(MU_HAT, SIGMA2_HAT, n)[1] - MU_HAT) /
+			(waldIntervalMu(MU_HAT, SIGMA2_HAT, n)[1] - MU_HAT);
+		expect(w(1000)).toBeLessThan(w(10));
+		expect(w(1000)).toBeCloseTo(1, 2);
 	});
 });
 

@@ -10,8 +10,15 @@
 
 	interface Props {
 		model: LikelihoodState;
+		/** Rendered height, so instrument headers can pin just below the bar. */
+		height?: number;
+		/** Appended to element ids when a second bar is shown (the full view),
+		 * so the page never has duplicate ids. */
+		idSuffix?: string;
+		/** Rendered as the top row of a full view, not over page prose. */
+		inFull?: boolean;
 	}
-	let { model }: Props = $props();
+	let { model, height = $bindable(0), idSuffix = '', inFull = false }: Props = $props();
 
 	// Not d3-format: its U+2212 minus blanks <input type=number> (house gotcha).
 	const fIn = (v: number) => String(Number(v.toFixed(2)));
@@ -31,14 +38,14 @@
 	}
 </script>
 
-<div class="control-bar">
+<div class="control-bar" class:in-full={inFull} bind:offsetHeight={height}>
 	<div class="param">
 		<div class="param-head">
-			<label for="likelihood-mu-num" class="param-label">
-				Mean (<Tex math={String.raw`\mu`} />)
+			<label for="likelihood-mu-num{idSuffix}" class="param-label">
+				<span class="long">Mean (</span><Tex math={String.raw`\mu`} /><span class="long">)</span>
 			</label>
 			<input
-				id="likelihood-mu-num"
+				id="likelihood-mu-num{idSuffix}"
 				class="card-sm"
 				type="number"
 				min={MU_MIN}
@@ -57,7 +64,7 @@
 			>
 		</div>
 		<Slider
-			id="likelihood-mu"
+			id="likelihood-mu{idSuffix}"
 			ariaLabel="Mean"
 			min={MU_MIN}
 			max={MU_MAX}
@@ -77,11 +84,13 @@
 
 	<div class="param">
 		<div class="param-head">
-			<label for="likelihood-sigma2-num" class="param-label">
-				Variance (<Tex math={String.raw`\sigma^2`} />)
+			<label for="likelihood-sigma2-num{idSuffix}" class="param-label">
+				<span class="long">Variance (</span><Tex math={String.raw`\sigma^2`} /><span class="long"
+					>)</span
+				>
 			</label>
 			<input
-				id="likelihood-sigma2-num"
+				id="likelihood-sigma2-num{idSuffix}"
 				class="card-sm"
 				type="number"
 				min={SIGMA2_MIN}
@@ -100,7 +109,7 @@
 			>
 		</div>
 		<Slider
-			id="likelihood-sigma2"
+			id="likelihood-sigma2{idSuffix}"
 			ariaLabel="Variance"
 			min={SIGMA2_MIN}
 			max={SIGMA2_MAX}
@@ -140,11 +149,10 @@
 		border: 1px solid var(--rule);
 		border-radius: var(--radius-sm);
 	}
-	@media (max-width: 48rem) {
-		.control-bar {
-			grid-template-columns: minmax(0, 1fr);
-			align-items: stretch;
-		}
+	.control-bar.in-full {
+		margin-bottom: 0;
+		border-width: 0 0 1px;
+		border-radius: 0;
 	}
 	.param {
 		display: flex;
@@ -201,5 +209,40 @@
 	.sample-btn:hover {
 		color: var(--viz-accent);
 		border-color: var(--viz-accent);
+	}
+	/* Phones and small tablets: the bar pins through two sections, so it is
+	   kept short (symbol labels, each head on one line) but edge to edge, with
+	   each slider at full width for precision. New Sample sits at the right of
+	   the μ head row. */
+	@media (max-width: 48rem) {
+		.control-bar {
+			grid-template-columns: minmax(0, 1fr);
+			gap: 0.35rem;
+			align-items: stretch;
+			padding: 0.45rem 0.9rem;
+			margin-inline: calc(50% - 50vw);
+			border-width: 0 0 1px;
+			border-radius: 0;
+		}
+		.long {
+			display: none;
+		}
+		.param {
+			gap: 0.15rem;
+		}
+		.param-head {
+			font-size: 0.85rem;
+		}
+		.param-head input {
+			width: 4.5rem;
+			padding: 0.15rem 0.3rem;
+		}
+		.sample-btn {
+			position: absolute;
+			top: 0.45rem;
+			right: 0.9rem;
+			padding: 0.2rem 0.75rem;
+			font-size: 0.85rem;
+		}
 	}
 </style>

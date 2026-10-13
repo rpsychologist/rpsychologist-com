@@ -7,20 +7,20 @@
 	import ControlBar from './ControlBar.svelte';
 	import SamplePlot from './SamplePlot.svelte';
 	import CalcLogLik from './CalcLogLik.svelte';
-	import LogLikPlotMu from './LogLikPlotMu.svelte';
-	import LogLikPlotSigma from './LogLikPlotSigma.svelte';
+	import LikelihoodCurve from './LikelihoodCurve.svelte';
 	import JointLogLik from './JointLogLik.svelte';
 	import SurfaceLogLik from './SurfaceLogLik.svelte';
 	import SurfaceKey, { type KeyItem } from './SurfaceKey.svelte';
 	import ExpandButton from './ExpandButton.svelte';
+	import ViewpointDock, { type ViewpointId } from './ViewpointDock.svelte';
 	import OptimizerControls from './OptimizerControls.svelte';
 	import CurvaturePlot from './CurvaturePlot.svelte';
 	import TestTabs from './TestTabs.svelte';
 	import Slider from '$lib/viz/core/components/Slider.svelte';
 	import { MU_NULL_MAX, MU_NULL_MIN, N_MAX, N_MIN } from './likelihood.svelte';
 	import type { LikelihoodState } from './likelihood.svelte';
-	import { prefersReducedMotion } from 'svelte/motion';
-	import { SIGMA2_MAX } from './model';
+	import { SIGMA2_MAX, likelihoodAreaMu } from './model';
+	import { sciTex } from './sci';
 
 	interface Props {
 		model: LikelihoodState;
@@ -31,13 +31,14 @@
 	let highlight = $state<number | null>(null);
 	const setHighlight = (i: number | null) => (highlight = i);
 
-	// 3D is offered unless motion is reduced or WebGL failed to start; either
-	// way JointLogLik falls back to the contour.
+	// The 3D surface is the joint view for everyone; the contour remains only
+	// as the fallback when WebGL fails to start. (Reduced motion no longer
+	// downgrades: the surface never moves on its own, and SurfaceLogLik makes
+	// its own transitions instant then.)
 	let glFailed = $state(false);
-	const show3d = $derived(!prefersReducedMotion.current && !glFailed);
+	const show3d = $derived(!glFailed);
 	function onGlFail() {
 		glFailed = true;
-		model.jointView = 'contour';
 		infView = 'curves';
 	}
 	// Key for the 3D inference view: only what the active test draws.
@@ -85,11 +86,26 @@
 			}
 		];
 	});
+	// The parameter bar's height: the MLE instrument's control row pins just
+	// below it.
+	let barH = $state(0);
+	// Instrument header heights: floating figure controls (the 3D viewpoint
+	// buttons) dock below whichever bars are pinned above them.
+	let mleHeadH = $state(0);
+	// The parameter bar repeated at the top of the MLE full view.
+	let fullBarH = $state(0);
+	// 3D viewpoints, one per surface (the dock buttons drive them).
+	let mleView = $state<ViewpointId | null>('angled');
+	let infView3d = $state<ViewpointId | null>('angled');
+	let infHeadH = $state(0);
 	// Full-window view per instrument (see ExpandButton).
 	let fullMle = $state(false);
 	let fullInf = $state(false);
 	// The inference figure opens on the 2D curves; 3D is opt-in.
 	let infView = $state<'curves' | 'surface'>('curves');
+
+	// Live area for the "not a probability" prose.
+	const areaL = $derived(likelihoodAreaMu(model.p.sample, model.p.sigma2));
 
 	const eqHypo = $derived(
 		String.raw`H_0: \mu = ${model.p.muNull} \quad \text{versus} \quad H_1: \mu \ne ${model.p.muNull}`
@@ -113,8 +129,8 @@
 	     sections whose plots respond to the candidate (μ, σ²), then releases —
 	     the Inference section (outside this wrapper) reads only the fixed
 	     estimates and its own sliders, so pinning the bar there is dead chrome. -->
-	<div class="param-scope">
-		<ControlBar {model} />
+	<div class="param-scope" style:--bar-h="{barH}px">
+		<ControlBar {model} bind:height={barH} />
 
 		<section class="tool-section calc-section">
 			<div class="calc-grid">
@@ -122,7 +138,8 @@
 				<CalcLogLik {model} {highlight} onhighlight={setHighlight} />
 			</div>
 			<p class="hint">
-				Move the sliders to change the candidate parameters; hover a point or a row to link them.
+				Move the sliders to change the candidate parameters; hover a point or a row to link them, or
+				drag a point to change the data.
 			</p>
 			<p class="section-intro after">
 				The combination of parameter values with the largest log-likelihood is the maximum
@@ -132,58 +149,79 @@
 		</section>
 
 		<section class="tool-section">
+			<h2>Likelihood Is Not a Probability</h2>
+			<p class="section-intro">
+				The ledger read the normal density as a function of the data, for fixed
+				<Tex math={String.raw`\mu`} /> and <Tex math={String.raw`\sigma^2`} />. The likelihood reads
+				the same formula the other way round: the ten observations are fixed and
+				<Tex math={String.raw`\mu`} /> varies. Below is <Tex math={String.raw`L(\mu)`} />, the
+				product of the ten densities, at the current <Tex math={String.raw`\sigma^2`} />. Its area
+				is
+				<Tex math={sciTex(areaL)} />, not 1, so it is not a probability distribution over
+				<Tex math={String.raw`\mu`} />.
+			</p>
+			<div class="figure">
+				<LikelihoodCurve {model} />
+			</div>
+			<p class="section-intro">
+				A likelihood value therefore means nothing on its own; only comparisons do. Pin a candidate
+				as A and move the sliders to see how many times more likely the data are under one than the
+				other. Products of small densities shrink toward zero with every observation, which is why
+				we work with their logs, the sum in the ledger.
+			</p>
+		</section>
+
+		<section class="tool-section">
 			<h2>Finding the Maximum Likelihood Estimates</h2>
 			<p class="section-intro">
-				Repeat the calculation above for a wide range of candidate values and you get the plots
-				below: each slice holds one parameter fixed and varies the other, and both are
-				cross-sections of the one surface over both parameters. The tangent line shows the
-				<em>score</em> (<Tex math="U" />) — the derivative of the log-likelihood — which is zero at
-				the peak, so the joint maximum sits where both slices crest at once. For this model,
-				calculus finds it directly (set both scores to zero and solve); for more challenging models
-				there is no closed form, so we let an <strong>optimization algorithm</strong> climb the hill instead.
-			</p>
-
-			<p class="section-intro">
-				The width of the peak is the precision of the estimate: the shaded band on the
-				<Tex math={String.raw`\ell(\mu)`} /> slice is the 95% likelihood interval for
-				<Tex math={String.raw`\mu`} /> at the current <Tex math={String.raw`\sigma^2`} />.
+				Repeat the calculation above for every combination of <Tex math={String.raw`\mu`} /> and
+				<Tex math={String.raw`\sigma^2`} /> and you get the surface below: its height is the log-likelihood,
+				and its peak is the pair of MLEs. The teal curves are slices through the current point, each holding
+				one parameter fixed; the side views look straight along an axis. At the peak the surface is level,
+				so both slopes, the <em>scores</em> shown beneath it, are zero. For this model calculus
+				finds that point directly (set both scores to zero and solve); for more challenging models
+				there is no closed form, so we let an
+				<strong>optimization algorithm</strong> climb the hill instead. The dashed arrow shows where its
+				next step would land.
 			</p>
 
 			<!-- One instrument, one frame: run controls and the view toggle in its
-			     header; on wide screens the slices stack beside the joint view so the
-			     cross-section relationship fits a single laptop viewport. -->
-			<div class="instrument" class:expanded={fullMle}>
-				<div class="inst-head">
+			     header, the joint view (the surface; the contour only as fallback) as the body. -->
+			<div
+				class="instrument mle-inst"
+				class:expanded={fullMle}
+				style:--head-h="{mleHeadH}px"
+				style:--full-bar-h="{fullBarH}px"
+			>
+				<!-- Full view covers the page's parameter bar, so it carries its own
+				     copy (same model; ids suffixed). display: contents keeps the bar a
+				     direct child of the scrolling instrument, so it still pins. -->
+				{#if fullMle}
+					<div class="full-bar">
+						<ControlBar {model} idSuffix="-full" inFull bind:height={fullBarH} />
+					</div>
+				{/if}
+				<div class="inst-head mle-head" bind:offsetHeight={mleHeadH}>
 					<OptimizerControls {model} />
 					<div class="head-end">
-						{#if show3d}
-							<div class="view-toggle" role="group" aria-label="Joint log-likelihood view">
-								<button
-									class:on={model.jointView === 'contour'}
-									aria-pressed={model.jointView === 'contour'}
-									onclick={() => (model.jointView = 'contour')}>Contour</button
-								>
-								<button
-									class:on={model.jointView === 'surface'}
-									aria-pressed={model.jointView === 'surface'}
-									onclick={() => (model.jointView = 'surface')}>3D surface</button
-								>
-							</div>
-						{/if}
 						<ExpandButton bind:expanded={fullMle} label="likelihood plots" />
 					</div>
 				</div>
 				<div class="inst-body">
-					<div class="slices">
-						<LogLikPlotMu {model} />
-						<LogLikPlotSigma {model} />
-					</div>
-					<JointLogLik {model} {show3d} {glFailed} onglfail={onGlFail} />
+					{#if show3d}
+						<ViewpointDock bind:view={mleView} />
+					{/if}
+					<JointLogLik {model} {show3d} {glFailed} onglfail={onGlFail} bind:view={mleView} />
 				</div>
 			</div>
 			<p class="hint">
-				Drag the point on any plot (the surface's floor ring moves both parameters at once), or pick
-				an algorithm and press play to watch the computer climb.
+				Drag the ring on the surface's floor to move both parameters, or pick an algorithm and press
+				play to watch the computer climb. With gradient ascent, try the step size: a tiny one
+				crawls, a large one overshoots and bounces across the peak. Fisher scoring uses the
+				curvature and needs just two steps here: the first puts <Tex math={String.raw`\mu`} /> exactly
+				at the peak but sets <Tex math={String.raw`\sigma^2`} /> for the old <Tex
+					math={String.raw`\mu`}
+				/>, up on the ridge; the second lands on the maximum.
 			</p>
 		</section>
 	</div>
@@ -205,8 +243,8 @@
 			<Tex math={String.raw`\sigma^2`} /> as well as <Tex math={String.raw`\mu`} />.
 		</p>
 
-		<div class="instrument" class:expanded={fullInf}>
-			<div class="inst-head inf-head">
+		<div class="instrument" class:expanded={fullInf} style:--head-h="{infHeadH}px">
+			<div class="inst-head inf-head" bind:offsetHeight={infHeadH}>
 				<div class="inf-control">
 					<Slider
 						id="likelihood-munull"
@@ -251,12 +289,14 @@
 			<div class="inst-body inf-body">
 				<div class="inf-figure">
 					{#if infView === 'surface' && show3d}
+						<ViewpointDock bind:view={infView3d} />
 						<div class="inf-surface">
 							<SurfaceLogLik
 								{model}
 								mode="inference"
 								emphasis={infEmphasis}
 								onunavailable={onGlFail}
+								bind:view={infView3d}
 							/>
 						</div>
 						<SurfaceKey items={infKey} focus={infFocus} onemphasis={(ids) => (infEmphasis = ids)} />
@@ -321,10 +361,53 @@
 		gap: 1.25rem 2.5rem;
 		align-items: start;
 	}
+	/* A single-chart figure stays on the spine; only instruments break out. */
+	.figure {
+		max-width: 700px;
+		margin: 1.25rem auto 1.5rem;
+	}
 	.section-intro.after {
 		margin-top: 1.5rem;
 	}
 	/* One hairline frame per instrument; the header row carries its controls. */
+	/* --sticky-top: how far down the viewport the pinned bars above a figure
+	   reach, for figure controls that float under them (SurfaceLogLik). In
+	   flow: the parameter bar, plus the MLE run controls where those pin.
+	   Full view: only the instrument's own header (pinned at ≥48rem). */
+	.instrument {
+		--sticky-top: 0px;
+	}
+	.mle-inst {
+		--sticky-top: var(--bar-h, 0px);
+	}
+	.instrument.expanded {
+		--sticky-top: 0px;
+	}
+	@media (min-width: 48rem) {
+		.mle-inst {
+			--sticky-top: calc(var(--bar-h, 0px) + var(--head-h, 0px));
+		}
+		.instrument.expanded {
+			--sticky-top: var(--head-h, 0px);
+		}
+		.instrument.mle-inst.expanded {
+			--sticky-top: calc(var(--full-bar-h, 0px) + var(--head-h, 0px));
+			--chrome: calc(5.5rem + var(--full-bar-h, 0px));
+		}
+		.instrument.expanded .inst-head.mle-head {
+			top: var(--full-bar-h, 0px);
+		}
+	}
+	.full-bar {
+		display: contents;
+	}
+	/* Phones: the run controls scroll away in full view, so only the (compact)
+	   parameter bar is pinned above the figure. */
+	@media (max-width: 47.99rem) {
+		.instrument.mle-inst.expanded {
+			--sticky-top: var(--full-bar-h, 0px);
+		}
+	}
 	.instrument {
 		margin-top: 1.25rem;
 		border: 1px solid var(--rule);
@@ -342,11 +425,51 @@
 	.inst-body {
 		padding: 1rem;
 	}
+	/* The run controls ride under the pinned parameter bar while the panel is
+	   on screen (the instrument is the containing block, so they release with
+	   it). Not on phones: the two bars together would cover too much. Opaque
+	   for the same reason as the parameter bar. */
+	@media (min-width: 48rem) {
+		.mle-head {
+			position: sticky;
+			top: var(--bar-h, 0px);
+			z-index: 39;
+			background: var(--bg);
+			border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+		}
+	}
 	.head-end {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
 		margin-left: auto;
+	}
+	/* Phones: instruments run edge to edge like the parameter bar — a framed
+	   card inside the page margin only spent width on double padding. Header
+	   and body share one inset so the controls and the viewpoint dock align. */
+	@media (max-width: 48rem) {
+		.instrument {
+			margin-inline: calc(50% - 50vw);
+			border-left: none;
+			border-right: none;
+			border-radius: 0;
+		}
+		.inst-head,
+		.inst-body {
+			padding-inline: 0.9rem;
+		}
+	}
+	/* Phones: the MLE header's full-view button joins the algorithm row (top
+	   right) instead of taking a row of its own. */
+	@media (max-width: 48rem) {
+		.mle-head {
+			position: relative;
+		}
+		.mle-head .head-end {
+			position: absolute;
+			top: 0.6rem;
+			right: 0.9rem;
+		}
 	}
 	/* Full view: the same frame pinned over the window, so nothing re-mounts
 	   (WebGL state and rotation survive). Only the header sits above the
@@ -373,9 +496,6 @@
 		}
 	}
 	@media (min-width: 64rem) {
-		.instrument.expanded .inst-body {
-			grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
-		}
 		.instrument.expanded .inf-body {
 			grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
 		}
@@ -411,30 +531,6 @@
 		background: var(--viz-accent);
 		color: #fff;
 	}
-	/* Mid widths: the two slices side by side as a matched pair, joint view
-	   below; collapses to one column under 48rem. */
-	.slices {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-		gap: 1.25rem 2rem;
-		align-items: start;
-		margin-bottom: 1.25rem;
-	}
-	/* Wide screens: slices stack in a left column beside the joint view, so
-	   slices, surface, and the pinned bar share one viewport. */
-	@media (min-width: 64rem) {
-		.inst-body {
-			display: grid;
-			grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-			gap: 1rem 2rem;
-			align-items: center;
-		}
-		.slices {
-			grid-template-columns: minmax(0, 1fr);
-			gap: 1rem;
-			margin-bottom: 0;
-		}
-	}
 	.inf-head {
 		align-items: flex-start;
 	}
@@ -449,6 +545,7 @@
 	}
 	.inf-body {
 		display: grid;
+		grid-template-columns: minmax(0, 1fr);
 		gap: 1rem 2rem;
 		align-items: start;
 	}
@@ -461,8 +558,7 @@
 		min-width: 0;
 	}
 	@media (max-width: 48rem) {
-		.calc-grid,
-		.slices {
+		.calc-grid {
 			grid-template-columns: minmax(0, 1fr);
 		}
 	}

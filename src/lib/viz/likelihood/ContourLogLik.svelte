@@ -74,6 +74,40 @@
 
 	const trail = $derived(model.path.map((p) => `${x(p.mu)},${y(p.sigma2)}`).join(' '));
 
+	// Ghost of the next iteration (hidden while running): a dashed arrow from
+	// the point to where the step lands. An overshooting step runs off the
+	// clipped frame, so its dot is dropped and the arrow just leaves.
+	const ghost = $derived.by(() => {
+		const nx = model.nextStep;
+		if (!nx || model.running) return null;
+		const x1 = x(model.p.mu);
+		const y1 = y(model.p.sigma2);
+		const x2 = x(nx.mu);
+		const y2 = y(nx.sigma2);
+		const len = Math.hypot(x2 - x1, y2 - y1);
+		if (len < 1) return null;
+		const inside = x2 >= 0 && x2 <= w && y2 >= 0 && y2 <= h;
+		// Arrowhead at the landing point, or where the step crosses the frame.
+		const tEnd = inside
+			? 1
+			: Math.min(
+					...[
+						x2 > w ? (w - x1) / (x2 - x1) : x2 < 0 ? -x1 / (x2 - x1) : 1,
+						y2 > h ? (h - y1) / (y2 - y1) : y2 < 0 ? -y1 / (y2 - y1) : 1
+					]
+				);
+		const ex = x1 + (x2 - x1) * tEnd;
+		const ey = y1 + (y2 - y1) * tEnd;
+		const ux = (x2 - x1) / len;
+		const uy = (y2 - y1) / len;
+		const H = 9;
+		const A = 0.4;
+		const c = Math.cos(A);
+		const sn = Math.sin(A);
+		const head = `M${ex - H * (ux * c - uy * sn)},${ey - H * (ux * sn + uy * c)}L${ex},${ey}L${ex - H * (ux * c + uy * sn)},${ey - H * (-ux * sn + uy * c)}`;
+		return { x1, y1, ex, ey, head, dot: inside ? { x: x2, y: y2 } : null };
+	});
+
 	let dragStart = { mu: 0, sigma2: 0 };
 	const f2 = format('.2f');
 </script>
@@ -105,6 +139,21 @@
 
 					{#if trail}
 						<polyline class="trail" points={trail} />
+					{/if}
+
+					{#if ghost}
+						<g class="ghost">
+							<line x1={ghost.x1} y1={ghost.y1} x2={ghost.ex} y2={ghost.ey} />
+							<path d={ghost.head} />
+							{#if ghost.dot}<circle r="5" cx={ghost.dot.x} cy={ghost.dot.y} />{/if}
+						</g>
+					{/if}
+
+					{#if model.pinned}
+						<circle class="pinned-pt" r="5" cx={x(model.pinned.mu)} cy={y(model.pinned.sigma2)} />
+						<text class="pinned-label" x={x(model.pinned.mu) + 8} y={y(model.pinned.sigma2) - 6}
+							>A</text
+						>
 					{/if}
 
 					<line class="crosshair" x1={px} x2={px} y1="0" y2={h} />
@@ -197,6 +246,36 @@
 		stroke: var(--muted);
 		stroke-dasharray: 2 3;
 		opacity: 0.7;
+	}
+	.ghost line,
+	.ghost path {
+		fill: none;
+		stroke: #e17055;
+		stroke-width: 2;
+		stroke-dasharray: 5 4;
+		opacity: 0.85;
+	}
+	.ghost path {
+		stroke-dasharray: none;
+	}
+	.ghost circle {
+		fill: var(--bg);
+		stroke: #e17055;
+		stroke-width: 2;
+		stroke-dasharray: 3 2;
+	}
+	.pinned-pt {
+		fill: var(--bg);
+		stroke: var(--marginal);
+		stroke-width: 2;
+	}
+	.pinned-label {
+		font-size: 12px;
+		font-weight: 600;
+		fill: var(--marginal);
+		paint-order: stroke;
+		stroke: var(--bg);
+		stroke-width: 3px;
 	}
 	.param-point {
 		fill: var(--heading);

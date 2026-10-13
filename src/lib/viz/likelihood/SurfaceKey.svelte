@@ -1,5 +1,12 @@
 <script lang="ts" module>
-	export type KeySwatch = 'slice' | 'path' | 'profile' | 'ridge' | 'null-line' | 'null-slice';
+	export type KeySwatch =
+		| 'slice'
+		| 'path'
+		| 'next'
+		| 'profile'
+		| 'ridge'
+		| 'null-line'
+		| 'null-slice';
 	export interface KeyItem {
 		id: string;
 		swatch: KeySwatch;
@@ -103,6 +110,12 @@
 	.path line {
 		stroke: #e17055;
 		stroke-width: 3.5;
+	}
+	.next line {
+		stroke: #e17055;
+		stroke-width: 2;
+		stroke-dasharray: 5 4;
+		stroke-linecap: butt;
 	}
 	.profile line {
 		stroke: var(--marginal);

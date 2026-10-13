@@ -4,7 +4,9 @@
 	   made literal. Adapted from HeroGaussianMesh.svelte (same WebGL2
 	   scaffolding: static lattice + primitive-restart LINE_STRIP, dynamic
 	   interleaved xyzα buffers, DPR cap, theme-following opaque clear,
-	   context-loss rebuild, drag-to-rotate with fling).
+	   context-loss rebuild, drag-to-rotate with fling). It is the joint view
+	   for every visitor; under reduced motion the fling and the viewpoint
+	   swings are instant, since nothing else moves unprompted.
 
 	   Deliberate differences from the hero: this is a reading instrument, not
 	   a decoration — no ambient auto-spin, no click-spawned climbers, no edge
@@ -39,8 +41,22 @@
 	   (μ₀, σ̂₀²), and on the μ-profile wall — where ℓₚ(μ₀) = ℓ(μ₀, σ̂₀²) — the
 	   drop from the summit level that is ½·LR. */
 	import { untrack } from 'svelte';
+	import { prefersReducedMotion } from 'svelte/motion';
 	import type { LikelihoodState } from './likelihood.svelte';
-	import { logLikSum, MU_MAX, MU_MIN, profileMu, SIGMA2_MAX, SIGMA2_MIN } from './model';
+	import type { ViewpointId } from './ViewpointDock.svelte';
+	import {
+		hessSigma2Expected,
+		infoMu,
+		logLikSum,
+		MU_MAX,
+		MU_MIN,
+		profileMu,
+		scoreMu,
+		scoreSigma2,
+		SIGMA2_MAX,
+		SIGMA2_MIN,
+		type OptimPoint
+	} from './model';
 
 	interface Props {
 		model: LikelihoodState;
@@ -49,8 +65,21 @@
 		emphasis?: string[] | null;
 		/** WebGL2 unavailable or init failed — the parent falls back to 2D. */
 		onunavailable?: () => void;
+		/** Named viewpoint (buttons live in ViewpointDock): setting it swings
+		 * the camera there; rotating by hand clears it. */
+		view?: ViewpointId | null;
+		/** Explore mode: draw the slope triangle along this slice at the point
+		 * (driven by the scores in JointLogLik's readout). */
+		slope?: 'mu' | 's2' | null;
 	}
-	let { model, mode = 'explore', emphasis = null, onunavailable }: Props = $props();
+	let {
+		model,
+		mode = 'explore',
+		emphasis = null,
+		onunavailable,
+		slope = null,
+		view: viewpoint = $bindable('angled')
+	}: Props = $props();
 	// Alpha factor for an element under the key's emphasis (1 = untouched).
 	const fU = (v: number) => v.toFixed(2).replace('-', '−');
 	const fadeOf = (id: string) => (emphasis && !emphasis.includes(id) ? 0.12 : 1);
@@ -141,30 +170,21 @@
 	// surface's outline above each μ is its maximum over σ², i.e. the profile
 	// ℓₚ(μ) — it lands exactly on the amber wall curve (the height transform is
 	// monotone). Looking along μ, the outline is ℓ(μ̂, σ²), the other wall.
-	const VIEWS = [
-		{
-			id: 'angled',
-			label: 'Angled',
-			title: 'The default angled view',
-			angle: 0.7,
-			tilt: TILT_DEFAULT
-		},
-		{
-			id: 'mu',
-			label: 'Side μ',
-			title: 'Look along σ²: the outline is the profile likelihood of μ',
-			angle: 0,
-			tilt: TILT_MAX
-		},
-		{
-			id: 's2',
-			label: 'Side σ²',
-			title: 'Look along μ: the outline is the likelihood of σ² at μ̂',
-			angle: (3 * Math.PI) / 2,
-			tilt: TILT_MAX
-		}
-	] as const;
-	let viewId = $state<string | null>('angled');
+	// Labels and the buttons are in ViewpointDock.
+	const VIEWS: Record<ViewpointId, { angle: number; tilt: number }> = {
+		angled: { angle: 0.7, tilt: TILT_DEFAULT },
+		mu: { angle: 0, tilt: TILT_MAX },
+		s2: { angle: (3 * Math.PI) / 2, tilt: TILT_MAX }
+	};
+	// The view the camera last swung to, so only a new selection animates.
+	let shownView: ViewpointId | null = 'angled';
+	$effect(() => {
+		const v = viewpoint;
+		untrack(() => {
+			if (v && v !== shownView) goTo(v);
+			shownView = v;
+		});
+	});
 
 	// World mapping shared by the surface and the path overlay.
 	const wx = (mu: number) => -RANGE + (2 * RANGE * (mu - MU_MIN)) / (MU_MAX - MU_MIN);
@@ -216,6 +236,19 @@
 	// Screen position of the current-(μ,σ²) dot on the surface — an SVG overlay
 	// styled like the 2D contour's dot, so the two joint views match.
 	let headPos = $state<{ x: number; y: number } | null>(null);
+	let pinPos = $state<{ x: number; y: number } | null>(null);
+	// Ghost of the next iteration: its route along the surface (with a
+	// screen-space arrowhead) and its landing dot; plus, for Fisher scoring,
+	// the quadratic approximation it climbs instead of the hill.
+	let ghost = $state<{ route: string; head: string; dot: Pt | null } | null>(null);
+	let capPaths = $state<string[]>([]);
+	// The selected score's slope triangle on its slice (explore mode).
+	let slopeGeo = $state<{
+		tri: string;
+		legs: string;
+		hyp: string;
+		label: { at: Pt; text: string; anchor: 'start' | 'end' };
+	} | null>(null);
 	// Dashed MLE-summit → wall-peak guides and the two wall-peak dots (SVG
 	// overlay like the gnomon), recomputed each frame in positionLabels.
 	let guidePaths = $state<string[]>([]);
@@ -617,6 +650,150 @@
 		return `M${f(o.x)},${f(o.y)}L${f(t.x)},${f(t.y)}M${f(b1x)},${f(b1y)}L${f(t.x)},${f(t.y)}L${f(b2x)},${f(b2y)}`;
 	}
 
+	const inFrame = (mu: number, s2: number) =>
+		mu >= MU_MIN && mu <= MU_MAX && s2 >= SIGMA2_MIN && s2 <= SIGMA2_MAX;
+	const fx = (n: number) => n.toFixed(1);
+	const chevron = (a: Pt, t: Pt) => {
+		let dx = t.x - a.x;
+		let dy = t.y - a.y;
+		const len = Math.hypot(dx, dy) || 1;
+		dx /= len;
+		dy /= len;
+		const c = Math.cos(HEAD_A);
+		const s = Math.sin(HEAD_A);
+		return (
+			`M${fx(t.x - HEAD_L * (dx * c - dy * s))},${fx(t.y - HEAD_L * (dx * s + dy * c))}` +
+			`L${fx(t.x)},${fx(t.y)}L${fx(t.x - HEAD_L * (dx * c + dy * s))},${fx(t.y - HEAD_L * (-dx * s + dy * c))}`
+		);
+	};
+
+	// The next step's route: the straight (μ, σ²) line from the point to the
+	// next iterate, lifted onto the surface and cut where it leaves the frame
+	// (an overshooting step then ends in an arrow at the edge, with no dot).
+	function ghostGeometry(next: OptimPoint) {
+		const p = model.p;
+		const top = model.grid.max;
+		const N = 40;
+		const pts: Pt[] = [];
+		let left = false;
+		for (let i = 0; i <= N; i++) {
+			const t = i / N;
+			const mu = p.mu + (next.mu - p.mu) * t;
+			const s2 = p.sigma2 + (next.sigma2 - p.sigma2) * t;
+			if (!inFrame(mu, s2)) {
+				left = true;
+				break;
+			}
+			pts.push(project(wx(mu), wy(s2), zOf(logLikSum(p.sample, mu, s2), top)));
+		}
+		if (pts.length < 2) return null;
+		const route = 'M' + pts.map((q) => `${fx(q.x)},${fx(q.y)}`).join('L');
+		const head = chevron(pts[pts.length - 2], pts[pts.length - 1]);
+		return { route, head, dot: left ? null : pts[pts.length - 1] };
+	}
+
+	// Fisher scoring's quadratic model of ℓ around the point (expected
+	// information, no cross term), drawn as two coral parabolas through the
+	// point along μ and σ² — the model's version of the teal slices — on the
+	// surface's height scale. Its top is the next iterate. A curve stops where
+	// it rises past the ceiling: far from the MLE the quadratic promises far
+	// more than the hill holds, which is why the step overshoots.
+	function capGeometry(): string[] {
+		const p = model.p;
+		const n = p.sample.length;
+		const top = model.grid.max;
+		const l0 = logLikSum(p.sample, p.mu, p.sigma2);
+		const gm = scoreMu(n, p.mu, model.muHat, p.sigma2);
+		const gs = scoreSigma2(p.sample, p.mu, p.sigma2);
+		const im = infoMu(n, p.sigma2);
+		const is = -hessSigma2Expected(n, p.sigma2);
+		const ceil = 1.15 * Z_HEIGHT;
+		const N = 80;
+		// Keep only the stretch through the point: past the ceiling the curve
+		// may re-enter the frame far away, which reads as a stray mark.
+		const curve = (at: (t: number) => [number, number, number], t0: number) => {
+			const runs: { pts: Pt[]; lo: number; hi: number }[] = [];
+			let cur: { pts: Pt[]; lo: number; hi: number } | null = null;
+			for (let i = 0; i <= N; i++) {
+				const [mu, s2, ll] = at(i / N);
+				const z = zOf(ll, top);
+				if (z > ceil) {
+					cur = null;
+					continue;
+				}
+				if (!cur) runs.push((cur = { pts: [], lo: i / N, hi: i / N }));
+				cur.pts.push(project(wx(mu), wy(s2), z));
+				cur.hi = i / N;
+			}
+			const run = runs.find((r) => t0 >= r.lo - 1 / N && t0 <= r.hi + 1 / N);
+			return run && run.pts.length > 1
+				? 'M' + run.pts.map((q) => `${fx(q.x)},${fx(q.y)}`).join('L')
+				: '';
+		};
+		const alongMu = curve(
+			(t) => {
+				const mu = MU_MIN + (MU_MAX - MU_MIN) * t;
+				const dm = mu - p.mu;
+				return [mu, p.sigma2, l0 + gm * dm - 0.5 * im * dm * dm];
+			},
+			(p.mu - MU_MIN) / (MU_MAX - MU_MIN)
+		);
+		const alongS2 = curve(
+			(t) => {
+				const s2 = SIGMA2_MIN + (SIGMA2_MAX - SIGMA2_MIN) * t;
+				const ds = s2 - p.sigma2;
+				return [p.mu, s2, l0 + gs * ds - 0.5 * is * ds * ds];
+			},
+			(p.sigma2 - SIGMA2_MIN) / (SIGMA2_MAX - SIGMA2_MIN)
+		);
+		return [alongMu, alongS2].filter(Boolean);
+	}
+
+	// Slope triangle along one slice at the point, like the score test's: run
+	// uphill along the axis, rise from the drawn surface's tangent. The height
+	// is a tempered transform of ℓ, so the triangle shows direction and the
+	// drawn steepness (flatter low on the hill than the score is); the label
+	// carries the exact score.
+	function slopeGeometry(axis: 'mu' | 's2') {
+		const p = model.p;
+		const top = model.grid.max;
+		const n = p.sample.length;
+		const zAt = (mu: number, s2: number) => zOf(logLikSum(p.sample, mu, s2), top);
+		const z0 = zAt(p.mu, p.sigma2);
+		const isMu = axis === 'mu';
+		const eps = isMu ? 0.01 : 0.1;
+		const dz = isMu
+			? (zAt(p.mu + eps, p.sigma2) - zAt(p.mu - eps, p.sigma2)) / (2 * eps)
+			: (zAt(p.mu, p.sigma2 + eps) - zAt(p.mu, Math.max(SIGMA2_MIN, p.sigma2 - eps))) / (2 * eps);
+		const score = isMu
+			? scoreMu(n, p.mu, model.muHat, p.sigma2)
+			: scoreSigma2(p.sample, p.mu, p.sigma2);
+		const dir = score >= 0 ? 1 : -1;
+		// Run: an eighth of the axis, shortened to stay inside the frame.
+		const lo = isMu ? MU_MIN : SIGMA2_MIN;
+		const hi = isMu ? MU_MAX : SIGMA2_MAX;
+		const at = isMu ? p.mu : p.sigma2;
+		const run = Math.min((hi - lo) / 8, dir > 0 ? hi - at : at - lo);
+		const end = at + dir * run;
+		const pt = (v: number, z: number) =>
+			isMu ? project(wx(v), wy(p.sigma2), z) : project(wx(p.mu), wy(v), z);
+		const base = pt(at, z0);
+		const foot = pt(end, z0);
+		const apex = pt(end, z0 + Math.abs(dz) * run);
+		const f = (v: number) => v.toFixed(1);
+		const name = isMu ? '∂ℓ/∂μ' : '∂ℓ/∂σ²';
+		return {
+			tri: `M${f(base.x)},${f(base.y)}L${f(foot.x)},${f(foot.y)}L${f(apex.x)},${f(apex.y)}Z`,
+			legs: `M${f(base.x)},${f(base.y)}L${f(foot.x)},${f(foot.y)}L${f(apex.x)},${f(apex.y)}`,
+			hyp: `M${f(base.x)},${f(base.y)}L${f(apex.x)},${f(apex.y)}`,
+			label: {
+				at: { x: apex.x + (apex.x >= base.x ? 6 : -6), y: Math.min(apex.y, base.y) - 10 },
+				text: `${name} = ${score.toFixed(3).replace('-', '−')}`,
+				anchor: (apex.x >= base.x ? 'start' : 'end') as 'start' | 'end'
+			}
+		};
+	}
+
 	// Position the HTML axis labels at their world anchors and rebuild the SVG
 	// gnomon (both can't be GL, so they overlay the canvas in CSS px each frame).
 	function positionLabels() {
@@ -635,10 +812,19 @@
 		axisPaths = [axisPath(MU_TIP), axisPath(S2_TIP), axisPath(LL_TIP)];
 
 		const p = model.p;
+		slopeGeo = !inference && slope ? slopeGeometry(slope) : null;
+		const next = !inference && !model.running ? model.nextStep : null;
+		ghost = next ? ghostGeometry(next) : null;
+		capPaths = next && p.algo === 'fisherScoring' ? capGeometry() : [];
 		if (inference) {
 			headPos = null;
 			floorPos = null;
+			pinPos = null;
 		} else {
+			const a = model.pinned;
+			pinPos = a
+				? project(wx(a.mu), wy(a.sigma2), zOf(logLikSum(p.sample, a.mu, a.sigma2), model.grid.max))
+				: null;
 			const hz = zOf(logLikSum(p.sample, p.mu, p.sigma2), model.grid.max);
 			headPos = project(wx(p.mu), wy(p.sigma2), hz);
 			// Near edge-on the floor projects to a line and can't be inverted, so
@@ -954,6 +1140,16 @@
 		};
 	});
 
+	// Pinned candidate A moved, or the next-step preview changed (algorithm,
+	// step size, run state): re-place the overlays.
+	$effect(() => {
+		void model.pinned;
+		void model.nextStep;
+		void model.running;
+		void slope;
+		if (gl) untrack(() => draw());
+	});
+
 	// Key emphasis changed: redraw with the new fades.
 	$effect(() => {
 		void emphasis;
@@ -1045,10 +1241,16 @@
 
 	// Swing to a named view: shortest way round in azimuth, eased.
 	let viewRaf = 0;
-	function goTo(v: (typeof VIEWS)[number]) {
-		viewId = v.id;
+	function goTo(id: ViewpointId) {
+		const v = VIEWS[id];
 		vel = 0;
 		cancelAnimationFrame(viewRaf);
+		if (prefersReducedMotion.current) {
+			angle = ((v.angle % TAU) + TAU) % TAU;
+			setTilt(v.tilt);
+			draw();
+			return;
+		}
 		const a0 = angle;
 		const t0 = tilt;
 		const dA = ((((v.angle - a0) % TAU) + TAU + Math.PI) % TAU) - Math.PI;
@@ -1105,7 +1307,7 @@
 		// Drag only rotates; tilt changes only through the view buttons.
 		if (dx !== 0) {
 			hasRotated = true;
-			viewId = null;
+			viewpoint = null;
 		}
 		const dA = -dx * DRAG_SENS;
 		angle = (((angle + dA) % TAU) + TAU) % TAU;
@@ -1122,7 +1324,8 @@
 		}
 		if (!dragging) return;
 		(e.currentTarget as Element).releasePointerCapture?.(e.pointerId);
-		vel = flingVel;
+		// No coasting under reduced motion: the surface stops where it is let go.
+		vel = prefersReducedMotion.current ? 0 : flingVel;
 		dragging = false;
 		kick();
 	}
@@ -1142,18 +1345,6 @@
 			? 'Rotatable 3D surface of the joint log-likelihood at the hypothetical sample size, marking the null hypothesis and the likelihood ratio'
 			: "Rotatable 3D surface of the joint log-likelihood; the highlighted path shows the optimizer's steps"}
 	></canvas>
-	<!-- Named viewpoints; pointerdown stops here so a click doesn't rotate. -->
-	<div class="views" role="group" aria-label="Viewpoint" onpointerdown={(e) => e.stopPropagation()}>
-		{#each VIEWS as v (v.id)}
-			<button
-				type="button"
-				class:on={viewId === v.id}
-				aria-pressed={viewId === v.id}
-				title={v.title}
-				onclick={() => goTo(v)}>{v.label}</button
-			>
-		{/each}
-	</div>
 	<svg class="gnomon" aria-hidden="true">
 		{#each axisPaths as d, i (i)}
 			<path {d} />
@@ -1164,6 +1355,34 @@
 			{#each guidePaths as d, i (i)}
 				<path class="guide" class:faded={fadeOf('profile') < 1} {d} />
 			{/each}
+		{/if}
+		{#each capPaths as d, i (i)}
+			<path class="cap" class:faded={fadeOf('next') < 1} {d} />
+		{/each}
+		{#if ghost}
+			<g class="ghost" class:faded={fadeOf('next') < 1}>
+				<path d={ghost.route} />
+				<path d={ghost.head} />
+				{#if ghost.dot}<circle cx={ghost.dot.x} cy={ghost.dot.y} r="5" />{/if}
+			</g>
+		{/if}
+		{#if slopeGeo}
+			<g class="slope">
+				<path class="slope-tri" d={slopeGeo.tri} />
+				<path class="slope-legs" d={slopeGeo.legs} />
+				<path class="slope-hyp" d={slopeGeo.hyp} />
+				<text
+					class="lr-label"
+					x={slopeGeo.label.at.x}
+					y={slopeGeo.label.at.y}
+					text-anchor={slopeGeo.label.anchor}
+					dominant-baseline="central">{slopeGeo.label.text}</text
+				>
+			</g>
+		{/if}
+		{#if pinPos}
+			<circle class="pinned-pt" cx={pinPos.x} cy={pinPos.y} r="5" />
+			<text class="pinned-label" x={pinPos.x + 8} y={pinPos.y - 6}>A</text>
 		{/if}
 		{#if headPos}
 			<circle class="param-point" cx={headPos.x} cy={headPos.y} r="6" />
@@ -1298,6 +1517,40 @@
 		stroke-dasharray: 3 3;
 		opacity: 0.55;
 	}
+	.gnomon .ghost path {
+		fill: none;
+		stroke: #e17055;
+		stroke-width: 2;
+		stroke-dasharray: 5 4;
+		opacity: 0.8;
+	}
+	.gnomon .ghost circle {
+		fill: var(--bg);
+		stroke: #e17055;
+		stroke-width: 2;
+		stroke-dasharray: 3 2;
+	}
+	/* Dotted so the teal slice shows through where the model is exact (in μ). */
+	.gnomon .cap {
+		fill: none;
+		stroke: #e17055;
+		stroke-width: 2;
+		stroke-dasharray: 1 3;
+		stroke-linecap: round;
+	}
+	.gnomon .pinned-pt {
+		fill: var(--bg);
+		stroke: var(--marginal);
+		stroke-width: 2;
+	}
+	.gnomon .pinned-label {
+		font-size: 12px;
+		font-weight: 600;
+		fill: var(--marginal);
+		paint-order: stroke;
+		stroke: var(--bg);
+		stroke-width: 3px;
+	}
 	.gnomon .wall-peak {
 		fill: var(--marginal);
 		stroke: var(--bg);
@@ -1387,36 +1640,6 @@
 			0 0 3px var(--bg),
 			0 0 3px var(--bg),
 			0 0 3px var(--bg);
-	}
-	.views {
-		position: absolute;
-		top: 0.4rem;
-		left: 0.4rem;
-		display: inline-flex;
-		border: 1px solid var(--rule);
-		border-radius: var(--radius-sm);
-		overflow: hidden;
-		background: var(--bg);
-		text-shadow: none;
-	}
-	.views button {
-		padding: 0.2rem 0.55rem;
-		border: none;
-		background: transparent;
-		color: var(--muted);
-		font: inherit;
-		font-size: 0.75rem;
-		cursor: pointer;
-	}
-	.views button + button {
-		border-left: 1px solid var(--rule);
-	}
-	.views button:hover {
-		color: var(--ink);
-	}
-	.views button.on {
-		color: var(--heading);
-		background: var(--inset);
 	}
 	.hint {
 		position: absolute;

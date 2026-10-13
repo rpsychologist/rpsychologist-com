@@ -1,17 +1,24 @@
 <script lang="ts">
-	// The inference figure: relative log-likelihood curves at the fixed
-	// estimates for the reference n = 10 (gray) and the hypothetical slider n
-	// (accent) — curvature (Fisher information) grows with n. New in 0.2.0:
-	// the geometry of the three tests is drawn explicitly (after Buse, 1982)
-	// and the active test's element highlights while the others dim.
-	//
-	// Inherited quirk kept deliberately: the score tangent uses σ̂² (old
-	// derivMuN) while the Score *statistic* uses σ̂₀² — the old page carried
-	// a "figure is simplified" caveat, which the LRT tab still shows.
+	// The inference figure, at the fixed estimates for the reference n = 10
+	// (gray, dashed) and the hypothetical slider n. Two curves per n matter:
+	// the profile ℓₚ(μ) (σ² re-estimated at every μ — what the LR and score
+	// tests use) and the slice ℓ(μ, σ̂²), which is the profile's quadratic
+	// approximation at the peak (what the Wald test uses). The test geometry
+	// (after Buse, 1982) sits on the curve each test actually reads, so the
+	// gap between the curves is the disagreement between the tests.
 	import { scaleLinear } from 'd3-scale';
 	import { line } from 'd3-shape';
 	import { format } from 'd3-format';
-	import { MU_MAX, MU_MIN, relLogLik, scoreMu } from './model';
+	import Tex from '$lib/components/Tex.svelte';
+	import {
+		LL_DROP_95,
+		MU_MAX,
+		MU_MIN,
+		profileIntervalMu,
+		relLogLik,
+		relProfileMu,
+		waldIntervalMu
+	} from './model';
 	import type { LikelihoodState } from './likelihood.svelte';
 
 	interface Props {
@@ -28,13 +35,23 @@
 	const h = $derived(cw * ASPECT - margin.top - margin.bottom);
 
 	const x = $derived(scaleLinear([MU_MIN, MU_MAX], [0, w]));
-	// Frame from the reference curve only (old behavior), so changing n moves
-	// the curves inside a stable window.
+	// The null point on the profile: its drop is ½·LR, and its slope is the
+	// score at σ̂₀² (envelope theorem), so the tangent is the score test's.
+	const llNull = $derived(relProfileMu(model.p.n, model.muHat, model.p.muNull, model.sigma2Hat));
+	const llNullSlice = $derived(relLogLik(model.p.n, model.muHat, model.p.muNull, model.sigma2Hat));
+	const slope = $derived(model.scoreAtNull);
+
+	// Frame on the reference profile (with headroom), so changing n narrows
+	// the curves inside a stable window; it only deepens when the active
+	// test's null point would leave it. The slice may plunge out of frame —
+	// far from the peak the quadratic stops tracking the profile.
 	const yMin = $derived(
-		Math.min(
-			relLogLik(N_REF, model.muHat, MU_MIN, model.sigma2Hat),
-			relLogLik(N_REF, model.muHat, MU_MAX, model.sigma2Hat)
-		)
+		1.15 *
+			Math.min(
+				relProfileMu(N_REF, model.muHat, MU_MIN, model.sigma2Hat),
+				relProfileMu(N_REF, model.muHat, MU_MAX, model.sigma2Hat),
+				model.p.test === 'wald' ? llNullSlice : llNull
+			)
 	);
 	const y = $derived(scaleLinear([yMin, 0], [h, 0]));
 	const xTicks = $derived(x.ticks(8));
@@ -45,19 +62,22 @@
 			.x((d) => x(d[0]))
 			.y((d) => y(d[1]))
 	);
-	const curveOf = (n: number) => {
-		const step = (MU_MAX - MU_MIN) / 50;
+	const curveOf = (f: typeof relLogLik, n: number) => {
+		const step = (MU_MAX - MU_MIN) / 100;
 		const pts: [number, number][] = [];
 		for (let t = MU_MIN; t <= MU_MAX + 1e-9; t += step)
-			pts.push([t, relLogLik(n, model.muHat, t, model.sigma2Hat)]);
+			pts.push([t, f(n, model.muHat, t, model.sigma2Hat)]);
 		return pts;
 	};
-	const refCurve = $derived(curveOf(N_REF));
-	const nCurve = $derived(curveOf(model.p.n));
+	const refCurve = $derived(curveOf(relProfileMu, N_REF));
+	const nCurve = $derived(curveOf(relProfileMu, model.p.n));
+	const sliceCurve = $derived(curveOf(relLogLik, model.p.n));
 
-	// Test geometry on the slider-n curve (old estllThetaNull / derivMuN).
-	const llNull = $derived(relLogLik(model.p.n, model.muHat, model.p.muNull, model.sigma2Hat));
-	const slope = $derived(scoreMu(model.p.n, model.p.muNull, model.muHat, model.sigma2Hat));
+	// 95% intervals at the slider n: each curve's 1.92 drop. The profile's is
+	// the likelihood interval (the LR test inverted), the slice's the Wald CI.
+	const li = $derived(profileIntervalMu(model.muHat, model.sigma2Hat, model.p.n));
+	const wald = $derived(waldIntervalMu(model.muHat, model.sigma2Hat, model.p.n));
+	const f2 = format('.2f');
 
 	const test = $derived(model.p.test);
 	const fTick = format('~f');
@@ -74,6 +94,16 @@
 	});
 </script>
 
+<ul class="legend">
+	<li>
+		<span class="sw profile"></span>profile <Tex math={String.raw`\ell_p(\mu)`} />, n = {model.p.n}
+	</li>
+	<li>
+		<span class="sw slice"></span>slice <Tex math={String.raw`\ell(\mu, \hat\sigma^2)`} />: its
+		quadratic at the peak
+	</li>
+	{#if model.p.n !== N_REF}<li><span class="sw ref"></span>profile, n = 10</li>{/if}
+</ul>
 <div class="chart" bind:clientWidth={cw}>
 	{#if w > 0}
 		<svg
@@ -90,7 +120,25 @@
 			</defs>
 			<g transform="translate({margin.left}, {margin.top})">
 				<g clip-path="url(#curvature-clip)">
+					<g class="intervals">
+						<line class="cutoff" x1="0" x2={w} y1={y(-LL_DROP_95)} y2={y(-LL_DROP_95)} />
+						<line
+							class="li-bar"
+							x1={x(li[0])}
+							x2={x(li[1])}
+							y1={y(-LL_DROP_95)}
+							y2={y(-LL_DROP_95)}
+						/>
+						<line
+							class="wald-bar"
+							x1={x(wald[0])}
+							x2={x(wald[1])}
+							y1={y(-LL_DROP_95) + 7}
+							y2={y(-LL_DROP_95) + 7}
+						/>
+					</g>
 					<path class="ref-curve" d={toPath(refCurve)} />
+					<path class="slice-curve" d={toPath(sliceCurve)} />
 					<path class="n-curve" d={toPath(nCurve)} />
 
 					<!-- LRT: the vertical drop between ℓ(μ̂) and ℓ(μ₀). -->
@@ -124,6 +172,7 @@
 						>
 							μ̂ − μ₀, scaled by curvature I(μ̂)
 						</text>
+						<circle class="pt-wald" r="4" cx={x(model.p.muNull)} cy={y(llNullSlice)} />
 					</g>
 
 					<!-- Score: the slope of the tangent at the null. -->
@@ -131,8 +180,9 @@
 						<line class="tangent" x1={tangent.x1} x2={tangent.x2} y1={tangent.y1} y2={tangent.y2} />
 						<text
 							class="anno-label"
-							x={Math.min(tangent.x2 + 6, w - 4)}
-							y={tangent.y2}
+							x={Math.max(tangent.x1 - 6, 4)}
+							y={tangent.y1}
+							text-anchor="end"
 							dominant-baseline="central"
 						>
 							slope U(μ₀)
@@ -174,6 +224,11 @@
 		</svg>
 	{/if}
 </div>
+<p class="interval-readout" data-testid="intervals">
+	95% intervals at n = {model.p.n}: likelihood (profile) [{f2(li[0])}, {f2(li[1])}]; Wald [{f2(
+		wald[0]
+	)}, {f2(wald[1])}]. Each is where its curve drops 1.92 below the peak.
+</p>
 
 <style>
 	.chart {
@@ -192,8 +247,61 @@
 	}
 	.n-curve {
 		fill: none;
-		stroke: var(--viz-accent);
+		stroke: var(--marginal);
 		stroke-width: 2.5;
+	}
+	.slice-curve {
+		fill: none;
+		stroke: var(--viz-accent);
+		stroke-width: 1.5;
+	}
+	.cutoff {
+		stroke: var(--muted);
+		stroke-dasharray: 4 3;
+		opacity: 0.7;
+	}
+	.li-bar {
+		stroke: var(--marginal);
+		stroke-width: 6;
+		opacity: 0.6;
+	}
+	.wald-bar {
+		stroke: var(--viz-accent);
+		stroke-width: 3;
+		opacity: 0.6;
+	}
+	.interval-readout {
+		margin: 0.4rem 0 0;
+		font-size: 0.85rem;
+		color: var(--muted);
+	}
+	.legend {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem 1.25rem;
+		margin: 0 0 0.5rem;
+		padding: 0;
+		list-style: none;
+		font-size: 0.8rem;
+		color: var(--ink);
+	}
+	.sw {
+		display: inline-block;
+		width: 1.5rem;
+		margin-right: 0.4rem;
+		vertical-align: middle;
+		border-top: 2.5px solid var(--marginal);
+	}
+	.sw.slice {
+		border-top: 1.5px solid var(--viz-accent);
+	}
+	.sw.ref {
+		border-top: 1.5px dashed var(--muted);
+	}
+	.pt-wald {
+		fill: var(--bg);
+		stroke: var(--viz-accent);
+		stroke-width: 1.5;
 	}
 	.anno {
 		opacity: 0.35;
