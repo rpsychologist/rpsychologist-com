@@ -38,3 +38,7 @@ pnpm-debug.log*
 
 # Local development
 TODO.md
+
+# Likelihood lab: dev-only prototype of other likelihood surfaces (decided not to ship)
+/src/lib/viz/likelihood/lab/
+/src/routes/likelihood/lab/
