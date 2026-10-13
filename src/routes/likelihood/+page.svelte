@@ -34,7 +34,7 @@
 
 <Seo
 	title="Understanding Maximum Likelihood Estimation"
-	description="An interactive visualization of maximum likelihood estimation: follow gradient ascent or Newton-Raphson up the likelihood surface of a normal model, and see how the likelihood ratio, Wald, and score tests flow from the same curve."
+	description="An interactive visualization of maximum likelihood estimation: follow gradient ascent or Fisher scoring up the likelihood surface of a normal model, and see how the likelihood ratio, Wald, and score tests flow from the same curve."
 	path="/likelihood"
 />
 
@@ -82,24 +82,23 @@
 				</p>
 				<h3>Explore the log-likelihood</h3>
 				<p>
-					The two slices are live and read as a pair: drag the point on the ℓ(μ) or ℓ(σ²) curve to
-					vary one parameter while the other is held fixed. The tangent line shows the score — the
-					derivative of the log-likelihood — which is zero at the peak. The shaded band on the ℓ(μ)
-					slice is the 95% likelihood interval at the current σ²; its width is the estimate's
-					precision, reported beneath the slices. The joint view shows both parameters at once —
-					drag the 3D floor handle or the contour point to move them together.
+					The 3D surface is the log-likelihood over both parameters. Drag the ring on its floor to
+					move μ and σ² together, or use the sliders (or type a value) to move one at a time. The
+					teal curves are slices through the current point, each holding one parameter fixed; the
+					line beneath the view reads off ℓ and its two slopes, the scores, which are both zero at
+					the peak. Hover or tap a score to draw its slope on the surface.
 				</p>
 				<h3>Run an optimizer</h3>
 				<p>
-					Pick gradient ascent or Newton-Raphson and press play (or step with +1/−1). The climb is
-					drawn on the joint plot, which opens as a rotatable <strong>3D surface</strong> — drag to
-					rotate, grab the floor handle to move the point, or switch to <strong>Contour</strong> for
-					precise readouts. The viewpoint buttons in the surface's corner switch between the angled
+					Pick gradient ascent or Fisher scoring and press play (or step with +1/−1); for gradient
+					ascent, the step-size slider sets how far each step goes. The climb is drawn on the
+					surface: drag anywhere else on it to rotate. The View buttons switch between the angled
 					view and two side views: in the two side views you look edge-on along one axis, and the
 					surface's outline is exactly the profile likelihood on the wall. The full-view button at
 					the right of each figure's header expands it to fill the window; press it again or Esc to
-					return. The teal curves through the current point are the ℓ(μ) and ℓ(σ²) slices above,
-					drawn on the surface; the amber curves on the back walls are the <em>profile</em>
+					return. With an algorithm selected, a dashed arrow previews where its next step would
+					land; for Fisher scoring, dotted curves show the quadratic approximation it climbs. The
+					amber curves on the back walls are the <em>profile</em>
 					likelihoods — the ridge cast onto each axis, which the likelihood-ratio test and profile interval
 					are built on. Height is the relative likelihood <Tex
 						math={String.raw`(L/\hat L)^{1/50}`}
@@ -120,8 +119,9 @@
 					For the likelihood ratio, the bracket on the back wall, where the profile likelihood is drawn,
 					is ½·LR; for the score test, a slope triangle at the coral point shows the rise along μ, with
 					its value U (along σ² the slope there is zero); for the Wald test, the floor bracket is μ̂ −
-					μ₀ under the slice through the summit. The 2D figure holds the variance at σ̂² throughout, which
-					is why it is a simplification.
+					μ₀ under the slice through the summit. The 2D figure shows the same geometry flattened: the
+					amber curve is that profile and the teal curve its quadratic approximation at the peak, the
+					curve the Wald test reads.
 				</p>
 			</div>
 		</details>
@@ -161,20 +161,20 @@
 				</p>
 				<Tex display math={tex.li} />
 				<p>
-					The ℓ(μ) plot shades this region on the drawn slice, where the curve is exactly quadratic
-					in <Tex math={String.raw`\mu`} /> — so when σ² is at its MLE the likelihood interval and the
-					Wald interval coincide (since
-					<Tex math={String.raw`2 \times 1.92 = 1.96^2`} />). Profiling σ² out instead (the exact
-					LRT inversion) gives the slightly wider closed form
+					The inference figure marks it on the profile curve, next to the Wald interval on the slice
+					at σ̂², which the 1.92 drop reproduces exactly (since
+					<Tex math={String.raw`2 \times 1.92 = 1.96^2`} />). Profiling σ² out gives the closed form
 				</p>
 				<Tex display math={tex.profile} />
 				<h3>The optimizers</h3>
 				<p>Gradient ascent updates each parameter proportionally to its score,</p>
 				<Tex display math={tex.ga} />
 				<p>
-					with <Tex math={String.raw`\gamma = 0.05`} /> on internally standardized data (values are back-transformed
-					before plotting). Newton-Raphson (here equal to Fisher scoring) weights the step by the inverse
-					information,
+					with step size <Tex math={String.raw`\gamma`} /> (0.05 by default) on internally standardized
+					data (values are back-transformed before plotting). Too small a step crawls; too large a step
+					overshoots the peak and bounces across it or leaves the frame. Fisher scoring, a version of
+					Newton-Raphson that uses the expected information instead of the observed Hessian, weights the
+					step by the inverse information,
 				</p>
 				<Tex display math={tex.nr} />
 				<p>
