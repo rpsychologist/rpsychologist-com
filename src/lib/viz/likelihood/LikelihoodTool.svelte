@@ -175,12 +175,12 @@
 			<h2>Finding the Maximum Likelihood Estimates</h2>
 			<p class="section-intro">
 				Repeat the calculation above for every combination of <Tex math={String.raw`\mu`} /> and
-				<Tex math={String.raw`\sigma^2`} /> and you get the surface below: its height is the log-likelihood,
-				and its peak is the pair of MLEs. The teal curves are slices through the current point, each holding
-				one parameter fixed; the side views look straight along an axis. At the peak the surface is level,
-				so both slopes, the <em>scores</em> shown beneath it, are zero. For this model calculus
-				finds that point directly (set both scores to zero and solve); for more challenging models
-				there is no closed form, so we let an
+				<Tex math={String.raw`\sigma^2`} /> and you get the surface below: its height is the log-likelihood
+				(drawn down to 50 below the peak), and its peak is the pair of MLEs. The teal curves are slices
+				through the current point, each holding one parameter fixed; the side views look straight along
+				an axis. At the peak the surface is level, so both slopes, the <em>scores</em> shown beneath
+				it, are zero. For this model calculus finds that point directly (set both scores to zero and
+				solve); for more challenging models there is no closed form, so we let an
 				<strong>optimization algorithm</strong> climb the hill instead. The dashed arrow shows where its
 				next step would land.
 			</p>

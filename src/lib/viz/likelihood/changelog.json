@@ -5,7 +5,7 @@
 			"version": "1.0.0",
 			"date": "2026-07-08",
 			"added": [
-				"3D view of the joint likelihood: a rotatable surface (heights show the tempered relative likelihood, a monotone transform of ℓ) with the optimizer path and the ℓ(μ)/ℓ(σ²) slices drawn on it. It replaces the contour plot as the joint view; the contour remains only as the fallback where WebGL is unavailable.",
+				"3D view of the joint likelihood: a rotatable surface (height is the log-likelihood, drawn down to a floor 50 below the peak, marked where the hill meets it, with the surface fading out as it keeps falling below) with the optimizer path and the ℓ(μ)/ℓ(σ²) slices drawn on it. It replaces the contour plot as the joint view; the contour remains only as the fallback where WebGL is unavailable.",
 				"The inference figure marks the 95% intervals at the hypothetical n: the likelihood interval where the profile drops 1.92 below its peak, and the Wald interval where the slice at σ̂² does, with both reported beneath.",
 				"The inference plot annotates the geometry of the three tests (after Buse, 1982); the element for the selected test is highlighted.",
 				"Persistent readout of the estimates: μ̂, σ̂², and the log-likelihood at the maximum and at the current point (the iteration count and convergence sit with the optimizer controls).",

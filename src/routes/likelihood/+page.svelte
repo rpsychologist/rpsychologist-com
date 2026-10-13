@@ -100,12 +100,14 @@
 					land; for Fisher scoring, dotted curves show the quadratic approximation it climbs. The
 					amber curves on the back walls are the <em>profile</em>
 					likelihoods — the ridge cast onto each axis, which the likelihood-ratio test and profile interval
-					are built on. Height is the relative likelihood <Tex
-						math={String.raw`(L/\hat L)^{1/50}`}
-					/> rather than ℓ itself — a monotone transform, so the peak and every climb are unchanged (the
-					same reason maximizing the log-likelihood is legitimate), but the summit is visible: raw ℓ renders
-					as a plateau with one cliff, and raw
-					<Tex math="L" /> as a needle.
+					are built on. Height is the log-likelihood itself, measured down from the peak and drawn to
+					a floor 50 below it: the dashed line marks where the hill meets the floor, and below it the
+					surface fades out as it keeps falling (a point dragged further out shows only its floor ring).
+					Uncut, ℓ over this frame would drop hundreds of units into the corner where σ² → 0 and flatten
+					everything else, while the likelihood
+					<Tex math="L" /> itself is a narrow spike. Because the height is ℓ, rise over run on the surface
+					is the score, the dotted Fisher curve is a true parabola, and the ½·LR bracket in the inference
+					view is drawn to scale.
 				</p>
 				<h3>Inference</h3>
 				<p>

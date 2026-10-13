@@ -16,15 +16,17 @@
 	   the state (wireframe walks every 4th grid line, so the drawn curves stay
 	   smooth).
 
-	   Height is the TEMPERED relative likelihood (L/L̂)^(1/K) = exp((ℓ−ℓ̂)/K),
-	   not raw ℓ: a monotone transform, so the summit and every climb are
-	   unchanged, but the hill becomes readable. Raw ℓ renders as a plateau
-	   with one cliff (the σ² ridge drops only ~7 log-units across the whole
-	   frame while the σ²→0 trench drops hundreds), and raw L is a needle
-	   (down to ~0.001 of peak within a few log-units). At K = 50 the μ
-	   parabola, the gentle σ² ridge, and the likelihood's skew in σ² (steep
-	   toward 0, shallow toward large values) are all visible, and z → 0
-	   smoothly in the trench with no clamp kink.
+	   Height is ℓ itself, relative to the peak: z ∝ ℓ − ℓ̂, from the summit
+	   down to a floor FLOOR_D log-units below it. There the mesh and the teal
+	   slices keep descending a short way below the floor plane, fading out (the
+	   hill goes on down, endlessly into the σ²→0 trench), a dashed waterline
+	   marks where the hill meets the floor, and the walls stop. Uncut, ℓ renders as a plateau with one cliff (over this
+	   frame it falls hundreds of log-units into the σ²→0 trench while the σ²
+	   ridge drops only ~7), and the likelihood L is a needle; with the floor
+	   the μ parabola, the σ² ridge, and its skew are all visible, and every
+	   annotation reads literally (slopes are scores, the Fisher curve is a
+	   parabola, the ½·LR bracket is to scale). At 50 the default start
+	   (30 below the peak) sits mid-hill and ~85% of the frame is drawn.
 
 	   Two faint profile-likelihood silhouettes ride the rearmost walls: ℓₚ(μ) =
 	   maxₛ₂ ℓ along the μ-axis (on the far σ² wall) and ℓ(μ̂, σ²) along the
@@ -41,6 +43,7 @@
 	   (μ₀, σ̂₀²), and on the μ-profile wall — where ℓₚ(μ₀) = ℓ(μ₀, σ̂₀²) — the
 	   drop from the summit level that is ½·LR. */
 	import { untrack } from 'svelte';
+	import { contours } from 'd3-contour';
 	import { prefersReducedMotion } from 'svelte/motion';
 	import type { LikelihoodState } from './likelihood.svelte';
 	import type { ViewpointId } from './ViewpointDock.svelte';
@@ -92,7 +95,11 @@
 	// Tilt: 0 = straight down, π/2 = edge-on (the eye level with the floor).
 	const TILT_DEFAULT = 1.06;
 	const TILT_MAX = Math.PI / 2;
-	const TEMPER_K = 50; // z = exp((ℓ−ℓ̂)/K); see header comment
+	const FLOOR_D = 50; // log-units from the peak down to the drawn floor; see header
+	// Below the floor the mesh (and the teal slices) keep descending for SINK
+	// world units, fading out, so the hill reads as continuing down rather
+	// than cut off. Overlays stay on the floor plane.
+	const SINK = 0.9;
 	const LINE_EVERY = 4; // wireframe walks every 4th grid line
 	const SLICE_N = 100; // vertices per highlighted slice / wall curve
 	const WALL_ALPHA = 0.85; // wall silhouettes read as real curves, a touch under the slices
@@ -168,8 +175,7 @@
 
 	// Named viewpoints. Edge-on looking along σ² (μ across the screen), the
 	// surface's outline above each μ is its maximum over σ², i.e. the profile
-	// ℓₚ(μ) — it lands exactly on the amber wall curve (the height transform is
-	// monotone). Looking along μ, the outline is ℓ(μ̂, σ²), the other wall.
+	// ℓₚ(μ) — it lands exactly on the amber wall curve. Looking along μ, the outline is ℓ(μ̂, σ²), the other wall.
 	// Labels and the buttons are in ViewpointDock.
 	const VIEWS: Record<ViewpointId, { angle: number; tilt: number }> = {
 		angled: { angle: 0.7, tilt: TILT_DEFAULT },
@@ -236,12 +242,26 @@
 	// Screen position of the current-(μ,σ²) dot on the surface — an SVG overlay
 	// styled like the 2D contour's dot, so the two joint views match.
 	let headPos = $state<{ x: number; y: number } | null>(null);
+	// The point is below the drawn floor (ℓ < ℓ̂ − FLOOR_D): only its floor
+	// ring shows, labeled.
+	let headBelow = $state(false);
 	let pinPos = $state<{ x: number; y: number } | null>(null);
 	// Ghost of the next iteration: its route along the surface (with a
 	// screen-space arrowhead) and its landing dot; plus, for Fisher scoring,
 	// the quadratic approximation it climbs instead of the hill.
-	let ghost = $state<{ route: string; head: string; dot: Pt | null } | null>(null);
+	let ghost = $state<{
+		route: string;
+		sunk: string;
+		head: string;
+		dot: Pt | null;
+		endBelow: boolean;
+	} | null>(null);
 	let capPaths = $state<string[]>([]);
+	// Where the hill meets the floor (the ℓ̂ − FLOOR_D contour), as world
+	// rings cached per grid and threshold; projected to an SVG path per frame.
+	let waterline = $state('');
+	let waterRings: [number, number][][] = [];
+	let waterKey = '';
 	// The selected score's slope triangle on its slice (explore mode).
 	let slopeGeo = $state<{
 		tri: string;
@@ -251,7 +271,51 @@
 	} | null>(null);
 	// Dashed MLE-summit → wall-peak guides and the two wall-peak dots (SVG
 	// overlay like the gnomon), recomputed each frame in positionLabels.
-	let guidePaths = $state<string[]>([]);
+	let guidePaths = $state<{ d: string; len: number }[]>([]);
+	// Dashed overlays: pathLength = world length × px per world unit, so a
+	// dash pattern is laid along the geometry rather than along the screen
+	// path. Without it the dashes slide as rotation stretches the projection.
+	let dashUnit = $state(64);
+	const wlen = (a: readonly number[], b: readonly number[]) =>
+		Math.hypot(a[0] - b[0], a[1] - b[1], (a[2] ?? 0) - (b[2] ?? 0));
+	type W = [number, number, number];
+	// Dashes cut in world space along a 3D polyline and projected piece by
+	// piece, so on a curve each dash stays on the same bit of geometry while
+	// the view rotates (a uniform pathLength only fixes straight lines). `on`
+	// and `off` are in px at the unforeshortened scale; the stroke is solid.
+	function dashPath(lines: W[][], on: number, off: number): string {
+		const dOn = on / dashUnit;
+		const period = (on + off) / dashUnit;
+		let d = '';
+		const at = (a: W, b: W, f: number) =>
+			project(a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, a[2] + (b[2] - a[2]) * f);
+		for (const pts of lines) {
+			let phase = 0;
+			let drawing = false;
+			for (let i = 1; i < pts.length; i++) {
+				const a = pts[i - 1];
+				const b = pts[i];
+				const L = wlen(a, b);
+				if (L === 0) continue;
+				let t = 0;
+				while (t < L - 1e-9) {
+					const inOn = phase < dOn;
+					const step = Math.min(inOn ? dOn - phase : period - phase, L - t);
+					if (inOn) {
+						const q0 = at(a, b, t / L);
+						const q1 = at(a, b, (t + step) / L);
+						if (!drawing) d += `M${fx(q0.x)},${fx(q0.y)}`;
+						d += `L${fx(q1.x)},${fx(q1.y)}`;
+						drawing = true;
+					} else drawing = false;
+					t += step;
+					phase = (phase + step) % period;
+					if (phase >= dOn) drawing = false;
+				}
+			}
+		}
+		return d;
+	}
 	let peakDots = $state<{ x: number; y: number }[]>([]);
 	// The current point's foot on the z = 0 floor: the grab handle for moving
 	// (μ, σ²), and the visible base of the drop line.
@@ -265,6 +329,7 @@
 	let lrGeo = $state<{
 		nullFloor: string;
 		ridge: string; // track of (μ₀, σ̂₀²) as μ₀ varies
+		guideLens: number[]; // world lengths, for world-anchored dashes
 		summit: Pt;
 		nullPt: Pt | null; // null when σ̂₀² is past the plotted σ² range
 		wallNull: Pt;
@@ -339,6 +404,7 @@
 	uniform vec2 uNudge;    // CSS-px offset, for faking >1px line width in passes
 	uniform int uMode;      // 0 mesh (depth fade), 1 line (attr alpha), 2 head point
 	uniform float uPoint;
+	uniform float uClip;    // mesh: fade below the floor plane over SINK (see zSink)
 	out float vAlpha;
 	const float CX = ${glf(CX)};
 	uniform float uCY;
@@ -352,7 +418,8 @@
 		vec2 uv = vec2((uOff.x + sx * uFit + uNudge.x) / uCanvas.x, (uOff.y + sy * uFit + uNudge.y) / uCanvas.y);
 		gl_Position = vec4(uv.x * 2.0 - 1.0, 1.0 - uv.y * 2.0, 0.0, 1.0);
 		float depthA = 0.9 - 0.72 * ((y1 + EXT) / (2.0 * EXT));
-		vAlpha = uMode == 0 ? depthA : aAlpha;
+		float sink = uClip > 0.5 ? clamp(1.0 + min(aPos.z, 0.0) / ${glf(SINK)}, 0.0, 1.0) : 1.0;
+		vAlpha = uMode == 0 ? depthA * sink : aAlpha;
 		gl_PointSize = uMode == 2 ? uPoint : 1.0;
 	}`;
 
@@ -386,11 +453,19 @@
 		return sh;
 	}
 
-	// z from ℓ: tempered relative likelihood (see header). Peak at Z_HEIGHT,
-	// smooth decay to 0 in the σ²→0 trench.
+	// z from ℓ (see header): linear in ℓ − ℓ̂, Z_HEIGHT at the peak, 0 at the
+	// floor FLOOR_D below it (scaled by n in inference mode), clamped there.
 	function zOf(v: number, top: number): number {
-		return Math.exp((zScale * (v - top)) / TEMPER_K) * Z_HEIGHT;
+		return Math.max(0, 1 + (zScale * (v - top)) / FLOOR_D) * Z_HEIGHT;
 	}
+	// Under the floor: overlays sit on it; walls and the Fisher curves stop.
+	const onFloor = (z: number) => z <= 1e-4;
+	// The sinking version of zOf for the mesh and slices: continues linearly
+	// below the floor, bottoming out (fully faded) at −SINK.
+	function zSink(v: number, top: number): number {
+		return Math.max(-SINK, (1 + (zScale * (v - top)) / FLOOR_D) * Z_HEIGHT);
+	}
+	const sinkAlpha = (z: number, a: number) => (z >= 0 ? a : a * Math.max(0, 1 + z / SINK));
 
 	// A wall seen edge-on collapses to a vertical line at the frame's side, so
 	// it is hidden then (the μ-wall's plane is edge-on when cos(angle) → 0, the
@@ -424,8 +499,9 @@
 			const mu = MU_MIN + ((MU_MAX - MU_MIN) * i) / (SLICE_N - 1);
 			sliceData[o++] = wx(mu);
 			sliceData[o++] = wallY;
-			sliceData[o++] = zOf(profileMu(sample, mu), g.max);
-			sliceData[o++] = WALL_ALPHA;
+			const z = zOf(profileMu(sample, mu), g.max);
+			sliceData[o++] = z;
+			sliceData[o++] = onFloor(z) ? 0 : WALL_ALPHA;
 		}
 		const sqrtMax = Math.sqrt(SIGMA2_MAX);
 		for (let i = 0; i < SLICE_N; i++) {
@@ -433,8 +509,9 @@
 			const s2 = t * t;
 			sliceData[o++] = wallX;
 			sliceData[o++] = wy(s2);
-			sliceData[o++] = zOf(logLikSum(sample, muHat, s2), g.max);
-			sliceData[o++] = WALL_ALPHA;
+			const z = zOf(logLikSum(sample, muHat, s2), g.max);
+			sliceData[o++] = z;
+			sliceData[o++] = onFloor(z) ? 0 : WALL_ALPHA;
 		}
 	}
 
@@ -447,7 +524,7 @@
 			for (let i = 0; i < g.cols; i++) {
 				pos[o++] = -RANGE + (2 * RANGE * i) / (g.cols - 1);
 				pos[o++] = y;
-				pos[o++] = zOf(g.values[j * g.cols + i], g.max);
+				pos[o++] = zSink(g.values[j * g.cols + i], g.max);
 			}
 		}
 		return pos;
@@ -481,7 +558,8 @@
 			'uMode',
 			'uPoint',
 			'uColor',
-			'uFade'
+			'uFade',
+			'uClip'
 		]) {
 			u[name] = g.getUniformLocation(prog, name);
 		}
@@ -674,7 +752,11 @@
 		const p = model.p;
 		const top = model.grid.max;
 		const N = 40;
-		const pts: Pt[] = [];
+		// Follows the surface as drawn, including where it sinks below the floor
+		// (that stretch goes on a faint path) and vanishing where the sinking
+		// mesh has faded out.
+		type Q = Pt & { below: boolean; gone: boolean; w: [number, number, number] };
+		const pts: Q[] = [];
 		let left = false;
 		for (let i = 0; i <= N; i++) {
 			const t = i / N;
@@ -684,12 +766,43 @@
 				left = true;
 				break;
 			}
-			pts.push(project(wx(mu), wy(s2), zOf(logLikSum(p.sample, mu, s2), top)));
+			const z = zSink(logLikSum(p.sample, mu, s2), top);
+			const w: [number, number, number] = [wx(mu), wy(s2), z];
+			pts.push({ ...project(w[0], w[1], w[2]), w, below: z < 0, gone: z <= -SINK + 1e-6 });
 		}
 		if (pts.length < 2) return null;
-		const route = 'M' + pts.map((q) => `${fx(q.x)},${fx(q.y)}`).join('L');
-		const head = chevron(pts[pts.length - 2], pts[pts.length - 1]);
-		return { route, head, dot: left ? null : pts[pts.length - 1] };
+		// Split into stretches on the hill and sunk below the floor, each dashed
+		// in world space.
+		const up: W[][] = [];
+		const down: W[][] = [];
+		let cur: W[] | null = null;
+		let curDown = false;
+		for (let i = 1; i < pts.length; i++) {
+			const a = pts[i - 1];
+			const b = pts[i];
+			if (a.gone || b.gone) {
+				cur = null;
+				continue;
+			}
+			const isDown = a.below || b.below;
+			if (!cur || isDown !== curDown) {
+				cur = [a.w];
+				(isDown ? down : up).push(cur);
+				curDown = isDown;
+			}
+			cur.push(b.w);
+		}
+		const route = dashPath(up, 5, 4);
+		const sunk = dashPath(down, 5, 4);
+		const end = pts[pts.length - 1];
+		const visible = !end.gone;
+		return {
+			route,
+			sunk,
+			head: visible ? chevron(pts[pts.length - 2], end) : '',
+			dot: left || !visible ? null : end,
+			endBelow: end.below
+		};
 	}
 
 	// Fisher scoring's quadratic model of ℓ around the point (expected
@@ -712,23 +825,22 @@
 		// Keep only the stretch through the point: past the ceiling the curve
 		// may re-enter the frame far away, which reads as a stray mark.
 		const curve = (at: (t: number) => [number, number, number], t0: number) => {
-			const runs: { pts: Pt[]; lo: number; hi: number }[] = [];
-			let cur: { pts: Pt[]; lo: number; hi: number } | null = null;
+			const runs: { pts: W[]; lo: number; hi: number }[] = [];
+			let cur: { pts: W[]; lo: number; hi: number } | null = null;
 			for (let i = 0; i <= N; i++) {
 				const [mu, s2, ll] = at(i / N);
 				const z = zOf(ll, top);
-				if (z > ceil) {
+				if (z > ceil || onFloor(z)) {
 					cur = null;
 					continue;
 				}
 				if (!cur) runs.push((cur = { pts: [], lo: i / N, hi: i / N }));
-				cur.pts.push(project(wx(mu), wy(s2), z));
+				cur.pts.push([wx(mu), wy(s2), z]);
 				cur.hi = i / N;
 			}
 			const run = runs.find((r) => t0 >= r.lo - 1 / N && t0 <= r.hi + 1 / N);
-			return run && run.pts.length > 1
-				? 'M' + run.pts.map((q) => `${fx(q.x)},${fx(q.y)}`).join('L')
-				: '';
+			// Dotted: near-zero dashes with round caps.
+			return run && run.pts.length > 1 ? dashPath([run.pts], 0.01, 4) : '';
 		};
 		const alongMu = curve(
 			(t) => {
@@ -749,11 +861,46 @@
 		return [alongMu, alongS2].filter(Boolean);
 	}
 
+	function waterlineRings(): [number, number][][] {
+		const g = model.grid;
+		const thr = g.max - FLOOR_D / zScale;
+		const key = `${g.max}|${thr}|${g.cols}`;
+		if (key === waterKey) return waterRings;
+		const [c] = contours().size([g.cols, g.rows]).thresholds([thr])(Array.from(g.values));
+		const toWorld = (gx: number, gy: number): [number, number] => [
+			wx(g.muMin + gx * g.muStep),
+			wy(g.sigma2Min + gy * g.sigma2Step)
+		];
+		// Only the rings' outer boundaries; the grid edge is not part of the
+		// waterline, so points on the frame boundary break the line.
+		waterRings = (c.coordinates as number[][][][]).flatMap((poly) =>
+			poly.map((ring) => ring.map(([gx, gy]) => toWorld(gx, gy)))
+		);
+		waterKey = key;
+		return waterRings;
+	}
+
+	function waterlinePath(): string {
+		const edge = RANGE - 1e-3;
+		const lines: W[][] = [];
+		for (const ring of waterlineRings()) {
+			let cur: W[] | null = null;
+			for (const [x, y] of ring) {
+				if (Math.abs(x) >= edge || Math.abs(y) >= edge) {
+					cur = null;
+					continue;
+				}
+				if (!cur) lines.push((cur = []));
+				cur.push([x, y, 0]);
+			}
+		}
+		return dashPath(lines, 4, 3);
+	}
+
 	// Slope triangle along one slice at the point, like the score test's: run
-	// uphill along the axis, rise from the drawn surface's tangent. The height
-	// is a tempered transform of ℓ, so the triangle shows direction and the
-	// drawn steepness (flatter low on the hill than the score is); the label
-	// carries the exact score.
+	// uphill along the axis, rise from the surface's tangent. Height is ℓ, so
+	// rise over run is the score (in each axis's own units); the label gives
+	// its value. Below the floor the drawn slope is 0, but the label holds.
 	function slopeGeometry(axis: 'mu' | 's2') {
 		const p = model.p;
 		const top = model.grid.max;
@@ -773,7 +920,13 @@
 		const lo = isMu ? MU_MIN : SIGMA2_MIN;
 		const hi = isMu ? MU_MAX : SIGMA2_MAX;
 		const at = isMu ? p.mu : p.sigma2;
-		const run = Math.min((hi - lo) / 8, dir > 0 ? hi - at : at - lo);
+		// Rise is capped at a third of the hill's height (a steep score far
+		// down the hill would otherwise spear far above the summit).
+		const run = Math.min(
+			(hi - lo) / 8,
+			dir > 0 ? hi - at : at - lo,
+			Math.abs(dz) > 0 ? Z_HEIGHT / 3 / Math.abs(dz) : Infinity
+		);
 		const end = at + dir * run;
 		const pt = (v: number, z: number) =>
 			isMu ? project(wx(v), wy(p.sigma2), z) : project(wx(p.mu), wy(v), z);
@@ -797,6 +950,7 @@
 	// Position the HTML axis labels at their world anchors and rebuild the SVG
 	// gnomon (both can't be GL, so they overlay the canvas in CSS px each frame).
 	function positionLabels() {
+		dashUnit = scl * view.scale;
 		const place = (el: HTMLElement | undefined, a: readonly [number, number, number]) => {
 			if (!el) return;
 			const p = project(a[0], a[1], a[2]);
@@ -812,6 +966,7 @@
 		axisPaths = [axisPath(MU_TIP), axisPath(S2_TIP), axisPath(LL_TIP)];
 
 		const p = model.p;
+		waterline = waterlinePath();
 		slopeGeo = !inference && slope ? slopeGeometry(slope) : null;
 		const next = !inference && !model.running ? model.nextStep : null;
 		ghost = next ? ghostGeometry(next) : null;
@@ -827,6 +982,7 @@
 				: null;
 			const hz = zOf(logLikSum(p.sample, p.mu, p.sigma2), model.grid.max);
 			headPos = project(wx(p.mu), wy(p.sigma2), hz);
+			headBelow = onFloor(hz);
 			// Near edge-on the floor projects to a line and can't be inverted, so
 			// the handle (and floor dragging) switches off.
 			floorPos = cb > 0.25 ? project(wx(p.mu), wy(p.sigma2), 0) : null;
@@ -838,12 +994,21 @@
 		const summit = project(wx(model.muHat), wy(model.sigma2Hat), zPk);
 		const muPk = project(wx(model.muHat), wallMuSign * RANGE, zPk);
 		const s2Pk = project(wallS2Sign * RANGE, wy(model.sigma2Hat), zPk);
+		// World lengths of the two guides (summit to each wall peak, level).
+		const muGuideLen = Math.abs(wy(model.sigma2Hat) - wallMuSign * RANGE);
+		const s2GuideLen = Math.abs(wx(model.muHat) - wallS2Sign * RANGE);
 		const f = (n: number) => n.toFixed(1);
 		// Only walls that aren't edge-on get their guide and peak dot.
 		const wv = wallsVisible();
-		const pks = [...(wv.mu ? [muPk] : []), ...(wv.s2 ? [s2Pk] : [])];
-		guidePaths = pks.map((q) => `M${f(summit.x)},${f(summit.y)}L${f(q.x)},${f(q.y)}`);
-		peakDots = pks;
+		const pks = [
+			...(wv.mu ? [{ q: muPk, len: muGuideLen }] : []),
+			...(wv.s2 ? [{ q: s2Pk, len: s2GuideLen }] : [])
+		];
+		guidePaths = pks.map(({ q, len }) => ({
+			d: `M${f(summit.x)},${f(summit.y)}L${f(q.x)},${f(q.y)}`,
+			len
+		}));
+		peakDots = pks.map(({ q }) => q);
 		lrGeo = inference ? lrGeometry(zPk, summit) : null;
 	}
 
@@ -864,6 +1029,7 @@
 		const nullPt = s0 <= SIGMA2_MAX ? project(mx, wy(s0), z0) : null;
 		const lines: string[] = [];
 		const guides: string[] = [];
+		const guideLens: number[] = [];
 		const labels: Label[] = [];
 		let slopeTri = '';
 		let slopeHyp = '';
@@ -872,15 +1038,23 @@
 		if (p.test === 'LRT') {
 			const wallTop = project(mx, wallY, zPk);
 			guides.push(seg(project(wx(model.muHat), wallY, zPk), wallTop));
-			if (nullPt) guides.push(seg(nullPt, wallNull));
+			guideLens.push(Math.abs(wx(model.muHat) - mx));
+			if (nullPt) {
+				guides.push(seg(nullPt, wallNull));
+				guideLens.push(Math.abs(wy(s0) - wallY));
+			}
 			lines.push(seg(wallTop, wallNull) + capH(wallTop) + capH(wallNull));
 			const m = mid(wallTop, wallNull);
-			labels.push({ at: { x: m.x + 8, y: m.y }, text: '½·LR', anchor: 'start' });
+			// Past the floor the bracket is cut short; say so rather than understate LR.
+			labels.push({
+				at: { x: m.x + 8, y: m.y },
+				text: onFloor(z0) ? '½·LR (continues below the floor)' : '½·LR',
+				anchor: 'start'
+			});
 		} else if (p.test === 'score' && nullPt) {
 			// Slope triangle on the μ-slice at (μ₀, σ̂₀²): run Δμ uphill, rise from
-			// the drawn surface's tangent. Height is a tempered transform of ℓ, so
-			// the triangle shows direction and relative steepness; the exact
-			// magnitude is the U label. No σ² leg: σ̂₀² maximizes ℓ in σ² under the
+			// the surface's tangent, so rise over run is U (at the n-scaled height);
+			// the label gives its value. No σ² leg: σ̂₀² maximizes ℓ in σ² under the
 			// null, so the slope there is zero and only U(μ) is tested.
 			const zAt = (mu: number, s2: number) => zOf(logLikSum(p.sample, mu, s2), top);
 			const eps = 0.01;
@@ -908,23 +1082,25 @@
 			const b = project(wx(model.muHat), y, 0);
 			lines.push(seg(a, b) + capV(a) + capV(b));
 			guides.push(seg(summit, b));
+			guideLens.push(zPk);
 			const m = mid(a, b);
 			labels.push({ at: { x: m.x, y: m.y - 12 }, text: 'μ̂ − μ₀', anchor: 'middle' });
 		}
 		// The ridge: for each μ the best σ² is σ̂² + (μ̂ − μ)², at height ℓₚ(μ).
 		// The constrained maximum slides along it as μ₀ moves; the amber μ-profile
 		// on the wall is its shadow. Stops where σ² leaves the plotted range.
-		let ridge = '';
+		const ridgeLine: W[] = [];
 		for (let i = 0; i < SLICE_N; i++) {
 			const mu = MU_MIN + ((MU_MAX - MU_MIN) * i) / (SLICE_N - 1);
 			const s2 = model.sigma2Hat + (model.muHat - mu) ** 2;
 			if (s2 > SIGMA2_MAX) continue;
-			const q = project(wx(mu), wy(s2), zOf(profileMu(p.sample, mu), top));
-			ridge += `${ridge ? 'L' : 'M'}${f(q.x)},${f(q.y)}`;
+			ridgeLine.push([wx(mu), wy(s2), zOf(profileMu(p.sample, mu), top)]);
 		}
+		const ridge = dashPath([ridgeLine], 0.01, 5);
 		return {
 			nullFloor: seg(project(mx, -RANGE, 0), project(mx, RANGE, 0)),
 			ridge,
+			guideLens,
 			summit,
 			nullPt,
 			wallNull,
@@ -958,8 +1134,10 @@
 		// The surface itself never dims under key emphasis: it is the subject,
 		// not one of the overlays the key picks between.
 		g.uniform1f(u.uFade, 1);
+		g.uniform1f(u.uClip, 1);
 		g.uniform3f(u.uColor, mesh[0], mesh[1], mesh[2]);
 		g.drawElements(g.LINE_STRIP, meshIdxCount, g.UNSIGNED_INT, 0);
+		g.uniform1f(u.uClip, 0);
 
 		g.bindVertexArray(vaoLines);
 		g.bindBuffer(g.ARRAY_BUFFER, lineBuf);
@@ -1196,8 +1374,10 @@
 		for (const p of pts) {
 			lineData[o++] = wx(p.mu);
 			lineData[o++] = wy(p.sigma2);
-			lineData[o++] = zAt(p.mu, p.sigma2) + 0.015; // float above the wires
-			lineData[o++] = 1;
+			// Sinks and fades below the floor with the mesh; floats above the wires.
+			const z = zSink(logLikSum(sample, p.mu, p.sigma2), g.max);
+			lineData[o++] = z + 0.015;
+			lineData[o++] = sinkAlpha(z, 1);
 		}
 		pathVerts = pts.length;
 
@@ -1209,8 +1389,9 @@
 			const mu = MU_MIN + ((MU_MAX - MU_MIN) * i) / (SLICE_N - 1);
 			sliceData[o++] = wx(mu);
 			sliceData[o++] = wy(muSliceS2);
-			sliceData[o++] = zAt(mu, muSliceS2) + 0.012;
-			sliceData[o++] = 0.9;
+			const z = zSink(logLikSum(sample, mu, muSliceS2), g.max);
+			sliceData[o++] = z + 0.012;
+			sliceData[o++] = sinkAlpha(z, 0.9);
 		}
 		const sqrtMax = Math.sqrt(SIGMA2_MAX);
 		for (let i = 0; i < SLICE_N; i++) {
@@ -1218,8 +1399,9 @@
 			const s2 = t * t;
 			sliceData[o++] = wx(cur.mu);
 			sliceData[o++] = wy(s2);
-			sliceData[o++] = zAt(cur.mu, s2) + 0.012;
-			sliceData[o++] = 0.9;
+			const z = zSink(logLikSum(sample, cur.mu, s2), g.max);
+			sliceData[o++] = z + 0.012;
+			sliceData[o++] = sinkAlpha(z, 0.9);
 		}
 		// Drop line: current point → floor, for depth reading.
 		const hz = zAt(cur.mu, cur.sigma2);
@@ -1352,18 +1534,30 @@
 		<!-- Summit → wall-peak guides: explore only (in inference they compete
 		     with the ½·LR level guide). -->
 		{#if !inference}
-			{#each guidePaths as d, i (i)}
-				<path class="guide" class:faded={fadeOf('profile') < 1} {d} />
+			{#each guidePaths as g, i (i)}
+				<path
+					class="guide"
+					class:faded={fadeOf('profile') < 1}
+					d={g.d}
+					pathLength={g.len * dashUnit || undefined}
+				/>
 			{/each}
 		{/if}
+		{#if waterline}<path class="waterline" d={waterline} />{/if}
 		{#each capPaths as d, i (i)}
 			<path class="cap" class:faded={fadeOf('next') < 1} {d} />
 		{/each}
 		{#if ghost}
 			<g class="ghost" class:faded={fadeOf('next') < 1}>
-				<path d={ghost.route} />
-				<path d={ghost.head} />
-				{#if ghost.dot}<circle cx={ghost.dot.x} cy={ghost.dot.y} r="5" />{/if}
+				<path class="dashes" d={ghost.route} />
+				{#if ghost.sunk}<path class="dashes sunk" d={ghost.sunk} />{/if}
+				{#if ghost.head}<path class:sunk={ghost.endBelow} d={ghost.head} />{/if}
+				{#if ghost.dot}<circle
+						class:sunk={ghost.endBelow}
+						cx={ghost.dot.x}
+						cy={ghost.dot.y}
+						r="5"
+					/>{/if}
 			</g>
 		{/if}
 		{#if slopeGeo}
@@ -1384,7 +1578,7 @@
 			<circle class="pinned-pt" cx={pinPos.x} cy={pinPos.y} r="5" />
 			<text class="pinned-label" x={pinPos.x + 8} y={pinPos.y - 6}>A</text>
 		{/if}
-		{#if headPos}
+		{#if headPos && !headBelow}
 			<circle class="param-point" cx={headPos.x} cy={headPos.y} r="6" />
 		{/if}
 		{#each peakDots as pt, i (i)}
@@ -1392,15 +1586,30 @@
 		{/each}
 		{#if floorPos}
 			<circle class="floor-handle" cx={floorPos.x} cy={floorPos.y} r="7" />
+			<!-- Off the drawn hill: the floor ring alone marks the point. -->
+			{#if headBelow}
+				<text class="below-label" x={floorPos.x + 11} y={floorPos.y} dominant-baseline="central"
+					>below the floor</text
+				>
+			{/if}
 		{/if}
 		{#if lrGeo}
 			<!-- Each point's label sits on the side facing away from the other
 			     point, so they never collide as the view rotates. -->
 			{@const mleRight = !lrGeo.nullPt || lrGeo.summit.x >= lrGeo.nullPt.x}
 			<g class="lr">
-				<path class="null-floor" class:faded={fadeOf('null') < 1} d={lrGeo.nullFloor} />
+				<path
+					class="null-floor"
+					class:faded={fadeOf('null') < 1}
+					d={lrGeo.nullFloor}
+					pathLength={2 * RANGE * dashUnit}
+				/>
 				<path class="ridge" class:faded={fadeOf('ridge') < 1} d={lrGeo.ridge} />
-				{#each lrGeo.guides as d, i (i)}<path class="guide" {d} />{/each}
+				{#each lrGeo.guides as d, i (i)}<path
+						class="guide"
+						{d}
+						pathLength={lrGeo.guideLens[i] * dashUnit || undefined}
+					/>{/each}
 				{#each lrGeo.lines as d, i (i)}<path class="bracket" {d} />{/each}
 				{#if lrGeo.slopeTri}
 					<path class="slope-tri" d={lrGeo.slopeTri} />
@@ -1517,12 +1726,24 @@
 		stroke-dasharray: 3 3;
 		opacity: 0.55;
 	}
+	/* The hill's cut edge on the floor: the ℓ̂ − FLOOR_D contour. Its dashes
+	   (and the ghost route's, the Fisher curves' and the ridge's dots) are cut
+	   in world space by dashPath, so no stroke-dasharray here. */
+	.gnomon .waterline {
+		fill: none;
+		stroke: var(--muted);
+		stroke-width: 1;
+		opacity: 0.7;
+	}
 	.gnomon .ghost path {
 		fill: none;
 		stroke: #e17055;
 		stroke-width: 2;
-		stroke-dasharray: 5 4;
 		opacity: 0.8;
+	}
+	/* Where the step dips below the floor it fades, like the mesh there. */
+	.gnomon .ghost .sunk {
+		opacity: 0.3;
 	}
 	.gnomon .ghost circle {
 		fill: var(--bg);
@@ -1535,8 +1756,14 @@
 		fill: none;
 		stroke: #e17055;
 		stroke-width: 2;
-		stroke-dasharray: 1 3;
 		stroke-linecap: round;
+	}
+	.gnomon .below-label {
+		font-size: 11px;
+		fill: var(--muted);
+		paint-order: stroke;
+		stroke: var(--bg);
+		stroke-width: 3px;
 	}
 	.gnomon .pinned-pt {
 		fill: var(--bg);
@@ -1578,7 +1805,6 @@
 		fill: none;
 		stroke: var(--marginal);
 		stroke-width: 2;
-		stroke-dasharray: 1 4;
 		stroke-linecap: round;
 	}
 	.gnomon .faded {
