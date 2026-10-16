@@ -197,7 +197,8 @@ numerical model code sits in a sibling `model.ts` with `model.test.ts`.
 
 `cohend` is the template the other viz apps copy; its app-specific architecture
 (file map, state flow, URL params, share/embed) is documented in
-`src/lib/viz/cohend/README.md`.
+`src/lib/viz/cohend/README.md`. It is also the one translated app (`/sv/cohend`, …);
+how that works is in the README's Translations section.
 
 The gallery (`/viz`, homepage, "more" on app pages) is data in `src/lib/viz.ts`
 rendered by `VizGallery.svelte`; the homepage shows the hand-picked `featured`

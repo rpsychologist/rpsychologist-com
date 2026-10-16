@@ -7,6 +7,7 @@
 	import Toast from '../core/components/Toast.svelte';
 	import { typedSettle } from '../core/util/typedInput';
 	import { presets, LABEL_MAX, type CohendState } from './cohend.svelte';
+	import { getCohendI18n, t } from './i18n';
 
 	// Fixed full-height right drawer (like the original tool's MUI drawer). The
 	// page reserves room for it (see .page.settings-open in +page.svelte).
@@ -23,6 +24,7 @@
 	// eslint-disable-next-line no-useless-assignment
 	let { model, open = $bindable(false) }: Props = $props();
 
+	const { m } = getCohendI18n();
 	const presetNames = ['small', 'medium', 'large'] as const;
 
 	type NumKey = 'M0' | 'M1' | 'SD' | 'CER' | 'sliderMax' | 'sliderStep';
@@ -76,19 +78,25 @@
 	// so a rejected entry can't sit there silently disagreeing with the chart.
 	let fieldError = $state<{ key: NumKey; msg: string } | null>(null);
 	function rangeMsg(key: NumKey): string {
+		const vars = {
+			g0: model.p.muZeroLabel,
+			g1: model.p.muOneLabel,
+			m0: model.p.M0,
+			m1: model.p.M1
+		};
 		switch (key) {
 			case 'M0':
-				return `${model.p.muZeroLabel} mean must be between 0 and the ${model.p.muOneLabel} mean (${model.p.M1}).`;
+				return t(m, 'error_m0', vars);
 			case 'M1':
-				return `${model.p.muOneLabel} mean can't be below the ${model.p.muZeroLabel} mean (${model.p.M0}).`;
+				return t(m, 'error_m1', vars);
 			case 'SD':
-				return 'Standard deviation must be greater than 0.';
+				return m.error_sd;
 			case 'CER':
-				return 'Control event rate must be between 0 and 100.';
+				return m.error_cer;
 			case 'sliderMax':
-				return 'Slider max must be at least 0.1.';
+				return m.error_slider_max;
 			case 'sliderStep':
-				return 'Step size must be at least 0.001.';
+				return m.error_slider_step;
 		}
 	}
 	function commitNum(
@@ -117,14 +125,11 @@
 	}
 	function onSave() {
 		const ok = model.save();
-		flash(
-			ok ? 'Settings saved in this browser' : "Couldn't save settings",
-			ok ? 'status' : 'error'
-		);
+		flash(ok ? m.toast_saved : m.toast_save_failed, ok ? 'status' : 'error');
 	}
 	function onClear() {
 		const ok = model.clearSaved();
-		flash(ok ? 'Saved settings cleared' : "Couldn't clear settings", ok ? 'status' : 'error');
+		flash(ok ? m.toast_cleared : m.toast_clear_failed, ok ? 'status' : 'error');
 	}
 
 	// Per-section help (replaces the removed guided tour). One popover open at a
@@ -205,7 +210,7 @@
 				<button
 					type="button"
 					class="info-btn"
-					aria-label="About {title}"
+					aria-label={t(m, 'settings_about', { section: title })}
 					aria-expanded={openInfo === id}
 					aria-controls="info-pop-{id}"
 					onclick={() => toggleInfo(id)}
@@ -234,16 +239,16 @@
 <aside
 	bind:this={panel}
 	class="settings-panel"
-	aria-label="Visualization settings"
+	aria-label={m.settings_aria}
 	tabindex="-1"
 	transition:fly={{ x: 360, duration: prefersReducedMotion.current ? 0 : 200, easing: cubicOut }}
 >
 	<header class="panel-head">
-		<h2>Settings</h2>
+		<h2>{m.settings}</h2>
 		<button
 			class="close icon-btn"
 			type="button"
-			aria-label="Close settings"
+			aria-label={m.settings_close}
 			onclick={() => (open = false)}
 		>
 			<svg viewBox="0 0 24 24" aria-hidden="true">
@@ -253,29 +258,31 @@
 	</header>
 
 	<section class="group">
-		{@render sectionHead(
-			'Parameters',
-			'params',
-			"Set the means and standard deviation directly — Cohen's d updates to match. Control event rate is the baseline event proportion, used only by the number-needed-to-treat gauge."
+		{@render sectionHead(m.settings_parameters, 'params', m.settings_parameters_help)}
+		{@render numField(
+			t(m, 'settings_mean1', { group: model.p.muZeroLabel }),
+			'M0',
+			0,
+			model.p.M1,
+			'any',
+			() => model.syncFromMeans()
 		)}
-		{@render numField(`Mean 1 (${model.p.muZeroLabel})`, 'M0', 0, model.p.M1, 'any', () =>
-			model.syncFromMeans()
+		{@render numField(
+			t(m, 'settings_mean2', { group: model.p.muOneLabel }),
+			'M1',
+			model.p.M0,
+			undefined,
+			'any',
+			() => model.syncFromMeans()
 		)}
-		{@render numField(`Mean 2 (${model.p.muOneLabel})`, 'M1', model.p.M0, undefined, 'any', () =>
-			model.syncFromMeans()
-		)}
-		{@render numField('Standard deviation', 'SD', 0, undefined, 'any', () => model.syncFromMeans())}
-		{@render numField('Control event rate (%)', 'CER', 0, 100, 1)}
-		<p class="hint">Tip: double-click the chart to recenter.</p>
+		{@render numField(m.settings_sd, 'SD', 0, undefined, 'any', () => model.syncFromMeans())}
+		{@render numField(m.settings_cer, 'CER', 0, 100, 1)}
+		<p class="hint">{m.settings_recenter_tip}</p>
 	</section>
 
 	<section class="group">
-		{@render sectionHead(
-			'Presets',
-			'presets',
-			'Snap d to a conventional benchmark: small = 0.2, medium = 0.5, large = 0.8 (Cohen, 1988).'
-		)}
-		<div class="segmented" role="group" aria-label="Effect-size presets">
+		{@render sectionHead(m.settings_presets, 'presets', m.settings_presets_help)}
+		<div class="segmented" role="group" aria-label={m.settings_presets_aria}>
 			{#each presetNames as name (name)}
 				<button
 					class={['seg', { on: model.p.cohend === presets[name] }]}
@@ -283,7 +290,7 @@
 					aria-pressed={model.p.cohend === presets[name]}
 					onclick={() => model.setPreset(name)}
 				>
-					{name}
+					{m[`preset_${name}`]}
 				</button>
 			{/each}
 		</div>
@@ -292,61 +299,59 @@
 	<!-- Presentation controls (labels, colors, gauge toggle) are collapsed together
 	     so the statistical Parameters/Presets dominate the first screen. -->
 	<details class="group collapsible">
-		<summary><h3>Display settings</h3></summary>
+		<summary><h3>{m.settings_display}</h3></summary>
 		<div class="collapsible-body">
-			<p class="sub">Labels</p>
+			<p class="sub">{m.settings_labels}</p>
 			<!-- maxlength matches the share/restore validation (LABEL_MAX), so any
 			     label typed here survives a link round-trip. -->
 			<label class="field text">
-				<span>Group 1</span>
+				<span>{m.settings_group1}</span>
 				<input
 					type="text"
 					maxlength={LABEL_MAX}
 					bind:value={model.p.muZeroLabel}
-					aria-label="Group 1 label"
+					aria-label={m.settings_group1_aria}
 				/>
 			</label>
 			<label class="field text">
-				<span>Group 2</span>
+				<span>{m.settings_group2}</span>
 				<input
 					type="text"
 					maxlength={LABEL_MAX}
 					bind:value={model.p.muOneLabel}
-					aria-label="Group 2 label"
+					aria-label={m.settings_group2_aria}
 				/>
 			</label>
 			<label class="field text">
-				<span>X-axis</span>
+				<span>{m.settings_xaxis}</span>
 				<input
 					type="text"
 					maxlength={LABEL_MAX}
 					bind:value={model.p.xLabel}
-					aria-label="x-axis label"
+					aria-label={m.settings_xaxis_aria}
 				/>
 			</label>
 
-			<p class="sub">Colors</p>
+			<p class="sub">{m.settings_colors}</p>
 			<div class="colors">
 				<ColorInput label={model.p.muZeroLabel} bind:value={model.p.colorDist1} />
-				<ColorInput label="Overlap" bind:value={model.p.colorOverlap} />
+				<ColorInput label={m.settings_overlap} bind:value={model.p.colorOverlap} />
 				<ColorInput label={model.p.muOneLabel} bind:value={model.p.colorDist2} />
 			</div>
 
 			<label class="check">
 				<input type="checkbox" bind:checked={model.p.showDonuts} />
-				<span>Effect-size gauges</span>
+				<span>{m.settings_gauges}</span>
 			</label>
-			<p class="hint">
-				Cohen’s U₃, % overlap, probability of superiority, and NNT, shown beneath the chart.
-			</p>
+			<p class="hint">{m.settings_gauges_hint}</p>
 		</div>
 	</details>
 
 	<details class="group collapsible">
-		<summary><h3>Advanced — slider range</h3></summary>
+		<summary><h3>{m.settings_advanced}</h3></summary>
 		<div class="collapsible-body">
-			{@render numField('Max', 'sliderMax', 0.1, undefined, 'any')}
-			{@render numField('Step size', 'sliderStep', 0.001, undefined, 'any')}
+			{@render numField(m.settings_max, 'sliderMax', 0.1, undefined, 'any')}
+			{@render numField(m.settings_step, 'sliderStep', 0.001, undefined, 'any')}
 		</div>
 	</details>
 
@@ -358,11 +363,11 @@
 		{/if}
 		<p class="save-status" class:dirty={model.isDirty}>
 			{#if model.isDirty}
-				Unsaved changes
+				{m.status_unsaved}
 			{:else if model.hasSaved}
-				Saved in this browser
+				{m.status_saved}
 			{:else}
-				Not saved
+				{m.status_not_saved}
 			{/if}
 		</p>
 		<button
@@ -371,25 +376,20 @@
 			disabled={model.hasSaved && !model.isDirty}
 			onclick={onSave}
 		>
-			{model.hasSaved ? 'Save changes' : 'Save to browser'}
+			{model.hasSaved ? m.save_changes : m.save_to_browser}
 		</button>
 		<div class="minor-actions">
 			<button
 				class="btn-ghost"
 				type="button"
 				disabled={!model.hasSaved}
-				title="Remove the settings saved in this browser"
+				title={m.clear_saved_title}
 				onclick={onClear}
 			>
-				Clear saved
+				{m.clear_saved}
 			</button>
-			<button
-				class="btn-ghost"
-				type="button"
-				title="Restore every setting to its default value"
-				onclick={() => model.reset()}
-			>
-				Reset to defaults
+			<button class="btn-ghost" type="button" title={m.reset_title} onclick={() => model.reset()}>
+				{m.reset}
 			</button>
 		</div>
 	</section>

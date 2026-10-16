@@ -12,6 +12,9 @@ in the root `CLAUDE.md` under `src/lib/viz`; this file documents what is specifi
 
 | File                      | Role                                                                                                                                                        |
 | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CohendPage.svelte`       | The article page (intro, tool, readout, FAQ, gallery) in a given locale; the routes are thin wrappers.                                                      |
+| `CohendEmbed.svelte`      | The embed view in a given locale.                                                                                                                           |
+| `i18n/`                   | Translations — see [Translations](#translations).                                                                                                           |
 | `model.ts`                | Pure effect-size math (`cohenD`, `u3`, `overlap`, `cles`, `nnt`), pinned by `model.test.ts` against published values. No Svelte.                            |
 | `cohend.svelte.ts`        | `CohendState` — editable params, derived effects, d ⇄ means invariant, persistence + URL codecs, share-query builder.                                       |
 | `CohendTool.svelte`       | Assembles the tool: control bar, slider, chart, gauges, drawer, share dialog. `minimal` prop drops everything but slider + chart + gauges (the embed view). |
@@ -23,10 +26,11 @@ in the root `CLAUDE.md` under `src/lib/viz`; this file documents what is specifi
 | `EmbedAttribution.svelte` | Source credit at the foot of the embed route.                                                                                                               |
 | `changelog.json` + `.ts`  | Release history (semver + dated, Keep a Changelog categories); the `.ts` wraps it in `defineChangelog`. See root `CLAUDE.md` § versioning.                  |
 
-Routes: `src/routes/cohend/+page.svelte` (article page: intro, tool, common-language
-readout, FAQ, formulas, gallery), `src/routes/cohend/embed/+page.svelte` (chrome-free
-iframe target — a real child route, not a `?embed=1` query; see root `CLAUDE.md`), and
-`src/routes/cohend/changelog/+page.svelte` (release history; the cite FAQ links here).
+Routes: `src/routes/cohend/+page.svelte` (article page), `src/routes/cohend/embed/+page.svelte`
+(chrome-free iframe target — a real child route, not a `?embed=1` query; see root
+`CLAUDE.md`), their translated twins under `src/routes/[lang=cohendLocale]/cohend/`, and
+`src/routes/cohend/changelog/+page.svelte` (release history, English only; the cite FAQ
+links here).
 
 ## State flow
 
@@ -71,6 +75,42 @@ The embed route applies the same params, plus `donuts=0`.
 The dialog's live preview loads the embed iframe once and then `postMessage`s
 (`type: 'cohend-preview'`, same-origin only) into it — a reactive `src` would reload
 and flash the prerendered defaults.
+
+## Translations
+
+The page and embed are translated at `/<lc>/cohend` and `/<lc>/cohend/embed` (the old
+Gatsby URLs); English stays unprefixed.
+The changelog, citation, references, and site chrome (header, footer, bio, gallery) stay
+English.
+
+- `i18n/locales.ts` — the one locale list (`LOCALES`). Only `published` locales get a
+  page: the `cohendLocale` param matcher, the routes' `entries`, `hooks.server.ts`
+  (`<html lang>`), the hreflang alternates, the language menu, and the sitemap all read
+  `PUBLISHED`. Drafts (de, pt, vi) keep their message files for Crowdin and the message
+  test, and their old URLs 301 to `/cohend` (`static/_redirects`).
+- `i18n/messages/en.json` is the source; `<lc>.json` holds only translated keys.
+  A missing key falls back to English per key, so new or reworded English text ships
+  untranslated rather than blocking. Rewording an English message whose meaning changes
+  means deleting that key from the translations (or Crowdin marks it outdated).
+- Messages are flat strings with `{name}` placeholders and a whitelist of inline tags
+  (`em sub sup strong code`, plus `<a1>`… links whose href the component supplies).
+  `Msg.svelte` renders them as Svelte nodes, never `{@html}`: placeholders carry labels
+  from shared URLs and localStorage. `t()` is the plain-text form for attributes.
+- `messages.test.ts` fails if a translation adds a key, or changes a key's placeholders
+  or tags relative to English — the gate for files coming back from Crowdin
+  (`crowdin.yml` at the repo root; translator guide in `docs/translation.md`).
+- Components read `{ locale, m }` from context (`getCohendI18n`), set by `CohendPage` /
+  `CohendEmbed`. Default labels (Control/Treatment/Outcome) are localized via the
+  `CohendState` constructor; the `cohendState` localStorage key is shared across locales.
+- Numbers keep d3-format's `.` decimal separator in every locale (as the old app did).
+- The language menu (a `<details>` dropdown, ending in a "Help to translate" link to
+  `docs/translation.md`) does a full page load (`data-sveltekit-reload`) because
+  `<html lang>` is only set server-side, and carries the current query string along.
+
+Adding a locale: add it to `LOCALES` (as a draft) and `messages/<lc>.json`.
+Publishing one: set `published: true`, add its framing blocks to `static/_headers`, drop
+its redirect from `static/_redirects`, credit translators in `translators.json`, and
+add a changelog entry.
 
 ## Shared code this app consumes
 

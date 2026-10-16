@@ -107,9 +107,9 @@
 	// Live area for the "not a probability" prose.
 	const areaL = $derived(likelihoodAreaMu(model.p.sample, model.p.sigma2));
 
-	const eqHypo = $derived(
-		String.raw`H_0: \mu = ${model.p.muNull} \quad \text{versus} \quad H_1: \mu \ne ${model.p.muNull}`
-	);
+	// Two formulas around a plain "versus" so a narrow screen can wrap between them.
+	const eqH0 = $derived(String.raw`H_0: \mu = ${model.p.muNull}`);
+	const eqH1 = $derived(String.raw`H_1: \mu \ne ${model.p.muNull}`);
 </script>
 
 <div class="viz-tool">
@@ -255,7 +255,7 @@
 						bind:value={model.p.muNull}
 						oninput={() => model.setMuNull(model.p.muNull)}
 					/>
-					<p class="hypo"><Tex math={eqHypo} /></p>
+					<p class="hypo"><Tex math={eqH0} /> &ensp;versus&ensp; <Tex math={eqH1} /></p>
 				</div>
 				<div class="inf-control">
 					<Slider

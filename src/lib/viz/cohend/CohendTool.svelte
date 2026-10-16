@@ -7,6 +7,8 @@
 	import Settings from './Settings.svelte';
 	import ShareDialog from './ShareDialog.svelte';
 	import type { CohendState } from './cohend.svelte';
+	import { getCohendI18n } from './i18n';
+	import Msg from './i18n/Msg.svelte';
 
 	// The interactive Cohen's d tool: control bar (d input + settings/download/share
 	// icons), slider, overlap chart, donut gauges, plus the settings drawer and share
@@ -21,6 +23,7 @@
 	}
 	let { model, minimal = false, settingsOpen = $bindable(false) }: Props = $props();
 
+	const { m } = getCohendI18n();
 	const d2 = format('.2f');
 	let svg = $state<SVGSVGElement>();
 	let shareOpen = $state(false);
@@ -47,7 +50,7 @@
 	{#if !minimal}
 		<div class="control-bar">
 			<label class="d-input">
-				<span>Cohen's <em>d</em></span>
+				<span><Msg text={m.d_label} /></span>
 				<input
 					class="card-sm"
 					type="number"
@@ -73,7 +76,7 @@
 				<button
 					bind:this={settingsBtn}
 					class={['icon-btn', 'labeled', { on: settingsOpen }]}
-					aria-label="Settings"
+					aria-label={m.settings}
 					aria-expanded={settingsOpen}
 					onclick={() => (settingsOpen = !settingsOpen)}
 				>
@@ -83,21 +86,26 @@
 							d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
 						/>
 					</svg>
-					<span class="btn-label">Settings</span>
+					<span class="btn-label">{m.settings}</span>
 				</button>
 				<!-- Utility cluster, separated from the labeled Settings pill so the bar
 			     reads "primary control | utilities". Recenter is double-click +
 			     fig-hint already; Help duplicated the FAQ below — both dropped. -->
 				<span class="icon-divider" aria-hidden="true"></span>
-				<button class="icon-btn" aria-label="Download SVG" title="Download SVG" onclick={download}>
+				<button
+					class="icon-btn"
+					aria-label={m.download_svg}
+					title={m.download_svg}
+					onclick={download}
+				>
 					<svg viewBox="0 0 24 24" aria-hidden="true">
 						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
 					</svg>
 				</button>
 				<button
 					class="icon-btn"
-					aria-label="Share"
-					title="Share"
+					aria-label={m.share}
+					title={m.share}
 					onclick={() => (shareOpen = true)}
 				>
 					<svg viewBox="0 0 24 24" aria-hidden="true">
@@ -113,7 +121,7 @@
 
 	<Slider
 		id="cohend-d"
-		ariaLabel="Cohen's d"
+		ariaLabel={m.d_aria}
 		min={0}
 		max={model.p.sliderMax}
 		step={model.p.sliderStep}
@@ -134,7 +142,7 @@
 	/>
 
 	<Overlap {model} bind:svg />
-	<p class="fig-hint">Drag the chart to pan · double-click to recenter.</p>
+	<p class="fig-hint">{m.fig_hint}</p>
 
 	{#if model.p.showDonuts}
 		<Donuts {model} />

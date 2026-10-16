@@ -96,6 +96,9 @@ function isNoise(url) {
 		url === '/posts' ||
 		url === '/search' ||
 		url.endsWith('/embed') ||
+		// Translated Cohen's d pages: the search UI only runs on English pages,
+		// so their per-language indexes could never be queried.
+		/^\/[a-z]{2}\/cohend$/.test(url) ||
 		// Old standalone apps copied into static/ verbatim; their markup isn't
 		// shaped for search (no titles/excerpts worth showing).
 		/^\/(d3|slides|thesis)\//.test(url)

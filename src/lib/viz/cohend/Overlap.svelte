@@ -8,6 +8,7 @@
 	import { normalPdf } from '$lib/stats/distributions';
 	import { drag } from '../core/actions/drag';
 	import { defaults, type CohendState } from './cohend.svelte';
+	import { getCohendI18n, t } from './i18n';
 
 	// Two equal-variance normal curves separated by Cohen's d, overlap shaded
 	// solid. Proportions are dynamic and taken verbatim from the old Overlap.js:
@@ -106,6 +107,7 @@
 	// Horizontal shift of the treatment curve, in screen px (tweened, cheap).
 	const dx = $derived(x(m1.current) - x(model.p.M0));
 
+	const { m } = getCohendI18n();
 	const ticks = $derived(x.ticks(10));
 	const fmtTick = format('.0f');
 	const fmtD = format('.2f');
@@ -145,9 +147,7 @@
 			height={totalH}
 			viewBox="0 0 {cw} {totalH}"
 			role="img"
-			aria-label="Two overlapping normal distributions separated by Cohen's d of {fmtD(
-				model.p.cohend
-			)}"
+			aria-label={t(m, 'chart_aria', { d: fmtD(model.p.cohend) })}
 			use:drag={{
 				onstart: () => (model.immediate = true),
 				ondrag: onDrag,
@@ -192,10 +192,10 @@
 
 				<!-- d label + unstandardized difference -->
 				<text x={cx} y={-50} class="d-label" text-anchor="middle" dominant-baseline="central">
-					Cohen's d: {fmtD(dDisplay)}
+					{t(m, 'chart_d', { d: fmtD(dDisplay) })}
 				</text>
 				<text x={cx} y={-25} class="diff-label" text-anchor="middle" dominant-baseline="central">
-					(Diff: {fmtDiff(diff)})
+					{t(m, 'chart_diff', { diff: fmtDiff(diff) })}
 				</text>
 
 				<!-- group labels + difference arrow between the means -->

@@ -1,0 +1,6 @@
+# Crowdin project: rpsychologist-cohend. Sources and translations are the
+# Cohen's d app's flat message files; a key missing from a translation falls
+# back to English (see src/lib/viz/cohend/README.md, Translations).
+files:
+  - source: /src/lib/viz/cohend/i18n/messages/en.json
+    translation: /src/lib/viz/cohend/i18n/messages/%two_letters_code%.json

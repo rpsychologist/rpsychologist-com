@@ -4,6 +4,7 @@
 	import { arc, type DefaultArcObject } from 'd3-shape';
 	import { format } from 'd3-format';
 	import type { CohendState } from './cohend.svelte';
+	import { getCohendI18n } from './i18n';
 
 	// Four gauges translating Cohen's d into interpretable quantities. U3, overlap,
 	// and probability of superiority are simple proportions: a single arc fills to
@@ -19,6 +20,7 @@
 
 	let { model }: Props = $props();
 
+	const { m } = getCohendI18n();
 	const pct = format('.1%');
 	const nntFmt = format('.1f');
 
@@ -62,21 +64,21 @@
 	// Labels read from the tweened values so every number counts up in step with
 	// its arc (matching the old animated donut labels).
 	const gauges = $derived([
-		{ label: 'Cohen’s U₃', frac: fracs.current.u3, center: pct(fracs.current.u3), nnt: false },
+		{ label: m.gauge_u3, frac: fracs.current.u3, center: pct(fracs.current.u3), nnt: false },
 		{
-			label: '% Overlap',
+			label: m.gauge_overlap,
 			frac: fracs.current.overlap,
 			center: pct(fracs.current.overlap),
 			nnt: false
 		},
 		{
-			label: 'Probability of Superiority',
+			label: m.gauge_cles,
 			frac: fracs.current.cles,
 			center: pct(fracs.current.cles),
 			nnt: false
 		},
 		{
-			label: 'Number Needed to Treat',
+			label: m.gauge_nnt,
 			frac: fracs.current.arr,
 			// Switch to ∞ as soon as the *target* NNT is infinite; deriving it from
 			// the tweened arr alone would count up through huge 1/arr values while

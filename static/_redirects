@@ -13,17 +13,11 @@
 /feed.xml  /rss.xml   301
 /rss       /rss.xml   301
 
-# Old localized Cohen's d URLs (/es/cohend, ...) -> English /cohend until i18n
-# is reintroduced in a follow-up. Covers the locales the old app translated.
-/de/cohend  /cohend  301
-/es/cohend  /cohend  301
-/fr/cohend  /cohend  301
-/no/cohend  /cohend  301
-/pt/cohend  /cohend  301
-/sv/cohend  /cohend  301
-/tr/cohend  /cohend  301
-/uz/cohend  /cohend  301
-/vi/cohend  /cohend  301
+# Cohen's d translations still in draft (src/lib/viz/cohend/i18n/locales.ts)
+# have no page yet; their old Gatsby URLs go to English until they publish.
+/de/cohend        /cohend        301
+/pt/cohend        /cohend        301
+/vi/cohend        /cohend        301
 
 # Pre-Gatsby app URLs that the Gatsby site already redirected (netlify.toml)
 /d3/cohend       /cohend       301

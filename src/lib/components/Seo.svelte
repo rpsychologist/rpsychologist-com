@@ -15,6 +15,10 @@
 		published?: string;
 		modified?: string;
 		tags?: string[];
+		/** Translations of this page (`hreflang` alternates, incl. `x-default`). */
+		alternates?: { hrefLang: string; path: string }[];
+		/** BCP 47 language tag of this page, for `og:locale`. */
+		locale?: string;
 	}
 
 	let {
@@ -26,7 +30,9 @@
 		imageAlt,
 		published,
 		modified,
-		tags = []
+		tags = [],
+		alternates = [],
+		locale
 	}: Props = $props();
 
 	const fullTitle = $derived(title === site.title ? title : `${title} | ${site.title}`);
@@ -74,6 +80,9 @@
 	<title>{fullTitle}</title>
 	<meta name="description" content={description} />
 	<link rel="canonical" href={canonical} />
+	{#each alternates as alt (alt.hrefLang)}
+		<link rel="alternate" hreflang={alt.hrefLang} href={new URL(alt.path, site.url).href} />
+	{/each}
 	<link
 		rel="alternate"
 		type="application/rss+xml"
@@ -83,6 +92,7 @@
 
 	<meta property="og:type" content={type} />
 	<meta property="og:site_name" content={site.title} />
+	{#if locale}<meta property="og:locale" content={locale.replace('-', '_')} />{/if}
 	<meta property="og:url" content={canonical} />
 	<meta property="og:title" content={fullTitle} />
 	<meta property="og:description" content={description} />
