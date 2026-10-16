@@ -212,4 +212,15 @@
 			height: 34px;
 		}
 	}
+	/* The narrowest phones (and 400% desktop zoom, WCAG reflow) are 320px wide:
+	   the logo, the three buttons, and the padding need ~370px at the sizes above. */
+	@media (max-width: 24rem) {
+		.bar {
+			padding-inline: 0.9rem;
+			gap: 0.5rem;
+		}
+		.brand :global(svg) {
+			height: 28px;
+		}
+	}
 </style>

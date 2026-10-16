@@ -139,9 +139,10 @@
 	/* The letterspaced kicker + section rule is the recurring section device. */
 	.block-head {
 		display: flex;
+		flex-wrap: wrap;
 		align-items: baseline;
 		justify-content: space-between;
-		gap: 1rem;
+		gap: 0.25rem 1rem;
 		margin-bottom: 1.5rem;
 		padding-bottom: 0.5rem;
 		border-bottom: 1px solid var(--rule);
@@ -149,6 +150,10 @@
 	/* Identity comes from the global .eyebrow; only the margin differs here. */
 	.eyebrow {
 		margin: 0;
+	}
+	/* On a narrow phone the link wraps under the heading; keep it right-aligned. */
+	.block-head .more {
+		margin-left: auto;
 	}
 	/* Mirror the header link at the foot so a scroll-to-end reader isn't dead-ended. */
 	.block-foot {

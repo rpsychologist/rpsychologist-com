@@ -242,7 +242,7 @@
 				<p>
 					Buse, A. (1982). The likelihood ratio, Wald, and Lagrange multiplier tests: An expository
 					note. <em>The American Statistician, 36</em>(3a), 153–157.
-					<a href="https://doi.org/10.1080/00031305.1982.10482817"
+					<a class="url" href="https://doi.org/10.1080/00031305.1982.10482817"
 						>https://doi.org/10.1080/00031305.1982.10482817</a
 					>
 				</p>
@@ -308,6 +308,10 @@
 			color 0.15s;
 	}
 	.byline a:hover,
+	/* A bare URL has no spaces to wrap at; let it break anywhere. */
+	.faq .answer .url {
+		overflow-wrap: anywhere;
+	}
 	.faq .answer a:hover {
 		color: var(--heading);
 		text-decoration-color: var(--accent);

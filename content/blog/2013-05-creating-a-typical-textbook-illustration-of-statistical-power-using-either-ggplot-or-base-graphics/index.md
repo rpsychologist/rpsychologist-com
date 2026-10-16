@@ -16,11 +16,11 @@ summary: A common way of illustrating the idea behind statistical power in null 
 
 A common way of illustrating the idea behind statistical power in null
 hypothesis significance testing, is by plotting the sampling
-distributions of the null hypothesis ($ H_0 $) and the
-alternative hypothesis ($ H_A $). Typically, these illustrations
-highlight the regions that correspond to making a type II error ($ 
-\beta $), type I error ($ \alpha $) and correctly rejecting the
-null hypothesis (i.e. the test's power; $ 1 - \beta$).
+distributions of the null hypothesis ($H_0$) and the
+alternative hypothesis ($H_A$). Typically, these illustrations
+highlight the regions that correspond to making a type II error
+($\beta$), type I error ($\alpha$) and correctly rejecting the
+null hypothesis (i.e. the test's power; $1 - \beta$).
 
 In this post I will show how to create such "power plots" using R.
 Typically, I prefer to use `ggplot` for plotting, but tasks such as this

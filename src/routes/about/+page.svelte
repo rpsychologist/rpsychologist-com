@@ -178,6 +178,12 @@
 		border-radius: var(--radius, 8px);
 		border: 1px solid var(--rule);
 	}
+	/* 320px screens: a 110px cover leaves the title too narrow for "Methodological". */
+	@media (max-width: 24rem) {
+		.thesis-cover {
+			width: 84px;
+		}
+	}
 	.thesis figcaption {
 		min-width: 0;
 		/* Cancel the global .article figcaption hairline — that separator is for

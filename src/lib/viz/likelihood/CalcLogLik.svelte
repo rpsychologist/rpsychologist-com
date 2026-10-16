@@ -77,8 +77,11 @@
 	.ledger {
 		min-width: 0;
 	}
+	/* Scrolls rather than overflows on narrow screens, like display math. */
 	.eq {
 		margin: 0 0 0.5rem;
+		overflow-x: auto;
+		overflow-y: hidden;
 	}
 	table {
 		width: 100%;
@@ -122,6 +125,13 @@
 	/* Numbers shrink-wrap; the bar column takes the rest of the width. */
 	.num {
 		width: 1%;
+	}
+	/* 320px screens: default cell padding made the table ~13px too wide. */
+	@media (max-width: 24rem) {
+		th,
+		td {
+			padding-inline: 0.3rem;
+		}
 	}
 	.bar {
 		display: block;
