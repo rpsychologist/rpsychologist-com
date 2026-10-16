@@ -94,3 +94,63 @@ test('embed route is chrome-free and honors its params', async ({ page }) => {
 	await expect(chart(page)).toHaveAccessibleName(/Cohen's d of 1\.20/);
 	await expect(page.getByRole('link', { name: /rpsychologist\.com\/cohend/ })).toBeVisible();
 });
+
+test.describe('translated page (/sv/cohend)', () => {
+	test('prerenders in Swedish with localized defaults and alternates', async ({ page }) => {
+		await page.goto('/sv/cohend');
+		await expect(page.locator('html')).toHaveAttribute('lang', 'sv');
+		await expect(page.getByRole('heading', { level: 1 })).toContainText('Tolka Cohens d');
+		await chartReady(page);
+		await expect(chart(page).locator('text.grp').first()).toHaveText('Kontroll');
+		await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute(
+			'href',
+			'https://rpsychologist.com/cohend'
+		);
+	});
+
+	test('slider drives the translated readout', async ({ page }) => {
+		await page.goto('/sv/cohend');
+		await chartReady(page);
+		await page.getByRole('slider', { name: 'Cohens d' }).press('ArrowRight');
+		await expect(page.locator('.cl-section')).toContainText('Cohens d på 0.81');
+	});
+
+	test('labels from a link render as text, not markup', async ({ page }) => {
+		const label = '<img src=x onerror="window.pwned=1">';
+		await page.goto(`/sv/cohend?M1lab=${encodeURIComponent(label)}`);
+		await chartReady(page);
+		await expect(page.locator('.cl-section')).toContainText(label);
+		expect(await page.evaluate(() => 'pwned' in window)).toBe(false);
+	});
+
+	test('share link and embed stay in the language', async ({ page }) => {
+		await page.goto('/sv/cohend?d=1.5');
+		await chartReady(page);
+		await page.getByRole('button', { name: 'Dela' }).click();
+		await expect(page.getByRole('dialog', { name: 'Dela' }).getByLabel('Link')).toHaveValue(
+			/\/sv\/cohend\?d=1\.5/
+		);
+	});
+
+	test('legacy ?embed=1 URLs redirect to the translated embed', async ({ page }) => {
+		await page.goto('/sv/cohend?embed=1&d=1.2');
+		await page.waitForURL('/sv/cohend/embed?d=1.2');
+		await chartReady(page);
+		await expect(page.locator('html')).toHaveAttribute('lang', 'sv');
+		await expect(page.getByRole('link', { name: 'rpsychologist.com/sv/cohend' })).toBeVisible();
+	});
+
+	test('the language switcher keeps the current state', async ({ page }) => {
+		await page.goto('/sv/cohend?d=1.2');
+		await chartReady(page);
+		const menu = page.locator('.lang-menu');
+		await menu.locator('summary').click();
+		await expect(menu.getByRole('link', { name: 'Deutsch' })).toHaveCount(0); // draft
+		await expect(menu.getByRole('link', { name: 'Help to translate' })).toBeVisible();
+		await menu.getByRole('link', { name: 'Español' }).click();
+		await page.waitForURL('/es/cohend?d=1.2');
+		await expect(page.locator('html')).toHaveAttribute('lang', 'es');
+		await chartReady(page);
+		await expect(chart(page)).toHaveAccessibleName(/1\.20/);
+	});
+});

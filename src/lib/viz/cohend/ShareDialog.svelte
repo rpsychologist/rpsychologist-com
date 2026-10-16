@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import type { CohendState } from './cohend.svelte';
+	import { getCohendI18n } from './i18n';
 
 	// Share / embed dialog (native <dialog>, no library). Two modes: a plain link
 	// carrying the current state as URL params, and an embed <iframe> with a live
@@ -15,6 +16,7 @@
 
 	let { model, open = $bindable(false) }: Props = $props();
 
+	const { m } = getCohendI18n();
 	let dialog = $state<HTMLDialogElement>();
 	let mode = $state<'link' | 'embed'>('link');
 	let copied = $state(false);
@@ -46,14 +48,15 @@
 	const embedQuery = $derived(
 		model.shareQuery({ parameters: incParameters, labels: incLabels, colors: incColors, donuts })
 	);
-	// The dialog only ever renders on the full /cohend page, so location.pathname is
-	// /cohend; the embed is its child route /cohend/embed (chrome-free, frameable).
+	// The dialog only ever renders on the full page, so location.pathname is
+	// /cohend (or /<locale>/cohend); the embed is its child route `…/embed`
+	// (chrome-free, frameable), in the same language.
 	// Strip any trailing slash so a /cohend/ visit doesn't yield /cohend//embed.
 	const base = $derived(browser ? location.origin + location.pathname.replace(/\/+$/, '') : '');
 	const shareUrl = $derived(base + linkQuery);
 	const embedUrl = $derived(base + '/embed' + embedQuery);
 	const embedCode = $derived(
-		`<iframe src="${embedUrl}" width="${EMBED_W}" height="${EMBED_H}" style="border:0" loading="lazy" title="Cohen's d"></iframe>`
+		`<iframe src="${embedUrl}" width="${EMBED_W}" height="${EMBED_H}" style="border:0" loading="lazy" title="${m.d_aria.replaceAll('"', '&quot;')}"></iframe>`
 	);
 	const output = $derived(mode === 'embed' ? embedCode : shareUrl);
 
@@ -127,52 +130,54 @@
 	}}
 >
 	<form method="dialog" class="head">
-		<h2 id="share-title">Share</h2>
-		<button class="close" aria-label="Close">×</button>
+		<h2 id="share-title">{m.share}</h2>
+		<button class="close" aria-label={m.share_close}>×</button>
 	</form>
 
 	<div class="body">
 		<!-- Toggle buttons, not ARIA tabs: role="tab" implies arrow-key navigation
 		     and tabpanel wiring we don't provide. -->
-		<div class="tabs" role="group" aria-label="Share format">
+		<div class="tabs" role="group" aria-label={m.share_format}>
 			<button
 				type="button"
 				aria-pressed={mode === 'link'}
 				class:active={mode === 'link'}
-				onclick={() => setMode('link')}>Link</button
+				onclick={() => setMode('link')}>{m.share_link}</button
 			>
 			<button
 				type="button"
 				aria-pressed={mode === 'embed'}
 				class:active={mode === 'embed'}
-				onclick={() => setMode('embed')}>Embed</button
+				onclick={() => setMode('embed')}>{m.share_embed}</button
 			>
 		</div>
 
 		<fieldset class="group">
-			<legend>Include settings</legend>
-			<p class="hint">
-				Choose which of your settings travel with the link — unchecked items use the defaults.
-			</p>
+			<legend>{m.share_include}</legend>
+			<p class="hint">{m.share_include_hint}</p>
 			<div class="checks">
-				<label title="Cohen's d, the means, SD, and control event rate">
-					<input type="checkbox" bind:checked={incParameters} /> Parameters
+				<label title={m.share_parameters_title}>
+					<input type="checkbox" bind:checked={incParameters} />
+					{m.share_parameters}
 				</label>
-				<label title="Axis and group names">
-					<input type="checkbox" bind:checked={incLabels} /> Labels
+				<label title={m.share_labels_title}>
+					<input type="checkbox" bind:checked={incLabels} />
+					{m.share_labels}
 				</label>
-				<label title="Distribution colors">
-					<input type="checkbox" bind:checked={incColors} /> Colors
+				<label title={m.share_colors_title}>
+					<input type="checkbox" bind:checked={incColors} />
+					{m.share_colors}
 				</label>
 			</div>
 		</fieldset>
 
 		{#if mode === 'embed'}
 			<fieldset class="group">
-				<legend>Embed shows</legend>
+				<legend>{m.share_embed_shows}</legend>
 				<div class="checks">
-					<label title="Show the four donut gauges (U₃, overlap, superiority, NNT)">
-						<input type="checkbox" bind:checked={donuts} /> Gauges
+					<label title={m.share_gauges_title}>
+						<input type="checkbox" bind:checked={donuts} />
+						{m.share_gauges}
 					</label>
 				</div>
 			</fieldset>
@@ -183,7 +188,7 @@
 				{#if previewSrc && previewW > 0}
 					<iframe
 						bind:this={iframe}
-						title="Embed preview"
+						title={m.share_preview}
 						src={previewSrc}
 						loading="lazy"
 						onload={pushPreview}
@@ -195,7 +200,9 @@
 
 		<div class="field">
 			<!-- Only one of the two controls exists at a time, so they can share the id. -->
-			<label class="label" for="share-output">{mode === 'embed' ? 'Embed code' : 'Link'}</label>
+			<label class="label" for="share-output"
+				>{mode === 'embed' ? m.share_embed_code : m.share_link}</label
+			>
 			<div class="combo">
 				{#if mode === 'embed'}
 					<textarea id="share-output" class="mono" readonly rows="4" value={embedCode}></textarea>
@@ -203,7 +210,7 @@
 					<input id="share-output" class="mono" readonly value={shareUrl} />
 				{/if}
 				<button class="fig-pill" type="button" onclick={copy}>
-					{copied ? 'Copied' : 'Copy'}
+					{copied ? m.share_copied : m.share_copy}
 				</button>
 			</div>
 		</div>

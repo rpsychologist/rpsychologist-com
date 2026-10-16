@@ -1,46 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import CohendTool from '$lib/viz/cohend/CohendTool.svelte';
-	import EmbedAttribution from '$lib/viz/cohend/EmbedAttribution.svelte';
-	import { CohendState } from '$lib/viz/cohend/cohend.svelte';
-
-	// Chrome-free embed view — the <iframe> target for `<CohendTool minimal>` plus a
-	// source credit. Prerendered AS the embed (its own route), so the static HTML is
-	// already just the tool: no `?embed=1` client-side collapse, no flash. The root
-	// layout drops the site header/footer for `/…/embed` paths, and this route is
-	// framed cross-origin (framing headers scoped to the path — see static/_headers).
-	// Display is configured by the embedder through URL params (colors, labels,
-	// `donuts=0`), applied on mount like the full page.
-	const model = new CohendState();
-	onMount(() => {
-		model.init(location.search);
-		// The share dialog's live preview pushes setting changes here instead of
-		// rewriting the iframe src — a reload would flash the prerendered defaults
-		// before init applies the params. Same-origin only, so embedding pages
-		// can't drive this.
-		const onMessage = (e: MessageEvent) => {
-			if (e.origin !== location.origin) return;
-			const data = e.data as { type?: string; search?: string } | null;
-			if (data?.type === 'cohend-preview') model.applySearch(data.search ?? '');
-		};
-		window.addEventListener('message', onMessage);
-		return () => window.removeEventListener('message', onMessage);
-	});
+	import CohendEmbed from '$lib/viz/cohend/CohendEmbed.svelte';
 </script>
 
-<svelte:head>
-	<meta name="robots" content="noindex" />
-</svelte:head>
-
-<div class="embed">
-	<CohendTool {model} minimal />
-	<EmbedAttribution />
-</div>
-
-<style>
-	.embed {
-		box-sizing: border-box;
-		max-width: 100%;
-		padding: 0.75rem 1rem 1rem;
-	}
-</style>
+<CohendEmbed locale="en" />

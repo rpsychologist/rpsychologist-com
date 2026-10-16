@@ -142,8 +142,21 @@ export interface DroppedState {
 	link: string[];
 }
 
+/** The default label text, which differs per locale. */
+export type DefaultLabels = Pick<CohendParams, 'xLabel' | 'muZeroLabel' | 'muOneLabel'>;
+
 export class CohendState {
-	#store = new Persisted<CohendParams>('cohendState', defaults, validParam);
+	/** `defaults` with this page's localized labels: what reset and an absent
+	 * URL/saved key fall back to. */
+	readonly defaults: CohendParams;
+	#store: Persisted<CohendParams>;
+
+	// One storage key across locales: saved settings are the user's, so a
+	// label saved on /sv/cohend also shows on /cohend.
+	constructor(labels: Partial<DefaultLabels> = {}) {
+		this.defaults = { ...defaults, ...labels };
+		this.#store = new Persisted<CohendParams>('cohendState', this.defaults, validParam);
+	}
 	/** Set while a value is being dragged so the consumer can skip tweening. */
 	immediate = $state(false);
 
@@ -206,8 +219,8 @@ export class CohendState {
 	}
 
 	reset() {
-		for (const key of Object.keys(defaults) as (keyof CohendParams)[]) {
-			(this.p[key] as CohendParams[keyof CohendParams]) = defaults[key];
+		for (const key of Object.keys(this.defaults) as (keyof CohendParams)[]) {
+			(this.p[key] as CohendParams[keyof CohendParams]) = this.defaults[key];
 		}
 	}
 
@@ -274,7 +287,7 @@ export class CohendState {
 		for (const key of keys) Object.assign(sub, { [key]: codecMap[key] });
 		// No `defaults` here: a checked group emits ALL its keys even when still at
 		// their default (like the old app), so toggling a box visibly changes the
-		// link. The receiving side fills any absent key from `defaults` anyway.
+		// link. The receiving side fills any absent key from its defaults anyway.
 		// Transient local, serialized and discarded; never held in reactive state.
 		// eslint-disable-next-line svelte/prefer-svelte-reactivity
 		const params = new URLSearchParams(buildQuery(sub, this.p).slice(1));

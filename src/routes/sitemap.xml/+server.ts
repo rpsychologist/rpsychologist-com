@@ -1,6 +1,7 @@
 import { posts, pageCount, termBySlug } from '$lib/content';
 import { site } from '$lib/config';
 import { viz } from '$lib/viz';
+import { PUBLISHED, cohendPath } from '$lib/viz/cohend/i18n/locales';
 
 export const prerender = true;
 
@@ -11,7 +12,19 @@ export function GET() {
 		.filter((v) => v.href.startsWith('/') && !v.legacy)
 		.flatMap((v) => [v.href.slice(1), `${v.href.slice(1)}/changelog`]);
 	const legacyUrls = viz.filter((v) => v.legacy).map((v) => ({ loc: `${site.url}${v.href}` }));
-	const staticPaths = ['', 'posts', 'viz', 'about', 'tags', 'search', ...vizPaths];
+	const translatedPaths = PUBLISHED.filter((l) => l.code !== 'en').map((l) =>
+		cohendPath(l.code).slice(1)
+	);
+	const staticPaths = [
+		'',
+		'posts',
+		'viz',
+		'about',
+		'tags',
+		'search',
+		...vizPaths,
+		...translatedPaths
+	];
 	const pagePaths = Array.from({ length: pageCount - 1 }, (_, i) => `page/${i + 2}`);
 	const tagPaths = [...termBySlug.keys()].map((slug) => `tags/${slug}`);
 

@@ -16,14 +16,52 @@
 /cohend/embed
   ! X-Frame-Options
   Content-Security-Policy: frame-ancestors *
+/es/cohend/embed
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/fr/cohend/embed
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/no/cohend/embed
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/sv/cohend/embed
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/tr/cohend/embed
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/uz/cohend/embed
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
 
 # Permanent: legacy embeds frame the main page as /cohend?embed=1, and
 # X-Frame-Options would block that document before its client-side redirect
 # (to /cohend/embed, in src/routes/cohend/+page.svelte) could run. The page
 # has no auth/cookies/actions, so frameability costs ~nothing, and the
 # changelog promises old links are never dropped — don't "harden" this back
-# to DENY. Exact-path match: /cohend/changelog is not affected.
+# to DENY. Exact-path match: /cohend/changelog is not affected. The translated
+# pages (/sv/cohend, …) had the same legacy embeds; listed one by one, not with
+# a placeholder, so the match stays exact.
 /cohend
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/es/cohend
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/fr/cohend
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/no/cohend
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/sv/cohend
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/tr/cohend
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/uz/cohend
   ! X-Frame-Options
   Content-Security-Policy: frame-ancestors *
 
