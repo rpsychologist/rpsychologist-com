@@ -1259,7 +1259,9 @@
 		isDark = document.documentElement.getAttribute('data-theme') === 'dark';
 		accent = cssVarRgb('--viz-accent', accent);
 		marginalCol = cssVarRgb('--marginal', marginalCol);
-		resize();
+		// Untracked: draw() reads reactive state, and any re-run of this effect
+		// rebuilds GL and its teardown cancels the viewpoint animation.
+		untrack(() => resize());
 
 		const ro = new ResizeObserver(() => resize());
 		ro.observe(canvas);
