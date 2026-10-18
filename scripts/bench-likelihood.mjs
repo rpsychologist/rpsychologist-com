@@ -14,6 +14,8 @@ import { chromium, devices } from '@playwright/test';
 const BASE = process.env.BASE_URL ?? 'http://localhost:4173';
 const REPS = Number(process.env.REPS ?? 5);
 const INPUTS = 60;
+// e.g. QUERY='?lines=aa' benchmarks a flagged variant.
+const QUERY = process.env.QUERY ?? '';
 // e.g. ONLY=BCD runs just those scenarios.
 const ONLY = process.env.ONLY;
 
@@ -68,7 +70,7 @@ async function openPage(browser, profile, inf = '3D') {
 	const cdp = await context.newCDPSession(page);
 	await cdp.send('Performance.enable');
 	if (profile.cpu > 1) await cdp.send('Emulation.setCPUThrottlingRate', { rate: profile.cpu });
-	await page.goto(`${BASE}/likelihood`);
+	await page.goto(`${BASE}/likelihood${QUERY}`);
 	await page.locator('.sample-point').first().waitFor();
 	// The inference figure opens in 2D; its 3D surface is the worst case.
 	if (inf === '3D') {

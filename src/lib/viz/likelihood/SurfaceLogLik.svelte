@@ -2,9 +2,10 @@
 	/* 3D wireframe of the joint log-likelihood over (μ, σ²), with the
 	   optimizer's path and the current point on it — the contour plot's hill
 	   made literal. Adapted from HeroGaussianMesh.svelte (same WebGL2
-	   scaffolding: static lattice + primitive-restart LINE_STRIP, dynamic
-	   interleaved xyzα buffers, DPR cap, theme-following opaque clear,
-	   context-loss rebuild, drag-to-rotate with fling). It is the joint view
+	   scaffolding: dynamic interleaved xyzα buffers, DPR cap,
+	   theme-following opaque clear, context-loss rebuild, drag-to-rotate with
+	   fling), but every line is a screen-space quad with feathered edges, not
+	   a GL line (see VERT). It is the joint view
 	   for every visitor; under reduced motion the fling and the viewpoint
 	   swings are instant, since nothing else moves unprompted.
 
@@ -130,25 +131,6 @@
 	let marginalCol: [number, number, number] = [217 / 255, 119 / 255, 6 / 255];
 
 	const MAX_PATH_VERTS = 1024;
-
-	// ±0.75px offsets: WebGL clamps lineWidth to 1px, so a line drawn once per
-	// offset reads as a ~2px stroke. Used for the slice curves and ℓ axis.
-	const NUDGES: [number, number][] = [
-		[0.75, 0],
-		[-0.75, 0],
-		[0, 0.75],
-		[0, -0.75]
-	];
-
-	// The optimizer path is the thing to watch, so it gets the heaviest stroke:
-	// a ring of ±1.25px offsets plus the centre reads as a ~3.5px line.
-	const PATH_NUDGES: [number, number][] = [
-		[0, 0],
-		...Array.from({ length: 8 }, (_, k): [number, number] => [
-			1.25 * Math.cos((k * Math.PI) / 4),
-			1.25 * Math.sin((k * Math.PI) / 4)
-		])
-	];
 
 	let tilt = TILT_DEFAULT;
 	let cb = Math.cos(tilt);
@@ -371,13 +353,12 @@
 
 	let gl: WebGL2RenderingContext | null = null;
 	let prog: WebGLProgram;
+	let vaoSeg: WebGLVertexArrayObject;
 	let vaoMesh: WebGLVertexArrayObject;
-	let vaoLines: WebGLVertexArrayObject;
-	let vaoSlices: WebGLVertexArrayObject;
-	let posBuf: WebGLBuffer;
+	let meshBuf: WebGLBuffer;
+	let meshIdxCount = 0;
 	let lineBuf: WebGLBuffer;
 	let sliceBuf: WebGLBuffer;
-	let meshIdxCount = 0;
 	let u: Record<string, WebGLUniformLocation | null> = {};
 	let glBuffers: WebGLBuffer[] = [];
 	let glVaos: WebGLVertexArrayObject[] = [];
@@ -394,55 +375,73 @@
 
 	const glf = (n: number) => (Number.isInteger(n) ? n.toFixed(1) : String(n));
 
+	// Every line is drawn as screen-space quads, one per segment, widened to a
+	// stroke width in CSS px and feathered over one device px in FRAG. GL lines
+	// are 1 device px wide (lineWidth is clamped), so thickening them took
+	// offset passes whose weight and jaggedness varied with pixel density.
 	const VERT = `#version 300 es
 	precision highp float;
 	precision highp int;
-	layout(location = 0) in vec3 aPos;
-	layout(location = 1) in float aAlpha;
+	layout(location = 0) in vec4 aA;      // segment start: xyz + alpha
+	layout(location = 1) in vec4 aB;      // segment end
+	layout(location = 2) in vec2 aCorner; // x: 0 at A, 1 at B; y: side ±1
 	uniform vec2 uRot;
 	uniform vec2 uTilt;
 	uniform float uFit;
 	uniform vec2 uOff;
 	uniform vec2 uCanvas;
-	uniform vec2 uNudge;    // CSS-px offset, for faking >1px line width in passes
-	uniform int uMode;      // 0 mesh (depth fade), 1 line (attr alpha), 2 head point
-	uniform float uPoint;
-	uniform float uClip;    // mesh: fade below the floor plane over SINK (see zSink)
-	out float vAlpha;
-	const float CX = ${glf(CX)};
 	uniform float uCY;
 	uniform float uScl;
+	uniform int uMode;      // 0 mesh (depth fade), 1 line (attr alpha)
+	uniform float uClip;
+	uniform float uHalf;    // half stroke width, CSS px
+	uniform float uFeather; // edge ramp, CSS px (1 device px)
+	uniform float uCap;     // 1: extend the ends (square caps) for sharp corners
+	out float vAlpha;
+	out float vDist;
+	const float CX = ${glf(CX)};
 	const float EXT = ${glf(EXT)};
-	void main() {
-		float x1 = aPos.x * uRot.x - aPos.y * uRot.y;
-		float y1 = aPos.x * uRot.y + aPos.y * uRot.x;
+	vec3 proj(vec3 p) {
+		float x1 = p.x * uRot.x - p.y * uRot.y;
+		float y1 = p.x * uRot.y + p.y * uRot.x;
 		float sx = CX + x1 * uScl;
-		float sy = uCY - (y1 * uTilt.x + aPos.z * uTilt.y) * uScl;
-		vec2 uv = vec2((uOff.x + sx * uFit + uNudge.x) / uCanvas.x, (uOff.y + sy * uFit + uNudge.y) / uCanvas.y);
-		gl_Position = vec4(uv.x * 2.0 - 1.0, 1.0 - uv.y * 2.0, 0.0, 1.0);
+		float sy = uCY - (y1 * uTilt.x + p.z * uTilt.y) * uScl;
+		return vec3(uOff.x + sx * uFit, uOff.y + sy * uFit, y1);
+	}
+	float alphaOf(vec4 v, float y1) {
+		if (uMode != 0) return v.w;
 		float depthA = 0.9 - 0.72 * ((y1 + EXT) / (2.0 * EXT));
-		float sink = uClip > 0.5 ? clamp(1.0 + min(aPos.z, 0.0) / ${glf(SINK)}, 0.0, 1.0) : 1.0;
-		vAlpha = uMode == 0 ? depthA * sink : aAlpha;
-		gl_PointSize = uMode == 2 ? uPoint : 1.0;
+		float sink = uClip > 0.5 ? clamp(1.0 + min(v.z, 0.0) / ${glf(SINK)}, 0.0, 1.0) : 1.0;
+		return depthA * sink;
+	}
+	void main() {
+		vec3 a = proj(aA.xyz);
+		vec3 b = proj(aB.xyz);
+		vec2 d = b.xy - a.xy;
+		float len = length(d);
+		vec2 dir = len > 1e-4 ? d / len : vec2(1.0, 0.0);
+		vec2 nrm = vec2(-dir.y, dir.x);
+		float w = uHalf + uFeather;
+		vec2 p = mix(a.xy, b.xy, aCorner.x) + nrm * aCorner.y * w
+			+ dir * (aCorner.x * 2.0 - 1.0) * uCap * w;
+		vDist = aCorner.y * w;
+		vAlpha = aCorner.x < 0.5 ? alphaOf(aA, a.z) : alphaOf(aB, b.z);
+		gl_Position = vec4(p.x / uCanvas.x * 2.0 - 1.0, 1.0 - p.y / uCanvas.y * 2.0, 0.0, 1.0);
 	}`;
 
 	const FRAG = `#version 300 es
 	precision highp float;
-	precision highp int;
 	in float vAlpha;
+	in float vDist;
 	uniform vec3 uColor;
-	uniform int uMode;
-	uniform float uFade;   // key emphasis: dims the elements not emphasized
+	uniform float uFade;
+	uniform float uHalf;
+	uniform float uFeather;
+	uniform float uWidthAlpha; // < 1 for strokes thinner than a device px
 	out vec4 frag;
 	void main() {
-		float a = vAlpha;
-		if (uMode == 2) {
-			float pr = length(gl_PointCoord - 0.5) * 2.0;
-			float core = smoothstep(0.55, 0.32, pr);
-			float halo = exp(-pr * 3.0) * 0.5;
-			a *= clamp(core + halo, 0.0, 1.0);
-		}
-		a *= uFade;
+		float cov = clamp((uHalf - abs(vDist)) / uFeather + 0.5, 0.0, 1.0);
+		float a = vAlpha * cov * uFade * uWidthAlpha;
 		if (a <= 0.001) discard;
 		frag = vec4(uColor, a);
 	}`;
@@ -518,6 +517,40 @@
 		}
 	}
 
+	// Grid lines the wireframe walks: every LINE_EVERY-th, plus the last.
+	function wireLines(limit: number): number[] {
+		const out: number[] = [];
+		for (let k = 0; k < limit; k += LINE_EVERY) out.push(k);
+		if (out[out.length - 1] !== limit - 1) out.push(limit - 1);
+		return out;
+	}
+
+	// The wireframe as plain (non-instanced) quads, 4 vertices per segment of
+	// A (xyz, 1), B (xyz, 1), corner: ~5k one-quad instances ran ~20× slower
+	// than this on SwiftShader, so the mesh is expanded once per sample and
+	// drawn with one indexed call. The curves stay instanced (≤ 1k segments).
+	function meshQuads(pos: Float32Array): Float32Array {
+		const { cols, rows } = model.grid;
+		const out: number[] = [];
+		const seg = (p: number, q: number) => {
+			for (const [t, side] of [
+				[0, -1],
+				[0, 1],
+				[1, -1],
+				[1, 1]
+			]) {
+				out.push(pos[p * 3], pos[p * 3 + 1], pos[p * 3 + 2], 1);
+				out.push(pos[q * 3], pos[q * 3 + 1], pos[q * 3 + 2], 1);
+				out.push(t, side);
+			}
+		};
+		for (const j of wireLines(rows))
+			for (let i = 1; i < cols; i++) seg(j * cols + i - 1, j * cols + i);
+		for (const i of wireLines(cols))
+			for (let j = 1; j < rows; j++) seg((j - 1) * cols + i, j * cols + i);
+		return new Float32Array(out);
+	}
+
 	function surfacePositions(): Float32Array {
 		const g = model.grid;
 		const pos = new Float32Array(g.cols * g.rows * 3);
@@ -536,100 +569,15 @@
 	function setupGL(g: WebGL2RenderingContext) {
 		glBuffers = [];
 		glVaos = [];
-		prog = g.createProgram()!;
-		const vert = compile(g, g.VERTEX_SHADER, VERT);
-		const frag = compile(g, g.FRAGMENT_SHADER, FRAG);
-		g.attachShader(prog, vert);
-		g.attachShader(prog, frag);
-		g.linkProgram(prog);
-		if (!g.getProgramParameter(prog, g.LINK_STATUS))
-			throw new Error(g.getProgramInfoLog(prog) ?? 'link');
-		g.detachShader(prog, vert);
-		g.detachShader(prog, frag);
-		g.deleteShader(vert);
-		g.deleteShader(frag);
-		g.useProgram(prog);
-		for (const name of [
-			'uRot',
-			'uTilt',
-			'uCY',
-			'uScl',
-			'uFit',
-			'uOff',
-			'uCanvas',
-			'uNudge',
-			'uMode',
-			'uPoint',
-			'uColor',
-			'uFade',
-			'uClip'
-		]) {
-			u[name] = g.getUniformLocation(prog, name);
-		}
-
-		const { cols, rows } = untrack(() => model.grid);
-		posBuf = g.createBuffer()!;
-		glBuffers.push(posBuf);
-		g.bindBuffer(g.ARRAY_BUFFER, posBuf);
-		g.bufferData(
-			g.ARRAY_BUFFER,
-			untrack(() => surfacePositions()),
-			g.STATIC_DRAW
-		);
-
-		// Wireframe over every LINE_EVERY-th grid line (plus the last), each row
-		// and column a dense polyline; split by the fixed restart index.
-		const RESTART = 0xffffffff;
-		const idx: number[] = [];
-		const lineIdx = (limit: number) => {
-			const out: number[] = [];
-			for (let k = 0; k < limit; k += LINE_EVERY) out.push(k);
-			if (out[out.length - 1] !== limit - 1) out.push(limit - 1);
-			return out;
-		};
-		for (const j of lineIdx(rows)) {
-			for (let i = 0; i < cols; i++) idx.push(j * cols + i);
-			idx.push(RESTART);
-		}
-		for (const i of lineIdx(cols)) {
-			for (let j = 0; j < rows; j++) idx.push(j * cols + i);
-			idx.push(RESTART);
-		}
-		meshIdxCount = idx.length;
-		const idxBuf = g.createBuffer()!;
-		glBuffers.push(idxBuf);
-		g.bindBuffer(g.ELEMENT_ARRAY_BUFFER, idxBuf);
-		g.bufferData(g.ELEMENT_ARRAY_BUFFER, new Uint32Array(idx), g.STATIC_DRAW);
-
-		vaoMesh = g.createVertexArray()!;
-		glVaos.push(vaoMesh);
-		g.bindVertexArray(vaoMesh);
-		g.bindBuffer(g.ARRAY_BUFFER, posBuf);
-		g.enableVertexAttribArray(0);
-		g.vertexAttribPointer(0, 3, g.FLOAT, false, 0, 0);
-		g.bindBuffer(g.ELEMENT_ARRAY_BUFFER, idxBuf);
-
-		const dynVAO = (buf: WebGLBuffer) => {
-			const vao = g.createVertexArray()!;
-			glVaos.push(vao);
-			g.bindVertexArray(vao);
-			g.bindBuffer(g.ARRAY_BUFFER, buf);
-			g.enableVertexAttribArray(0);
-			g.vertexAttribPointer(0, 3, g.FLOAT, false, 16, 0);
-			g.enableVertexAttribArray(1);
-			g.vertexAttribPointer(1, 1, g.FLOAT, false, 16, 12);
-			return vao;
-		};
 		lineBuf = g.createBuffer()!;
 		glBuffers.push(lineBuf);
 		g.bindBuffer(g.ARRAY_BUFFER, lineBuf);
 		g.bufferData(g.ARRAY_BUFFER, lineData.byteLength, g.DYNAMIC_DRAW);
-		vaoLines = dynVAO(lineBuf);
 		sliceBuf = g.createBuffer()!;
 		glBuffers.push(sliceBuf);
 		g.bindBuffer(g.ARRAY_BUFFER, sliceBuf);
 		g.bufferData(g.ARRAY_BUFFER, sliceData.byteLength, g.DYNAMIC_DRAW);
-		vaoSlices = dynVAO(sliceBuf);
+		setupLines(g);
 
 		// Faint floor box: the domain footprint at z = 0. (The axis gnomon is an
 		// SVG overlay — screen-space arrowheads read cleaner than baked 3D ones.)
@@ -655,12 +603,111 @@
 		}
 
 		g.bindVertexArray(null);
-		g.vertexAttrib1f(1, 1.0);
 		g.enable(g.BLEND);
 		g.blendFunc(g.SRC_ALPHA, g.ONE_MINUS_SRC_ALPHA);
 		const bg = pageBg();
 		g.clearColor(bg[0], bg[1], bg[2], 1);
 	}
+
+	function setupLines(g: WebGL2RenderingContext) {
+		prog = g.createProgram()!;
+		const vert = compile(g, g.VERTEX_SHADER, VERT);
+		const frag = compile(g, g.FRAGMENT_SHADER, FRAG);
+		g.attachShader(prog, vert);
+		g.attachShader(prog, frag);
+		g.linkProgram(prog);
+		if (!g.getProgramParameter(prog, g.LINK_STATUS))
+			throw new Error(g.getProgramInfoLog(prog) ?? 'link');
+		g.deleteShader(vert);
+		g.deleteShader(frag);
+		for (const name of [
+			'uRot',
+			'uTilt',
+			'uCY',
+			'uScl',
+			'uFit',
+			'uOff',
+			'uCanvas',
+			'uMode',
+			'uClip',
+			'uHalf',
+			'uFeather',
+			'uCap',
+			'uColor',
+			'uFade',
+			'uWidthAlpha'
+		]) {
+			u[name] = g.getUniformLocation(prog, name);
+		}
+		vaoSeg = g.createVertexArray()!;
+		glVaos.push(vaoSeg);
+		g.bindVertexArray(vaoSeg);
+		const corners = g.createBuffer()!;
+		glBuffers.push(corners);
+		g.bindBuffer(g.ARRAY_BUFFER, corners);
+		g.bufferData(g.ARRAY_BUFFER, new Float32Array([0, -1, 0, 1, 1, -1, 1, 1]), g.STATIC_DRAW);
+		g.enableVertexAttribArray(2);
+		g.vertexAttribPointer(2, 2, g.FLOAT, false, 0, 0);
+		g.enableVertexAttribArray(0);
+		g.vertexAttribDivisor(0, 1);
+		g.enableVertexAttribArray(1);
+		g.vertexAttribDivisor(1, 1);
+		vaoMesh = g.createVertexArray()!;
+		glVaos.push(vaoMesh);
+		g.bindVertexArray(vaoMesh);
+		meshBuf = g.createBuffer()!;
+		glBuffers.push(meshBuf);
+		const quads = untrack(() => meshQuads(surfacePositions()));
+		g.bindBuffer(g.ARRAY_BUFFER, meshBuf);
+		g.bufferData(g.ARRAY_BUFFER, quads, g.STATIC_DRAW);
+		for (const [loc, size, off] of [
+			[0, 4, 0],
+			[1, 4, 16],
+			[2, 2, 32]
+		]) {
+			g.enableVertexAttribArray(loc);
+			g.vertexAttribPointer(loc, size, g.FLOAT, false, 40, off);
+		}
+		const nSeg = quads.length / 40;
+		const idx = new Uint32Array(nSeg * 6);
+		for (let k = 0; k < nSeg; k++)
+			idx.set([4 * k, 4 * k + 1, 4 * k + 2, 4 * k + 2, 4 * k + 1, 4 * k + 3], k * 6);
+		meshIdxCount = idx.length;
+		const idxBuf = g.createBuffer()!;
+		glBuffers.push(idxBuf);
+		g.bindBuffer(g.ELEMENT_ARRAY_BUFFER, idxBuf);
+		g.bufferData(g.ELEMENT_ARRAY_BUFFER, idx, g.STATIC_DRAW);
+		g.bindVertexArray(null);
+	}
+
+	// Segments of a polyline (consecutive vertices) or of separate pairs.
+	function segs(
+		g: WebGL2RenderingContext,
+		buf: WebGLBuffer,
+		first: number,
+		n: number,
+		pairs = false
+	) {
+		if (n < 2) return;
+		const stride = pairs ? 32 : 16;
+		g.bindBuffer(g.ARRAY_BUFFER, buf);
+		g.vertexAttribPointer(0, 4, g.FLOAT, false, stride, first * 16);
+		g.vertexAttribPointer(1, 4, g.FLOAT, false, stride, first * 16 + 16);
+		g.drawArraysInstanced(g.TRIANGLE_STRIP, 0, 4, pairs ? n / 2 : n - 1);
+	}
+
+	// Stroke width in CSS px; below one device px, draw one device px at
+	// proportionally lower opacity (what an antialiased hairline looks like).
+	function stroke(g: WebGL2RenderingContext, width: number) {
+		const wDev = width * dpr;
+		g.uniform1f(u.uHalf, Math.max(wDev, 1) / dpr / 2);
+		g.uniform1f(u.uWidthAlpha, Math.min(wDev, 1));
+	}
+
+	// Stroke widths, CSS px, matched on a 2× screen to the old offset-pass look.
+	const W_CURVE = 2.5; // slices and profile walls
+	const W_PATH = 3.5; // the optimizer path, the thing to watch
+	const W_HAIR = 1; // wireframe, floor box, drop line
 
 	function resize() {
 		if (!gl) return;
@@ -1162,7 +1209,15 @@
 		dirty = false;
 		const { scale, ox, oy, cw, ch } = view;
 		g.clear(g.COLOR_BUFFER_BIT);
+		g.bindBuffer(g.ARRAY_BUFFER, lineBuf);
+		g.bufferSubData(g.ARRAY_BUFFER, 0, lineData, 0, (FLOOR_VERTS + pathVerts) * 4);
+		const es = edgeSigns();
+		if (es.mu !== wallMuSign || es.s2 !== wallS2Sign) buildWalls();
+		g.bindBuffer(g.ARRAY_BUFFER, sliceBuf);
+		g.bufferSubData(g.ARRAY_BUFFER, 0, sliceData);
+
 		g.useProgram(prog);
+		g.bindVertexArray(vaoSeg);
 		g.uniform2f(u.uRot, Math.cos(angle), Math.sin(angle));
 		g.uniform2f(u.uTilt, cb, sb);
 		g.uniform1f(u.uCY, cy);
@@ -1170,90 +1225,57 @@
 		g.uniform1f(u.uFit, scale);
 		g.uniform2f(u.uOff, ox, oy);
 		g.uniform2f(u.uCanvas, cw, ch);
-		g.uniform2f(u.uNudge, 0, 0);
+		g.uniform1f(u.uFeather, 1 / dpr);
+		g.uniform1f(u.uCap, 0);
 
 		const mesh = isDark ? MESH_DARK : MESH_LIGHT;
-		g.bindVertexArray(vaoMesh);
-		g.uniform1i(u.uMode, 0);
 		// The surface itself never dims under key emphasis: it is the subject,
 		// not one of the overlays the key picks between.
+		g.uniform1i(u.uMode, 0);
 		g.uniform1f(u.uFade, 1);
 		g.uniform1f(u.uClip, 1);
 		g.uniform3f(u.uColor, mesh[0], mesh[1], mesh[2]);
-		g.drawElements(g.LINE_STRIP, meshIdxCount, g.UNSIGNED_INT, 0);
+		stroke(g, W_HAIR);
+		g.bindVertexArray(vaoMesh);
+		g.drawElements(g.TRIANGLES, meshIdxCount, g.UNSIGNED_INT, 0);
+		g.bindVertexArray(vaoSeg);
 		g.uniform1f(u.uClip, 0);
 
-		g.bindVertexArray(vaoLines);
-		g.bindBuffer(g.ARRAY_BUFFER, lineBuf);
-		g.bufferSubData(g.ARRAY_BUFFER, 0, lineData, 0, (FLOOR_VERTS + pathVerts) * 4);
 		g.uniform1i(u.uMode, 1);
-		// Faint floor box (the gnomon is the SVG overlay).
-		g.uniform3f(u.uColor, mesh[0], mesh[1], mesh[2]);
-		g.drawArrays(g.LINES, 0, FLOOR_VERTS);
+		segs(g, lineBuf, 0, FLOOR_VERTS, true);
 
-		// The ℓ(μ) and ℓ(σ²) slice curves through the current point + drop line.
-		// WebGL clamps lineWidth to 1px on nearly all platforms, so the slices
-		// are drawn in four ±0.75px-nudged passes to read as a ~2px stroke that
-		// stands off the 1px wireframe.
-		g.bindVertexArray(vaoSlices);
-		g.bindBuffer(g.ARRAY_BUFFER, sliceBuf);
-		// Rotation may have swapped which walls are rearmost — rebuild before upload.
-		const es = edgeSigns();
-		if (es.mu !== wallMuSign || es.s2 !== wallS2Sign) buildWalls();
-		g.bufferSubData(g.ARRAY_BUFFER, 0, sliceData);
-		// Inference: the second slot holds the null slice ℓ(μ₀, σ²) in the null
-		// colour; the μ-slice (first slot) is shown only for the score and Wald
-		// tests, through (μ₀, σ̂₀²) or the summit respectively.
 		const muSlice = !inference || model.p.test !== 'LRT';
 		const muFade = fadeOf(inference ? 'muSlice' : 'slices');
 		const s2Fade = fadeOf(inference ? 'nullSlice' : 'slices');
-		for (const [nx, ny] of NUDGES) {
-			g.uniform2f(u.uNudge, nx, ny);
-			if (muSlice) {
-				g.uniform3f(u.uColor, accent[0], accent[1], accent[2]);
-				g.uniform1f(u.uFade, muFade);
-				g.drawArrays(g.LINE_STRIP, 0, SLICE_N);
-			}
-			const sc = inference ? PATH : accent;
-			g.uniform3f(u.uColor, sc[0], sc[1], sc[2]);
-			g.uniform1f(u.uFade, s2Fade);
-			g.drawArrays(g.LINE_STRIP, SLICE_N, SLICE_N);
+		stroke(g, W_CURVE);
+		if (muSlice) {
+			g.uniform3f(u.uColor, accent[0], accent[1], accent[2]);
+			g.uniform1f(u.uFade, muFade);
+			segs(g, sliceBuf, 0, SLICE_N);
 		}
-		g.uniform2f(u.uNudge, 0, 0);
+		const sc = inference ? PATH : accent;
+		g.uniform3f(u.uColor, sc[0], sc[1], sc[2]);
+		g.uniform1f(u.uFade, s2Fade);
+		segs(g, sliceBuf, SLICE_N, SLICE_N);
 		g.uniform3f(u.uColor, mesh[0], mesh[1], mesh[2]);
-		g.drawArrays(g.LINES, SLICE_N * 2, 2);
-		g.uniform1f(u.uFade, fadeOf('profile'));
-		const wv = wallsVisible();
-		// Profile silhouettes on the two rearmost walls: the surface's ridge cast
-		// onto each axis. Drawn in --marginal (amber) in the same four-nudge ~2px
-		// pass as the slices so they read as real curves, distinct from the teal
-		// slices, against the dense wireframe (mesh colour dissolved into it,
-		// badly in dark mode). They sit at the back edges, clear of the slices.
-		g.uniform3f(u.uColor, marginalCol[0], marginalCol[1], marginalCol[2]);
-		for (const [nx, ny] of NUDGES) {
-			g.uniform2f(u.uNudge, nx, ny);
-			if (wv.mu) g.drawArrays(g.LINE_STRIP, WALL_MU_OFF, SLICE_N);
-			if (wv.s2) g.drawArrays(g.LINE_STRIP, WALL_S2_OFF, SLICE_N);
-		}
-		g.uniform2f(u.uNudge, 0, 0);
+		stroke(g, W_HAIR);
+		segs(g, sliceBuf, SLICE_N * 2, 2, true);
 
-		// Optimizer path last, over the slices and walls.
+		const wv = wallsVisible();
+		g.uniform1f(u.uFade, fadeOf('profile'));
+		g.uniform3f(u.uColor, marginalCol[0], marginalCol[1], marginalCol[2]);
+		stroke(g, W_CURVE);
+		if (wv.mu) segs(g, sliceBuf, WALL_MU_OFF, SLICE_N);
+		if (wv.s2) segs(g, sliceBuf, WALL_S2_OFF, SLICE_N);
+
 		if (pathVerts >= 2) {
-			g.bindVertexArray(vaoLines);
-			g.bindBuffer(g.ARRAY_BUFFER, lineBuf);
 			g.uniform3f(u.uColor, PATH[0], PATH[1], PATH[2]);
 			g.uniform1f(u.uFade, fadeOf('path'));
-			for (const [nx, ny] of PATH_NUDGES) {
-				g.uniform2f(u.uNudge, nx, ny);
-				g.drawArrays(g.LINE_STRIP, FLOOR_VERTS, pathVerts);
-			}
-			g.uniform2f(u.uNudge, 0, 0);
+			g.uniform1f(u.uCap, 1);
+			stroke(g, W_PATH);
+			segs(g, lineBuf, FLOOR_VERTS, pathVerts);
 		}
-
-		g.uniform1f(u.uFade, 1);
-
-		// The current-position dot is an SVG overlay (styled like the 2D
-		// contour's), not a GL point — see positionLabels / the template.
+		g.bindVertexArray(null);
 		positionLabels();
 	}
 
@@ -1301,7 +1323,8 @@
 	$effect(() => {
 		gl = canvas.getContext('webgl2', {
 			alpha: true,
-			antialias: true,
+			// The line shader feathers its own edges; MSAA would only add cost.
+			antialias: false,
 			powerPreference: 'low-power'
 		});
 		if (!gl) {
@@ -1410,12 +1433,12 @@
 		requestDraw();
 	});
 
-	// New sample → new surface: re-upload the lattice heights.
+	// New sample → new surface: rebuild the wireframe quads.
 	$effect(() => {
-		const pos = surfacePositions(); // tracks model.grid
+		const quads = meshQuads(surfacePositions()); // tracks model.grid
 		if (!gl) return;
-		gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
-		gl.bufferData(gl.ARRAY_BUFFER, pos, gl.STATIC_DRAW);
+		gl.bindBuffer(gl.ARRAY_BUFFER, meshBuf);
+		gl.bufferData(gl.ARRAY_BUFFER, quads, gl.STATIC_DRAW);
 		requestDraw();
 	});
 
