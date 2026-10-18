@@ -19,7 +19,8 @@
 	import Slider from '$lib/viz/core/components/Slider.svelte';
 	import { MU_NULL_MAX, MU_NULL_MIN, N_MAX, N_MIN } from './likelihood.svelte';
 	import type { LikelihoodState } from './likelihood.svelte';
-	import { SIGMA2_MAX } from './model';
+	import { format } from 'd3-format';
+	import { SIGMA2_MAX, profileIntervalMu, waldIntervalMu } from './model';
 
 	interface Props {
 		model: LikelihoodState;
@@ -46,12 +47,13 @@
 	// highlight: LR reads the null slice's peak against the profile wall; the
 	// score test reads the μ-slice at the null's best point, with the null
 	// slice showing it is flat in σ² there; Wald, the μ-slice through the MLE
-	// and its floor distance to the null line.
+	// and its floor distance to the null line. LR and score also pick out the
+	// ridge: the null's best point rides it (the prose points readers at it).
 	const infFocus = $derived(
 		model.p.test === 'LRT'
-			? ['nullSlice', 'profile']
+			? ['nullSlice', 'ridge', 'profile']
 			: model.p.test === 'score'
-				? ['muSlice', 'nullSlice']
+				? ['muSlice', 'nullSlice', 'ridge']
 				: ['muSlice', 'null']
 	);
 	const keyNull: KeyItem = { id: 'null', swatch: 'null-line', tex: String.raw`H_0\!: \mu = \mu_0` };
@@ -101,8 +103,13 @@
 	// Full-window view per instrument (see ExpandButton).
 	let fullMle = $state(false);
 	let fullInf = $state(false);
-	// The inference figure opens on the 2D curves; 3D is opt-in.
-	let infView = $state<'curves' | 'surface'>('curves');
+	// The inference figure opens on the surface, continuing the MLE view; 2D
+	// flattens it onto shared axes so the tests' readings can be compared.
+	let infView = $state<'curves' | 'surface'>('surface');
+	// 95% intervals at the slider n, read out under either view.
+	const li = $derived(profileIntervalMu(model.muHat, model.sigma2Hat, model.p.n));
+	const wald = $derived(waldIntervalMu(model.muHat, model.sigma2Hat, model.p.n));
+	const f2 = format('.2f');
 
 	// Two formulas around a plain "versus" so a narrow screen can wrap between them.
 </script>
@@ -233,13 +240,13 @@
 			<em>profile likelihood</em>
 			<Tex math={String.raw`\ell_p(\mu)`} />; this is called profiling out <Tex
 				math={String.raw`\sigma^2`}
-			/>. It is the amber curve below, the ridge of the surface above seen from the side, and the
-			same curve as on the back walls in 3D. Drag
-			<Tex math={String.raw`\mu_0`} /> and the point at the null moves along it. The profile falls off
-			more slowly than the teal slice at
-			<Tex math={String.raw`\hat\sigma^2`} />, because a variance that is free to grow absorbs part
-			of the misfit of a wrong mean. The Wald test reads the slice, which treats the variance as
-			known, and the likelihood ratio and score tests read the profile.
+			/>. In the figure below it is the amber curve on the back wall, the side view of the dotted
+			ridge that traces the best variance for each mean. Drag
+			<Tex math={String.raw`\mu_0`} /> and the null's best point slides along the ridge. Switch to 2D
+			to set the profile against the teal slice at <Tex math={String.raw`\hat\sigma^2`} />, which
+			treats the variance as known. The profile falls off more slowly, because a variance that is
+			free to grow absorbs part of the misfit of a wrong mean. The Wald test reads the slice, and
+			the likelihood ratio and score tests read the profile.
 		</p>
 		<p class="section-intro">
 			The sample-size slider asks a what-if question. The estimates
@@ -250,8 +257,9 @@
 			around the MLE. In large samples the inverse of the information approximates the variance of
 			the MLE (for
 			<Tex math={String.raw`\hat\mu`} /> in this model it is exact), so a sharper peak means a more precise
-			estimate. Switch the figure to 3D to watch the whole surface sharpen, in
-			<Tex math={String.raw`\sigma^2`} /> as well as <Tex math={String.raw`\mu`} />.
+			estimate. Increase n and the whole surface sharpens, in
+			<Tex math={String.raw`\sigma^2`} /> as well as <Tex math={String.raw`\mu`} />; in 2D, the
+			dashed curve keeps the profile at n = 10 for comparison.
 		</p>
 
 		<div class="instrument inf-inst" class:expanded={fullInf} style:--head-h="{infHeadH}px">
@@ -325,20 +333,27 @@
 					{:else}
 						<CurvaturePlot {model} />
 					{/if}
+					<p class="interval-readout" data-testid="intervals">
+						95% intervals at n = {model.p.n}: profile likelihood [{f2(li[0])}, {f2(li[1])}]; Wald [{f2(
+							wald[0]
+						)}, {f2(wald[1])}]. Each holds the values of μ₀ that its test does not reject at .05.
+					</p>
 				</div>
 				<TestTabs {model} />
 			</div>
 		</div>
 		<p class="hint">
-			Pick a test to highlight its geometry in the figure. In 3D, each test opens with its own
-			elements highlighted; hover or tap a key entry to highlight a different one.
+			Pick a test to highlight its geometry in the figure; in 3D, hover or tap a key entry to
+			highlight a different element. The 2D view flattens the same geometry onto one set of axes,
+			the profile against its quadratic approximation, so the tests' readings can be compared
+			directly.
 		</p>
 		<p class="section-intro after">
 			Inverting a test gives an interval: the 95% interval is the set of null values the test would
-			not reject at the .05 level. The readout under the 2D figure lists two of them, the likelihood
-			interval (from the likelihood ratio test) and the Wald interval. Slide
-			<Tex math={String.raw`\mu_0`} /> past either end of the likelihood interval and the likelihood ratio
-			test's <em>p</em> drops below .05.
+			not reject at the .05 level. The readout under the figure lists two of them, the profile
+			likelihood interval (from the likelihood ratio test) and the Wald interval. Slide
+			<Tex math={String.raw`\mu_0`} /> past either end of the profile likelihood interval and the likelihood
+			ratio test's <em>p</em> drops below .05.
 		</p>
 		<p class="section-intro">
 			All three <em>p</em>-values rest on large-sample approximations, which is why they disagree in
@@ -393,6 +408,11 @@
 	}
 	.section-intro.after {
 		margin-top: 1.5rem;
+	}
+	.interval-readout {
+		margin: 0.4rem 0 0;
+		font-size: 0.85rem;
+		color: var(--muted);
 	}
 	/* One hairline frame per instrument; the header row carries its controls. */
 	/* --sticky-top: how far down the viewport the pinned bars above a figure

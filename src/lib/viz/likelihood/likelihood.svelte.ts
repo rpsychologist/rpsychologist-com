@@ -19,6 +19,7 @@ import {
 	outsideFrame,
 	scoreMu,
 	scoreTest,
+	snapMean,
 	SIGMA2_MAX,
 	SIGMA2_MIN,
 	SIGMA2_THETA,
@@ -48,13 +49,14 @@ export interface LikelihoodParams {
 	test: TestKind;
 }
 
-// The old app's defaults, including its deterministic first-paint dataset.
+// The old app's defaults, including its deterministic first-paint dataset
+// (shifted by −0.38 to μ̂ = 104, like every sample; see snapMean).
 export const defaults: LikelihoodParams = {
 	mu: 80,
 	sigma2: 100,
 	muNull: 80,
 	n: 10,
-	sample: [78.0, 95.5, 100.3, 100.6, 102.8, 107.8, 109.1, 110.8, 113.9, 125.0],
+	sample: snapMean([78.0, 95.5, 100.3, 100.6, 102.8, 107.8, 109.1, 110.8, 113.9, 125.0]),
 	algo: 'gradientAscent',
 	gamma: GA_GAMMA,
 	test: 'LRT'
@@ -206,7 +208,7 @@ export class LikelihoodState {
 		this.p.algo = a;
 	}
 
-	/** Fresh sorted draws from the fixed population N(μ_θ, σ²_θ). */
+	/** Fresh sorted draws from the fixed population N(μ_θ, σ²_θ), mean snapped. */
 	newSample() {
 		this.immediate = false;
 		this.#interrupt();
@@ -214,7 +216,9 @@ export class LikelihoodState {
 		this.#convergedHistory = [];
 		this.converged = false;
 		this.diverged = false;
-		this.p.sample = drawGaussian(10, MU_THETA, Math.sqrt(SIGMA2_THETA)).sort((a, b) => a - b);
+		this.p.sample = snapMean(drawGaussian(10, MU_THETA, Math.sqrt(SIGMA2_THETA))).sort(
+			(a, b) => a - b
+		);
 	}
 
 	/** One optimizer iteration; always applies the step (old semantics —

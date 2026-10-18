@@ -62,6 +62,17 @@ export function sumSquares(sample: number[], mu: number): number {
 	return ss + n * (mean - mu) ** 2;
 }
 
+/**
+ * Shift a sample by round(ȳ) − ȳ (at most ½) so its mean is a whole number.
+ * Only the location moves: σ̂² and the shape are unchanged. The μ₀ slider
+ * steps by 1, so this lets it land on μ̂, where every test reads zero.
+ */
+export function snapMean(sample: number[]): number[] {
+	const { mean } = statsOf(sample);
+	const d = Math.round(mean) - mean;
+	return sample.map((y) => y + d);
+}
+
 /** Joint log-likelihood ℓ(mu, sigma2) of the sample. */
 export function logLikSum(sample: number[], mu: number, sigma2: number): number {
 	const n = sample.length;

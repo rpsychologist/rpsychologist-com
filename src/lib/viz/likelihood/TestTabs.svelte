@@ -7,6 +7,7 @@
 	import Tex from '$lib/components/Tex.svelte';
 	import TexLive from '$lib/components/TexLive.svelte';
 	import type { LikelihoodState, TestKind } from './likelihood.svelte';
+	import { fData, fScore, fStat } from './format';
 
 	interface Props {
 		model: LikelihoodState;
@@ -16,8 +17,6 @@
 	const f3 = format('.3f');
 	// APA style: no leading zero, and p < .001 rather than a rounded 0.
 	const fmtP = (p: number) => (p < 0.001 ? '< .001' : `= ${f3(p).replace(/^0/, '')}`);
-	const f3n = format('.3n');
-	const f2n = format('.2n');
 
 	const tabs: { id: TestKind; label: string }[] = [
 		{ id: 'LRT', label: 'Likelihood ratio' },
@@ -36,7 +35,11 @@
 		&= \frac{#0 - #1}{#2} \\
 		&= #3
 		\end{aligned}`;
-	const eqScoreAtNull = String.raw`U(\mu_0, \hat\sigma_0^2) = \frac{\partial}{\partial \mu_0}\ell(\mu_0, \hat\sigma_0^2) = #0`;
+	const eqScoreAtNull = String.raw`\begin{aligned}
+		U(\mu_0, \hat\sigma_0^2) &= \frac{\partial}{\partial \mu_0}\ell(\mu_0, \hat\sigma_0^2)
+		= \frac{n(\hat\mu - \mu_0)}{\hat\sigma_0^2} \\
+		&= \frac{#0\,(#1 - #2)}{#3} = #4
+		\end{aligned}`;
 	const eqInfoAtNull = String.raw`I(\mu_0, \hat\sigma_0^2) = #0`;
 	const eqScore = String.raw`\begin{aligned}
 		S(\mu_0, \hat\sigma_0^2) =& \frac{U(\mu_0, \hat\sigma_0^2)^2}{I(\mu_0, \hat\sigma_0^2)} \\
@@ -46,6 +49,11 @@
 </script>
 
 <div class="tests">
+	<p class="intro">
+		All three tests ask whether <Tex math={String.raw`\mu_0`} /> is far from the peak of the same log-likelihood.
+		They differ in what they measure: the likelihood ratio test the drop in height, the Wald test the
+		distance along <Tex math={String.raw`\mu`} />, and the score test the slope at the null.
+	</p>
 	<div class="tablist" role="tablist" aria-label="Hypothesis test">
 		{#each tabs as t (t.id)}
 			<button
@@ -69,16 +77,20 @@
 		hidden={model.p.test !== 'LRT'}
 	>
 		<p>
-			The likelihood ratio test compares the likelihoods of two models, here the likelihood
-			evaluated at the MLE and at the null. The 2D figure shows this as the vertical distance
-			between the two horizontal lines, which is half the statistic. Multiplying the difference in
-			log-likelihood by −2 gives the statistic,
+			The likelihood ratio test asks how much worse the null fits than the best estimate. The
+			bracket in the figure is that loss: the drop in log-likelihood from the peak at
+			<Tex math={String.raw`\hat\mu`} /> down to <Tex math={String.raw`\mu_0`} />. A small drop
+			means the data are almost as likely under the null as under the MLE. Multiplying the drop by 2
+			puts it on the scale of a <Tex math={String.raw`\chi^2`} /> distribution,
 		</p>
-		<TexLive display math={eqLR} values={[f3n(model.tests.lr.stat)]} />
+		<TexLive display math={eqLR} values={[fStat(model.tests.lr.stat)]} />
 		<p>
 			Asymptotically LR follows a <Tex math={String.raw`\chi^2`} /> distribution with 1 degree of freedom,
 			which gives <em>p</em>
-			<span data-testid="pval-LRT">{fmtP(model.tests.lr.pval)}</span>.
+			<span data-testid="pval-LRT">{fmtP(model.tests.lr.pval)}</span>. The test rejects at the .05
+			level when LR exceeds 3.84, the 95th percentile of that distribution, so when the bracket is
+			longer than 1.92. In 2D, the 95% cutoff line at −1.92 marks that depth. The values of
+			<Tex math={String.raw`\mu_0`} /> the test does not reject form the profile likelihood interval.
 		</p>
 		<p class="caveat">
 			Each likelihood uses the best variance for its own mean: <Tex
@@ -99,30 +111,38 @@
 		hidden={model.p.test !== 'wald'}
 	>
 		<p>
-			The Wald test is based on the difference between the maximum likelihood estimate of the mean
-			and <Tex math={String.raw`\mu_0`} />, divided by the standard error of the MLE,
-			<Tex math={eqSE} />,
+			The Wald test asks how far the estimate is from the null, measured in standard errors. The
+			horizontal bracket in the figure is that distance, from <Tex math={String.raw`\hat\mu`} /> to
+			<Tex math={String.raw`\mu_0`} />. Whether it counts as far depends on how sharply the
+			log-likelihood peaks: a sharp peak means the data pin down <Tex math={String.raw`\mu`} />
+			tightly, so the standard error is small. Drag the sample size slider and the bracket keeps its length
+			while the peak narrows and <em>Z</em> grows,
 		</p>
 		<TexLive
 			display
 			math={eqWald}
 			values={[
-				f3n(model.muHat),
-				f3n(model.p.muNull),
-				f3n(model.tests.wald.se),
-				f3n(model.tests.wald.z)
+				fData(model.muHat),
+				fData(model.p.muNull),
+				fStat(model.tests.wald.se),
+				fStat(model.tests.wald.z)
 			]}
 		/>
 		<p>
-			Asymptotically <em>Z</em> follows a standard normal distribution, giving <em>p</em>
-			<span data-testid="pval-wald">{fmtP(model.tests.wald.pval)}</span>.
+			The standard error is read off the curvature at the peak, <Tex math={eqSE} />: the sharper the
+			peak, the smaller it is. Asymptotically <em>Z</em> follows a standard normal distribution,
+			giving <em>p</em>
+			<span data-testid="pval-wald">{fmtP(model.tests.wald.pval)}</span>. The test rejects at the
+			.05 level when <em>Z</em> is beyond ±1.96, so the Wald interval is
+			<Tex math={String.raw`\hat\mu \pm 1.96\,\text{se}(\hat\mu)`} />. In 2D, the teal parabola
+			crosses the 95% cutoff line exactly at its ends: 1.96 standard errors from the peak, the
+			parabola has dropped <Tex math={String.raw`1.96^2/2 = 1.92`} />.
 		</p>
 		<p class="caveat">
-			The Wald test reads the teal slice, the quadratic that matches the profile's curvature at the
-			peak. The open circle at <Tex math={String.raw`\mu_0`} /> sits at <Tex
-				math={String.raw`-Z^2/2`}
-			/>, always at or below the profile (see the FAQ), so the Wald test overstates the evidence
-			against the null relative to the likelihood ratio test.
+			The Wald test only looks at the peak. It measures the curvature there and treats the
+			log-likelihood as the parabola with that curvature, the teal slice through the MLE, so it
+			never evaluates the likelihood at <Tex math={String.raw`\mu_0`} />. In 2D, the open circle is
+			where that parabola puts the null; the likelihood ratio test uses the real curve instead.
 		</p>
 	</div>
 
@@ -134,14 +154,17 @@
 		hidden={model.p.test !== 'score'}
 	>
 		<p>
-			The score test (also known as the Lagrange multiplier test) is different in that we only
-			evaluate it at the null. It uses the first and second derivatives of the log-likelihood at
-			<Tex math={String.raw`\mu_0`} />; the first is the slope of the tangent line in the figure,
+			The score test (also known as the Lagrange multiplier test) stands at the null and asks
+			whether the log-likelihood is still climbing toward the estimate. It never evaluates the MLE.
+			The slope at <Tex math={String.raw`\mu_0`} />, the score <em>U</em>, is the tangent in the
+			figure. At the peak the curve is flat, so a steep slope means the data point away from the
+			null. How steep counts as steep depends on how sharply the curve bends there, the Fisher
+			information <em>I</em>, so the statistic divides the squared slope by it,
 		</p>
 		<TexLive
 			display
 			math={eqScore}
-			values={[f2n(model.scoreAtNull), f2n(model.infoAtNull), f3n(model.tests.score.stat)]}
+			values={[fScore(model.scoreAtNull), fScore(model.infoAtNull), fStat(model.tests.score.stat)]}
 		/>
 		<p>
 			Asymptotically <em>S</em> follows a <Tex math={String.raw`\chi^2`} /> distribution with 1 degree
@@ -149,21 +172,34 @@
 			<span data-testid="pval-score">{fmtP(model.tests.score.pval)}</span>.
 		</p>
 		<p class="caveat">
-			The tangent touches the profile curve: its slope there equals the score at <Tex
-				math={String.raw`\hat\sigma_0^2`}
-			/>, where the slope in the variance direction is zero.
+			The slope is read at <Tex math={String.raw`\hat\sigma_0^2`} />, where the log-likelihood is
+			flat in the variance direction. That is why, in 2D, the tangent touches the profile curve.
 		</p>
 		<div class="score-info" data-testid="score-info">
 			<p>
 				The <em>score function</em> is the first derivative of the log-likelihood, how fast ℓ changes
 				at the null:
 			</p>
-			<TexLive display math={eqScoreAtNull} values={[f2n(model.scoreAtNull)]} />
+			<TexLive
+				display
+				math={eqScoreAtNull}
+				values={[
+					String(model.p.n),
+					fData(model.muHat),
+					fData(model.p.muNull),
+					fData(model.sigma2Null),
+					fScore(model.scoreAtNull)
+				]}
+			/>
+			<p>
+				It is zero only when <Tex math={String.raw`\mu_0 = \hat\mu`} />: the log-likelihood is flat
+				at its maximum.
+			</p>
 			<p>
 				The <em>Fisher information</em> is the negative expected second derivative, the curvature at the
 				null:
 			</p>
-			<TexLive display math={eqInfoAtNull} values={[f2n(model.infoAtNull)]} />
+			<TexLive display math={eqInfoAtNull} values={[fScore(model.infoAtNull)]} />
 			<p>
 				The more sharply the log-likelihood bends, the more precisely the data pin down
 				<Tex math={String.raw`\mu`} />.
@@ -239,6 +275,11 @@
 	}
 	.panel p {
 		margin: 0.4rem 0;
+	}
+	.intro {
+		margin: 0 0 0.2rem;
+		font-size: 0.92rem;
+		line-height: 1.55;
 	}
 	[data-testid^='pval-'] {
 		white-space: nowrap;

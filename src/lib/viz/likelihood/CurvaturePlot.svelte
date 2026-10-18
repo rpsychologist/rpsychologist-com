@@ -74,10 +74,9 @@
 	const sliceCurve = $derived(curveOf(relLogLik, model.p.n));
 
 	// 95% intervals at the slider n: each curve's 1.92 drop. The profile's is
-	// the likelihood interval (the LR test inverted), the slice's the Wald CI.
+	// the profile likelihood interval (the LR test inverted), the slice's the Wald CI.
 	const li = $derived(profileIntervalMu(model.muHat, model.sigma2Hat, model.p.n));
 	const wald = $derived(waldIntervalMu(model.muHat, model.sigma2Hat, model.p.n));
-	const f2 = format('.2f');
 
 	const test = $derived(model.p.test);
 	const fTick = format('~f');
@@ -103,6 +102,11 @@
 		profile's quadratic approximation at the peak
 	</li>
 	{#if model.p.n !== N_REF}<li><span class="sw ref"></span>profile, n = 10</li>{/if}
+	<li><span class="sw cutoff"></span>95% cutoff, 1.92 below the peak</li>
+	<li>
+		<span class="sw li-bar"></span><span class="sw wald-bar"></span>95% profile likelihood and Wald
+		intervals
+	</li>
 </ul>
 <div class="chart" bind:clientWidth={cw}>
 	{#if w > 0}
@@ -224,11 +228,6 @@
 		</svg>
 	{/if}
 </div>
-<p class="interval-readout" data-testid="intervals">
-	95% intervals at n = {model.p.n}: likelihood (profile) [{f2(li[0])}, {f2(li[1])}]; Wald [{f2(
-		wald[0]
-	)}, {f2(wald[1])}]. Each is where its curve drops 1.92 below the peak.
-</p>
 
 <style>
 	.chart {
@@ -270,11 +269,6 @@
 		stroke-width: 3;
 		opacity: 0.6;
 	}
-	.interval-readout {
-		margin: 0.4rem 0 0;
-		font-size: 0.85rem;
-		color: var(--muted);
-	}
 	.legend {
 		display: flex;
 		flex-wrap: wrap;
@@ -297,6 +291,22 @@
 	}
 	.sw.ref {
 		border-top: 1.5px dashed var(--muted);
+	}
+	/* Swatches mirror the strokes of .cutoff, .li-bar and .wald-bar below. */
+	.sw.cutoff {
+		border-top: 1px dashed var(--muted);
+		opacity: 0.7;
+	}
+	.sw.li-bar {
+		width: 0.9rem;
+		margin-right: 0.2rem;
+		border-top: 6px solid var(--marginal);
+		opacity: 0.6;
+	}
+	.sw.wald-bar {
+		width: 0.9rem;
+		border-top: 3px solid var(--viz-accent);
+		opacity: 0.6;
 	}
 	.pt-wald {
 		fill: var(--bg);

@@ -1,9 +1,25 @@
 import { describe, expect, it } from 'vitest';
 import { defaults, LikelihoodState } from './likelihood.svelte';
-import { MU_MAX, MU_MIN, SIGMA2_MAX, SIGMA2_MIN } from './model';
+import {
+	logLikSum,
+	lrTest,
+	MU_MAX,
+	MU_MIN,
+	scoreMu,
+	scoreTest,
+	SIGMA2_MAX,
+	SIGMA2_MIN,
+	snapMean,
+	sumSquares,
+	waldTest
+} from './model';
 
-// R-pinned statistics of the deterministic default sample (see model.test.ts).
-const MU_HAT = 104.38;
+// The default sample is the R-pinned one in model.test.ts shifted by −0.38
+// (snapMean). A shift moves only the location, so values at μ on the default
+// sample equal R-checked values at μ + 0.38 on the original.
+const ORIGINAL = [78.0, 95.5, 100.3, 100.6, 102.8, 107.8, 109.1, 110.8, 113.9, 125.0];
+const SHIFT = 0.38;
+const MU_HAT = 104;
 const SIGMA2_HAT = 139.9196;
 
 describe('derived sample statistics', () => {
@@ -11,7 +27,7 @@ describe('derived sample statistics', () => {
 		const s = new LikelihoodState();
 		expect(s.muHat).toBeCloseTo(MU_HAT, 10);
 		expect(s.sigma2Hat).toBeCloseTo(SIGMA2_HAT, 8);
-		expect(s.ll).toBeCloseTo(-68.93043626198718, 10); // ℓ(80, 100), R-pinned
+		expect(s.ll).toBeCloseTo(logLikSum(ORIGINAL, 80 + SHIFT, 100), 10);
 		expect(s.llMax).toBeCloseTo(-38.89472519169581, 10);
 	});
 
@@ -30,9 +46,28 @@ describe('derived sample statistics', () => {
 	it('tests match the model at the default null', () => {
 		const s = new LikelihoodState();
 		s.setMuNull(90);
-		expect(s.tests.lr.stat).toBeCloseTo(9.074034180467834, 8);
-		expect(s.tests.wald.z).toBeCloseTo(3.844320686455949, 8);
-		expect(s.tests.score.stat).toBeCloseTo(5.964292306982323, 8);
+		const s2Null = sumSquares(ORIGINAL, 90 + SHIFT) / 10;
+		const u = scoreMu(10, 90 + SHIFT, MU_HAT + SHIFT, s2Null);
+		expect(s.tests.lr.stat).toBeCloseTo(lrTest(SIGMA2_HAT, s2Null, 10).stat, 8);
+		expect(s.tests.wald.z).toBeCloseTo(waldTest(MU_HAT + SHIFT, 90 + SHIFT, SIGMA2_HAT, 10).z, 8);
+		expect(s.tests.score.stat).toBeCloseTo(scoreTest(u, 10 / s2Null).stat, 8);
+	});
+
+	it('every test reads zero with the null at the MLE', () => {
+		const s = new LikelihoodState();
+		s.setMuNull(MU_HAT);
+		expect(s.scoreAtNull).toBeCloseTo(0, 9);
+		expect(s.tests.lr.stat).toBeCloseTo(0, 9);
+		expect(s.tests.wald.z).toBeCloseTo(0, 9);
+		expect(s.tests.score.stat).toBeCloseTo(0, 9);
+	});
+
+	it('new samples have a whole-number mean', () => {
+		const s = new LikelihoodState();
+		for (let i = 0; i < 20; i++) {
+			s.newSample();
+			expect(s.muHat).toBeCloseTo(Math.round(s.muHat), 9);
+		}
 	});
 });
 

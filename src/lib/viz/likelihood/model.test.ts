@@ -20,6 +20,7 @@ import {
 	scoreMu,
 	scoreSigma2,
 	scoreTest,
+	snapMean,
 	sumSquares,
 	contourRingsToPath,
 	waldIntervalMu,
@@ -315,5 +316,14 @@ describe('grid and contour path', () => {
 			(y) => 100 - y
 		);
 		expect(d).toBe('M0.00,100.00L20.00,100.00L20.00,90.00Z');
+	});
+});
+
+describe('snapMean', () => {
+	it('shifts the mean to the nearest whole number and keeps the spread', () => {
+		const y = snapMean(Y);
+		expect(mean(y)).toBeCloseTo(104, 12);
+		expect(sumSquares(y, mean(y))).toBeCloseTo(SS, 9);
+		y.forEach((v, i) => expect(v - Y[i]).toBeCloseTo(-0.38, 12));
 	});
 });

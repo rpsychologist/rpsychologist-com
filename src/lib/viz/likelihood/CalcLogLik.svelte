@@ -16,7 +16,6 @@
 	}
 	let { model, highlight, onhighlight }: Props = $props();
 
-	const f1 = format('.1f');
 	const f2 = format('.2f');
 	const terms = $derived(model.p.sample.map((yv) => logLikPoint(yv, model.p.mu, model.p.sigma2)));
 	const worst = $derived(Math.max(...terms.map(Math.abs), 1e-9));
@@ -47,7 +46,7 @@
 					onblur={() => onhighlight(null)}
 				>
 					<td class="num idx">{i + 1}</td>
-					<td class="num">{f1(model.p.sample[i])}</td>
+					<td class="num">{f2(model.p.sample[i])}</td>
 					<td class="num">{f2(t)}</td>
 					<td class="bar-col" aria-hidden="true">
 						<span class="bar" style="width: {(Math.abs(t) / worst) * 100}%"></span>

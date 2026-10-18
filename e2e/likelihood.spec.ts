@@ -5,7 +5,7 @@ import { test, expect, type Page } from '@playwright/test';
 // toggle) works in a real browser. The *math* is pinned by vitest
 // (model.test.ts); these tests only assert values change in step.
 //
-// The default sample is deterministic, so the estimate readouts (μ̂ = 104.38)
+// The default sample is deterministic, so the estimate readouts (μ̂ = 104)
 // are prerendered into the HTML; the 10 sample points appearing is the
 // hydration signal. Use .textContent() for SVG nodes (innerText throws).
 
@@ -18,8 +18,9 @@ test('prerenders the estimates and hydrates with the sample', async ({ page }) =
 	await expect(page.getByRole('heading', { level: 1 })).toContainText(
 		'Understanding Maximum Likelihood Estimation'
 	);
-	// R-pinned: mean(y) = 104.38, sigma2Hat = 139.92 (both prerendered).
-	await expect(page.getByTestId('estimates')).toContainText('104.38');
+	// The R-pinned sample shifted to a whole-number mean (snapMean): μ̂ = 104,
+	// σ̂² = 139.92 unchanged (both prerendered).
+	await expect(page.getByTestId('estimates')).toContainText('104.00');
 	await expect(page.getByTestId('estimates')).toContainText('139.92');
 	await ready(page);
 });
@@ -64,6 +65,10 @@ test('fisher scoring previews and counts its steps', async ({ page }) => {
 test('test tabs drive the statistics and the figure highlight', async ({ page }) => {
 	await page.goto('/likelihood');
 	await ready(page);
+	// The figure opens in 3D; the annotations are the 2D figure's (and the
+	// toggle is absent when WebGL failed and 2D is all there is).
+	const to2d = page.getByRole('button', { name: '2D', exact: true });
+	if (await to2d.isVisible()) await to2d.click();
 
 	// Default null (μ₀ = 80): LRT panel visible with a p-value.
 	await expect(page.getByTestId('pval-LRT')).toBeVisible();
@@ -84,14 +89,14 @@ test('live equation numbers update in the visual and MathML output', async ({ pa
 	const panel = page.locator('#test-panel-wald');
 	const visual = panel.locator('.katex-html .tex-v1');
 	const mathml = panel.locator('.katex-mathml [data-tex-v="1"]');
-	await expect(visual).toHaveText('80.0');
-	await expect(mathml).toHaveText('80.0');
+	await expect(visual).toHaveText('80');
+	await expect(mathml).toHaveText('80');
 
 	const muNull = page.getByRole('slider', { name: /Null hypothesis/ });
 	await muNull.focus();
 	await muNull.press('ArrowRight');
-	await expect(visual).toHaveText('81.0');
-	await expect(mathml).toHaveText('81.0');
+	await expect(visual).toHaveText('81');
+	await expect(mathml).toHaveText('81');
 });
 
 test('the hypothetical n slider changes the score readout', async ({ page }) => {
@@ -110,7 +115,8 @@ test('new sample changes the estimates', async ({ page }) => {
 	await ready(page);
 
 	await page.getByRole('button', { name: 'New Sample' }).click();
-	await expect(page.getByTestId('estimates')).not.toContainText('104.38');
+	// μ̂ is a whole number and may repeat; σ̂² won't.
+	await expect(page.getByTestId('estimates')).not.toContainText('139.92');
 	await expect(page.locator('.sample-point')).toHaveCount(10);
 });
 

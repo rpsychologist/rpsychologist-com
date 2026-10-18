@@ -27,7 +27,7 @@
 		score: String.raw`S = \frac{U(\mu_0, \hat\sigma_0^2)^2}{I(\mu_0, \hat\sigma_0^2)} \sim \chi^2_1`,
 		t: String.raw`T = \frac{\bar y - \mu_0}{s / \sqrt n}, \qquad s^2 = \frac{n}{n - 1}\hat\sigma^2, \qquad x = \frac{T^2}{n - 1}`,
 		viaT: String.raw`\text{LR} = n \ln(1 + x), \qquad Z^2 = n x, \qquad S = \frac{n x}{1 + x}`,
-		li: String.raw`\left\{\mu : \ell(\mu) \ge \ell(\hat\mu) - \tfrac{1}{2}\chi^2_{1}(0.95)\right\}, \qquad \tfrac{1}{2}\chi^2_{1}(0.95) \approx 1.92`,
+		li: String.raw`\left\{\mu : \ell_p(\mu) \ge \ell_p(\hat\mu) - \tfrac{1}{2}\chi^2_{1}(0.95)\right\}, \qquad \tfrac{1}{2}\chi^2_{1}(0.95) \approx 1.92`,
 		profile: String.raw`\hat\mu \pm \hat\sigma\sqrt{e^{\chi^2_1(0.95)/n} - 1}`,
 		ga: String.raw`\mu_{n+1} = \mu_n + \gamma\, U(\mu_n), \qquad \sigma^2_{n+1} = \sigma^2_n + \gamma\, U(\sigma^2_n)`,
 		nr: String.raw`\theta_{n+1} = \theta_n + I(\theta_n)^{-1} U(\theta_n)`
@@ -104,9 +104,9 @@
 					the angled view and two side views. In a side view you look edge-on along one axis, and
 					the surface's outline is exactly the profile likelihood on the wall. The amber curves on
 					the back walls are these <em>profile</em> likelihoods, the ridge cast onto each axis, which
-					the likelihood ratio test and the likelihood interval are built on. The full-view button at
-					the right of each figure's header expands the figure to fill the window; press it again or Esc
-					to return.
+					the likelihood ratio test and the profile likelihood interval are built on. The full-view button
+					at the right of each figure's header expands the figure to fill the window; press it again or
+					Esc to return.
 				</p>
 				<h3>What the height shows</h3>
 				<p>
@@ -126,9 +126,8 @@
 					The inference section computes the likelihood ratio, Wald, and score tests of
 					<Tex math={String.raw`H_0\!: \mu = \mu_0`} />. Selecting a test highlights its geometry in
 					the figure. The sample-size slider is hypothetical: it rescales the curvature and the
-					tests at the fixed estimates without drawing new data. Switch the figure to
-					<strong>3D</strong>
-					to see the tests in both parameters. The dashed coral line is the null hypothesis, and the coral
+					tests at the fixed estimates without drawing new data. The figure opens in 3D, which shows
+					the tests in both parameters. The dashed coral line is the null hypothesis, and the coral
 					point is the best the null can do, with the variance re-estimated as
 					<Tex math={String.raw`\hat\sigma_0^2`} />. As you move <Tex math={String.raw`\mu_0`} />,
 					the point slides along the dotted amber ridge, the best variance for each mean,
@@ -191,10 +190,10 @@
 					null distribution, each statistic would reproduce the <em>t</em>-test. They disagree only
 					because all three are referred to <Tex math={String.raw`\chi^2_1`} /> instead.
 				</p>
-				<h3>The likelihood interval</h3>
+				<h3>The profile likelihood interval</h3>
 				<p>
-					Inverting the likelihood ratio test gives the interval of means whose log-likelihood stays
-					within <Tex math={String.raw`\chi^2_1(0.95)/2`} /> of the maximum:
+					Inverting the likelihood ratio test gives the interval of means whose profile
+					log-likelihood stays within <Tex math={String.raw`\chi^2_1(0.95)/2`} /> of the maximum:
 				</p>
 				<Tex display math={tex.li} />
 				<p>

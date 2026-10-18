@@ -72,11 +72,10 @@ async function openPage(browser, profile, inf = '3D') {
 	if (profile.cpu > 1) await cdp.send('Emulation.setCPUThrottlingRate', { rate: profile.cpu });
 	await page.goto(`${BASE}/likelihood${QUERY}`);
 	await page.locator('.sample-point').first().waitFor();
-	// The inference figure opens in 2D; its 3D surface is the worst case.
-	if (inf === '3D') {
-		await page.locator('.inf-inst .view-toggle button', { hasText: '3D' }).click();
-		await page.locator('.inf-inst canvas').waitFor();
-	}
+	// Set the inference view explicitly rather than trusting the default
+	// (3D, also the worst case).
+	await page.locator('.inf-inst .view-toggle button', { hasText: inf }).click();
+	if (inf === '3D') await page.locator('.inf-inst canvas').waitFor();
 	await page.waitForTimeout(500);
 	return { context, page, cdp };
 }
@@ -136,7 +135,7 @@ const SCENARIOS = {
 		at: '.inf-inst',
 		act: (page) => sweep(page, '#likelihood-munull', 'inf')
 	},
-	// The inference figure in its default 2D, where the live equations dominate.
+	// The inference figure in 2D, where the live equations dominate.
 	'H 60× μ₀, inference 2D': {
 		at: '.inf-inst',
 		inf: '2D',

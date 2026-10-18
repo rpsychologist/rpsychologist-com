@@ -48,6 +48,7 @@
 	import { prefersReducedMotion } from 'svelte/motion';
 	import type { LikelihoodState } from './likelihood.svelte';
 	import type { ViewpointId } from './ViewpointDock.svelte';
+	import { fScore } from './format';
 	import {
 		hessSigma2Expected,
 		infoMu,
@@ -85,7 +86,6 @@
 		view: viewpoint = $bindable('angled')
 	}: Props = $props();
 	// Alpha factor for an element under the key's emphasis (1 = untouched).
-	const fU = (v: number) => v.toFixed(2).replace('-', '−');
 	const fadeOf = (id: string) => (emphasis && !emphasis.includes(id) ? 0.12 : 1);
 	const inference = $derived(mode === 'inference');
 	// Height scale for the hypothetical n (see header); 1 when exploring.
@@ -471,9 +471,13 @@
 
 	// A wall seen edge-on collapses to a vertical line at the frame's side, so
 	// it is hidden then (the μ-wall's plane is edge-on when cos(angle) → 0, the
-	// σ²-wall's when sin(angle) → 0).
+	// σ²-wall's when sin(angle) → 0). Inference draws only what the test's key
+	// labels: the μ-profile, for the LR bracket.
 	function wallsVisible() {
-		return { mu: Math.abs(Math.cos(angle)) > 0.15, s2: Math.abs(Math.sin(angle)) > 0.15 };
+		const mu = Math.abs(Math.cos(angle)) > 0.15;
+		const s2 = Math.abs(Math.sin(angle)) > 0.15;
+		if (!inference) return { mu, s2 };
+		return { mu: mu && model.p.test === 'LRT', s2: false };
 	}
 
 	// Rearmost wall per axis from the current azimuth: a μ-profile sits on the
@@ -1161,7 +1165,7 @@
 			// even when rotation foreshortens the triangle to a sliver.
 			labels.push({
 				at: { x: apex.x, y: Math.min(apex.y, nullPt.y) - 14 },
-				text: `U = ${fU(model.scoreAtNull)}`,
+				text: `U = ${fScore(model.scoreAtNull)}`,
 				anchor: apex.x >= nullPt.x ? 'start' : 'end'
 			});
 		} else if (p.test === 'wald') {
@@ -1710,7 +1714,9 @@
 					d={lrGeo.nullFloor}
 					pathLength={2 * RANGE * dashUnit}
 				/>
-				<path class="ridge" class:faded={fadeOf('ridge') < 1} d={lrGeo.ridge} />
+				{#if model.p.test !== 'wald'}
+					<path class="ridge" class:faded={fadeOf('ridge') < 1} d={lrGeo.ridge} />
+				{/if}
 				{#each lrGeo.guides as d, i (i)}<path
 						class="guide"
 						{d}

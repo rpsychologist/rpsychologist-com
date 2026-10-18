@@ -6,7 +6,7 @@
 			"date": "2026-07-08",
 			"added": [
 				"3D view of the joint likelihood: a rotatable surface (height is the log-likelihood, drawn down to a floor 50 below the peak, marked where the hill meets it, with the surface fading out as it keeps falling below) with the optimizer path and the ℓ(μ)/ℓ(σ²) slices drawn on it. It replaces the contour plot as the joint view; the contour remains only as the fallback where WebGL is unavailable.",
-				"The inference figure marks the 95% intervals at the hypothetical n: the likelihood interval where the profile drops 1.92 below its peak, and the Wald interval where the slice at σ̂² does, with both reported beneath.",
+				"The inference figure marks the 95% intervals at the hypothetical n: the profile likelihood interval where the profile drops 1.92 below its peak, and the Wald interval where the slice at σ̂² does, with both reported beneath.",
 				"The inference plot annotates the geometry of the three tests (after Buse, 1982); the element for the selected test is highlighted.",
 				"Persistent readout of the estimates: μ̂, σ̂², and the log-likelihood at the maximum and at the current point (the iteration count and convergence sit with the optimizer controls).",
 				"Profile-likelihood silhouettes on the two far walls of the 3D view (ℓₚ(μ) = maxₛ₂ ℓ and ℓ(μ̂, σ²), the surface's ridge cast onto each axis, in amber). Dashed guides carry the current point's height across to each wall, where a dashed rise up to the curve shows how much higher ℓ would be at the best value of the other parameter; it closes as that value is reached, and at the MLE the guides meet the wall peaks.",
@@ -19,7 +19,10 @@
 				"With an algorithm selected, the joint views preview the next iteration as a faint dashed step from the point (on the 3D surface it runs along the hill), so dragging the point or the step size shows where the next step would land before you press play; for Fisher scoring, the 3D view also draws the quadratic approximation it climbs as dotted curves through the point."
 			],
 			"changed": [
-				"Complete rewrite in Svelte (previously React). Every displayed statistic is unchanged.",
+				"Complete rewrite in Svelte (previously React).",
+				"The default sample is the old one shifted by −0.38, so μ̂ = 104 with σ̂² unchanged, and New Sample shifts each draw the same way (by at most 0.5) to a whole-number mean. The null-hypothesis slider moves in whole numbers, so it can now land exactly on μ̂, where every test statistic is zero. Statistics at a given μ₀ differ accordingly from earlier versions.",
+				"The inference figure opens in its 3D view; the 2D view, which sets the profile against its quadratic approximation on one set of axes, is a toggle away. The 95% intervals are reported beneath either view.",
+				"Numbers in the test formulas are formatted consistently: μ̂ and μ₀ on the data scale (previously μ̂ was rounded to three significant figures, so 104.38 read as 104), and the score reads the same in the formula and on the 3D surface. The score is written out as n(μ̂ − μ₀)/σ̂₀², which shows why it is zero only at μ₀ = μ̂.",
 				"Reduced-motion visitors get the 3D surface too: it never moves on its own, and for them the viewpoint changes are instant and a released drag doesn't coast.",
 				"The \"Finding the MLE\" section is one framed instrument: the optimizer controls are its header, and the 3D surface fills it. The two separate slice plots, ℓ(μ) and ℓ(σ²), are removed: their curves are drawn on the surface through the current point (and seen edge-on in the side views), the next-step preview replaces their step overlays, and a readout beneath the view gives ℓ and both scores; hovering or tapping a score draws its slope as a triangle along its slice on the surface.",
 				"The log-likelihood calculation is laid out as a table: each observation, its log-density, and a bar for its share of the total, summed beside the maximum attainable value at the MLEs.",
