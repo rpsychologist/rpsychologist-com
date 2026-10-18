@@ -99,8 +99,8 @@
 		<span class="sw profile"></span>profile <Tex math={String.raw`\ell_p(\mu)`} />, n = {model.p.n}
 	</li>
 	<li>
-		<span class="sw slice"></span>slice <Tex math={String.raw`\ell(\mu, \hat\sigma^2)`} />: its
-		quadratic at the peak
+		<span class="sw slice"></span>slice <Tex math={String.raw`\ell(\mu, \hat\sigma^2)`} />, the
+		profile's quadratic approximation at the peak
 	</li>
 	{#if model.p.n !== N_REF}<li><span class="sw ref"></span>profile, n = 10</li>{/if}
 </ul>

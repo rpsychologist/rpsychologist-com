@@ -83,11 +83,6 @@ export class LikelihoodState {
 	 * `animating`: gradient ascent runs a step per frame and must not tween). */
 	animating = $state(false);
 
-	/** Candidate A, pinned for comparison: only ratios of likelihoods carry
-	 * meaning, so the page compares A against the current candidate. Kept
-	 * across new samples — the ratio is re-read against the new data. */
-	pinned = $state<OptimPoint | null>(null);
-
 	/** Optimizer trail; path[0] is the run's starting point. */
 	path = $state<OptimPoint[]>([]);
 	running = $state(false);
@@ -113,9 +108,6 @@ export class LikelihoodState {
 
 	readonly ll = $derived(logLikSum(this.p.sample, this.p.mu, this.p.sigma2));
 	readonly llMax = $derived(logLikSum(this.p.sample, this.muHat, this.sigma2Hat));
-	readonly llPinned = $derived(
-		this.pinned ? logLikSum(this.p.sample, this.pinned.mu, this.pinned.sigma2) : null
-	);
 	readonly count = $derived(Math.max(0, this.path.length - 1));
 	/** 100×100 ℓ grid shared by the contour and the 3D surface; recomputes
 	 * only when the sample changes. */
@@ -187,14 +179,6 @@ export class LikelihoodState {
 		this.#moveByHand();
 		if (which === 'mu') this.p.mu = clamp(this.muHat, MU_MIN, MU_MAX);
 		else this.p.sigma2 = clamp(this.sigma2Hat, SIGMA2_MIN, SIGMA2_MAX);
-	}
-
-	pin() {
-		this.pinned = { mu: this.p.mu, sigma2: this.p.sigma2 };
-	}
-
-	unpin() {
-		this.pinned = null;
 	}
 
 	setMuNull(v: number, immediate = false) {

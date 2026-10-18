@@ -5,6 +5,7 @@
 	// plot's geometry highlight via model.p.test.
 	import { format } from 'd3-format';
 	import Tex from '$lib/components/Tex.svelte';
+	import TexLive from '$lib/components/TexLive.svelte';
 	import type { LikelihoodState, TestKind } from './likelihood.svelte';
 
 	interface Props {
@@ -24,31 +25,24 @@
 		{ id: 'score', label: 'Score' }
 	];
 
-	const eqLR = $derived(
-		String.raw`\begin{aligned}
+	// Live numbers go in the #k slots (TexLive), so the formulas typeset once.
+	const eqLR = String.raw`\begin{aligned}
 		\text{LR} &= -2[\ell(\mu_{0}, \hat\sigma^2_{0}) - \ell(\hat\mu, \hat\sigma^2)]\\
-		&= ${f3n(model.tests.lr.stat)}
-		\end{aligned}`
-	);
+		&= #0
+		\end{aligned}`;
 	const eqSE = String.raw`\text{se}(\hat\mu) = I(\hat\mu, \hat\sigma^2)^{-1/2}`;
-	const eqWald = $derived(
-		String.raw`\begin{aligned}
-		Z =& \frac{\hat\mu - \mu_0}{\text{se}(\hat\mu)} \\
-		=& \frac{${f3n(model.muHat)} - ${f3n(model.p.muNull)}}{${f3n(model.tests.wald.se)}} \\
-		=& ${f3n(model.tests.wald.z)}
-		\end{aligned}`
-	);
-	const eqScoreAtNull = $derived(
-		String.raw`U(\mu_0, \hat\sigma_0^2) = \frac{\partial}{\partial \mu_0}\ell(\mu_0, \hat\sigma_0^2) = ${f2n(model.scoreAtNull)}`
-	);
-	const eqInfoAtNull = $derived(String.raw`I(\mu_0, \hat\sigma_0^2) = ${f2n(model.infoAtNull)}`);
-	const eqScore = $derived(
-		String.raw`\begin{aligned}
+	const eqWald = String.raw`\begin{aligned}
+		Z &= \frac{\hat\mu - \mu_0}{\text{se}(\hat\mu)} \\
+		&= \frac{#0 - #1}{#2} \\
+		&= #3
+		\end{aligned}`;
+	const eqScoreAtNull = String.raw`U(\mu_0, \hat\sigma_0^2) = \frac{\partial}{\partial \mu_0}\ell(\mu_0, \hat\sigma_0^2) = #0`;
+	const eqInfoAtNull = String.raw`I(\mu_0, \hat\sigma_0^2) = #0`;
+	const eqScore = String.raw`\begin{aligned}
 		S(\mu_0, \hat\sigma_0^2) =& \frac{U(\mu_0, \hat\sigma_0^2)^2}{I(\mu_0, \hat\sigma_0^2)} \\
-		&= \frac{${f2n(model.scoreAtNull)}^2}{${f2n(model.infoAtNull)}} \\
-		&= ${f3n(model.tests.score.stat)}
-		\end{aligned}`
-	);
+		&= \frac{#0^2}{#1} \\
+		&= #2
+		\end{aligned}`;
 </script>
 
 <div class="tests">
@@ -75,21 +69,25 @@
 		hidden={model.p.test !== 'LRT'}
 	>
 		<p>
-			The likelihood ratio test compares the likelihoods of two models — here, the likelihood
-			evaluated at the MLE and at the null. The plot shows it as the vertical distance between the
-			two horizontal lines. Multiplying the difference in log-likelihood by −2 gives the statistic,
+			The likelihood ratio test compares the likelihoods of two models, here the likelihood
+			evaluated at the MLE and at the null. The 2D figure shows this as the vertical distance
+			between the two horizontal lines, which is half the statistic. Multiplying the difference in
+			log-likelihood by −2 gives the statistic,
 		</p>
-		<Tex display math={eqLR} />
+		<TexLive display math={eqLR} values={[f3n(model.tests.lr.stat)]} />
 		<p>
 			Asymptotically LR follows a <Tex math={String.raw`\chi^2`} /> distribution with 1 degree of freedom,
 			which gives <em>p</em>
 			<span data-testid="pval-LRT">{fmtP(model.tests.lr.pval)}</span>.
 		</p>
 		<p class="caveat">
-			Both likelihoods let the variance adjust: at the null it is re-estimated as <Tex
-				math={String.raw`\hat\sigma_0^2`}
-			/>. That is why the bracket sits on the amber <em>profile</em> curve, the best log-likelihood
-			for each μ, not on the slice at <Tex math={String.raw`\hat\sigma^2`} />.
+			Each likelihood uses the best variance for its own mean: <Tex
+				math={String.raw`\hat\sigma^2`}
+			/> at the MLE and <Tex math={String.raw`\hat\sigma_0^2`} /> at the null. That is why the bracket
+			sits on the amber <em>profile</em> curve, the best log-likelihood for each
+			<Tex math={String.raw`\mu`} />, and not on the slice at <Tex
+				math={String.raw`\hat\sigma^2`}
+			/>.
 		</p>
 	</div>
 
@@ -105,7 +103,16 @@
 			and <Tex math={String.raw`\mu_0`} />, divided by the standard error of the MLE,
 			<Tex math={eqSE} />,
 		</p>
-		<Tex display math={eqWald} />
+		<TexLive
+			display
+			math={eqWald}
+			values={[
+				f3n(model.muHat),
+				f3n(model.p.muNull),
+				f3n(model.tests.wald.se),
+				f3n(model.tests.wald.z)
+			]}
+		/>
 		<p>
 			Asymptotically <em>Z</em> follows a standard normal distribution, giving <em>p</em>
 			<span data-testid="pval-wald">{fmtP(model.tests.wald.pval)}</span>.
@@ -114,8 +121,8 @@
 			The Wald test reads the teal slice, the quadratic that matches the profile's curvature at the
 			peak. The open circle at <Tex math={String.raw`\mu_0`} /> sits at <Tex
 				math={String.raw`-Z^2/2`}
-			/>; where it falls below the profile, Wald overstates the evidence against the null relative
-			to the likelihood ratio.
+			/>, always at or below the profile (see the FAQ), so the Wald test overstates the evidence
+			against the null relative to the likelihood ratio test.
 		</p>
 	</div>
 
@@ -128,13 +135,17 @@
 	>
 		<p>
 			The score test (also known as the Lagrange multiplier test) is different in that we only
-			evaluate it at the null: it involves the first and second derivative of the log-likelihood at
-			<Tex math={String.raw`\mu_0`} /> — the slope of the tangent line in the plot,
+			evaluate it at the null. It uses the first and second derivatives of the log-likelihood at
+			<Tex math={String.raw`\mu_0`} />; the first is the slope of the tangent line in the figure,
 		</p>
-		<Tex display math={eqScore} />
+		<TexLive
+			display
+			math={eqScore}
+			values={[f2n(model.scoreAtNull), f2n(model.infoAtNull), f3n(model.tests.score.stat)]}
+		/>
 		<p>
-			Asymptotically S follows a <Tex math={String.raw`\chi^2`} /> distribution with 1 degree of freedom,
-			giving <em>p</em>
+			Asymptotically <em>S</em> follows a <Tex math={String.raw`\chi^2`} /> distribution with 1 degree
+			of freedom, giving <em>p</em>
 			<span data-testid="pval-score">{fmtP(model.tests.score.pval)}</span>.
 		</p>
 		<p class="caveat">
@@ -147,12 +158,16 @@
 				The <em>score function</em> is the first derivative of the log-likelihood, how fast ℓ changes
 				at the null:
 			</p>
-			<Tex display math={eqScoreAtNull} />
+			<TexLive display math={eqScoreAtNull} values={[f2n(model.scoreAtNull)]} />
 			<p>
 				The <em>Fisher information</em> is the negative expected second derivative, the curvature at the
 				null:
 			</p>
-			<Tex display math={eqInfoAtNull} />
+			<TexLive display math={eqInfoAtNull} values={[f2n(model.infoAtNull)]} />
+			<p>
+				The more sharply the log-likelihood bends, the more precisely the data pin down
+				<Tex math={String.raw`\mu`} />.
+			</p>
 		</div>
 	</div>
 </div>

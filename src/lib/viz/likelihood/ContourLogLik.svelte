@@ -149,13 +149,6 @@
 						</g>
 					{/if}
 
-					{#if model.pinned}
-						<circle class="pinned-pt" r="5" cx={x(model.pinned.mu)} cy={y(model.pinned.sigma2)} />
-						<text class="pinned-label" x={x(model.pinned.mu) + 8} y={y(model.pinned.sigma2) - 6}
-							>A</text
-						>
-					{/if}
-
 					<line class="crosshair" x1={px} x2={px} y1="0" y2={h} />
 					<line class="crosshair" x1="0" x2={w} y1={py} y2={py} />
 				</g>
@@ -263,19 +256,6 @@
 		stroke: #e17055;
 		stroke-width: 2;
 		stroke-dasharray: 3 2;
-	}
-	.pinned-pt {
-		fill: var(--bg);
-		stroke: var(--marginal);
-		stroke-width: 2;
-	}
-	.pinned-label {
-		font-size: 12px;
-		font-weight: 600;
-		fill: var(--marginal);
-		paint-order: stroke;
-		stroke: var(--bg);
-		stroke-width: 3px;
 	}
 	.param-point {
 		fill: var(--heading);

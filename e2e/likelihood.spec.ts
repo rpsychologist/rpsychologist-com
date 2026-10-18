@@ -75,12 +75,31 @@ test('test tabs drive the statistics and the figure highlight', async ({ page })
 	await expect(page.getByTestId('anno-LRT')).not.toHaveClass(/highlight/);
 });
 
+test('live equation numbers update in the visual and MathML output', async ({ page }) => {
+	await page.goto('/likelihood');
+	await ready(page);
+
+	await page.getByRole('tab', { name: 'Wald' }).click();
+	// The Wald plug-in line: (μ̂ − μ₀)/se, μ₀ in slot 1 (TexLive).
+	const panel = page.locator('#test-panel-wald');
+	const visual = panel.locator('.katex-html .tex-v1');
+	const mathml = panel.locator('.katex-mathml [data-tex-v="1"]');
+	await expect(visual).toHaveText('80.0');
+	await expect(mathml).toHaveText('80.0');
+
+	const muNull = page.getByRole('slider', { name: /Null hypothesis/ });
+	await muNull.focus();
+	await muNull.press('ArrowRight');
+	await expect(visual).toHaveText('81.0');
+	await expect(mathml).toHaveText('81.0');
+});
+
 test('the hypothetical n slider changes the score readout', async ({ page }) => {
 	await page.goto('/likelihood');
 	await ready(page);
 
 	const before = await page.getByTestId('score-info').textContent();
-	const n = page.getByRole('slider', { name: /Sample size/ });
+	const n = page.getByRole('slider', { name: /sample size/i });
 	await n.focus();
 	for (let i = 0; i < 10; i++) await n.press('ArrowRight');
 	await expect(page.getByTestId('score-info')).not.toHaveText(before!);
@@ -132,32 +151,31 @@ test('dragging the surface floor handle moves both parameters', async ({ page })
 	await expect(page.locator('#likelihood-mu-num')).not.toHaveValue(muBefore);
 });
 
+test('a surface changed while off screen is current when scrolled back', async ({ page }) => {
+	await page.goto('/likelihood');
+	await ready(page);
+
+	const handle = page.locator('.floor-handle');
+	const fallback = page.locator('.gl-note');
+	await expect(handle.or(fallback).first()).toBeVisible();
+	test.skip(await fallback.isVisible(), 'WebGL2 unavailable — contour fallback');
+
+	const cxBefore = await handle.getAttribute('cx');
+	// Off-screen surfaces skip drawing; set μ without scrolling the bar into view.
+	await page.evaluate(() => {
+		scrollTo(0, 0);
+		const el = document.querySelector<HTMLInputElement>('#likelihood-mu')!;
+		el.value = '95';
+		el.dispatchEvent(new Event('input', { bubbles: true }));
+	});
+	await handle.scrollIntoViewIfNeeded();
+	await expect(handle).not.toHaveAttribute('cx', cxBefore!);
+});
+
 test('changelog page lists the current release', async ({ page }) => {
 	await page.goto('/likelihood/changelog');
 	await expect(page.getByRole('heading', { level: 1 })).toContainText('Changelog');
 	await expect(page.locator('body')).toContainText('1.0.0');
-});
-
-test('the likelihood curve reports its area, which follows σ²', async ({ page }) => {
-	await page.goto('/likelihood');
-	await ready(page);
-	const before = await page.getByTestId('curve-area').textContent();
-	await page.getByRole('slider', { name: 'Variance', exact: true }).press('PageUp');
-	await expect(page.getByTestId('curve-area')).not.toHaveText(before!);
-});
-
-test('pinning a candidate reports the likelihood ratio', async ({ page }) => {
-	await page.goto('/likelihood');
-	await ready(page);
-	await page.getByRole('button', { name: 'Pin as A' }).click();
-	await expect(page.getByTestId('likelihood-ratio')).toContainText('equally likely');
-	await page.getByRole('slider', { name: 'Mean', exact: true }).press('PageUp');
-	await expect(page.getByTestId('likelihood-ratio')).toContainText(
-		'as likely under the current candidate as under A'
-	);
-	await expect(page.locator('.pinned-pt').first()).toBeVisible();
-	await page.getByRole('button', { name: 'Unpin A' }).click();
-	await expect(page.getByTestId('likelihood-ratio')).toHaveCount(0);
 });
 
 test('a large gradient-ascent step size overshoots out of the frame', async ({ page }) => {
@@ -225,4 +243,18 @@ test('a score in the readout draws its slope on the surface', async ({ page }) =
 	await mu.click();
 	await page.mouse.move(0, 0);
 	await expect(page.locator('.surface .slope')).toHaveCount(0);
+});
+
+test('the log-likelihood in the readout draws the point height', async ({ page }) => {
+	await page.goto('/likelihood');
+	await ready(page);
+	const ll = page.getByRole('button', { name: 'Show the height of the point on the surface' });
+	const fallback = page.locator('.gl-note');
+	await expect(ll.or(fallback).first()).toBeVisible();
+	test.skip(await fallback.isVisible(), 'WebGL2 unavailable — contour fallback');
+	await expect(page.locator('.surface .height')).toHaveCount(0);
+	await ll.hover();
+	await expect(page.locator('.surface .height')).toHaveCount(1);
+	await page.mouse.move(0, 0);
+	await expect(page.locator('.surface .height')).toHaveCount(0);
 });

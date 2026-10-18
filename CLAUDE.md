@@ -195,6 +195,12 @@ Each full-page viz app (e.g. `cohend`) keeps its reactive state in a **class** i
 Shared state primitives live in `core/state` (`Persisted`, `queryParams`); pure
 numerical model code sits in a sibling `model.ts` with `model.test.ts`.
 
+A formula whose numbers follow a control uses `TexLive` (`#0`… slots plus a
+`values` array), not `Tex` with the numbers interpolated: `Tex` re-typesets on
+every change, which dominated the likelihood app's slider drags. For redraw
+and frame-cost questions, `scripts/bench-likelihood.mjs` is the measuring
+harness (frame/upload counts per surface, before/after compare).
+
 `cohend` is the template the other viz apps copy; its app-specific architecture
 (file map, state flow, URL params, share/embed) is documented in
 `src/lib/viz/cohend/README.md`. It is also the one translated app (`/sv/cohend`, …);

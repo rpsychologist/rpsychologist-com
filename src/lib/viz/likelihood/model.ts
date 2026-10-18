@@ -36,10 +36,30 @@ export function logLikPoint(y: number, mu: number, sigma2: number): number {
 	return -0.5 * Math.log(2 * Math.PI * sigma2) - (y - mu) ** 2 / (2 * sigma2);
 }
 
+// Σ(y − μ)² = Σ(y − ȳ)² + n(ȳ − μ)², so each call is O(1) given the sample's
+// mean and centered sum of squares (the centered form avoids the cancellation
+// of Σy² − 2μΣy + nμ²). The figures evaluate ℓ thousands of times per input,
+// and walking the reactive sample proxy each time was a top profile cost.
+// Cached per array: samples are replaced whole, never mutated in place.
+const sampleStats = new WeakMap<number[], { n: number; mean: number; ss: number }>();
+function statsOf(sample: number[]) {
+	let s = sampleStats.get(sample);
+	if (!s) {
+		const n = sample.length;
+		let sum = 0;
+		for (const y of sample) sum += y;
+		const mean = n ? sum / n : 0;
+		let ss = 0;
+		for (const y of sample) ss += (y - mean) ** 2;
+		s = { n, mean, ss };
+		sampleStats.set(sample, s);
+	}
+	return s;
+}
+
 export function sumSquares(sample: number[], mu: number): number {
-	let ss = 0;
-	for (const y of sample) ss += (y - mu) ** 2;
-	return ss;
+	const { n, mean, ss } = statsOf(sample);
+	return ss + n * (mean - mu) ** 2;
 }
 
 /** Joint log-likelihood ℓ(mu, sigma2) of the sample. */
@@ -86,15 +106,6 @@ export function hessSigma2Expected(n: number, sigma2: number): number {
  * curve, maximal at 0 when x = μ (old estimatedLogLik). */
 export function relLogLik(n: number, mu: number, x: number, sigma2: number): number {
 	return (-n / 2) * ((x - mu) ** 2 / sigma2);
-}
-
-/** Area under the likelihood curve L(μ) = Πf(yᵢ | μ, σ²) at fixed σ². Since
- * ℓ is exactly quadratic in μ, L is a scaled Gaussian in μ and the integral is
- * closed-form: L(μ̂, σ²)·√(2πσ²/n). Not 1 — likelihood is not a density in μ. */
-export function likelihoodAreaMu(sample: number[], sigma2: number): number {
-	const n = sample.length;
-	const muHat = sample.reduce((a, b) => a + b, 0) / n;
-	return Math.exp(logLikSum(sample, muHat, sigma2)) * Math.sqrt((2 * Math.PI * sigma2) / n);
 }
 
 /** Relative profile log-likelihood ℓₚ(x) − ℓ̂ = −(n/2)·ln(1 + (x − μ)²/σ²) at

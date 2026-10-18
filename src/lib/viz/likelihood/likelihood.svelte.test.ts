@@ -100,23 +100,6 @@ describe('fisher scoring', () => {
 	});
 });
 
-describe('pinned candidate', () => {
-	it('pins the current point and re-reads it against new data', () => {
-		const s = new LikelihoodState();
-		expect(s.llPinned).toBeNull();
-		s.pin();
-		expect(s.pinned).toEqual({ mu: defaults.mu, sigma2: defaults.sigma2 });
-		expect(s.llPinned).toBeCloseTo(s.ll, 12);
-		s.setMu(100);
-		expect(s.pinned?.mu).toBe(defaults.mu);
-		expect(s.llPinned).not.toBeCloseTo(s.ll, 3);
-		s.newSample();
-		expect(Number.isFinite(s.llPinned)).toBe(true);
-		s.unpin();
-		expect(s.llPinned).toBeNull();
-	});
-});
-
 describe('parameter setters', () => {
 	it('clamps to the fixed frame', () => {
 		const s = new LikelihoodState();

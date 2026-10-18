@@ -154,7 +154,7 @@
 							title="The last step left the plotted frame">(overshot)</span
 						>{:else if model.count >= RUN_CAP}<span
 							class="diverged"
-							title="Stopped after the iteration cap without converging">(gave up)</span
+							title="Stopped after the iteration cap without converging">(stopped)</span
 						>{/if}</span
 				>
 			</p>
@@ -168,17 +168,18 @@
 				<a href="https://en.wikipedia.org/wiki/Gradient_descent">Gradient descent</a> is a simple
 				iterative algorithm that uses the
 				<a href="https://en.wikipedia.org/wiki/Gradient">gradient</a> (the vector of partial
-				derivatives) to find a local minimum — here we look for the maximum, so we do gradient
+				derivatives) to find a local minimum. Here we look for the maximum, so we do gradient
 				<em>ascent</em>. We start with an initial guess and iteratively update the values until
 				convergence. Each update is proportional to the derivative of the log-likelihood at the
-				current value — the slope of the surface. Move to a steeper region and the next step grows;
+				current value, the slope of the surface. Move to a steeper region and the next step grows;
 				the dashed arrow previews it. For our model the iteration is:
 			</p>
 			<Tex display math={eqGrad} />
 			<p class="note">
-				Note: the data are standardized internally to make the algorithm more efficient — values are
-				back-transformed before they are plotted. The step size (<Tex math={String.raw`\gamma`} />,
-				sometimes called the "learning rate") is set with the slider; 0.05 is the default.
+				Note: the data are standardized internally to make the algorithm more efficient, and values
+				are back-transformed before they are plotted. The step size (<Tex
+					math={String.raw`\gamma`}
+				/>, sometimes called the "learning rate") is set with the slider; 0.05 is the default.
 			</p>
 		</aside>
 	{:else if infoOpen && model.p.algo === 'fisherScoring'}
@@ -205,7 +206,7 @@
 				<Tex math={String.raw`\hat\sigma^2 + (\mu_n - \hat\mu)^2`} />, the best variance for the
 				starting mean, which overshoots whenever that mean is off. The second step lands on the MLE.
 				The approximation is drawn along the two slices; over both parameters it is a paraboloid,
-				which far from the peak rises far above the hill.
+				which rises well above the hill away from the peak.
 			</p>
 		</aside>
 	{/if}

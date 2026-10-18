@@ -8,7 +8,6 @@ import {
 	logLikGrid,
 	logLikPoint,
 	logLikSum,
-	likelihoodAreaMu,
 	lrTest,
 	MU_MAX,
 	MU_MIN,
@@ -119,18 +118,6 @@ describe('derivatives', () => {
 			expect(relProfileMu(N, MU_HAT, x, SIGMA2_HAT)).toBeGreaterThanOrEqual(
 				relLogLik(N, MU_HAT, x, SIGMA2_HAT) - 1e-12
 			);
-	});
-});
-
-describe('why likelihood is not a probability', () => {
-	it('the likelihood curve in μ has a closed-form area that is not 1', () => {
-		for (const s2 of [100, SIGMA2_HAT, 400]) {
-			let area = 0;
-			const dx = 0.01;
-			for (let m = 0; m <= 250; m += dx) area += Math.exp(logLikSum(Y, m, s2)) * dx;
-			expect(likelihoodAreaMu(Y, s2) / area).toBeCloseTo(1, 6);
-			expect(likelihoodAreaMu(Y, s2)).toBeLessThan(1e-10);
-		}
 	});
 });
 

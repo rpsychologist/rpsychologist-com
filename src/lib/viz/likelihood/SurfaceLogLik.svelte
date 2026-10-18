@@ -71,16 +71,16 @@
 		/** Named viewpoint (buttons live in ViewpointDock): setting it swings
 		 * the camera there; rotating by hand clears it. */
 		view?: ViewpointId | null;
-		/** Explore mode: draw the slope triangle along this slice at the point
-		 * (driven by the scores in JointLogLik's readout). */
-		slope?: 'mu' | 's2' | null;
+		/** Explore mode: what the readout entry under the pointer (JointLogLik)
+		 * draws at the point: its height ℓ, or the slope triangle along a slice. */
+		mark?: 'll' | 'mu' | 's2' | null;
 	}
 	let {
 		model,
 		mode = 'explore',
 		emphasis = null,
 		onunavailable,
-		slope = null,
+		mark = null,
 		view: viewpoint = $bindable('angled')
 	}: Props = $props();
 	// Alpha factor for an element under the key's emphasis (1 = untouched).
@@ -113,7 +113,6 @@
 	const FIT_PAD = 14;
 
 	const DRAG_SENS = 0.012;
-	const HANDLE_HIT = 16; // px: grab the floor handle to move the point vs rotate
 	const FLING_MAX = 6;
 	const EASE_TAU = 0.5; // fling relaxes to rest (SPEED = 0) on this timescale
 	const REST_VEL = 0.01; // below this the loop stops presenting
@@ -245,7 +244,6 @@
 	// The point is below the drawn floor (ℓ < ℓ̂ − FLOOR_D): only its floor
 	// ring shows, labeled.
 	let headBelow = $state(false);
-	let pinPos = $state<{ x: number; y: number } | null>(null);
 	// Ghost of the next iteration: its route along the surface (with a
 	// screen-space arrowhead) and its landing dot; plus, for Fisher scoring,
 	// the quadratic approximation it climbs instead of the hill.
@@ -262,6 +260,8 @@
 	let waterline = $state('');
 	let waterRings: [number, number][][] = [];
 	let waterKey = '';
+	// The point's height ℓ: a stem from the floor up to it (explore mode).
+	let heightGeo = $state<{ stem: string; label: { at: Pt; text: string } } | null>(null);
 	// The selected score's slope triangle on its slice (explore mode).
 	let slopeGeo = $state<{
 		tri: string;
@@ -269,9 +269,12 @@
 		hyp: string;
 		label: { at: Pt; text: string; anchor: 'start' | 'end' };
 	} | null>(null);
-	// Dashed MLE-summit → wall-peak guides and the two wall-peak dots (SVG
-	// overlay like the gnomon), recomputed each frame in positionLabels.
-	let guidePaths = $state<{ d: string; len: number }[]>([]);
+	// Explore mode: the current point carried across to each profile wall
+	// (SVG overlay like the gnomon), recomputed each frame in positionLabels.
+	// A level guide at the point's height, the gap up to the wall curve (what
+	// the best other parameter would add; zero once it is reached), and the
+	// curve's value at the current parameter.
+	let tracks = $state<{ guide: string; len: number; gap: string; gapLen: number; dot: Pt }[]>([]);
 	// Dashed overlays: pathLength = world length × px per world unit, so a
 	// dash pattern is laid along the geometry rather than along the screen
 	// path. Without it the dashes slide as rotation stretches the projection.
@@ -947,6 +950,23 @@
 		};
 	}
 
+	// The point's height over the floor, drawn over the GL drop line and
+	// labeled with ℓ itself (the floor is FLOOR_D below the peak, not ℓ = 0).
+	function heightGeometry() {
+		const p = model.p;
+		const z = zOf(model.ll, model.grid.max);
+		const foot = project(wx(p.mu), wy(p.sigma2), 0);
+		const head = project(wx(p.mu), wy(p.sigma2), z);
+		const f = (v: number) => v.toFixed(1);
+		return {
+			stem: `M${f(foot.x)},${f(foot.y)}L${f(head.x)},${f(head.y)}`,
+			label: {
+				at: { x: Math.max(foot.x, head.x) + 8, y: (foot.y + head.y) / 2 },
+				text: `ℓ = ${model.ll.toFixed(2).replace('-', '−')}`
+			}
+		};
+	}
+
 	// Position the HTML axis labels at their world anchors and rebuild the SVG
 	// gnomon (both can't be GL, so they overlay the canvas in CSS px each frame).
 	function positionLabels() {
@@ -967,19 +987,15 @@
 
 		const p = model.p;
 		waterline = waterlinePath();
-		slopeGeo = !inference && slope ? slopeGeometry(slope) : null;
+		slopeGeo = !inference && (mark === 'mu' || mark === 's2') ? slopeGeometry(mark) : null;
+		heightGeo = !inference && mark === 'll' ? heightGeometry() : null;
 		const next = !inference && !model.running ? model.nextStep : null;
 		ghost = next ? ghostGeometry(next) : null;
 		capPaths = next && p.algo === 'fisherScoring' ? capGeometry() : [];
 		if (inference) {
 			headPos = null;
 			floorPos = null;
-			pinPos = null;
 		} else {
-			const a = model.pinned;
-			pinPos = a
-				? project(wx(a.mu), wy(a.sigma2), zOf(logLikSum(p.sample, a.mu, a.sigma2), model.grid.max))
-				: null;
 			const hz = zOf(logLikSum(p.sample, p.mu, p.sigma2), model.grid.max);
 			headPos = project(wx(p.mu), wy(p.sigma2), hz);
 			headBelow = onFloor(hz);
@@ -988,27 +1004,54 @@
 			floorPos = cb > 0.25 ? project(wx(p.mu), wy(p.sigma2), 0) : null;
 		}
 
-		// MLE-summit → wall-peak guides (dashed), echoing the reference's
-		// "marginal peaks". Both peaks sit at ℓ̂, so the guides are horizontal.
-		const zPk = zOf(profileMu(p.sample, model.muHat), model.grid.max);
+		// Wall peaks: both sit at ℓ̂, above μ̂ and σ̂², and mark the estimates.
+		const top = model.grid.max;
+		const zPk = zOf(profileMu(p.sample, model.muHat), top);
 		const summit = project(wx(model.muHat), wy(model.sigma2Hat), zPk);
-		const muPk = project(wx(model.muHat), wallMuSign * RANGE, zPk);
-		const s2Pk = project(wallS2Sign * RANGE, wy(model.sigma2Hat), zPk);
-		// World lengths of the two guides (summit to each wall peak, level).
-		const muGuideLen = Math.abs(wy(model.sigma2Hat) - wallMuSign * RANGE);
-		const s2GuideLen = Math.abs(wx(model.muHat) - wallS2Sign * RANGE);
-		const f = (n: number) => n.toFixed(1);
-		// Only walls that aren't edge-on get their guide and peak dot.
+		const muWall = wallMuSign * RANGE;
+		const s2Wall = wallS2Sign * RANGE;
+		// Only walls that aren't edge-on get their peak dot and track.
 		const wv = wallsVisible();
-		const pks = [
-			...(wv.mu ? [{ q: muPk, len: muGuideLen }] : []),
-			...(wv.s2 ? [{ q: s2Pk, len: s2GuideLen }] : [])
+		peakDots = [
+			...(wv.mu ? [project(wx(model.muHat), muWall, zPk)] : []),
+			...(wv.s2 ? [project(s2Wall, wy(model.sigma2Hat), zPk)] : [])
 		];
-		guidePaths = pks.map(({ q, len }) => ({
-			d: `M${f(summit.x)},${f(summit.y)}L${f(q.x)},${f(q.y)}`,
-			len
-		}));
-		peakDots = pks.map(({ q }) => q);
+		if (inference) tracks = [];
+		else {
+			const f = (n: number) => n.toFixed(1);
+			const seg = (a: Pt, b: Pt) => `M${f(a.x)},${f(a.y)}L${f(b.x)},${f(b.y)}`;
+			const x = wx(p.mu);
+			const y = wy(p.sigma2);
+			const zPt = zOf(model.ll, top);
+			const from = project(x, y, zPt);
+			// Track to the wall at (wxw, wyw), whose curve stands at height zCurve.
+			const track = (wxw: number, wyw: number, zCurve: number, len: number) => {
+				const at = project(wxw, wyw, zPt);
+				const onCurve = project(wxw, wyw, zCurve);
+				return {
+					guide: seg(from, at),
+					len,
+					gap: seg(at, onCurve),
+					gapLen: Math.abs(zCurve - zPt),
+					dot: onCurve
+				};
+			};
+			tracks = [
+				...(wv.mu
+					? [track(x, muWall, zOf(profileMu(p.sample, p.mu), top), Math.abs(y - muWall))]
+					: []),
+				...(wv.s2
+					? [
+							track(
+								s2Wall,
+								y,
+								zOf(logLikSum(p.sample, model.muHat, p.sigma2), top),
+								Math.abs(x - s2Wall)
+							)
+						]
+					: [])
+			];
+		}
 		lrGeo = inference ? lrGeometry(zPk, summit) : null;
 	}
 
@@ -1116,6 +1159,7 @@
 	function draw() {
 		const g = gl;
 		if (!g) return;
+		dirty = false;
 		const { scale, ox, oy, cw, ch } = view;
 		g.clear(g.COLOR_BUFFER_BIT);
 		g.useProgram(prog);
@@ -1238,6 +1282,22 @@
 		}
 	}
 
+	// Model and prop changes draw through here: once per frame at most, and an
+	// off-screen surface only goes stale until it scrolls back. Effects must not
+	// call draw() directly: they would subscribe to everything it reads.
+	let dirty = false;
+	let onScreen = true;
+	let drawRaf = 0;
+	function requestDraw() {
+		if (!gl) return;
+		dirty = true;
+		if (!onScreen || drawRaf) return;
+		drawRaf = requestAnimationFrame(() => {
+			drawRaf = 0;
+			if (dirty) draw();
+		});
+	}
+
 	$effect(() => {
 		gl = canvas.getContext('webgl2', {
 			alpha: true,
@@ -1273,12 +1333,23 @@
 			marginalCol = cssVarRgb('--marginal', marginalCol);
 			const bg = pageBg();
 			gl.clearColor(bg[0], bg[1], bg[2], 1);
-			draw();
+			requestDraw();
 		});
 		themeObs.observe(document.documentElement, {
 			attributes: true,
 			attributeFilter: ['data-theme']
 		});
+
+		// The margin draws a stale surface before it is actually in view, since
+		// the callback lands a frame after the scroll.
+		const io = new IntersectionObserver(
+			([e]) => {
+				onScreen = e.isIntersecting;
+				if (onScreen && dirty) requestDraw();
+			},
+			{ rootMargin: '200px 0px' }
+		);
+		io.observe(canvas);
 
 		const onLost = (e: Event) => {
 			e.preventDefault();
@@ -1303,8 +1374,11 @@
 		return () => {
 			cancelAnimationFrame(raf);
 			cancelAnimationFrame(viewRaf);
+			cancelAnimationFrame(drawRaf);
 			raf = 0;
+			drawRaf = 0;
 			ro.disconnect();
+			io.disconnect();
 			themeObs.disconnect();
 			canvas.removeEventListener('webglcontextlost', onLost);
 			canvas.removeEventListener('webglcontextrestored', onRestored);
@@ -1320,20 +1394,20 @@
 		};
 	});
 
-	// Pinned candidate A moved, or the next-step preview changed (algorithm,
-	// step size, run state): re-place the overlays.
+	// The next-step preview changed (algorithm, step size, run state):
+	// re-place the overlays. Explore only; inference draws none of them.
 	$effect(() => {
-		void model.pinned;
+		if (inference) return;
 		void model.nextStep;
 		void model.running;
-		void slope;
-		if (gl) untrack(() => draw());
+		void mark;
+		requestDraw();
 	});
 
 	// Key emphasis changed: redraw with the new fades.
 	$effect(() => {
 		void emphasis;
-		if (gl) untrack(() => draw());
+		requestDraw();
 	});
 
 	// New sample → new surface: re-upload the lattice heights.
@@ -1342,7 +1416,7 @@
 		if (!gl) return;
 		gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
 		gl.bufferData(gl.ARRAY_BUFFER, pos, gl.STATIC_DRAW);
-		draw();
+		requestDraw();
 	});
 
 	// Optimizer path, slice curves, and current point → dynamic buffers.
@@ -1420,7 +1494,7 @@
 		// rebuild the walls on its own.
 		buildWalls();
 
-		if (gl) draw();
+		requestDraw();
 	});
 
 	// Swing to a named view: shortest way round in azimuth, eased.
@@ -1454,12 +1528,8 @@
 
 	function onPointerDown(e: PointerEvent) {
 		if (e.button !== 0) return;
-		// Grab the floor handle → move the point; anywhere else → rotate. Moving
-		// preventDefaults so a touch drag on the handle doesn't scroll the page.
-		if (
-			floorPos &&
-			Math.hypot(e.clientX - rectX() - floorPos.x, e.clientY - rectY() - floorPos.y) <= HANDLE_HIT
-		) {
+		// Grab the floor handle → move the point; anywhere else → rotate.
+		if ((e.target as Element).closest('.handle-hit')) {
 			dragMode = 'move';
 			(e.currentTarget as Element).setPointerCapture?.(e.pointerId);
 			e.preventDefault();
@@ -1475,8 +1545,6 @@
 		(e.currentTarget as Element).setPointerCapture?.(e.pointerId);
 		kick();
 	}
-	const rectX = () => canvas.getBoundingClientRect().left;
-	const rectY = () => canvas.getBoundingClientRect().top;
 	let lastX = 0;
 	let lastPT = 0;
 	function onPointerMove(e: PointerEvent) {
@@ -1493,7 +1561,8 @@
 			hasRotated = true;
 			viewpoint = null;
 		}
-		const dA = -dx * DRAG_SENS;
+		// +angle carries the near side rightward, so the surface follows the cursor.
+		const dA = dx * DRAG_SENS;
 		angle = (((angle + dA) % TAU) + TAU) % TAU;
 		const dt = (e.timeStamp - lastPT) / 1000;
 		if (dt > 0) flingVel = Math.max(-FLING_MAX, Math.min(FLING_MAX, dA / dt));
@@ -1533,18 +1602,14 @@
 		{#each axisPaths as d, i (i)}
 			<path {d} />
 		{/each}
-		<!-- Summit → wall-peak guides: explore only (in inference they compete
+		<!-- Point → wall tracks: explore only (in inference they would compete
 		     with the ½·LR level guide). -->
-		{#if !inference}
-			{#each guidePaths as g, i (i)}
-				<path
-					class="guide"
-					class:faded={fadeOf('profile') < 1}
-					d={g.d}
-					pathLength={g.len * dashUnit || undefined}
-				/>
-			{/each}
-		{/if}
+		{#each tracks as t, i (i)}
+			<g class="track" class:faded={fadeOf('profile') < 1}>
+				<path class="guide" d={t.guide} pathLength={t.len * dashUnit || undefined} />
+				<path class="guide" d={t.gap} pathLength={t.gapLen * dashUnit || undefined} />
+			</g>
+		{/each}
 		{#if waterline}<path class="waterline" d={waterline} />{/if}
 		{#each capPaths as d, i (i)}
 			<path class="cap" class:faded={fadeOf('next') < 1} {d} />
@@ -1576,15 +1641,31 @@
 				>
 			</g>
 		{/if}
-		{#if pinPos}
-			<circle class="pinned-pt" cx={pinPos.x} cy={pinPos.y} r="5" />
-			<text class="pinned-label" x={pinPos.x + 8} y={pinPos.y - 6}>A</text>
+		{#if heightGeo}
+			<g class="height">
+				<path class="height-stem" d={heightGeo.stem} />
+				<text
+					class="lr-label"
+					x={heightGeo.label.at.x}
+					y={heightGeo.label.at.y}
+					dominant-baseline="central">{heightGeo.label.text}</text
+				>
+			</g>
 		{/if}
 		{#if headPos && !headBelow}
 			<circle class="param-point" cx={headPos.x} cy={headPos.y} r="6" />
 		{/if}
 		{#each peakDots as pt, i (i)}
 			<circle class="wall-peak" class:faded={fadeOf('profile') < 1} cx={pt.x} cy={pt.y} r="3.5" />
+		{/each}
+		{#each tracks as t, i (i)}
+			<circle
+				class="track-dot"
+				class:faded={fadeOf('profile') < 1}
+				cx={t.dot.x}
+				cy={t.dot.y}
+				r="3.5"
+			/>
 		{/each}
 		{#if floorPos}
 			<circle class="floor-handle" cx={floorPos.x} cy={floorPos.y} r="7" />
@@ -1656,6 +1737,9 @@
 			</g>
 		{/if}
 	</svg>
+	{#if floorPos}
+		<div class="handle-hit" style:transform="translate({floorPos.x}px, {floorPos.y}px)"></div>
+	{/if}
 	<span class="axis-tag" bind:this={muTag}>μ</span>
 	<span class="axis-tag" bind:this={s2Tag}>σ²</span>
 	<span class="axis-tag" bind:this={llTag}>ℓ</span>
@@ -1767,23 +1851,16 @@
 		stroke: var(--bg);
 		stroke-width: 3px;
 	}
-	.gnomon .pinned-pt {
-		fill: var(--bg);
-		stroke: var(--marginal);
-		stroke-width: 2;
-	}
-	.gnomon .pinned-label {
-		font-size: 12px;
-		font-weight: 600;
-		fill: var(--marginal);
-		paint-order: stroke;
-		stroke: var(--bg);
-		stroke-width: 3px;
-	}
 	.gnomon .wall-peak {
 		fill: var(--marginal);
 		stroke: var(--bg);
 		stroke-width: 1.5;
+	}
+	/* Hollow, so at the MLE the filled peak dot shows through it. */
+	.gnomon .track-dot {
+		fill: var(--bg);
+		stroke: var(--marginal);
+		stroke-width: 2;
 	}
 	/* Inference overlay: coral = the null hypothesis (as in the 2D figure). */
 	.gnomon .null-floor {
@@ -1836,6 +1913,13 @@
 		stroke-width: 2.25;
 		stroke-linecap: round;
 	}
+	/* The point's color, not the accent: the stem runs beside the teal σ² slice. */
+	.gnomon .height-stem {
+		fill: none;
+		stroke: var(--heading);
+		stroke-width: 2.25;
+		stroke-linecap: round;
+	}
 	.gnomon .lr-label {
 		font-size: 12px;
 		fill: var(--heading);
@@ -1844,13 +1928,32 @@
 		stroke-width: 3px;
 	}
 	/* The grab handle for moving the point: a hollow ring at the drop-line foot.
-	   Purely visual — the gnomon overlay is click-through and hit-testing is done
-	   in JS against floorPos (see onPointerDown). */
+	   Purely visual; .handle-hit takes the pointer. */
 	.gnomon .floor-handle {
 		fill: color-mix(in srgb, var(--heading) 10%, transparent);
 		stroke: var(--heading);
 		stroke-width: 1.5;
 		opacity: 0.75;
+	}
+	/* The ring's hit target, a finger's width on touch screens. An HTML box
+	   rather than an SVG circle so touch-action applies: a drag that starts
+	   here moves the point in any direction instead of scrolling the page. */
+	.handle-hit {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 32px;
+		height: 32px;
+		margin: -16px 0 0 -16px;
+		border-radius: 50%;
+		touch-action: none;
+	}
+	@media (pointer: coarse) {
+		.handle-hit {
+			width: 48px;
+			height: 48px;
+			margin: -24px 0 0 -24px;
+		}
 	}
 	/* Positioned each frame via an inline transform (JS projects the world
 	   anchor), so top/left stay at 0 and only the transform moves them. */

@@ -22,7 +22,8 @@
 	// is a zero-height sticky row at the top of the instrument body, so the
 	// buttons line up with the header's first control and, once the figure
 	// scrolls under the page's pinned bars (--sticky-top, set per instrument
-	// in LikelihoodTool), stay the header's own padding below them.
+	// in LikelihoodTool), stay the header's own padding below them. Phones
+	// don't pin the instrument headers, so the dock scrolls away with them.
 	interface Props {
 		/** Selected viewpoint; the surface clears it when the user rotates. */
 		view: ViewpointId | null;
@@ -57,6 +58,12 @@
 		z-index: 2;
 		height: 0;
 		margin-top: -0.4rem;
+	}
+	@media (max-width: 47.99rem) {
+		.views-dock {
+			position: relative;
+			top: 0;
+		}
 	}
 	.views {
 		position: absolute;

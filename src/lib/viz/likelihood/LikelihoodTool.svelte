@@ -4,10 +4,10 @@
 	// inference). The route page owns the prose around the tool; live values
 	// (the sample line, readouts) live in here because they need the model.
 	import Tex from '$lib/components/Tex.svelte';
+	import TexLive from '$lib/components/TexLive.svelte';
 	import ControlBar from './ControlBar.svelte';
 	import SamplePlot from './SamplePlot.svelte';
 	import CalcLogLik from './CalcLogLik.svelte';
-	import LikelihoodCurve from './LikelihoodCurve.svelte';
 	import JointLogLik from './JointLogLik.svelte';
 	import SurfaceLogLik from './SurfaceLogLik.svelte';
 	import SurfaceKey, { type KeyItem } from './SurfaceKey.svelte';
@@ -19,8 +19,7 @@
 	import Slider from '$lib/viz/core/components/Slider.svelte';
 	import { MU_NULL_MAX, MU_NULL_MIN, N_MAX, N_MIN } from './likelihood.svelte';
 	import type { LikelihoodState } from './likelihood.svelte';
-	import { SIGMA2_MAX, likelihoodAreaMu } from './model';
-	import { sciTex } from './sci';
+	import { SIGMA2_MAX } from './model';
 
 	interface Props {
 		model: LikelihoodState;
@@ -45,13 +44,14 @@
 	let infEmphasis = $state<string[] | null>(null);
 	// Each test opens with its own geometry picked out, like the 2D figure's
 	// highlight: LR reads the null slice's peak against the profile wall; the
-	// score test reads the μ-slice at the null's best point; Wald, the μ-slice
-	// through the MLE and its floor distance to the null line.
+	// score test reads the μ-slice at the null's best point, with the null
+	// slice showing it is flat in σ² there; Wald, the μ-slice through the MLE
+	// and its floor distance to the null line.
 	const infFocus = $derived(
 		model.p.test === 'LRT'
 			? ['nullSlice', 'profile']
 			: model.p.test === 'score'
-				? ['muSlice']
+				? ['muSlice', 'nullSlice']
 				: ['muSlice', 'null']
 	);
 	const keyNull: KeyItem = { id: 'null', swatch: 'null-line', tex: String.raw`H_0\!: \mu = \mu_0` };
@@ -104,12 +104,7 @@
 	// The inference figure opens on the 2D curves; 3D is opt-in.
 	let infView = $state<'curves' | 'surface'>('curves');
 
-	// Live area for the "not a probability" prose.
-	const areaL = $derived(likelihoodAreaMu(model.p.sample, model.p.sigma2));
-
 	// Two formulas around a plain "versus" so a narrow screen can wrap between them.
-	const eqH0 = $derived(String.raw`H_0: \mu = ${model.p.muNull}`);
-	const eqH1 = $derived(String.raw`H_1: \mu \ne ${model.p.muNull}`);
 </script>
 
 <div class="viz-tool">
@@ -138,36 +133,24 @@
 				<CalcLogLik {model} {highlight} onhighlight={setHighlight} />
 			</div>
 			<p class="hint">
-				Move the sliders to change the candidate parameters; hover a point or a row to link them, or
-				drag a point to change the data.
+				Move the sliders to change the candidate parameters; hover a point or a row to link them.
 			</p>
 			<p class="section-intro after">
-				The combination of parameter values with the largest log-likelihood is the maximum
-				likelihood estimates (MLEs). The table's last row shows that best attainable value, so you
-				can see how far below it the current candidate falls.
+				Because the observations are independent, their joint density is the product of the ten
+				densities. The likelihood reads that product the other way round: the observations are fixed
+				and the parameters vary. It does not integrate to 1 over the parameters, so it is not a
+				probability distribution over <Tex math={String.raw`\mu`} /> and
+				<Tex math={String.raw`\sigma^2`} />, and a likelihood value means nothing on its own; only
+				ratios between values do. In practice we work with the log-likelihood, the sum in the table.
+				A product of many small densities quickly shrinks toward zero, and a sum is much easier to
+				differentiate, since its derivative is just the sum of the per-observation derivatives.
+				Because the log is strictly increasing, the log-likelihood peaks at the same parameter
+				values as the likelihood.
 			</p>
-		</section>
-
-		<section class="tool-section">
-			<h2>Likelihood Is Not a Probability</h2>
 			<p class="section-intro">
-				The ledger read the normal density as a function of the data, for fixed
-				<Tex math={String.raw`\mu`} /> and <Tex math={String.raw`\sigma^2`} />. The likelihood reads
-				the same formula the other way round: the ten observations are fixed and
-				<Tex math={String.raw`\mu`} /> varies. Below is <Tex math={String.raw`L(\mu)`} />, the
-				product of the ten densities, at the current <Tex math={String.raw`\sigma^2`} />. Its area
-				is
-				<Tex math={sciTex(areaL)} />, not 1, so it is not a probability distribution over
-				<Tex math={String.raw`\mu`} />.
-			</p>
-			<div class="figure">
-				<LikelihoodCurve {model} />
-			</div>
-			<p class="section-intro">
-				A likelihood value therefore means nothing on its own; only comparisons do. Pin a candidate
-				as A and move the sliders to see how many times more likely the data are under one than the
-				other. Products of small densities shrink toward zero with every observation, which is why
-				we work with their logs, the sum in the ledger.
+				The parameter values with the largest log-likelihood are the maximum likelihood estimates
+				(MLEs). The table's last row shows that best attainable value, so you can see how far below
+				it the current candidate falls.
 			</p>
 		</section>
 
@@ -175,14 +158,17 @@
 			<h2>Finding the Maximum Likelihood Estimates</h2>
 			<p class="section-intro">
 				Repeat the calculation above for every combination of <Tex math={String.raw`\mu`} /> and
-				<Tex math={String.raw`\sigma^2`} /> and you get the surface below: its height is the log-likelihood
-				(drawn down to 50 below the peak), and its peak is the pair of MLEs. The teal curves are slices
-				through the current point, each holding one parameter fixed; the side views look straight along
-				an axis. At the peak the surface is level, so both slopes, the <em>scores</em> shown beneath
-				it, are zero. For this model calculus finds that point directly (set both scores to zero and
-				solve); for more challenging models there is no closed form, so we let an
-				<strong>optimization algorithm</strong> climb the hill instead. The dashed arrow shows where its
-				next step would land.
+				<Tex math={String.raw`\sigma^2`} /> and you get the surface below. Its height is the log-likelihood,
+				drawn down to 50 below the peak, and the peak is the pair of MLEs. The teal curves are slices
+				through the current point, each holding one parameter fixed. Their slopes at the point are the
+				partial derivatives <Tex math={String.raw`\partial\ell/\partial\mu`} /> and
+				<Tex math={String.raw`\partial\ell/\partial\sigma^2`} />, shown in the readout with the
+				figure. Together they make up the gradient of the log-likelihood, which statisticians call
+				the
+				<em>score</em>. At the peak the surface is level, so both are zero. For this model calculus
+				finds that point directly: set both to zero and solve. More complex models have no closed
+				form, so we let an <em>optimization algorithm</em> climb the hill instead, and the dashed arrow
+				shows where its next step would land.
 			</p>
 
 			<!-- One instrument, one frame: run controls and the view toggle in its
@@ -218,10 +204,17 @@
 				Drag the ring on the surface's floor to move both parameters, or pick an algorithm and press
 				play to watch the computer climb. With gradient ascent, try the step size: a tiny one
 				crawls, a large one overshoots and bounces across the peak. Fisher scoring uses the
-				curvature and needs just two steps here: the first puts <Tex math={String.raw`\mu`} /> exactly
-				at the peak but sets <Tex math={String.raw`\sigma^2`} /> for the old <Tex
-					math={String.raw`\mu`}
-				/>, up on the ridge; the second lands on the maximum.
+				curvature and needs just two steps here. The first puts <Tex math={String.raw`\mu`} /> exactly
+				at the peak but sets <Tex math={String.raw`\sigma^2`} /> to the best value for the old
+				<Tex math={String.raw`\mu`} />, and the second lands on the maximum.
+			</p>
+			<p class="section-intro after">
+				The amber curves on the back walls are <em>profile likelihoods</em>, explained under
+				Inference below; their peaks mark the two estimates. The dashed guides carry the current
+				point's height across to each wall, and the dashed rise from there up to the curve is how
+				much higher the log-likelihood would be at the best value of the other parameter. Move
+				<Tex math={String.raw`\sigma^2`} /> and watch the gap on the <Tex math={String.raw`\mu`} /> wall
+				close.
 			</p>
 		</section>
 	</div>
@@ -233,17 +226,35 @@
 			common hypothesis tests of the mean.
 		</p>
 		<p class="section-intro">
+			The null hypothesis fixes the mean but says nothing about the variance. The likelihood ratio
+			and score tests therefore give <Tex math={String.raw`\sigma^2`} /> its best value under the null,
+			<Tex math={String.raw`\hat\sigma_0^2 = \hat\sigma^2 + (\hat\mu - \mu_0)^2`} />. Doing that for
+			every <Tex math={String.raw`\mu`} /> and keeping the largest log-likelihood gives the
+			<em>profile likelihood</em>
+			<Tex math={String.raw`\ell_p(\mu)`} />; this is called profiling out <Tex
+				math={String.raw`\sigma^2`}
+			/>. It is the amber curve below, the ridge of the surface above seen from the side, and the
+			same curve as on the back walls in 3D. Drag
+			<Tex math={String.raw`\mu_0`} /> and the point at the null moves along it. The profile falls off
+			more slowly than the teal slice at
+			<Tex math={String.raw`\hat\sigma^2`} />, because a variance that is free to grow absorbs part
+			of the misfit of a wrong mean. The Wald test reads the slice, which treats the variance as
+			known, and the likelihood ratio and score tests read the profile.
+		</p>
+		<p class="section-intro">
 			The sample-size slider asks a what-if question. The estimates
 			<Tex math={String.raw`\hat\mu`} /> and <Tex math={String.raw`\hat\sigma^2`} /> stay fixed at the
 			values from the 10 observations above, and the figure and tests show how the same estimates would
-			behave at sample size n; no new data are drawn. Increase n and the peak narrows around the MLE as
-			the <em>Fisher information</em>, the curvature of the log-likelihood, grows. The inverse of
-			the information is the variance of the MLE, so a sharper peak means a more precise estimate.
-			Switch the figure to 3D to watch the whole surface sharpen, in
+			behave at sample size n; no new data are drawn. The <em>Fisher information</em> measures how
+			sharply the log-likelihood bends at its maximum. Increase n and it grows, so the peak narrows
+			around the MLE. In large samples the inverse of the information approximates the variance of
+			the MLE (for
+			<Tex math={String.raw`\hat\mu`} /> in this model it is exact), so a sharper peak means a more precise
+			estimate. Switch the figure to 3D to watch the whole surface sharpen, in
 			<Tex math={String.raw`\sigma^2`} /> as well as <Tex math={String.raw`\mu`} />.
 		</p>
 
-		<div class="instrument" class:expanded={fullInf} style:--head-h="{infHeadH}px">
+		<div class="instrument inf-inst" class:expanded={fullInf} style:--head-h="{infHeadH}px">
 			<div class="inst-head inf-head" bind:offsetHeight={infHeadH}>
 				<div class="inf-control">
 					<Slider
@@ -255,12 +266,16 @@
 						bind:value={model.p.muNull}
 						oninput={() => model.setMuNull(model.p.muNull)}
 					/>
-					<p class="hypo"><Tex math={eqH0} /> &ensp;versus&ensp; <Tex math={eqH1} /></p>
+					<p class="hypo">
+						<TexLive math={String.raw`H_0: \mu = #0`} values={[String(model.p.muNull)]} />
+						&ensp;versus&ensp;
+						<TexLive math={String.raw`H_1: \mu \ne #0`} values={[String(model.p.muNull)]} />
+					</p>
 				</div>
 				<div class="inf-control">
 					<Slider
 						id="likelihood-n"
-						label="Sample size, what if n were…"
+						label="What if the sample size were…"
 						min={N_MIN}
 						max={N_MAX}
 						step={1}
@@ -316,7 +331,22 @@
 		</div>
 		<p class="hint">
 			Pick a test to highlight its geometry in the figure. In 3D, each test opens with its own
-			elements picked out; hover or tap a key entry to change what stands out.
+			elements highlighted; hover or tap a key entry to highlight a different one.
+		</p>
+		<p class="section-intro after">
+			Inverting a test gives an interval: the 95% interval is the set of null values the test would
+			not reject at the .05 level. The readout under the 2D figure lists two of them, the likelihood
+			interval (from the likelihood ratio test) and the Wald interval. Slide
+			<Tex math={String.raw`\mu_0`} /> past either end of the likelihood interval and the likelihood ratio
+			test's <em>p</em> drops below .05.
+		</p>
+		<p class="section-intro">
+			All three <em>p</em>-values rest on large-sample approximations, which is why they disagree in
+			small samples. For this model each statistic is a function of the one-sample <em>t</em>
+			statistic (the formulas are in the FAQ), so they always rank the same way. The Wald test gives the
+			smallest <em>p</em>, the score test the largest, and the <em>t</em>-test gives the exact
+			answer that all three approximate. The likelihood tests are for models where no exact test
+			exists.
 		</p>
 	</section>
 </div>
@@ -361,32 +391,19 @@
 		gap: 1.25rem 2.5rem;
 		align-items: start;
 	}
-	/* A single-chart figure stays on the spine; only instruments break out. */
-	.figure {
-		max-width: 700px;
-		margin: 1.25rem auto 1.5rem;
-	}
 	.section-intro.after {
 		margin-top: 1.5rem;
 	}
 	/* One hairline frame per instrument; the header row carries its controls. */
 	/* --sticky-top: how far down the viewport the pinned bars above a figure
-	   reach, for figure controls that float under them (SurfaceLogLik). In
-	   flow: the parameter bar, plus the MLE run controls where those pin.
-	   Full view: only the instrument's own header (pinned at ≥48rem). */
-	.instrument {
-		--sticky-top: 0px;
-	}
-	.mle-inst {
-		--sticky-top: var(--bar-h, 0px);
-	}
-	.instrument.expanded {
-		--sticky-top: 0px;
-	}
+	   reach, for the viewpoint dock that floats under them. In flow: the
+	   parameter bar plus the MLE run controls; full view: the instrument's
+	   own header. Desktop only, where the headers pin (ViewpointDock). */
 	@media (min-width: 48rem) {
 		.mle-inst {
 			--sticky-top: calc(var(--bar-h, 0px) + var(--head-h, 0px));
 		}
+		.inf-inst,
 		.instrument.expanded {
 			--sticky-top: var(--head-h, 0px);
 		}
@@ -400,13 +417,6 @@
 	}
 	.full-bar {
 		display: contents;
-	}
-	/* Phones: the run controls scroll away in full view, so only the (compact)
-	   parameter bar is pinned above the figure. */
-	@media (max-width: 47.99rem) {
-		.instrument.mle-inst.expanded {
-			--sticky-top: var(--full-bar-h, 0px);
-		}
 	}
 	.instrument {
 		margin-top: 1.25rem;
@@ -425,12 +435,13 @@
 	.inst-body {
 		padding: 1rem;
 	}
-	/* The run controls ride under the pinned parameter bar while the panel is
-	   on screen (the instrument is the containing block, so they release with
-	   it). Not on phones: the two bars together would cover too much. Opaque
-	   for the same reason as the parameter bar. */
+	/* Instrument headers ride along while the panel is on screen (the
+	   instrument is the containing block, so they release with it): the run
+	   controls under the parameter bar, the inference sliders at the top. Not
+	   on phones: they wrap too tall to pin. Opaque like the parameter bar. */
 	@media (min-width: 48rem) {
-		.mle-head {
+		.mle-head,
+		.inf-head {
 			position: sticky;
 			top: var(--bar-h, 0px);
 			z-index: 39;
@@ -530,6 +541,17 @@
 	.view-toggle button.on {
 		background: var(--viz-accent);
 		color: #fff;
+	}
+	/* The one two-column instrument (figure beside the test tabs) breaks out
+	   past the page's 1232px frame on wide screens. 100vw counts a classic
+	   scrollbar, hence the 4rem gutter rather than the page's 2.5rem. */
+	@media (min-width: 48rem) {
+		.inf-inst:not(.expanded) {
+			--inf-w: max(100%, min(1440px, 100vw - 4rem));
+			box-sizing: border-box;
+			width: var(--inf-w);
+			margin-inline: calc((100% - var(--inf-w)) / 2);
+		}
 	}
 	.inf-head {
 		align-items: flex-start;
