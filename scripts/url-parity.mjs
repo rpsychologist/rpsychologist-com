@@ -6,8 +6,11 @@
 // (default: production, so run it before cutover while that is still the old
 // site), every `static/_redirects` source, and every directory app served
 // verbatim from `static/`. Each path is also tried with its trailing slash
-// toggled, since Gatsby's URLs ended in `/`. A path passes if it ends, after
-// redirects, at a 200 on the base origin. Prints failures only; exits 1 on any.
+// toggled, since Gatsby's URLs ended in `/`. A path fails if it ends, after
+// redirects, at a 200 on the source but not on the base; paths that don't
+// resolve on the source either aren't regressions and are skipped. Prints
+// failures only; exits 1 on any. After cutover, production is the new site,
+// so pass the old one as `--source` (its Netlify URL) to keep comparing.
 //
 // In the container, fetch only uses the proxy with NODE_USE_ENV_PROXY=1.
 import { readFile, readdir } from 'node:fs/promises';
@@ -71,6 +74,10 @@ async function staticApps(dir = 'static') {
 	return out;
 }
 
+// Old URLs dropped on purpose at cutover, so they don't fail the check:
+// Gatsby's paginated index pages (/2/ … /9/, now /page/N).
+const DROPPED = new Set(Array.from({ length: 8 }, (_, i) => `/${i + 2}/`));
+
 // Files (`/rss.xml`) never had a slash form.
 const toggled = (p) =>
 	p === '/' || path.extname(p) ? p : p.endsWith('/') ? p.slice(0, -1) : `${p}/`;
@@ -81,20 +88,27 @@ for (const p of [
 	...(await redirectSources()),
 	...(await staticApps())
 ]) {
-	paths.add(p);
-	paths.add(toggled(p));
+	for (const q of [p, toggled(p)]) if (!DROPPED.has(q)) paths.add(q);
 }
 
-async function check(p) {
+/** Why `p` doesn't end at a 200 on `site`'s origin, or undefined if it does. */
+async function problem(site, p) {
 	try {
-		const res = await fetch(new URL(p, base), { redirect: 'follow' });
+		const res = await fetch(new URL(p, site), { redirect: 'follow' });
 		const final = new URL(res.url);
 		if (res.status !== 200)
 			return `${res.status}  ${p}${res.redirected ? ` -> ${final.pathname}` : ''}`;
-		if (final.origin !== base.origin) return `off-site  ${p} -> ${res.url}`;
+		if (final.origin !== site.origin) return `off-site  ${p} -> ${res.url}`;
 	} catch (err) {
 		return `error  ${p}  (${err.cause?.code ?? err.message})`;
 	}
+}
+
+let skipped = 0;
+async function check(p) {
+	const f = await problem(base, p);
+	if (f && (await problem(source, p))) skipped += 1;
+	else return f;
 }
 
 const queue = [...paths].sort();
@@ -108,6 +122,9 @@ await Promise.all(
 	})
 );
 
-console.log(`${paths.size} paths checked against ${base.origin}: ${failures.length} failed`);
+console.log(
+	`${paths.size} paths checked against ${base.origin}: ${failures.length} failed` +
+		(skipped ? `, ${skipped} skipped (broken on ${source.origin} too)` : '')
+);
 for (const f of failures.sort()) console.log(`  ${f}`);
 process.exit(failures.length ? 1 : 0);
