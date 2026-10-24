@@ -170,9 +170,9 @@
 				<a href="https://en.wikipedia.org/wiki/Gradient">gradient</a> (the vector of partial
 				derivatives) to find a local minimum. Here we look for the maximum, so we do gradient
 				<em>ascent</em>. We start with an initial guess and iteratively update the values until
-				convergence. Each update is proportional to the derivative of the log-likelihood at the
-				current value, the slope of the surface. Move to a steeper region and the next step grows;
-				the dashed arrow previews it. For our model the iteration is:
+				convergence. Each update is proportional to the score at the current value, so the algorithm
+				takes long steps where the hill is steep and short ones near the top, where it flattens out.
+				The dashed arrow shows where the next step will land. For our model the iteration is:
 			</p>
 			<Tex display math={eqGrad} />
 			<p class="note">
@@ -193,9 +193,10 @@
 				second-order partial derivatives), and Fisher scoring uses the Fisher information, the
 				expected value of the negative Hessian. Either way we make a second-order
 				<a href="https://en.wikipedia.org/wiki/Taylor_series">Taylor approximation</a> around the current
-				value and jump to that approximation's maximum. The dotted curves on the 3D surface show it: in
-				the mean the log-likelihood is quadratic, so the approximation lies exactly on the teal slice;
-				in the variance it peels away from the hill. The iteration is:
+				value and jump to that approximation's maximum. The dotted curves on the 3D surface show this
+				approximation. In the mean direction the log-likelihood is itself a parabola, so the approximation
+				matches the slice through the point exactly. In the variance direction it isn't, and the dotted
+				curve leaves the surface the farther it gets from the point. The iteration is:
 			</p>
 			<Tex display math={eqFisher} />
 			<p>

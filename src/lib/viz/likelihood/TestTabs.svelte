@@ -71,20 +71,31 @@
 		hidden={model.p.test !== 'LRT'}
 	>
 		<p>
-			For the likelihood ratio test, we fit the model twice: once with the mean free to vary, and
-			once with it fixed at <Tex math={String.raw`\mu_0`} />. Each fit uses its own best variance,
-			so both sit on the amber profile. Fixing the mean can't improve the fit, but it might not make
-			it much worse either. The bracket shows how much log-likelihood we lose by imposing the null
-			hypothesis. Multiply that drop by two and we have the test statistic:
+			The likelihood ratio test compares two fits of the model. In one, the mean and the variance
+			are both free, which puts us at the top of the hill, the point labeled <em>MLE</em>. In the
+			other, we fix the mean at <Tex math={String.raw`\mu_0`} /> and estimate only the variance. That
+			gives <Tex math={String.raw`\hat\sigma_0^2`} />, the variance that fits best when the mean is
+			<Tex math={String.raw`\mu_0`} />, at the point labeled <em>best under <Tex math="H_0" /></em>.
+			Since each fit uses the best variance for its mean, both points lie on the profile
+			log-likelihood.
+		</p>
+		<p>
+			The null fit can never be higher than the MLE, because the MLE is the best fit over all means,
+			<Tex math={String.raw`\mu_0`} /> included. What matters is how much lower it is. The bracket labeled
+			½·LR is that gap,
+			<Tex math={String.raw`\ell(\hat\mu, \hat\sigma^2) - \ell(\mu_0, \hat\sigma_0^2)`} />. If the
+			data are consistent with <Tex math={String.raw`\mu_0`} />, fixing the mean there costs little
+			and the gap is small. Doubling the gap gives the test statistic:
 		</p>
 		<TexLive display math={eqLR} values={[fStat(model.tests.lr.stat)]} />
 		<p>
 			Under the null, LR approximately follows a <Tex math={String.raw`\chi^2`} /> distribution with 1
 			degree of freedom in large samples. This gives <em>p</em>
 			<span data-testid="pval-LRT">{fmtP(model.tests.lr.pval)}</span>. At the .05 level, we reject
-			when LR exceeds about 3.84, or a log-likelihood drop of 1.92. The means whose profile
-			log-likelihood is within 1.92 of the maximum form the 95% profile likelihood interval,
-			reported below the figure.
+			when LR exceeds about 3.84, which is a gap of 1.92. The means whose profile log-likelihood is
+			within 1.92 of the maximum form the 95% profile likelihood interval, reported below the
+			figure. It is exactly the set of <Tex math={String.raw`\mu_0`} /> values this test doesn't reject
+			at the .05 level.
 		</p>
 	</div>
 
@@ -126,9 +137,10 @@
 		</p>
 		<p>
 			We don't need to fit the model under the null. Everything comes from the peak: the estimate
-			and the curvature there. The teal curve follows that curvature. It matches the profile near
-			the maximum but falls faster farther away, which is why the Wald <em>p</em>-value differs from
-			the likelihood ratio test's.
+			and the curvature there. The slice through the MLE,
+			<Tex math={String.raw`\ell(\mu, \hat\sigma^2)`} />, is a parabola with exactly that curvature.
+			It matches the profile near the maximum but falls faster farther away, which is why the Wald
+			<em>p</em>-value differs from the likelihood ratio test's.
 		</p>
 	</div>
 
@@ -160,8 +172,10 @@
 			<span data-testid="pval-score">{fmtP(model.tests.score.pval)}</span>.
 		</p>
 		<p>
-			Wald needs only the unrestricted fit, the score test only the fit under the null, and the
-			likelihood ratio test both.
+			So the three tests need different fits: the Wald test only the fit with both parameters free,
+			the score test only the fit with the mean fixed at <Tex math={String.raw`\mu_0`} />, and the
+			likelihood ratio test both. That is why the score test is useful when the model under the null
+			is easy to fit and the full model is not.
 		</p>
 	</div>
 </div>

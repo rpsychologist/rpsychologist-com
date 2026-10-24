@@ -75,7 +75,7 @@
 					}
 				]
 			: []),
-		{ id: 'profile', swatch: 'profile', text: 'profile likelihoods (back walls)' }
+		{ id: 'profile', swatch: 'profile', text: 'profile log-likelihoods (back walls)' }
 	]);
 </script>
 

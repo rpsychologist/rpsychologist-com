@@ -88,10 +88,11 @@
 				</p>
 				<h3>Explore the log-likelihood</h3>
 				<p>
-					Drag the ring on the floor of the 3D figure to change both parameters at once. The teal
-					curves show what happens when you vary one parameter while holding the other fixed. Below
-					the figure you'll find the current log-likelihood and the two scores, the slopes in the
-					mean and variance directions. Hover or tap a score to show that slope on the surface.
+					Drag the ring on the floor of the 3D figure to change both parameters at once. The two
+					curves through the point (the slices in the key) show what happens when you vary one
+					parameter while holding the other fixed. Below the figure you'll find the current
+					log-likelihood and the two scores, the slopes in the mean and variance directions. Hover
+					or tap a score to show that slope on the surface.
 				</p>
 				<h3>Run an optimizer</h3>
 				<p>
@@ -104,7 +105,7 @@
 				<p>
 					Drag the surface away from the ring to rotate it. The View buttons switch between an
 					angled view and two side views. From the side, the outline of the surface follows the
-					amber profile curve on the wall.
+					profile curve on the back wall.
 				</p>
 				<p>
 					The full-view button at the right of each figure's header expands it to fill the window.
@@ -120,10 +121,11 @@
 				</p>
 				<h3>Inference</h3>
 				<p>
-					Choose a test tab and move the null mean <Tex math={String.raw`\mu_0`} />. The dashed
-					coral line marks the null mean, and the coral point shows the fitted model under that
-					null. Its variance is <Tex math={String.raw`\hat\sigma_0^2`} />. As you change
-					<Tex math={String.raw`\mu_0`} />, this point follows the dotted amber ridge.
+					Choose a test tab and move the null mean <Tex math={String.raw`\mu_0`} />. The dashed line
+					across the floor marks the null mean, and the point labeled
+					<em>best under <Tex math="H_0" /></em> is the fitted model under that null, with variance
+					<Tex math={String.raw`\hat\sigma_0^2`} />. As you change <Tex math={String.raw`\mu_0`} />,
+					this point follows the dotted ridge.
 				</p>
 				<p>
 					The likelihood ratio tab highlights a vertical drop, the Wald tab a horizontal difference,

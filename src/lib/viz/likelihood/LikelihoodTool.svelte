@@ -67,7 +67,12 @@
 				keyNull,
 				keyNullSlice,
 				keyRidge,
-				{ id: 'profile', swatch: 'profile', tex: String.raw`\ell_p(\mu)`, text: 'on the wall' }
+				{
+					id: 'profile',
+					swatch: 'profile',
+					tex: String.raw`\ell_p(\mu)`,
+					text: 'profile log-likelihood (back wall)'
+				}
 			];
 		if (model.p.test === 'score')
 			return [
@@ -143,12 +148,23 @@
 			<p class="section-intro">
 				In practice, multiplying lots of small densities can give us very small numbers. It's
 				usually more convenient to work with the <em>log-likelihood</em>, where we add the
-				log-densities instead. That's the calculation in the table. The logarithm is increasing, so
-				whichever parameter values give the largest likelihood also give the largest log-likelihood.
+				log-densities instead. We'll write it as <Tex math={String.raw`\ell(\mu, \sigma^2)`} />: for
+				a given mean and variance, the sum of the log-densities
+				<Tex math={String.raw`\ln f(y_i \mid \mu, \sigma^2)`} /> over the observations. That's the calculation
+				in the table. The logarithm is increasing, so whichever parameter values give the largest likelihood
+				also give the largest log-likelihood.
 			</p>
 			<p class="section-intro after">
 				Those parameter values are our <em>maximum likelihood estimates</em> (MLEs). The last row of the
 				table gives the answer, so you can compare it with the values you've chosen.
+			</p>
+			<p class="section-intro">
+				That maximum, <Tex math={String.raw`\ell(\hat\mu, \hat\sigma^2)`} />, is the number
+				statistical software reports as a model's log-likelihood. It is also where AIC and BIC come
+				from: both take
+				<Tex math={String.raw`-2\ell(\hat\mu, \hat\sigma^2)`} /> and add a penalty for the number of parameters
+				<Tex math="k" />, <Tex math="2k" /> for AIC and <Tex math={String.raw`k \ln n`} /> for BIC. Here
+				<Tex math="k = 2" />.
 			</p>
 		</section>
 
@@ -206,10 +222,11 @@
 				</div>
 			</div>
 			<p class="section-intro after">
-				Try looking at the hill from one of the side views. Its outline follows the amber curve on
-				the wall: for each value of one parameter, we keep the highest log-likelihood we can get by
-				varying the other. This gives a <em>profile log-likelihood</em>, which we'll use below when
-				testing hypotheses about the mean.
+				Try looking at the hill from one of the side views. Its outline matches the curve drawn on
+				the back wall: for each value of one parameter, it keeps the highest log-likelihood we can
+				get by varying the other. This is the <em>profile log-likelihood</em>. For the mean we write
+				it <Tex math={String.raw`\ell_p(\mu)`} />, and we'll use it below to test hypotheses about
+				the mean.
 			</p>
 		</section>
 	</div>
@@ -226,11 +243,14 @@
 			We still have to deal with the variance. Our null hypothesis specifies the mean, but it
 			doesn't tell us what the variance should be. For the likelihood ratio and score tests, we
 			therefore estimate it again, this time with the mean fixed at
-			<Tex math={String.raw`\mu_0`} />. Repeat this for every possible mean and we get the amber
-			profile log-likelihood, <Tex math={String.raw`\ell_p(\mu)`} />. You may see this described as
-			<em>profiling out</em> the variance. In the figure, the coral point is the best fit under the
-			null. Move <Tex math={String.raw`\mu_0`} /> and it slides along the dotted ridge, whose shadow on
-			the wall is the amber profile.
+			<Tex math={String.raw`\mu_0`} />. We call this estimate
+			<Tex math={String.raw`\hat\sigma_0^2`} />. Repeat it for every possible mean and we get the
+			profile log-likelihood <Tex math={String.raw`\ell_p(\mu)`} /> from the previous section. You may
+			see this described as <em>profiling out</em> the variance. In the figure, the point labeled
+			<em>best under <Tex math="H_0" /></em> is the fit under the null. Move <Tex
+				math={String.raw`\mu_0`}
+			/> and it slides along the dotted ridge, the best variance for each mean, whose shadow on the back
+			wall is <Tex math={String.raw`\ell_p(\mu)`} />.
 		</p>
 		<p class="section-intro">
 			Away from the estimated mean, allowing the variance to change gives a better fit than keeping
@@ -294,7 +314,7 @@
 							<p class="hint">
 								At this <Tex math={String.raw`\mu_0`} />, the variance estimate under the null,
 								<Tex math={String.raw`\hat\sigma_0^2`} />, is outside the plotted range. Its
-								log-likelihood is still shown on the amber profile curve.
+								log-likelihood is still shown on the profile curve on the back wall.
 							</p>
 						{/if}
 					{:else}
@@ -321,19 +341,21 @@
 			the narrower peak corresponds to a smaller standard error.
 		</p>
 		<p class="section-intro">
-			The confidence intervals come from the tests themselves. To get a 95% interval, we keep all
-			the values of <Tex math={String.raw`\mu_0`} /> that a test wouldn't reject at the .05 level. You
-			can check this with the slider: move <Tex math={String.raw`\mu_0`} /> outside the profile likelihood
-			interval and the likelihood ratio test's <em>p</em>-value drops below .05. The Wald interval
-			works the same way, using the Wald test.
+			With only 10 observations, the tests can give rather different answers, because each relies on
+			a large-sample approximation, and so do the intervals. In this normal model the Wald test
+			gives the smallest <em>p</em>-value and the score test the largest, with the likelihood ratio
+			test in between. For this model we don't actually need any of them: the one-sample
+			<em>t</em>-test is exact.
 		</p>
 		<p class="section-intro">
-			With only 10 observations, the tests can give rather different answers. They all use
-			large-sample approximations, as do the confidence intervals. In this normal model the Wald
-			test gives the smallest <em>p</em>-value and the score test the largest, with the likelihood
-			ratio test in between. We could instead use a one-sample <em>t</em>-test, which is exact under
-			the model. The reason for working through these likelihood-based tests is that we can also use
-			them for more complicated models, where an exact test may not be available.
+			The reason to work through the likelihood-based tests anyway is that nothing in them was
+			specific to the normal model. Whatever the model, we write down its log-likelihood, climb to
+			the peak, and read the tests off the same three features: the drop from the peak to the best
+			fit under the null, the distance to the null measured against the curvature at the peak, and
+			the slope at the null. The same steps work for logistic regression, mixed models, or
+			structural equation models, where exact tests usually don't exist. There the surface has more
+			dimensions than we can draw, and more nuisance parameters to profile out, but we handle them
+			just as we handled the variance here.
 		</p>
 	</section>
 </div>

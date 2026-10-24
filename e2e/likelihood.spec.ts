@@ -73,7 +73,7 @@ test('test tabs drive the statistics and the figure highlight', async ({ page })
 	// Default null (μ₀ = 80): LRT panel visible with a p-value.
 	await expect(page.getByTestId('pval-LRT')).toBeVisible();
 	await expect(figure.locator('.lr .ridge')).toBeVisible();
-	await expect(figure.getByRole('button', { name: /on the wall/ })).toHaveAttribute(
+	await expect(figure.getByRole('button', { name: /profile log-likelihood/ })).toHaveAttribute(
 		'aria-pressed',
 		'true'
 	);
