@@ -4,7 +4,7 @@ date: 2018-11-19 19:20
 author: Kristoffer Magnusson
 output: md_document
 category: R
-thumbnail: img/treatment-response-subgroup/treatment-response-subgroup-thumb.png
+thumbnail: img/treatment-response-subgroup-1.png
 tags: 
    - Treatment response
    - Non-responder

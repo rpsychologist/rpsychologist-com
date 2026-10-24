@@ -9,6 +9,7 @@ tags:
   - R
   - Tutorial
 slug: an-r-script-to-automatically-look-at-pubmed-citation-counts-by-year-of-publication
+summary: An R script that queries PubMed’s E-utilities for the number of publications per year matching a search term, and plots the trends with ggplot2.
 ---
 
 ![Pubmed automatic search](./img/PubMed_trend_feature.jpg)

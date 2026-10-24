@@ -4,7 +4,7 @@ date: 2018-01-26 12:00
 author: Kristoffer Magnusson
 output: md_document
 category: R
-thumbnail: img/benchmark-parallel-sim/Parallel-simulation-speedup-linear-mixed-effects-models-lme4-1.png
+thumbnail: img/Parallel-simulation-speedup-linear-mixed-effects-models-lme4-1.png
 tags: 
    - Parallel computing
    - Cloud computing

@@ -4,7 +4,7 @@ date: 2018-08-24 15:15
 author: Kristoffer Magnusson
 output: md_document
 category: Psychology
-thumbnail: img/therapist_effects_JCCP/therapist_illu_JCCP.png
+thumbnail: img/therapist_illu_JCCP.png
 tags: 
    - Therapist effects
    - Type I error

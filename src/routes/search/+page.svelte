@@ -12,7 +12,7 @@
 	});
 </script>
 
-<Seo title="Search" description="Search the blog." path="/search" />
+<Seo title="Search" description="Search the blog." path="/search" noindex />
 
 <Container>
 	<h1>Search</h1>

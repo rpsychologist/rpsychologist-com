@@ -21,6 +21,8 @@ declare module 'virtual:posts' {
 		category: string;
 		tags: string[];
 		summary: string;
+		/** Project-absolute path to the share-card figure, e.g. /content/blog/x/img/y.png */
+		thumbnail?: string;
 		readingTime: number;
 		includeToc: boolean;
 		/** Build-time TOC (empty unless include_toc); prerendered by Toc.svelte. */

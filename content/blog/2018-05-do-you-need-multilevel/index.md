@@ -4,7 +4,7 @@ date: 2018-05-04 14:55
 author: Kristoffer Magnusson
 output: md_document
 category: R
-thumbnail: img/do-you-need-multilevel/do-you-need-multilevel-powerlmm.png
+thumbnail: img/do-you-need-multilevel-powerlmm.png
 tags: 
 - Power analysis
 - Simulation

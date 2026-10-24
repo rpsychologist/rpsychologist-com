@@ -34,6 +34,8 @@ const FrontmatterSchema = z.object({
 		}),
 	slug: z.string(),
 	summary: z.string().optional(),
+	/** Post-relative path to the figure shown on the post's share card. */
+	thumbnail: z.string().optional(),
 	include_toc: z.boolean().optional(),
 	draft: z.boolean().optional()
 });
@@ -109,6 +111,11 @@ function loadPosts(root) {
 		const fm = parsed.data;
 		if (fm.draft) continue;
 
+		const thumbnail = fm.thumbnail && path.resolve(dir, fm.thumbnail);
+		if (thumbnail && !statSync(thumbnail, { throwIfNoEntry: false })?.isFile()) {
+			throw new Error(`Missing thumbnail "${fm.thumbnail}" in ${file}`);
+		}
+
 		const date = new Date(fm.date);
 		if (Number.isNaN(date.getTime())) {
 			throw new Error(`Unparseable date "${fm.date}" in ${file}`);
@@ -123,6 +130,9 @@ function loadPosts(root) {
 			category: fm.category,
 			tags: fm.tags,
 			summary: fm.summary ?? '',
+			thumbnail: thumbnail
+				? '/' + path.relative(root, thumbnail).split(path.sep).join('/')
+				: undefined,
 			readingTime: readingTime(content),
 			includeToc: fm.include_toc ?? false,
 			toc: fm.include_toc ? extractToc(content) : [],

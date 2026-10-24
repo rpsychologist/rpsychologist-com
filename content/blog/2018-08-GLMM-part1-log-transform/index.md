@@ -4,7 +4,7 @@ date: 2018-08-05 14:55
 author: Kristoffer Magnusson
 output: md_document
 category: R
-thumbnail: img/GLMM-part1-lognormal/interpret-lognormal-LMM.png
+thumbnail: img/interpret-lognormal-LMM.png
 tags: 
   - Skewed data
   - Marginalized multilevel model

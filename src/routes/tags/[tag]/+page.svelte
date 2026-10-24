@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { postsForTerm } from '$lib/content';
+	import { postsForTerm, termSlug } from '$lib/content';
 	import Container from '$lib/components/Container.svelte';
 	import PostList from '$lib/components/PostList.svelte';
 	import Seo from '$lib/components/Seo.svelte';
@@ -11,7 +11,7 @@
 <Seo
 	title={`Posts tagged “${data.term}”`}
 	description={`All posts about ${data.term}.`}
-	path={`/tags/${data.term}`}
+	path={`/tags/${termSlug(data.term)}`}
 />
 
 <Container>

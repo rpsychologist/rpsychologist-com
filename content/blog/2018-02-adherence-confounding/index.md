@@ -4,7 +4,7 @@ date: 2018-02-01 19:00
 author: Kristoffer Magnusson
 output: md_document
 category: R
-thumbnail: img/compliance/adherence-confounding-relative-bias-1.png
+thumbnail: img/adherence-confounding-relative-bias-1.png
 tags: 
     - Clinical psychology
     - Adherence

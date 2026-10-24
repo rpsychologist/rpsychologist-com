@@ -9,6 +9,8 @@
 	title="Changelog — Interpreting Cohen's d Effect Size"
 	description="Release history and version-numbering policy for the interactive Cohen's d visualization."
 	path="/cohend/changelog"
+	card="cohend"
+	imageAlt="Interpreting Cohen's d Effect Size"
 />
 
 <VizChangelog {changelog} name="Interpreting Cohen's d Effect Size" appHref={resolve('/cohend')} />

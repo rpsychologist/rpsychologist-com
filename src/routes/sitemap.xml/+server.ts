@@ -15,16 +15,7 @@ export function GET() {
 	const translatedPaths = PUBLISHED.filter((l) => l.code !== 'en').map((l) =>
 		cohendPath(l.code).slice(1)
 	);
-	const staticPaths = [
-		'',
-		'posts',
-		'viz',
-		'about',
-		'tags',
-		'search',
-		...vizPaths,
-		...translatedPaths
-	];
+	const staticPaths = ['', 'posts', 'viz', 'about', 'tags', ...vizPaths, ...translatedPaths];
 	const pagePaths = Array.from({ length: pageCount - 1 }, (_, i) => `page/${i + 2}`);
 	const tagPaths = [...termBySlug.keys()].map((slug) => `tags/${slug}`);
 

@@ -86,8 +86,10 @@ function decorate(url, content) {
 }
 
 // Navigation/duplicate pages that add noise instead of answers: taxonomy and
-// pagination listings, the search page itself, and the chrome-free viz embeds
-// (which duplicate their parent viz route). Keeping these out sharpens results.
+// pagination listings, the search page itself, the chrome-free viz embeds
+// and changelogs (which repeat their parent viz's terms and would outrank or
+// crowd it), and the share-card screenshot targets. Keeping these out sharpens
+// results.
 function isNoise(url) {
 	return (
 		url === '/tags' ||
@@ -96,6 +98,8 @@ function isNoise(url) {
 		url === '/posts' ||
 		url === '/search' ||
 		url.endsWith('/embed') ||
+		url.endsWith('/changelog') ||
+		url.startsWith('/share-card/') ||
 		// Translated Cohen's d pages: the search UI only runs on English pages,
 		// so their per-language indexes could never be queried.
 		/^\/[a-z]{2}\/cohend$/.test(url) ||

@@ -18,8 +18,8 @@
 		PUBLISHED,
 		cohendHref,
 		cohendPath,
-		hrefLang,
 		messages,
+		ogLocale,
 		setCohendI18n,
 		t,
 		translatorsFor,
@@ -157,8 +157,12 @@
 	title={m.seo_title}
 	description={m.seo_description}
 	path={cohendPath(locale)}
+	type="app"
+	card={locale === 'en' ? 'cohend' : `cohend-${locale}`}
+	version={changelog.version}
 	{alternates}
-	locale={hrefLang(locale)}
+	locale={ogLocale(locale)}
+	localeAlternates={PUBLISHED.filter((l) => l.code !== locale).map((l) => l.ogLocale)}
 />
 
 <div class="page" class:settings-open={settingsOpen}>
@@ -206,7 +210,7 @@
 						</ul>
 						<a
 							class="help-translate"
-							href="https://github.com/rpsychologist/rpsychologist-com/blob/master/docs/translation.md"
+							href="https://github.com/rpsychologist/rpsychologist-com/blob/main/docs/translation.md"
 							rel="noopener">{m.help_translate}</a
 						>
 					</nav>
@@ -531,17 +535,16 @@
 	/* This page is wrapped in `.page`, not `.article`, so the site's prose-link
 	   treatment (article.css `.article a`) doesn't reach the byline + FAQ links.
 	   Without this they fall back to UA-default blue and go purple once visited.
-	   Mirror the canonical treatment here: ink text, quiet rule underline that
-	   warms to accent on hover. (VizGallery/Bio links carry their own scoped
-	   styles and aren't affected.) */
+	   Mirror the canonical treatment here. (VizGallery/Bio links carry their own
+	   scoped styles and aren't affected.) */
 	.byline .item > a,
 	.byline > a,
 	.faq .answer :global(a) {
 		color: var(--ink);
 		text-decoration: underline;
-		text-decoration-color: var(--rule);
-		text-decoration-thickness: 1px;
-		text-underline-offset: 0.15em;
+		text-decoration-color: var(--link-underline);
+		text-decoration-thickness: var(--link-thickness);
+		text-underline-offset: var(--link-offset);
 		transition:
 			text-decoration-color 0.15s,
 			color 0.15s;
@@ -549,8 +552,13 @@
 	.byline .item > a:hover,
 	.byline > a:hover,
 	.faq .answer :global(a:hover) {
-		color: var(--heading);
+		color: var(--accent);
 		text-decoration-color: var(--accent);
+	}
+	.byline .item > a,
+	.byline > a {
+		text-decoration-color: var(--link-underline-quiet);
+		text-decoration-thickness: 1px;
 	}
 	.intro {
 		margin-bottom: 1.5rem;

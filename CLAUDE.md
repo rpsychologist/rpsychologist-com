@@ -194,6 +194,9 @@ Each full-page viz app (e.g. `cohend`) keeps its reactive state in a **class** i
 
 Shared state primitives live in `core/state` (`Persisted`, `queryParams`); pure
 numerical model code sits in a sibling `model.ts` with `model.test.ts`.
+The WebGL surfaces (likelihood 3D view, homepage hero) draw lines with
+`core/gl/lines.ts`: feathered screen-space quads, so stroke weight is the
+same at every DPR; a change there shows in both.
 
 A formula whose numbers follow a control uses `TexLive` (`#0`… slots plus a
 `values` array), not `Tex` with the numbers interpolated: `Tex` re-typesets on
@@ -217,6 +220,23 @@ mode; both ship and CSS shows one (the theme isn't known at prerender).
 `scripts/viz-thumbnails.mjs [name]` regenerates them from the running build —
 rerun it when an app's chart changes.
 
+Share cards (`og:image`, 1200×630) are committed PNGs in `static/share/`, one
+per post, app, and cohend locale, plus `site` (the default `Seo` uses).
+`src/lib/share-cards.ts` lists them; the bare, `noindex` `/share-card/[key]`
+route draws each with the site's CSS, and `scripts/share-cards.mjs` captures
+the missing/stale ones from the running build. `share-cards.test.ts` fails when
+a card is missing or its metadata, figure bytes, shared CSS/fonts, or renderer
+changed. Regenerate with `pnpm build`, start `pnpm preview --port 4173` in
+another terminal, then run `node scripts/share-cards.mjs` (optionally pass card
+keys or `--all`). Rebuild afterward to copy the new PNGs into `build/`; a
+running preview serves the previous build until this step. A changed source
+figure automatically selects only affected cards; `--all` is for forced
+recaptures, such as a browser-renderer upgrade. Failed image loads abort capture
+without marking a card current. Imagery is real work
+only: a gallery crop (a post about a viz lists its slug in that entry's `posts`
+in `viz.ts`), else a post's `thumbnail` frontmatter, dropped for long titles;
+otherwise type-only.
+
 ### Versioning & changelogs (researchers cite these apps)
 
 The maintainer-facing release guide is `RELEASING.md`; keep the two in sync.
@@ -235,10 +255,12 @@ The newest entry **is** the app's displayed version: the cite FAQ
 (`VizCitation.svelte`, APA + BibTeX derived, never hardcode a version) and the
 prerendered `/[app]/changelog` page (`VizChangelog.svelte`) both read it.
 Releasing a version = bump `changelog.json` and merge: CI auto-creates the
-`<app>-v<x.y.z>` tag when the bump reaches master
-(`.github/workflows/tag-releases.yml` runs the check script with `--create`;
-idempotent, self-heals on the next push). `pnpm check:tags` is the manual
-verifier and will rightly fail on a not-yet-merged bump. Tags are the archival
+`<app>-v<x.y.z>` tag when the bump reaches main (the `tag` job in
+`.github/workflows/ci.yml`, gated on the `ci` job, runs the check script with
+`--create`). It tags the first-parent commit that introduced the version, not
+HEAD, so it is idempotent and a missed tag self-heals on the right commit.
+`pnpm check:tags` is the manual verifier and will rightly fail on a
+not-yet-merged bump. Tags are the archival
 substrate: old cited versions stay recoverable without hosting them. No
 version announcements in the UI by design.
 

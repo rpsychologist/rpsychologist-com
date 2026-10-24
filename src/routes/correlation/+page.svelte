@@ -54,6 +54,9 @@
 	title="Interpreting Correlations"
 	description="An interactive visualization of correlation: a scatter plot you can reshape by dragging the correlation, dragging points, or loading your own data — with shared variance, regression line, residuals, and probability ellipses."
 	path="/correlation"
+	type="app"
+	card="correlation"
+	version={changelog.version}
 />
 
 <div class="page" class:settings-open={settingsOpen}>
@@ -311,17 +314,21 @@
 	.faq .answer a {
 		color: var(--ink);
 		text-decoration: underline;
-		text-decoration-color: var(--rule);
-		text-decoration-thickness: 1px;
-		text-underline-offset: 0.15em;
+		text-decoration-color: var(--link-underline);
+		text-decoration-thickness: var(--link-thickness);
+		text-underline-offset: var(--link-offset);
 		transition:
 			text-decoration-color 0.15s,
 			color 0.15s;
 	}
 	.byline a:hover,
 	.faq .answer a:hover {
-		color: var(--heading);
+		color: var(--accent);
 		text-decoration-color: var(--accent);
+	}
+	.byline a {
+		text-decoration-color: var(--link-underline-quiet);
+		text-decoration-thickness: 1px;
 	}
 	.intro {
 		margin-bottom: 1.5rem;

@@ -23,8 +23,11 @@
 	// Viz embed routes live at `<app>/embed` and render chrome-free (iframe targets):
 	// drop the site header + footer. Keyed off the pathname, not a query param, so
 	// it's known at prerender — the static HTML for an embed route ships without
-	// chrome, so there's no flash. (No real page slug ends in `/embed`.)
-	const bare = $derived(page.url.pathname.endsWith('/embed'));
+	// chrome, so there's no flash. (No real page slug ends in `/embed`.) Share
+	// cards (`/share-card/…`) are screenshot targets and render bare too.
+	const bare = $derived(
+		page.url.pathname.endsWith('/embed') || page.url.pathname.startsWith('/share-card/')
+	);
 
 	// Old apps served verbatim from static/ (pre-Gatsby apps, the Gatsby
 	// snapshot) aren't SvelteKit routes: the client router would render its 404

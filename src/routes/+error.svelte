@@ -5,7 +5,7 @@
 	import Seo from '$lib/components/Seo.svelte';
 </script>
 
-<Seo title={`${page.status}`} path="/404" />
+<Seo title={`${page.status}`} path="/404" noindex />
 
 <Container>
 	<h1>{page.status}</h1>
