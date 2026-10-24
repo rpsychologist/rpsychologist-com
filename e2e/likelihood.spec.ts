@@ -70,8 +70,12 @@ test('test tabs drive the statistics and the figure highlight', async ({ page })
 	await expect(figure.locator('canvas')).toBeVisible();
 	await figure.scrollIntoViewIfNeeded();
 
-	// Default null (μ₀ = 80): LRT panel visible with a p-value.
+	// Default null (μ₀ = 96): LRT panel visible, all three p-values in the
+	// tabs, and they straddle .05 (the default is chosen for that).
 	await expect(page.getByTestId('pval-LRT')).toBeVisible();
+	await expect(page.getByTestId('tabp-LRT')).toHaveText('p = .052');
+	await expect(page.getByTestId('tabp-wald')).toHaveText('p = .032');
+	await expect(page.getByTestId('tabp-score')).toHaveText('p = .076');
 	await expect(figure.locator('.lr .ridge')).toBeVisible();
 	await expect(figure.getByRole('button', { name: /profile log-likelihood/ })).toHaveAttribute(
 		'aria-pressed',
@@ -88,7 +92,7 @@ test('test tabs drive the statistics and the figure highlight', async ({ page })
 	);
 
 	await page.locator('#likelihood-munull').fill('100');
-	await page.getByRole('tab', { name: 'Score', exact: true }).click();
+	await page.getByRole('tab', { name: /^Score/ }).click();
 	await expect(page.getByTestId('pval-score')).toBeVisible();
 	await expect(figure.locator('.lr .slope-tri')).toBeVisible();
 	await expect(figure.locator('.lr .ridge')).toBeVisible();
@@ -128,14 +132,14 @@ test('live equation numbers update in the visual and MathML output', async ({ pa
 	const panel = page.locator('#test-panel-wald');
 	const visual = panel.locator('.katex-html .tex-v1');
 	const mathml = panel.locator('.katex-mathml [data-tex-v="1"]');
-	await expect(visual).toHaveText('80');
-	await expect(mathml).toHaveText('80');
+	await expect(visual).toHaveText('96');
+	await expect(mathml).toHaveText('96');
 
 	const muNull = page.getByRole('slider', { name: /Null hypothesis/ });
 	await muNull.focus();
 	await muNull.press('ArrowRight');
-	await expect(visual).toHaveText('81');
-	await expect(mathml).toHaveText('81');
+	await expect(visual).toHaveText('97');
+	await expect(mathml).toHaveText('97');
 });
 
 test('the hypothetical n slider changes the score readout', async ({ page }) => {

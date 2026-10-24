@@ -1,27 +1,23 @@
 <script lang="ts">
 	// The three large-sample tests with live values in their formulas (old
-	// TestTabs.js). Panels stay mounted and toggle with `hidden` so switching
+	// TestTabs.js). Each tab carries its test's p-value, so the three compare
+	// at a glance. Panels stay mounted and toggle with `hidden` so switching
 	// tabs never recreates DOM; selecting a tab also drives the surface's
 	// geometry highlight via model.p.test.
-	import { format } from 'd3-format';
 	import Tex from '$lib/components/Tex.svelte';
 	import TexLive from '$lib/components/TexLive.svelte';
 	import type { LikelihoodState, TestKind } from './likelihood.svelte';
-	import { fData, fScore, fStat } from './format';
+	import { fData, fP as fmtP, fScore, fStat } from './format';
 
 	interface Props {
 		model: LikelihoodState;
 	}
 	let { model }: Props = $props();
 
-	const f3 = format('.3f');
-	// APA style: no leading zero, and p < .001 rather than a rounded 0.
-	const fmtP = (p: number) => (p < 0.001 ? '< .001' : `= ${f3(p).replace(/^0/, '')}`);
-
-	const tabs: { id: TestKind; label: string }[] = [
-		{ id: 'LRT', label: 'Likelihood ratio' },
-		{ id: 'wald', label: 'Wald' },
-		{ id: 'score', label: 'Score' }
+	const tabs: { id: TestKind; label: string; key: 'lr' | 'wald' | 'score' }[] = [
+		{ id: 'LRT', label: 'Likelihood ratio', key: 'lr' },
+		{ id: 'wald', label: 'Wald', key: 'wald' },
+		{ id: 'score', label: 'Score', key: 'score' }
 	];
 
 	// Live numbers go in the #k slots (TexLive), so the formulas typeset once.
@@ -44,9 +40,8 @@
 
 <div class="tests">
 	<p class="intro">
-		Choose a test to highlight the part of the figure it uses. Leave
-		<Tex math={String.raw`\mu_0`} /> where it is and switch tabs to compare their
-		<em>p</em>-values.
+		Each test tab picks out the part of the figure that test uses. Move
+		<Tex math={String.raw`\mu_0`} /> and watch the three <em>p</em>-values in the tabs.
 	</p>
 	<div class="tablist" role="tablist" aria-label="Hypothesis test">
 		{#each tabs as t (t.id)}
@@ -58,11 +53,11 @@
 				class:on={model.p.test === t.id}
 				onclick={() => model.setTest(t.id)}
 			>
-				{t.label}
+				<span class="name">{t.label}</span>
+				<span class="p" data-testid="tabp-{t.id}"><em>p</em> {fmtP(model.tests[t.key].pval)}</span>
 			</button>
 		{/each}
 	</div>
-
 	<div
 		class="panel"
 		role="tabpanel"
@@ -72,12 +67,11 @@
 	>
 		<p>
 			The likelihood ratio test compares two fits of the model. In one, the mean and the variance
-			are both free, which puts us at the top of the hill, the point labeled <em>MLE</em>. In the
-			other, we fix the mean at <Tex math={String.raw`\mu_0`} /> and estimate only the variance. That
-			gives <Tex math={String.raw`\hat\sigma_0^2`} />, the variance that fits best when the mean is
-			<Tex math={String.raw`\mu_0`} />, at the point labeled <em>best under <Tex math="H_0" /></em>.
-			Since each fit uses the best variance for its mean, both points lie on the profile
-			log-likelihood.
+			are both free, which puts us at the top of the hill, the point labeled <em>MLE</em>. The other
+			is the fit under the null, <em>best under <Tex math="H_0" /></em>, with the mean fixed at
+			<Tex math={String.raw`\mu_0`} /> and the variance at <Tex
+				math={String.raw`\hat\sigma_0^2`}
+			/>. Both points lie on the profile log-likelihood.
 		</p>
 		<p>
 			The null fit can never be higher than the MLE, because the MLE is the best fit over all means,
@@ -156,10 +150,13 @@
 			The score test, also known as the Lagrange multiplier test, works only from the null. We fix
 			the mean at <Tex math={String.raw`\mu_0`} />, estimate the variance, and measure the slope of
 			the log-likelihood in the mean direction. That slope is the score, <em>U</em>, shown by the
-			triangle in the figure. It is zero at the peak and gets steeper the farther
-			<Tex math={String.raw`\mu_0`} /> is from it. Like the distance in the Wald test, a slope means little
-			on its own. Under the null, the score varies from sample to sample with variance equal to the Fisher
-			information, <em>I</em>, so we square the score and divide by it:
+			triangle in the figure. It is zero when <Tex math={String.raw`\mu_0`} /> equals the estimated mean.
+			Move <Tex math={String.raw`\mu_0`} /> far away and the slope shrinks again: the null fit makes up
+			for the wrong mean with a larger variance, which flattens the hill. Like the distance in the Wald
+			test, then, a slope means little on its own. Under the null, the score varies from sample to sample
+			with variance equal to the Fisher information, <em>I</em>, so we square the score and divide
+			by it. The information shrinks along with the slope, so the statistic still grows the farther
+			<Tex math={String.raw`\mu_0`} /> is from the estimate:
 		</p>
 		<TexLive
 			display
@@ -192,13 +189,18 @@
 		border-bottom: 1px solid var(--rule);
 	}
 	.tablist button {
-		padding: 0.45rem 0.8rem;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.1rem;
+		padding: 0.35rem 0.8rem 0.4rem;
 		border: none;
 		border-bottom: 2px solid transparent;
 		background: transparent;
 		color: var(--muted);
 		font: inherit;
 		font-size: 0.9rem;
+		line-height: 1.25;
 		white-space: nowrap;
 		cursor: pointer;
 		transition:
@@ -218,14 +220,20 @@
 			gap: 0;
 		}
 		.tablist button {
-			padding: 0.45rem 0.55rem;
+			padding-inline: 0.55rem;
 			font-size: 0.85rem;
 		}
 	}
 	.tablist button.on {
 		color: var(--heading);
-		font-weight: 600;
 		border-bottom-color: var(--viz-accent);
+	}
+	.tablist button.on .name {
+		font-weight: 600;
+	}
+	.p {
+		font-size: 0.82rem;
+		font-variant-numeric: tabular-nums;
 	}
 	.panel {
 		padding: 0.6rem 0.9rem;

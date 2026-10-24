@@ -9,6 +9,8 @@
 	title="Changelog — Understanding Maximum Likelihood Estimation"
 	description="Release history and version-numbering policy for the interactive maximum likelihood estimation visualization."
 	path="/likelihood/changelog"
+	card="likelihood"
+	imageAlt="Understanding Maximum Likelihood Estimation"
 />
 
 <VizChangelog

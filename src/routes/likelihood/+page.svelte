@@ -39,6 +39,9 @@
 	title="Understanding Maximum Likelihood Estimation"
 	description="Explore maximum likelihood estimation with an interactive normal model. Fit the mean and variance, follow an optimizer, and compare likelihood ratio, Wald, and score tests."
 	path="/likelihood"
+	type="app"
+	card="likelihood"
+	version={changelog.version}
 />
 
 <div class="page">
@@ -155,6 +158,14 @@
 				<Tex display math={tex.scores} />
 				<p>and the expected (Fisher) information for each parameter is</p>
 				<Tex display math={tex.info} />
+				<h3>The log-likelihood, AIC, and BIC</h3>
+				<p>
+					The maximum, <Tex math={String.raw`\ell(\hat\mu, \hat\sigma^2)`} />, is the number
+					statistical software reports as a model's log-likelihood. It is also where AIC and BIC
+					come from: both take <Tex math={String.raw`-2\ell(\hat\mu, \hat\sigma^2)`} /> and add a penalty
+					for the number of parameters <Tex math="k" />, <Tex math="2k" /> for AIC and
+					<Tex math={String.raw`k \ln n`} /> for BIC. Here <Tex math="k = 2" />.
+				</p>
 				<h3>The three tests</h3>
 				<p>
 					Let <Tex math={String.raw`\hat\sigma_0^2`} /> be the variance estimate when the mean is fixed
@@ -285,6 +296,15 @@
 						>https://doi.org/10.1080/00031305.1982.10482817</a
 					>
 				</p>
+				<p>
+					Self, S. G., &amp; Liang, K.-Y. (1987). Asymptotic properties of maximum likelihood
+					estimators and likelihood ratio tests under nonstandard conditions. <em
+						>Journal of the American Statistical Association, 82</em
+					>(398), 605–610.
+					<a class="url" href="https://doi.org/10.1080/01621459.1987.10478472"
+						>https://doi.org/10.1080/01621459.1987.10478472</a
+					>
+				</p>
 			</div>
 		</details>
 	</section>
@@ -336,21 +356,25 @@
 	.faq .answer a {
 		color: var(--ink);
 		text-decoration: underline;
-		text-decoration-color: var(--rule);
-		text-decoration-thickness: 1px;
-		text-underline-offset: 0.15em;
+		text-decoration-color: var(--link-underline);
+		text-decoration-thickness: var(--link-thickness);
+		text-underline-offset: var(--link-offset);
 		transition:
 			text-decoration-color 0.15s,
 			color 0.15s;
 	}
-	.byline a:hover,
 	/* A bare URL has no spaces to wrap at; let it break anywhere. */
 	.faq .answer .url {
 		overflow-wrap: anywhere;
 	}
+	.byline a:hover,
 	.faq .answer a:hover {
-		color: var(--heading);
+		color: var(--accent);
 		text-decoration-color: var(--accent);
+	}
+	.byline a {
+		text-decoration-color: var(--link-underline-quiet);
+		text-decoration-thickness: 1px;
 	}
 	.intro {
 		margin-bottom: 1.5rem;

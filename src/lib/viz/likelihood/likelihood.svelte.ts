@@ -54,7 +54,7 @@ export interface LikelihoodParams {
 export const defaults: LikelihoodParams = {
 	mu: 80,
 	sigma2: 100,
-	muNull: 80,
+	muNull: 96,
 	n: 10,
 	sample: snapMean([78.0, 95.5, 100.3, 100.6, 102.8, 107.8, 109.1, 110.8, 113.9, 125.0]),
 	algo: 'gradientAscent',

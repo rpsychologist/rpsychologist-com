@@ -122,7 +122,9 @@
 			from a normal distribution and pretend we don't know its mean or variance. We'll fit the model <Tex
 				math={String.raw`y \sim \mathcal N(\mu, \sigma^2)`}
 			/>. Try moving the sliders to find a combination of <Tex math={String.raw`\mu`} /> and
-			<Tex math={String.raw`\sigma^2`} /> that seems to fit the observations.
+			<Tex math={String.raw`\sigma^2`} /> that seems to fit the observations. The table scores your choice:
+			it adds up how well the curve fits each observation, and the higher (less negative) the total, the
+			better the fit.
 		</p>
 	</section>
 
@@ -158,14 +160,6 @@
 				Those parameter values are our <em>maximum likelihood estimates</em> (MLEs). The last row of the
 				table gives the answer, so you can compare it with the values you've chosen.
 			</p>
-			<p class="section-intro">
-				That maximum, <Tex math={String.raw`\ell(\hat\mu, \hat\sigma^2)`} />, is the number
-				statistical software reports as a model's log-likelihood. It is also where AIC and BIC come
-				from: both take
-				<Tex math={String.raw`-2\ell(\hat\mu, \hat\sigma^2)`} /> and add a penalty for the number of parameters
-				<Tex math="k" />, <Tex math="2k" /> for AIC and <Tex math={String.raw`k \ln n`} /> for BIC. Here
-				<Tex math="k = 2" />.
-			</p>
 		</section>
 
 		<section class="tool-section">
@@ -185,7 +179,8 @@
 			<p class="section-intro">
 				We can also let the computer search for the maximum. This is more work than we need for this
 				example, but for many models we can't solve the score equations directly. The algorithms
-				below start from your chosen values and try to climb the hill.
+				below start from your chosen values and try to climb the hill. Take one step with the +1
+				button and check the readout: <Tex math={String.raw`\ell`} /> should have gone up.
 				<em>Gradient ascent</em> follows the slope uphill, and you choose how far it steps. Try a
 				few step sizes: too small and it takes a long time to get anywhere; too large and it can
 				jump past the peak. <em>Fisher scoring</em> uses the expected curvature as well, which helps it
@@ -348,14 +343,18 @@
 			<em>t</em>-test is exact.
 		</p>
 		<p class="section-intro">
-			The reason to work through the likelihood-based tests anyway is that nothing in them was
-			specific to the normal model. Whatever the model, we write down its log-likelihood, climb to
+			The reason to work through the likelihood-based tests anyway is that none of the steps
+			depended on the normal model. Whatever the model, we write down its log-likelihood, climb to
 			the peak, and read the tests off the same three features: the drop from the peak to the best
 			fit under the null, the distance to the null measured against the curvature at the peak, and
 			the slope at the null. The same steps work for logistic regression, mixed models, or
 			structural equation models, where exact tests usually don't exist. There the surface has more
 			dimensions than we can draw, and more nuisance parameters to profile out, but we handle them
-			just as we handled the variance here.
+			just as we handled the variance here. What does need checking is the large-sample
+			approximation. It assumes, among other things, that the null value lies inside the parameter
+			space. Testing whether a mixed model's random-effect variance is zero breaks that, and the
+			likelihood ratio statistic then no longer follows a <Tex math={String.raw`\chi^2_1`} />
+			distribution (Self &amp; Liang, 1987).
 		</p>
 	</section>
 </div>

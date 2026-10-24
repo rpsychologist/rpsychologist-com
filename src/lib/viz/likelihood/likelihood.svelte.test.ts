@@ -9,7 +9,6 @@ import {
 	scoreTest,
 	SIGMA2_MAX,
 	SIGMA2_MIN,
-	snapMean,
 	sumSquares,
 	waldTest
 } from './model';

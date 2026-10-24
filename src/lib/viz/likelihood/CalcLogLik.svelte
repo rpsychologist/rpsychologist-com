@@ -31,7 +31,9 @@
 				<th class="num" scope="col"><Tex math="i" /></th>
 				<th class="num" scope="col"><Tex math="y_i" /></th>
 				<th class="num" scope="col"><Tex math={String.raw`\ln f(y_i)`} /></th>
-				<th class="bar-col"><span class="sr-only">Relative size</span></th>
+				<!-- Every term is negative, so a long bar is a poor fit, not a big
+				     contribution; the header says which way to read it. -->
+				<th class="bar-col" scope="col">longer = worse fit</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -107,6 +109,10 @@
 	thead .num {
 		font-family: inherit;
 	}
+	thead .bar-col {
+		font-size: 0.78rem;
+		line-height: 1.2;
+	}
 	.idx {
 		color: var(--muted);
 	}
@@ -166,13 +172,5 @@
 		font-size: 0.82rem;
 		color: var(--muted);
 		line-height: 1.35;
-	}
-	.sr-only {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		overflow: hidden;
-		clip: rect(0 0 0 0);
-		white-space: nowrap;
 	}
 </style>

@@ -343,7 +343,9 @@
 	.card a {
 		color: var(--ink);
 		text-decoration: underline;
-		text-decoration-color: var(--rule);
+		text-decoration-color: var(--link-underline);
+		text-decoration-thickness: var(--link-thickness);
+		text-underline-offset: var(--link-offset);
 	}
 	.card a:hover {
 		text-decoration-color: var(--viz-accent);

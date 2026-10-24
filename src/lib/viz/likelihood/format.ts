@@ -20,3 +20,5 @@ export const fScore = sig(2);
 export const fStat = sig(3);
 /** Data-scale values (μ̂, μ₀, σ̂₀²): up to two decimals, trailing zeros dropped. */
 export const fData = format('.2~f');
+/** p-values in APA style: no leading zero, and < .001 rather than a rounded 0. */
+export const fP = (p: number) => (p < 0.001 ? '< .001' : `= ${format('.3f')(p).replace(/^0/, '')}`);

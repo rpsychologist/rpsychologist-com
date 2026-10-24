@@ -34,10 +34,13 @@
 				"The gradient-ascent step size was halved (γ = 0.05) so the early steps no longer overshoot the maximum, and autoplay is paced so the climb is watchable rather than instant.",
 				"The second optimizer is now labeled Fisher scoring, which is what it always computed (a Newton step with the expected information in place of the observed Hessian); its path is unchanged.",
 				"On narrow screens the pinned parameter bar runs edge to edge and is about half its former height: symbol labels, each slider at full width, and New Sample beside the μ input; the plots' full view carries it too.",
+				"The null hypothesis now starts at μ₀ = 96, where the three tests disagree at the .05 level (previously μ₀ = 80, where two of them showed p < .001). Each test's tab shows its p-value, so all three can be compared at once.",
 				"New visual design, as part of the site-wide redesign."
 			],
 			"fixed": [
 				"An internal second-derivative formula for σ² was incorrect (it was never displayed).",
+				"The sample plot's density curve is drawn exactly into the tails (it used to end in straight lines at small σ²), and a peak above the plot is marked rather than silently cut off. On phones the plot is taller.",
+				"The score test's explanation wrongly said the score keeps growing as μ₀ moves away from μ̂; with the variance re-estimated under the null it shrinks again far away, while the test statistic still grows.",
 				"Resetting the optimizer could leave its path in an inconsistent state until the next step.",
 				"The likelihood-ratio and score annotations now use the variance re-estimated under the null, rather than holding it at σ̂². The likelihood-ratio bracket therefore shows half the likelihood ratio, not half the squared Wald statistic."
 			]

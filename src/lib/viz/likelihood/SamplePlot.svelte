@@ -22,79 +22,109 @@
 
 	// Old margins: the large top made room for the SVG tooltip bubble; the HTML
 	// overlay keeps needing that headroom for points near the density peak.
-	const margin = { top: 60, right: 20, bottom: 42, left: 55 };
-	const ASPECT = 0.5;
+	// Phones get a taller box (see .chart) and less headroom so the plot area
+	// isn't a sliver.
+	const WIDE = { top: 60, right: 20, bottom: 42, left: 55 };
+	const NARROW = { top: 44, right: 12, bottom: 42, left: 55 };
 
 	let cw = $state(0);
+	let ch = $state(0);
+	const margin = $derived(cw < 480 ? NARROW : WIDE);
 	const w = $derived(cw - margin.left - margin.right);
-	const h = $derived(cw * ASPECT - margin.top - margin.bottom);
+	const h = $derived(ch - margin.top - margin.bottom);
 
 	const sigma = $derived(Math.sqrt(model.p.sigma2));
 
 	// Old fixed frame: x spans μ_θ ± 5σ_θ, y is pinned to [0, 0.04] so the
-	// curve visibly flattens as σ² grows instead of rescaling.
+	// curve visibly flattens as σ² grows instead of rescaling. Small σ² pushes
+	// the peak (up to 0.40 at σ² = 1) past the top; it is clipped and labeled.
+	const Y_MAX = 0.04;
 	const x = $derived(scaleLinear([MU_MIN, MU_MAX], [0, w]));
-	const y = $derived(scaleLinear([0, 0.04], [h, 0]));
+	const y = $derived(scaleLinear([0, Y_MAX], [h, 0]));
 	const xTicks = $derived(x.ticks(8));
 	const yTicks = $derived(y.ticks(5));
 
-	// 50 curve samples over μ ± 3σ with far-out anchors and zero endpoints so
-	// the path closes to the baseline (old genData).
+	// A coarse grid over the whole frame plus a dense one across μ ± 4σ, so
+	// the tails are the real density and a narrow spike stays smooth.
 	const curve = $derived.by(() => {
 		const mu = model.p.mu;
-		const start = mu - 3 * sigma;
-		const end = mu + 3 * sigma;
-		const step = (end - start) / 50;
-		const pts: [number, number][] = [];
-		const far = 10 * Math.sqrt(225);
-		pts.push([100 - far, 0]);
-		for (let t = start; t < end; t += step) pts.push([t, normalPdf(t, mu, sigma)]);
-		pts.push([100 + far, 0]);
-		return pts;
+		const xs: number[] = [];
+		for (let i = 0; i <= 100; i++) xs.push(MU_MIN + ((MU_MAX - MU_MIN) * i) / 100);
+		for (let i = 0; i <= 120; i++) {
+			const t = mu - 4 * sigma + (8 * sigma * i) / 120;
+			if (t > MU_MIN && t < MU_MAX) xs.push(t);
+		}
+		xs.sort((a, b) => a - b);
+		return xs.map((t): [number, number] => [t, normalPdf(t, mu, sigma)]);
 	});
 	const path = $derived(
 		line<[number, number]>()
 			.x((d) => x(d[0]))
 			.y((d) => y(d[1]))(curve) ?? ''
 	);
+	const peak = $derived(normalPdf(model.p.mu, model.p.mu, sigma));
+	const fPeak = format('.2f');
 
 	const fL = format('.2n');
 	const tip = $derived.by(() => {
 		if (highlight === null) return null;
 		const d = model.p.sample[highlight];
 		const L = normalPdf(d, model.p.mu, sigma);
-		return { x: x(d) + margin.left, y: y(L) + margin.top, i: highlight, L };
+		return { x: x(d) + margin.left, y: Math.max(y(L), 0) + margin.top, i: highlight, L };
 	});
 </script>
 
-<div class="chart" bind:clientWidth={cw}>
-	{#if w > 0}
+<div class="chart" bind:clientWidth={cw} bind:clientHeight={ch}>
+	{#if w > 0 && h > 0}
 		<svg
 			width={cw}
-			height={cw * ASPECT}
+			height={ch}
 			role="img"
 			aria-label="The sample plotted on the density of a normal distribution with mean {format(
 				'.1f'
 			)(model.p.mu)} and variance {format('.1f')(model.p.sigma2)}"
 		>
+			<defs>
+				<clipPath id="sample-plot-clip">
+					<rect x="0" y="0" width={w} height={h} />
+				</clipPath>
+			</defs>
 			<g transform="translate({margin.left}, {margin.top})">
-				<path class="dist" d={path} />
+				<path class="dist" d={path} clip-path="url(#sample-plot-clip)" />
+				{#if peak > Y_MAX}
+					<text class="peak-label" x={x(model.p.mu)} y="-14" text-anchor="middle"
+						>peak {fPeak(peak)} ↑</text
+					>
+				{/if}
 
 				{#each model.p.sample as d, i (i)}
 					{@const py = y(normalPdf(d, model.p.mu, sigma))}
-					<line class="stem" x1={x(d)} x2={x(d)} y1={py} y2={y(0)} />
+					{@const above = py < 0}
+					<line class="stem" x1={x(d)} x2={x(d)} y1={Math.max(py, 0)} y2={y(0)} />
 					<!-- Hover affordance only (the tooltip repeats the breakdown panel's
-					     numbers), so presentation rather than a focusable control. -->
-					<circle
-						class="sample-point"
-						class:hot={highlight === i}
-						role="presentation"
-						r={highlight === i ? 10 : 5}
-						cx={x(d)}
-						cy={py}
-						onpointerenter={() => onhighlight(i)}
-						onpointerleave={() => onhighlight(null)}
-					/>
+					     numbers), so presentation rather than a focusable control. A
+					     point above the frame pins to its top edge as an up-arrow. -->
+					{#if above}
+						<path
+							class="sample-point"
+							class:hot={highlight === i}
+							role="presentation"
+							d="M{x(d)},-7 l6,9 h-12 z"
+							onpointerenter={() => onhighlight(i)}
+							onpointerleave={() => onhighlight(null)}
+						/>
+					{:else}
+						<circle
+							class="sample-point"
+							class:hot={highlight === i}
+							role="presentation"
+							r={highlight === i ? 10 : 5}
+							cx={x(d)}
+							cy={py}
+							onpointerenter={() => onhighlight(i)}
+							onpointerleave={() => onhighlight(null)}
+						/>
+					{/if}
 				{/each}
 
 				<g transform="translate(0, {h})">
@@ -144,6 +174,12 @@
 		width: 100%;
 		aspect-ratio: 2 / 1;
 	}
+	/* Phones: a taller box, so the plot area between the margins is usable. */
+	@media (max-width: 30rem) {
+		.chart {
+			aspect-ratio: 4 / 3;
+		}
+	}
 	.chart svg {
 		display: block;
 	}
@@ -166,6 +202,10 @@
 	}
 	.sample-point.hot {
 		fill: var(--viz-accent);
+	}
+	.peak-label {
+		font-size: 11px;
+		fill: var(--muted);
 	}
 	.axis {
 		stroke: var(--rule);

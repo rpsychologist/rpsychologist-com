@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fData, fScore, fStat } from './format';
+import { fData, fP, fScore, fStat } from './format';
 
 describe('inference number formats', () => {
 	it('keeps significant figures without exponents', () => {
@@ -19,5 +19,11 @@ describe('inference number formats', () => {
 		expect(fData(104)).toBe('104');
 		expect(fData(103.99999999999999)).toBe('104');
 		expect(fData(104.38)).toBe('104.38');
+	});
+
+	it('prints p-values APA style', () => {
+		expect(fP(0.0523)).toBe('= .052');
+		expect(fP(0.0004)).toBe('< .001');
+		expect(fP(1)).toBe('= 1.000');
 	});
 });
