@@ -28,12 +28,12 @@ Semver, defined around what the app _shows_, not its code:
    non-dev reader checks. A release with `breaking` or `removed` entries
    must bump the major version — the validator enforces this, so the heading
    and the number cannot disagree.
-2. Commit and merge to `master` as usual. The build validates the data
+2. Commit and merge to `main` as usual. The build validates the data
    (malformed entries fail `pnpm check`, the tests, and the build), and the
    displayed version in the cite FAQ and the changelog page update themselves.
-3. That's it. CI (`.github/workflows/tag-releases.yml`) creates the
-   `<app>-v<x.y.z>` git tag on the commit that lands on `master` and pushes
-   it. The tag is the recoverable source snapshot for the cited version — the
+3. That's it. Once CI passes on `main`, its `tag` job
+   (`.github/workflows/ci.yml`) creates the `<app>-v<x.y.z>` git tag on the
+   commit that landed the version on `main` and pushes it. The tag is the recoverable source snapshot for the cited version — the
    "source" links on the changelog pages point at it.
 
 `pnpm check:tags` verifies every recorded release has its tag (it fails on a

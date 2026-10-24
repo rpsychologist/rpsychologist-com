@@ -16,7 +16,7 @@ pnpm preview   # serve build/ at http://localhost:4173
 
 ```sh
 pnpm check     # type and Svelte diagnostics, formatting
-pnpm lint      # formatting and ESLint
+pnpm lint      # ESLint
 pnpm test      # unit tests
 pnpm test:e2e  # browser tests against the built site
 ```
@@ -31,4 +31,4 @@ pnpm test:e2e  # browser tests against the built site
 
 Open an issue if you want to discuss potential contributions.
 
-Translations of the Cohen's _d_ page are on hold until translation support returns to the rewritten app; see `docs/translation.md` for how they worked.
+The Cohen's _d_ page is translated; how translations work is in `src/lib/viz/cohend/README.md`.

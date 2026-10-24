@@ -10,9 +10,11 @@ export default defineConfig({
 	fullyParallel: true,
 	forbidOnly: !!process.env.CI,
 	retries: process.env.CI ? 2 : 0,
-	reporter: process.env.CI ? 'github' : 'list',
+	// CI uploads the HTML report and retry traces as an artifact on failure.
+	reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'list',
 	use: {
-		baseURL: 'http://localhost:4173'
+		baseURL: 'http://localhost:4173',
+		trace: 'on-first-retry'
 	},
 	webServer: {
 		command: process.env.CI

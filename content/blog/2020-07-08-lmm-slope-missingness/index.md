@@ -16,7 +16,7 @@ summary: "Linear mixed-effects models are often used for their ability to handle
 bibliography: references.bib
 ---
 
-Linear mixed-effects models are often used for their ability to handle missing data using maximum likelihood estimation. In this post I will present a simple example of when the LMM fails, and illustrate two MNAR sensitivity analyses: the pattern-mixture method and the joint model (shared parameter model). This post is based on a small example from my [PhD thesis](https://openarchive.ki.se/xmlui/handle/10616/46909).
+Linear mixed-effects models are often used for their ability to handle missing data using maximum likelihood estimation. In this post I will present a simple example of when the LMM fails, and illustrate two MNAR sensitivity analyses: the pattern-mixture method and the joint model (shared parameter model). This post is based on a small example from my [PhD thesis](https://hdl.handle.net/10616/46909).
 
 MCAR, MAR, and MNAR missing data
 --------------------------------
@@ -424,7 +424,7 @@ Now let's run a small simulation to show the consequences of this random-slope d
 -   JM: A joint model that correctly allowed the dropout to be related to the random slopes.
 -   LMM with complete data: an LMM fit to the complete data without any missingness.
 
-I will not post all code here; [the complete code for this post can be found on GitHub](https://github.com/rpsychologist/rpsychologist-com/blob/master/blog/content/blog/2020-07-08-lmm-slope-missingness). Here's a snippet showing the code that was used to fit the models.
+I will not post all code here; [the complete code for this post can be found on GitHub](https://github.com/rpsychologist/rpsychologist-com/blob/main/blog/content/blog/2020-07-08-lmm-slope-missingness). Here's a snippet showing the code that was used to fit the models.
 
 ``` r:collapsed=true
 post_test <- function(fit, d = NULL) {

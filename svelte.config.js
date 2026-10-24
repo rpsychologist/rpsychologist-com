@@ -113,7 +113,7 @@ const config = {
 	],
 	kit: {
 		adapter: adapter({
-			// Emit build/404.html (the rendered +error page) — Netlify serves it for
+			// Emit build/404.html (the rendered +error page) — Cloudflare Pages serves it for
 			// unmatched paths. The site is otherwise fully prerendered.
 			fallback: '404.html',
 			precompress: false,

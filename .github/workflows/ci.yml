@@ -2,12 +2,21 @@ name: CI
 
 on:
   push:
-    branches: [master, sveltekit-migration]
+    branches: [main, sveltekit-migration]
   pull_request:
+
+permissions:
+  contents: read
+
+# Superseded PR runs are cancelled; pushes never are, since a main run may tag.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   ci:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -36,3 +45,39 @@ jobs:
       # the build above (in CI the webServer only runs `pnpm preview`).
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e
+
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # Auto-tag viz-app releases: each version recorded in a
+  # src/lib/viz/*/changelog.json gets its <app>-v<x.y.z> tag on the commit that
+  # landed it on main (see scripts/check-release-tags.mjs, RELEASING.md).
+  # Tags are permanent citation anchors, so only a commit that passed CI gets
+  # one. Idempotent and runs on every main push, so a missed tag self-heals.
+  tag:
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    concurrency:
+      group: tag-releases
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full clone: the script reads existing tags and main's history.
+          fetch-depth: 0
+
+      # Dependency-free script; the runner's default Node is fine.
+      - run: node scripts/check-release-tags.mjs --create
+
+      - run: git push origin --tags

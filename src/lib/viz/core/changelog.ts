@@ -26,7 +26,7 @@ import { site } from '$lib/config';
  * and the prerender build. The displayed version everywhere (cite block,
  * changelog page) derives from the newest release, so it cannot drift from
  * the changelog. Every release gets a git tag `<app>-v<version>` (created by
- * CI on master); tags are what keep old cited versions recoverable without
+ * CI on main); tags are what keep old cited versions recoverable without
  * hosting them.
  */
 
