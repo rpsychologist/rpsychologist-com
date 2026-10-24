@@ -1,11 +1,10 @@
 <script lang="ts">
 	/* 3D wireframe of the joint log-likelihood over (μ, σ²), with the
 	   optimizer's path and the current point on it — the contour plot's hill
-	   made literal. Adapted from HeroGaussianMesh.svelte (same WebGL2
-	   scaffolding: dynamic interleaved xyzα buffers, DPR cap,
-	   theme-following opaque clear, context-loss rebuild, drag-to-rotate with
-	   fling), but every line is a screen-space quad with feathered edges, not
-	   a GL line (see VERT). It is the joint view
+	   made literal. Shares HeroGaussianMesh.svelte's WebGL2 scaffolding
+	   (feathered quad lines from core/gl/lines.ts, dynamic interleaved xyzα
+	   buffers, DPR cap, theme-following opaque clear, context-loss rebuild,
+	   drag-to-rotate with fling). It is the joint view
 	   for every visitor; under reduced motion the fling and the viewpoint
 	   swings are instant, since nothing else moves unprompted.
 
@@ -49,6 +48,19 @@
 	import type { LikelihoodState } from './likelihood.svelte';
 	import type { ViewpointId } from './ViewpointDock.svelte';
 	import { fScore } from './format';
+	import {
+		blendOver,
+		CORNERS,
+		LINE_FRAG,
+		LINE_UNIFORMS,
+		LINE_VERT,
+		createProgram,
+		featherCss,
+		glf,
+		quadIndices,
+		stroke,
+		watchDpr
+	} from '$lib/viz/core/gl/lines';
 	import {
 		hessSigma2Expected,
 		infoMu,
@@ -120,7 +132,9 @@
 	const TAU = Math.PI * 2;
 
 	const MESH_DARK: [number, number, number] = [1, 1, 1];
-	const MESH_LIGHT: [number, number, number] = [8 / 255, 9 / 255, 10 / 255];
+	// Grey keeps the tone tuned before blendOver() stopped the paper showing
+	// through the mesh's partly covered pixels (retina ink matched).
+	const MESH_LIGHT: [number, number, number] = [148 / 255, 148 / 255, 149 / 255];
 	// Optimizer path colour, matching the 2D contour's .trail (#e17055) and the
 	// slice plots' step markers so the joint views read the same.
 	const PATH: [number, number, number] = [225 / 255, 112 / 255, 85 / 255];
@@ -304,6 +318,8 @@
 		return d;
 	}
 	let peakDots = $state<{ x: number; y: number }[]>([]);
+	// Explore mode: the summit, labeled like the inference view's.
+	let summitPos = $state<{ x: number; y: number } | null>(null);
 	// The μ-profile's dashed continuation past the plotted σ² range.
 	let offWall = $state('');
 	// The current point's foot on the z = 0 floor: the grab handle for moving
@@ -379,22 +395,7 @@
 	const sliceData = new Float32Array((SLICE_N * 4 + 2) * 4);
 	let pathVerts = 0; // current path vertex count in lineData (after the frame)
 
-	const glf = (n: number) => (Number.isInteger(n) ? n.toFixed(1) : String(n));
-
-	// Every line is drawn as screen-space quads, one per segment, widened to a
-	// stroke width in CSS px and feathered in FRAG. GL lines are 1 device px
-	// wide (lineWidth is clamped), so thickening them took offset passes whose
-	// weight and jaggedness varied with pixel density.
-	//
-	// Below DPR 1.5 the feather widens from 1 to FEATHER_LOW_DPR device px: a
-	// 1-px box ramp makes hairlines pulse between one dark pixel and two half
-	// pixels as they cross the grid, which reads as stepping. The wider ramp is
-	// the prefiltered-line fix (Chan & Durand, GPU Gems 2, ch. 22).
-	const FEATHER_LOW_DPR = 1.6;
-	// Wire lines bunching closer than DENSITY_PX device px (the ridge, seen
-	// side-on) beat against the pixel grid; fading them in proportion to their
-	// spacing keeps the band's tone without the moiré.
-	const DENSITY_PX = 1.5;
+	// Every line is a feathered screen-space quad (see core/gl/lines.ts).
 	const VERT = `#version 300 es
 	precision highp float;
 	precision highp int;
@@ -413,9 +414,6 @@
 	uniform float uScl;
 	uniform int uMode;      // 0 mesh (depth fade), 1 line (attr alpha)
 	uniform float uClip;
-	uniform float uHalf;    // half stroke width, CSS px
-	uniform float uFeather; // edge ramp, CSS px
-	uniform float uCap;     // 1: extend the ends (square caps) for sharp corners
 	uniform float uDpr;
 	uniform highp sampler2D uH; // mesh: ℓ − ℓ̂ per grid point (R32F)
 	uniform vec2 uGrid;         // grid cols, rows
@@ -424,6 +422,7 @@
 	out float vDist;
 	const float CX = ${glf(CX)};
 	const float EXT = ${glf(EXT)};
+	${LINE_VERT}
 	// Grid point → world, as zSink() on the CPU.
 	vec4 gridVert(vec2 ij) {
 		float h = texelFetch(uH, ivec2(ij), 0).r;
@@ -452,19 +451,12 @@
 		vec4 vB = mesh ? gridVert(aB.xy) : aB;
 		vec3 a = proj(vA.xyz);
 		vec3 b = proj(vB.xyz);
-		vec2 d = b.xy - a.xy;
-		float len = length(d);
-		vec2 dir = len > 1e-4 ? d / len : vec2(1.0, 0.0);
-		vec2 nrm = vec2(-dir.y, dir.x);
-		float w = uHalf + uFeather;
-		vec2 p = mix(a.xy, b.xy, aCorner.x) + nrm * aCorner.y * w
-			+ dir * (aCorner.x * 2.0 - 1.0) * uCap * w;
-		vDist = aCorner.y * w;
+		vec2 nrm;
+		vec2 p = lineQuad(a.xy, b.xy, aCorner, nrm, vDist);
 		vAlpha = aCorner.x < 0.5 ? alphaOf(vA, a.z) : alphaOf(vB, b.z);
 		if (mesh) {
 			vec2 e = aCorner.x < 0.5 ? a.xy : b.xy;
-			float gap = abs(dot(proj(gridVert(aN).xyz).xy - e, nrm)) * uDpr;
-			vAlpha *= min(1.0, gap / ${glf(DENSITY_PX)});
+			vAlpha *= densityFade(abs(dot(proj(gridVert(aN).xyz).xy - e, nrm)) * uDpr);
 		}
 		gl_Position = vec4(p.x / uCanvas.x * 2.0 - 1.0, 1.0 - p.y / uCanvas.y * 2.0, 0.0, 1.0);
 	}`;
@@ -475,25 +467,13 @@
 	in float vDist;
 	uniform vec3 uColor;
 	uniform float uFade;
-	uniform float uHalf;
-	uniform float uFeather;
-	uniform float uWidthAlpha; // < 1 for strokes thinner than a device px
+	${LINE_FRAG}
 	out vec4 frag;
 	void main() {
-		float cov = clamp((uHalf - abs(vDist)) / uFeather + 0.5, 0.0, 1.0);
-		float a = vAlpha * cov * uFade * uWidthAlpha;
+		float a = vAlpha * lineCoverage(vDist) * uFade * uWidthAlpha;
 		if (a <= 0.001) discard;
 		frag = vec4(uColor, a);
 	}`;
-
-	function compile(g: WebGL2RenderingContext, type: number, src: string) {
-		const sh = g.createShader(type)!;
-		g.shaderSource(sh, src);
-		g.compileShader(sh);
-		if (!g.getShaderParameter(sh, g.COMPILE_STATUS))
-			throw new Error(g.getShaderInfoLog(sh) ?? 'shader');
-		return sh;
-	}
 
 	// z from ℓ (see header): linear in ℓ − ℓ̂, Z_HEIGHT at the peak, 0 at the
 	// floor FLOOR_D below it (scaled by n in inference mode), clamped there.
@@ -657,24 +637,14 @@
 		}
 
 		g.bindVertexArray(null);
-		g.enable(g.BLEND);
-		g.blendFunc(g.SRC_ALPHA, g.ONE_MINUS_SRC_ALPHA);
+		blendOver(g);
 		const bg = pageBg();
 		g.clearColor(bg[0], bg[1], bg[2], 1);
 	}
 
 	function setupLines(g: WebGL2RenderingContext) {
-		prog = g.createProgram()!;
-		const vert = compile(g, g.VERTEX_SHADER, VERT);
-		const frag = compile(g, g.FRAGMENT_SHADER, FRAG);
-		g.attachShader(prog, vert);
-		g.attachShader(prog, frag);
-		g.linkProgram(prog);
-		if (!g.getProgramParameter(prog, g.LINK_STATUS))
-			throw new Error(g.getProgramInfoLog(prog) ?? 'link');
-		g.deleteShader(vert);
-		g.deleteShader(frag);
-		for (const name of [
+		({ prog, u } = createProgram(g, VERT, FRAG, [
+			...LINE_UNIFORMS,
 			'uRot',
 			'uTilt',
 			'uCY',
@@ -684,26 +654,20 @@
 			'uCanvas',
 			'uMode',
 			'uClip',
-			'uHalf',
-			'uFeather',
-			'uCap',
 			'uDpr',
 			'uH',
 			'uGrid',
 			'uZScale',
 			'uColor',
-			'uFade',
-			'uWidthAlpha'
-		]) {
-			u[name] = g.getUniformLocation(prog, name);
-		}
+			'uFade'
+		]));
 		vaoSeg = g.createVertexArray()!;
 		glVaos.push(vaoSeg);
 		g.bindVertexArray(vaoSeg);
 		const corners = g.createBuffer()!;
 		glBuffers.push(corners);
 		g.bindBuffer(g.ARRAY_BUFFER, corners);
-		g.bufferData(g.ARRAY_BUFFER, new Float32Array([0, -1, 0, 1, 1, -1, 1, 1]), g.STATIC_DRAW);
+		g.bufferData(g.ARRAY_BUFFER, CORNERS, g.STATIC_DRAW);
 		g.enableVertexAttribArray(2);
 		g.vertexAttribPointer(2, 2, g.FLOAT, false, 0, 0);
 		g.enableVertexAttribArray(0);
@@ -733,10 +697,7 @@
 			g.enableVertexAttribArray(loc);
 			g.vertexAttribPointer(loc, size, g.FLOAT, false, MESH_STRIDE * 4, off);
 		}
-		const nSeg = quads.length / (4 * MESH_STRIDE);
-		const idx = new Uint32Array(nSeg * 6);
-		for (let k = 0; k < nSeg; k++)
-			idx.set([4 * k, 4 * k + 1, 4 * k + 2, 4 * k + 2, 4 * k + 1, 4 * k + 3], k * 6);
+		const idx = quadIndices(quads.length / (4 * MESH_STRIDE));
 		meshIdxCount = idx.length;
 		const idxBuf = g.createBuffer()!;
 		glBuffers.push(idxBuf);
@@ -759,14 +720,6 @@
 		g.vertexAttribPointer(0, 4, g.FLOAT, false, stride, first * 16);
 		g.vertexAttribPointer(1, 4, g.FLOAT, false, stride, first * 16 + 16);
 		g.drawArraysInstanced(g.TRIANGLE_STRIP, 0, 4, pairs ? n / 2 : n - 1);
-	}
-
-	// Stroke width in CSS px; below one device px, draw one device px at
-	// proportionally lower opacity (what an antialiased hairline looks like).
-	function stroke(g: WebGL2RenderingContext, width: number) {
-		const wDev = width * dpr;
-		g.uniform1f(u.uHalf, Math.max(wDev, 1) / dpr / 2);
-		g.uniform1f(u.uWidthAlpha, Math.min(wDev, 1));
 	}
 
 	// Stroke widths, CSS px, matched on a 2× screen to the old offset-pass look.
@@ -1190,6 +1143,7 @@
 			];
 		}
 		lrGeo = inference ? lrGeometry(zPk, summit) : null;
+		summitPos = inference ? null : summit;
 	}
 
 	function lrGeometry(zPk: number, summit: Pt) {
@@ -1315,7 +1269,7 @@
 		g.uniform1f(u.uFit, scale);
 		g.uniform2f(u.uOff, ox, oy);
 		g.uniform2f(u.uCanvas, cw, ch);
-		g.uniform1f(u.uFeather, (dpr < 1.5 ? FEATHER_LOW_DPR : 1) / dpr);
+		g.uniform1f(u.uFeather, featherCss(dpr));
 		g.uniform1f(u.uCap, 0);
 		g.uniform1f(u.uDpr, dpr);
 		g.uniform1i(u.uH, 0);
@@ -1331,7 +1285,7 @@
 		g.uniform1f(u.uFade, 1);
 		g.uniform1f(u.uClip, 1);
 		g.uniform3f(u.uColor, mesh[0], mesh[1], mesh[2]);
-		stroke(g, W_HAIR);
+		stroke(g, u, W_HAIR, dpr);
 		g.bindVertexArray(vaoMesh);
 		g.drawElements(g.TRIANGLES, meshIdxCount, g.UNSIGNED_INT, 0);
 		g.bindVertexArray(vaoSeg);
@@ -1343,7 +1297,7 @@
 		const muSlice = !inference || model.p.test !== 'LRT';
 		const muFade = fadeOf(inference ? 'muSlice' : 'slices');
 		const s2Fade = fadeOf(inference ? 'nullSlice' : 'slices');
-		stroke(g, W_CURVE);
+		stroke(g, u, W_CURVE, dpr);
 		if (muSlice) {
 			g.uniform3f(u.uColor, accent[0], accent[1], accent[2]);
 			g.uniform1f(u.uFade, muFade);
@@ -1354,13 +1308,13 @@
 		g.uniform1f(u.uFade, s2Fade);
 		segs(g, sliceBuf, SLICE_N, SLICE_N);
 		g.uniform3f(u.uColor, mesh[0], mesh[1], mesh[2]);
-		stroke(g, W_HAIR);
+		stroke(g, u, W_HAIR, dpr);
 		segs(g, sliceBuf, SLICE_N * 2, 2, true);
 
 		const wv = wallsVisible();
 		g.uniform1f(u.uFade, fadeOf('profile'));
 		g.uniform3f(u.uColor, marginalCol[0], marginalCol[1], marginalCol[2]);
-		stroke(g, W_CURVE);
+		stroke(g, u, W_CURVE, dpr);
 		if (wv.mu) segs(g, sliceBuf, WALL_MU_OFF, SLICE_N);
 		if (wv.s2) segs(g, sliceBuf, WALL_S2_OFF, SLICE_N);
 
@@ -1368,7 +1322,7 @@
 			g.uniform3f(u.uColor, PATH[0], PATH[1], PATH[2]);
 			g.uniform1f(u.uFade, fadeOf('path'));
 			g.uniform1f(u.uCap, 1);
-			stroke(g, W_PATH);
+			stroke(g, u, W_PATH, dpr);
 			segs(g, lineBuf, FLOOR_VERTS, pathVerts);
 		}
 		g.bindVertexArray(null);
@@ -1438,19 +1392,10 @@
 		isDark = document.documentElement.getAttribute('data-theme') === 'dark';
 		accent = cssVarRgb('--viz-accent', accent);
 		marginalCol = cssVarRgb('--marginal', marginalCol);
-		// Moving the window to a screen with another DPR doesn't resize the
-		// canvas, so watch the DPR itself; the query matches one value, so it is
-		// re-armed after each change.
-		let dprQuery: MediaQueryList | null = null;
-		const onDprChange = () => {
-			dprQuery?.removeEventListener('change', onDprChange);
-			dprQuery = matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
-			dprQuery.addEventListener('change', onDprChange);
-			resize();
-		};
+		const unwatchDpr = watchDpr(resize);
 		// Untracked: draw() reads reactive state, and any re-run of this effect
 		// rebuilds GL and its teardown cancels the viewpoint animation.
-		untrack(onDprChange);
+		untrack(resize);
 
 		const ro = new ResizeObserver(() => resize());
 		ro.observe(canvas);
@@ -1507,7 +1452,7 @@
 			raf = 0;
 			drawRaf = 0;
 			ro.disconnect();
-			dprQuery?.removeEventListener('change', onDprChange);
+			unwatchDpr();
 			io.disconnect();
 			themeObs.disconnect();
 			canvas.removeEventListener('webglcontextlost', onLost);
@@ -1788,6 +1733,12 @@
 		{#if offWall}
 			<path class="off-wall" class:faded={fadeOf('profile') < 1} d={offWall} />
 		{/if}
+		{#if summitPos}
+			<circle class="summit" cx={summitPos.x} cy={summitPos.y} r="3" />
+			<text class="lr-label pt-label" x={summitPos.x} y={summitPos.y - 10} text-anchor="middle"
+				>MLE</text
+			>
+		{/if}
 		{#each peakDots as pt, i (i)}
 			<circle class="wall-peak" class:faded={fadeOf('profile') < 1} cx={pt.x} cy={pt.y} r="3.5" />
 		{/each}
@@ -1992,6 +1943,11 @@
 		stroke: var(--marginal);
 		stroke-width: 2;
 		opacity: 0.75;
+	}
+	.gnomon .summit {
+		fill: var(--heading);
+		stroke: var(--bg);
+		stroke-width: 1.5;
 	}
 	.gnomon .wall-peak {
 		fill: var(--marginal);

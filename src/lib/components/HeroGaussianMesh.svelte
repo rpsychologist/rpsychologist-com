@@ -13,7 +13,8 @@
 	   Rendered with WebGL2. A wireframe this size should cost ~nothing at 60fps, and it
 	   does on the GPU: the lattice lives in one static vertex buffer, the vertex shader
 	   does the rotate+project (angle is a uniform) and the per-vertex depth fade, the
-	   whole grid draws in a single primitive-restart LINE_STRIP call, and the edge
+	   whole grid draws in one call as feathered quads (core/gl/lines.ts, shared with
+	   the likelihood surface: same line weight on every screen), and the edge
 	   vignette is in the fragment shader. Per frame the CPU sets a couple of uniforms
 	   and issues a handful of draw calls — no per-frame geometry, no main-thread
 	   rasterization. The dominant recurring cost is the browser *presenting* the
@@ -21,18 +22,28 @@
 	   (unaffected by DPR; in Firefox it is ~all the GPU-process CPU, dropping to ~0
 	   when scrolled off-screen), so the loop is gated on visibility and
 	   prefers-reduced-motion, and idle presents are capped near 30fps — full rate
-	   only while dragging or while a fling still spins fast. alpha/antialias are
-	   left at defaults:
-	   on Apple-Silicon tile GPUs MSAA is ~free and measured faster *and* smoother
-	   than the opaque, aliased config an earlier revision assumed was cheaper
-	   (worth re-checking on weak/integrated GPUs, where MSAA fill can cost more).
-	   The canvas still clears to the page bg, so it reads as an opaque panel and its
-	   square corners stay invisible. Climbers are a small dynamic buffer; heads are GL
-	   points with a shader-drawn glow. Decorative: no SSR frame (canvas is empty
+	   only while dragging or while a fling still spins fast. MSAA is off (the line
+	   shader antialiases). The canvas clears to the page bg, so the surface floats
+	   on the paper. Climbers are a small dynamic buffer; heads are GL points with a
+	   shader-drawn glow. Decorative: no SSR frame (canvas is empty
 	   without JS/WebGL), motion gated on prefers-reduced-motion and visibility, GL
 	   init deferred to first intersection (phones hide the hero via display:none and
 	   skip the context/shader cost entirely), the low-power GPU requested, and a
 	   lost context parks the loop until the browser restores it. */
+
+	import {
+		blendOver,
+		CORNERS,
+		LINE_FRAG,
+		LINE_UNIFORMS,
+		LINE_VERT,
+		createProgram,
+		featherCss,
+		glf,
+		quadIndices,
+		stroke,
+		watchDpr
+	} from '$lib/viz/core/gl/lines';
 
 	let { class: klass = '' }: { class?: string } = $props();
 
@@ -73,7 +84,9 @@
 
 	// Mesh flips with the theme; amber is the one warm, non-blue pop (RGB in 0..1).
 	const MESH_DARK: [number, number, number] = [1, 1, 1];
-	const MESH_LIGHT: [number, number, number] = [8 / 255, 9 / 255, 10 / 255];
+	// Grey keeps the tone tuned before blendOver() stopped the paper showing
+	// through partly covered pixels (retina ink matched).
+	const MESH_LIGHT: [number, number, number] = [114 / 255, 114 / 255, 115 / 255];
 	const AMBER: [number, number, number] = [232 / 255, 147 / 255, 23 / 255];
 
 	// Correlated bivariate-normal density, peak 1, then lifted to Z_HEIGHT.
@@ -131,14 +144,16 @@
 
 	// GL objects/locations, assigned during setup, read by draw().
 	let gl: WebGL2RenderingContext | null = null;
-	let prog: WebGLProgram;
+	let lineProg: WebGLProgram;
+	let pointProg: WebGLProgram;
+	let lu: Record<string, WebGLUniformLocation | null> = {};
+	let pu: Record<string, WebGLUniformLocation | null> = {};
 	let vaoMesh: WebGLVertexArrayObject;
-	let vaoLines: WebGLVertexArrayObject;
+	let vaoSeg: WebGLVertexArrayObject;
 	let vaoHeads: WebGLVertexArrayObject;
 	let lineBuf: WebGLBuffer;
 	let headBuf: WebGLBuffer;
 	let meshIdxCount = 0;
-	let u: Record<string, WebGLUniformLocation | null> = {};
 	let glBuffers: WebGLBuffer[] = [];
 	let glVaos: WebGLVertexArrayObject[] = [];
 
@@ -170,171 +185,228 @@
 
 	// --- WebGL setup ---------------------------------------------------------------
 
-	const glf = (n: number) => (Number.isInteger(n) ? n.toFixed(1) : String(n));
+	// Stroke widths, CSS px. The wire matches the old 1-device-px GL line at the
+	// 1.5 DPR cap; lines are feathered quads (core/gl/lines.ts), so it now has
+	// that weight on every screen.
+	const W_WIRE = 0.67;
+	const W_TRAIL = 1;
 
-	const VERT = `#version 300 es
-	precision highp float;
-	precision highp int;
-	layout(location = 0) in vec3 aPos;
-	layout(location = 1) in float aAlpha;
+	const PROJ = `
 	uniform vec2 uRot;      // cos, sin of azimuth
 	uniform vec2 uTilt;     // cos, sin of elevation
 	uniform float uFit;     // meet scale (CSS px per virtual unit)
 	uniform vec2 uOff;      // fit offset (CSS px)
 	uniform vec2 uCanvas;   // CSS px size
-	uniform int uMode;      // 0 mesh (depth fade), 1 climber line, 2 head point
-	uniform float uPoint;   // point size (device px)
-	out float vAlpha;
-	out vec2 vUV;
 	const float CX = ${glf(CX)};
 	const float CY = ${glf(CY)};
 	const float SCL = ${glf(SCALE)};
 	const float EXT = ${glf(EXT)};
-	void main() {
-		float x1 = aPos.x * uRot.x - aPos.y * uRot.y;
-		float y1 = aPos.x * uRot.y + aPos.y * uRot.x;
+	// World -> canvas CSS px, plus the rotated depth (for the fade).
+	vec3 proj(vec3 p) {
+		float x1 = p.x * uRot.x - p.y * uRot.y;
+		float y1 = p.x * uRot.y + p.y * uRot.x;
 		float sx = CX + x1 * SCL;
-		float sy = CY - (y1 * uTilt.x + aPos.z * uTilt.y) * SCL;
-		vec2 uv = vec2((uOff.x + sx * uFit) / uCanvas.x, (uOff.y + sy * uFit) / uCanvas.y);
-		vUV = uv;
-		gl_Position = vec4(uv.x * 2.0 - 1.0, 1.0 - uv.y * 2.0, 0.0, 1.0);
-		float depthA = 0.92 - 0.78 * ((y1 + EXT) / (2.0 * EXT));
-		vAlpha = uMode == 0 ? depthA : aAlpha;
-		gl_PointSize = uMode == 2 ? uPoint : 1.0;
+		float sy = CY - (y1 * uTilt.x + p.z * uTilt.y) * SCL;
+		return vec3(uOff.x + sx * uFit, uOff.y + sy * uFit, y1);
+	}
+	vec4 clip(vec2 p) {
+		return vec4(p.x / uCanvas.x * 2.0 - 1.0, 1.0 - p.y / uCanvas.y * 2.0, 0.0, 1.0);
 	}`;
 
-	const FRAG = `#version 300 es
+	// Edge vignette — the old CSS radial mask, now free on the GPU.
+	const VIGNETTE = `
+	float vignette(vec2 uv) {
+		vec2 d = uv - vec2(0.5, 0.45);
+		return 1.0 - smoothstep(0.58, 1.0, length(vec2(d.x / 1.15, d.y)));
+	}`;
+
+	const LINE_VS = `#version 300 es
 	precision highp float;
 	precision highp int;
+	layout(location = 0) in vec4 aA;      // segment start: xyz + alpha
+	layout(location = 1) in vec4 aB;      // segment end
+	layout(location = 2) in vec2 aCorner; // x: 0 at A, 1 at B; y: side ±1
+	layout(location = 3) in vec3 aN;      // mesh: this end's point on the next grid line
+	uniform int uMode;      // 0 mesh (depth + density fade), 1 climber trail (attr alpha)
+	uniform float uDpr;
+	out float vAlpha;
+	out float vDist;
+	out vec2 vUV;
+	${PROJ}
+	${LINE_VERT}
+	float alphaOf(vec4 v, float y1) {
+		return uMode == 0 ? 0.92 - 0.78 * ((y1 + EXT) / (2.0 * EXT)) : v.w;
+	}
+	void main() {
+		vec3 a = proj(aA.xyz);
+		vec3 b = proj(aB.xyz);
+		vec2 nrm;
+		vec2 p = lineQuad(a.xy, b.xy, aCorner, nrm, vDist);
+		bool atA = aCorner.x < 0.5;
+		vAlpha = atA ? alphaOf(aA, a.z) : alphaOf(aB, b.z);
+		if (uMode == 0) {
+			vec2 e = atA ? a.xy : b.xy;
+			vAlpha *= densityFade(abs(dot(proj(aN).xy - e, nrm)) * uDpr);
+		}
+		vUV = p / uCanvas;
+		gl_Position = clip(p);
+	}`;
+
+	const LINE_FS = `#version 300 es
+	precision highp float;
 	in float vAlpha;
+	in float vDist;
 	in vec2 vUV;
 	uniform vec3 uColor;
-	uniform int uMode;
+	${LINE_FRAG}
+	${VIGNETTE}
 	out vec4 frag;
 	void main() {
-		// Edge vignette — the old CSS radial mask, now free on the GPU.
-		vec2 d = vUV - vec2(0.5, 0.45);
-		float r = length(vec2(d.x / 1.15, d.y));
-		float a = vAlpha * (1.0 - smoothstep(0.58, 1.0, r));
-		if (uMode == 2) {
-			float pr = length(gl_PointCoord - 0.5) * 2.0; // 0 centre .. 1 edge
-			float core = smoothstep(0.55, 0.32, pr);
-			float halo = exp(-pr * 3.0) * 0.5;
-			a *= clamp(core + halo, 0.0, 1.0);
-		}
+		float a = vAlpha * lineCoverage(vDist) * uWidthAlpha * vignette(vUV);
 		if (a <= 0.001) discard;
 		frag = vec4(uColor, a);
 	}`;
 
-	function compile(g: WebGL2RenderingContext, type: number, src: string) {
-		const sh = g.createShader(type)!;
-		g.shaderSource(sh, src);
-		g.compileShader(sh);
-		if (!g.getShaderParameter(sh, g.COMPILE_STATUS))
-			throw new Error(g.getShaderInfoLog(sh) ?? 'shader');
-		return sh;
+	// Climber heads: GL points with a shader-drawn glow.
+	const POINT_VS = `#version 300 es
+	precision highp float;
+	layout(location = 0) in vec4 aPos; // xyz + alpha
+	uniform float uPoint;   // point size (device px)
+	out float vAlpha;
+	out vec2 vUV;
+	${PROJ}
+	void main() {
+		vec3 p = proj(aPos.xyz);
+		vUV = p.xy / uCanvas;
+		vAlpha = aPos.w;
+		gl_Position = clip(p.xy);
+		gl_PointSize = uPoint;
+	}`;
+
+	const POINT_FS = `#version 300 es
+	precision highp float;
+	in float vAlpha;
+	in vec2 vUV;
+	uniform vec3 uColor;
+	${VIGNETTE}
+	out vec4 frag;
+	void main() {
+		float pr = length(gl_PointCoord - 0.5) * 2.0; // 0 centre .. 1 edge
+		float core = smoothstep(0.55, 0.32, pr);
+		float halo = exp(-pr * 3.0) * 0.5;
+		float a = vAlpha * vignette(vUV) * clamp(core + halo, 0.0, 1.0);
+		if (a <= 0.001) discard;
+		frag = vec4(uColor, a);
+	}`;
+
+	const VIEW_UNIFORMS = ['uRot', 'uTilt', 'uFit', 'uOff', 'uCanvas', 'uColor'];
+
+	// The static lattice as feathered quads, 4 vertices per segment: A (xyz, 1),
+	// B (xyz, 1), corner, and the near end's point on the neighbouring grid line
+	// (for the density fade). One indexed draw.
+	const MESH_STRIDE = 13; // floats per vertex
+	function meshQuads(): Float32Array {
+		const at = (i: number, j: number) => {
+			const x = -RANGE + (2 * RANGE * i) / N;
+			const y = -RANGE + (2 * RANGE * j) / N;
+			return [x, y, dens(x, y) * Z_HEIGHT];
+		};
+		const out = new Float32Array(2 * S * N * 4 * MESH_STRIDE);
+		let o = 0;
+		// (i, j) -> (i2, j2); (di, dj): offset to the neighbouring grid line.
+		const seg = (i: number, j: number, i2: number, j2: number, di: number, dj: number) => {
+			const a = at(i, j);
+			const b = at(i2, j2);
+			for (let c = 0; c < 4; c++) {
+				const t = c >> 1;
+				const n = t ? at(i2 + di, j2 + dj) : at(i + di, j + dj);
+				out.set([...a, 1, ...b, 1, t, c & 1 ? 1 : -1, ...n], o);
+				o += MESH_STRIDE;
+			}
+		};
+		const next = (k: number) => (k + 1 < S ? 1 : -1);
+		for (let i = 0; i < S; i++) for (let j = 1; j < S; j++) seg(i, j - 1, i, j, next(i), 0);
+		for (let j = 0; j < S; j++) for (let i = 1; i < S; i++) seg(i - 1, j, i, j, 0, next(j));
+		return out;
 	}
 
 	function setupGL(g: WebGL2RenderingContext) {
 		glBuffers = [];
 		glVaos = [];
-		prog = g.createProgram()!;
-		const vert = compile(g, g.VERTEX_SHADER, VERT);
-		const frag = compile(g, g.FRAGMENT_SHADER, FRAG);
-		g.attachShader(prog, vert);
-		g.attachShader(prog, frag);
-		g.linkProgram(prog);
-		if (!g.getProgramParameter(prog, g.LINK_STATUS))
-			throw new Error(g.getProgramInfoLog(prog) ?? 'link');
-		g.detachShader(prog, vert);
-		g.detachShader(prog, frag);
-		g.deleteShader(vert);
-		g.deleteShader(frag);
-		g.useProgram(prog);
-		for (const name of ['uRot', 'uTilt', 'uFit', 'uOff', 'uCanvas', 'uMode', 'uPoint', 'uColor']) {
-			u[name] = g.getUniformLocation(prog, name);
-		}
-
-		// Static lattice positions.
-		const pos = new Float32Array(S * S * 3);
-		let o = 0;
-		for (let i = 0; i < S; i++) {
-			const x = -RANGE + (2 * RANGE * i) / N;
-			for (let j = 0; j < S; j++) {
-				const y = -RANGE + (2 * RANGE * j) / N;
-				pos[o++] = x;
-				pos[o++] = y;
-				pos[o++] = dens(x, y) * Z_HEIGHT;
-			}
-		}
-		const posBuf = g.createBuffer()!;
-		glBuffers.push(posBuf);
-		g.bindBuffer(g.ARRAY_BUFFER, posBuf);
-		g.bufferData(g.ARRAY_BUFFER, pos, g.STATIC_DRAW);
-
-		// One LINE_STRIP over all rows then all cols, split by the fixed restart index
-		// (WebGL2 always enables PRIMITIVE_RESTART_FIXED_INDEX for UNSIGNED_INT).
-		const RESTART = 0xffffffff;
-		const idx: number[] = [];
-		for (let i = 0; i < S; i++) {
-			for (let j = 0; j < S; j++) idx.push(i * S + j);
-			idx.push(RESTART);
-		}
-		for (let j = 0; j < S; j++) {
-			for (let i = 0; i < S; i++) idx.push(i * S + j);
-			idx.push(RESTART);
-		}
-		meshIdxCount = idx.length;
-		const idxBuf = g.createBuffer()!;
-		glBuffers.push(idxBuf);
-		g.bindBuffer(g.ELEMENT_ARRAY_BUFFER, idxBuf);
-		g.bufferData(g.ELEMENT_ARRAY_BUFFER, new Uint32Array(idx), g.STATIC_DRAW);
-
-		vaoMesh = g.createVertexArray()!;
-		glVaos.push(vaoMesh);
-		g.bindVertexArray(vaoMesh);
-		g.bindBuffer(g.ARRAY_BUFFER, posBuf);
-		g.enableVertexAttribArray(0);
-		g.vertexAttribPointer(0, 3, g.FLOAT, false, 0, 0);
-		g.bindBuffer(g.ELEMENT_ARRAY_BUFFER, idxBuf);
-		// aAlpha (loc 1) stays a disabled array -> generic value below.
-
-		// Dynamic climber lines + heads: interleaved x,y,z,alpha (16-byte stride).
-		const dynVAO = (buf: WebGLBuffer) => {
-			const vao = g.createVertexArray()!;
-			glVaos.push(vao);
-			g.bindVertexArray(vao);
-			g.bindBuffer(g.ARRAY_BUFFER, buf);
-			g.enableVertexAttribArray(0);
-			g.vertexAttribPointer(0, 3, g.FLOAT, false, 16, 0);
-			g.enableVertexAttribArray(1);
-			g.vertexAttribPointer(1, 1, g.FLOAT, false, 16, 12);
-			return vao;
+		({ prog: lineProg, u: lu } = createProgram(g, LINE_VS, LINE_FS, [
+			...VIEW_UNIFORMS,
+			...LINE_UNIFORMS,
+			'uMode',
+			'uDpr'
+		]));
+		({ prog: pointProg, u: pu } = createProgram(g, POINT_VS, POINT_FS, [
+			...VIEW_UNIFORMS,
+			'uPoint'
+		]));
+		const buffer = () => {
+			const b = g.createBuffer()!;
+			glBuffers.push(b);
+			return b;
 		};
-		lineBuf = g.createBuffer()!;
-		glBuffers.push(lineBuf);
+		const vao = () => {
+			const v = g.createVertexArray()!;
+			glVaos.push(v);
+			g.bindVertexArray(v);
+			return v;
+		};
+
+		vaoMesh = vao();
+		const quads = meshQuads();
+		g.bindBuffer(g.ARRAY_BUFFER, buffer());
+		g.bufferData(g.ARRAY_BUFFER, quads, g.STATIC_DRAW);
+		for (const [loc, size, off] of [
+			[0, 4, 0],
+			[1, 4, 16],
+			[2, 2, 32],
+			[3, 3, 40]
+		]) {
+			g.enableVertexAttribArray(loc);
+			g.vertexAttribPointer(loc, size, g.FLOAT, false, MESH_STRIDE * 4, off);
+		}
+		const idx = quadIndices(quads.length / (4 * MESH_STRIDE));
+		meshIdxCount = idx.length;
+		g.bindBuffer(g.ELEMENT_ARRAY_BUFFER, buffer());
+		g.bufferData(g.ELEMENT_ARRAY_BUFFER, idx, g.STATIC_DRAW);
+
+		// Climber trails: one instance per segment of the polyline in lineBuf
+		// (pointers set per draw in trail()).
+		vaoSeg = vao();
+		g.bindBuffer(g.ARRAY_BUFFER, buffer());
+		g.bufferData(g.ARRAY_BUFFER, CORNERS, g.STATIC_DRAW);
+		g.enableVertexAttribArray(2);
+		g.vertexAttribPointer(2, 2, g.FLOAT, false, 0, 0);
+		g.enableVertexAttribArray(0);
+		g.vertexAttribDivisor(0, 1);
+		g.enableVertexAttribArray(1);
+		g.vertexAttribDivisor(1, 1);
+		lineBuf = buffer();
 		g.bindBuffer(g.ARRAY_BUFFER, lineBuf);
 		g.bufferData(g.ARRAY_BUFFER, lineData.byteLength, g.DYNAMIC_DRAW);
-		vaoLines = dynVAO(lineBuf);
-		headBuf = g.createBuffer()!;
-		glBuffers.push(headBuf);
+
+		vaoHeads = vao();
+		headBuf = buffer();
 		g.bindBuffer(g.ARRAY_BUFFER, headBuf);
 		g.bufferData(g.ARRAY_BUFFER, headData.byteLength, g.DYNAMIC_DRAW);
-		vaoHeads = dynVAO(headBuf);
+		g.enableVertexAttribArray(0);
+		g.vertexAttribPointer(0, 4, g.FLOAT, false, 0, 0);
 
 		g.bindVertexArray(null);
-		g.vertexAttrib1f(1, 1.0); // generic aAlpha for the mesh pass
-		g.enable(g.BLEND);
-		g.blendFunc(g.SRC_ALPHA, g.ONE_MINUS_SRC_ALPHA);
+		blendOver(g);
 		bg = pageBg();
 		g.clearColor(bg[0], bg[1], bg[2], 1);
 	}
 
 	function resize() {
 		if (!gl) return;
-		// Compositing this layer costs ~pixels² in DPR; a subtle wireframe doesn't need
-		// full retina, so cap below 2. Drop to 1 if the GPU process is still busy.
-		dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+		// Native resolution: a buffer below the screen's DPR is rescaled by the
+		// compositor, and thin lines then bead (moiré) as the mesh turns. The
+		// present cost doesn't scale with DPR (see header); 2 covers desktops.
+		dpr = Math.min(window.devicePixelRatio || 1, 2);
 		const cw = canvas.clientWidth;
 		const ch = canvas.clientHeight;
 		canvas.width = Math.round(cw * dpr);
@@ -345,26 +417,37 @@
 		if (!running) draw();
 	}
 
-	function draw() {
-		const g = gl;
-		if (!g) return;
+	function setView(g: WebGL2RenderingContext, u: Record<string, WebGLUniformLocation | null>) {
 		const { scale, ox, oy, cw, ch } = view;
-		g.clear(g.COLOR_BUFFER_BIT);
-		g.useProgram(prog);
 		g.uniform2f(u.uRot, Math.cos(angle), Math.sin(angle));
 		g.uniform2f(u.uTilt, cb, sb);
 		g.uniform1f(u.uFit, scale);
 		g.uniform2f(u.uOff, ox, oy);
 		g.uniform2f(u.uCanvas, cw, ch);
+	}
+
+	function draw() {
+		const g = gl;
+		if (!g) return;
+		g.clear(g.COLOR_BUFFER_BIT);
+		g.useProgram(lineProg);
+		setView(g, lu);
+		g.uniform1f(lu.uFeather, featherCss(dpr));
+		g.uniform1f(lu.uCap, 0);
+		g.uniform1f(lu.uDpr, dpr);
 
 		// Mesh — one draw call.
 		const mesh = isDark ? MESH_DARK : MESH_LIGHT;
 		g.bindVertexArray(vaoMesh);
-		g.uniform1i(u.uMode, 0);
-		g.uniform3f(u.uColor, mesh[0], mesh[1], mesh[2]);
-		g.drawElements(g.LINE_STRIP, meshIdxCount, g.UNSIGNED_INT, 0);
+		g.uniform1i(lu.uMode, 0);
+		g.uniform3f(lu.uColor, mesh[0], mesh[1], mesh[2]);
+		stroke(g, lu, W_WIRE, dpr);
+		g.drawElements(g.TRIANGLES, meshIdxCount, g.UNSIGNED_INT, 0);
 
-		if (!trials.length) return;
+		if (!trials.length) {
+			g.bindVertexArray(null);
+			return;
+		}
 
 		// Build climber geometry (world space + per-vertex alpha) into the scratch buffers.
 		let vCount = 0;
@@ -423,23 +506,32 @@
 			}
 		}
 
-		g.uniform3f(u.uColor, AMBER[0], AMBER[1], AMBER[2]);
-
 		if (vCount) {
-			g.bindVertexArray(vaoLines);
+			// Butt ends: the trail's segments are short and gently curved, and
+			// overlapping square caps would bead it while it fades.
+			g.bindVertexArray(vaoSeg);
 			g.bindBuffer(g.ARRAY_BUFFER, lineBuf);
 			g.bufferSubData(g.ARRAY_BUFFER, 0, lineData, 0, vCount * 4);
-			g.uniform1i(u.uMode, 1);
-			for (const d of draws) g.drawArrays(g.LINE_STRIP, d.first, d.count);
+			g.uniform1i(lu.uMode, 1);
+			g.uniform3f(lu.uColor, AMBER[0], AMBER[1], AMBER[2]);
+			stroke(g, lu, W_TRAIL, dpr);
+			for (const d of draws) {
+				g.vertexAttribPointer(0, 4, g.FLOAT, false, 16, d.first * 16);
+				g.vertexAttribPointer(1, 4, g.FLOAT, false, 16, d.first * 16 + 16);
+				g.drawArraysInstanced(g.TRIANGLE_STRIP, 0, 4, d.count - 1);
+			}
 		}
 		if (hCount) {
+			g.useProgram(pointProg);
+			setView(g, pu);
 			g.bindVertexArray(vaoHeads);
 			g.bindBuffer(g.ARRAY_BUFFER, headBuf);
 			g.bufferSubData(g.ARRAY_BUFFER, 0, headData, 0, hCount * 4);
-			g.uniform1i(u.uMode, 2);
-			g.uniform1f(u.uPoint, 13 * scale * dpr);
+			g.uniform3f(pu.uColor, AMBER[0], AMBER[1], AMBER[2]);
+			g.uniform1f(pu.uPoint, 13 * view.scale * dpr);
 			g.drawArrays(g.POINTS, 0, hCount);
 		}
+		g.bindVertexArray(null);
 	}
 
 	// --- lifecycle -----------------------------------------------------------------
@@ -504,7 +596,7 @@
 		const init = () => {
 			gl = canvas.getContext('webgl2', {
 				alpha: true,
-				antialias: true,
+				antialias: false, // the line shader feathers its own edges
 				powerPreference: 'low-power'
 			});
 			if (!gl) return; // no WebGL2 -> empty decorative panel
@@ -542,6 +634,7 @@
 
 		const ro = new ResizeObserver(() => resize());
 		ro.observe(canvas);
+		const unwatchDpr = watchDpr(resize);
 
 		const themeObs = new MutationObserver(() => {
 			isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -580,6 +673,7 @@
 			stop();
 			io.disconnect();
 			ro.disconnect();
+			unwatchDpr();
 			themeObs.disconnect();
 			reduce.removeEventListener('change', onReducedMotionChange);
 			document.removeEventListener('visibilitychange', onVisibilityChange);
@@ -591,7 +685,8 @@
 				for (const buf of glBuffers) gl.deleteBuffer(buf);
 				glVaos = [];
 				glBuffers = [];
-				gl.deleteProgram(prog);
+				gl.deleteProgram(lineProg);
+				gl.deleteProgram(pointProg);
 				gl = null;
 			}
 		};
@@ -677,13 +772,10 @@
 		width: 100%;
 		height: 100%;
 		background: none;
-		border: 1px solid rgba(255, 255, 255, 0.09);
-		border-radius: 6px;
-		/* No `overflow: hidden`: a rounded clip on the per-frame-animating canvas costs
-		   ~10 points of Firefox GPU-process CPU (A/B in about:processes: 37% with the
-		   clip, 27% without) — the mask forces an intermediate surface the compositor
-		   recomposites every frame. The canvas clears to page bg, so its square corners
-		   are invisible against the paper; the rounded border still reads as the frame. */
+		/* No border, rounding or `overflow: hidden`: the canvas clears to page bg, so
+		   the surface floats on the paper. A rounded clip on the per-frame-animating
+		   canvas also cost ~10 points of Firefox GPU-process CPU (37% → 27% in
+		   about:processes): the compositor recomposites the mask every frame. */
 		cursor: grab;
 		/* Rotate only reads horizontal movement, so vertical swipes must keep
 		   scrolling the page — the hero is a big touch target on tablets. */
