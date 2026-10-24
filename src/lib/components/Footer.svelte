@@ -23,7 +23,7 @@
 	<div class="inner">
 		<div class="brand-col">
 			<div class="brand">
-				<Logo height={26} />
+				<Logo height={36} />
 			</div>
 			<p class="blurb">Designed and built by Kristoffer Magnusson.</p>
 		</div>
