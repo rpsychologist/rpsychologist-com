@@ -75,7 +75,7 @@ async function staticApps(dir = 'static') {
 }
 
 // Old URLs dropped on purpose at cutover, so they don't fail the check:
-// Gatsby's paginated index pages (/2/ … /9/, now /page/N).
+// Gatsby's paginated index pages (/2/ … /9/, now redirected to /posts).
 const DROPPED = new Set(Array.from({ length: 8 }, (_, i) => `/${i + 2}/`));
 
 // Files (`/rss.xml`) never had a slash form.
