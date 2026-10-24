@@ -10,6 +10,7 @@ tags:
   - Descriptive epidemiology
   - Visualization
 slug: descriptive-adjustment
+include_toc: true
 summary: An interactive article about how regression adjustment works and the pitfalls of conditional associations in descriptive studies.
 ---
 

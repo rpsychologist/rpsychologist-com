@@ -11,7 +11,7 @@
 
 	let { data } = $props();
 	const Content = $derived(data.component);
-	const githubUrl = $derived(`${site.repo}/blob/master${data.meta.path}`);
+	const githubUrl = $derived(`${site.repo}/blob/main${data.meta.path}`);
 </script>
 
 <Seo
@@ -19,6 +19,7 @@
 	description={data.meta.summary}
 	path={`/${data.meta.slug}`}
 	type="article"
+	card={data.meta.slug}
 	published={data.meta.date}
 	tags={data.meta.tags}
 />
@@ -242,21 +243,22 @@
 		}
 	}
 
-	/* Sidebar TOC on wide screens: the article keeps its exact no-TOC position
-	   (the centered reading column, so the title doesn't jump between posts)
-	   and the TOC hangs in the left gutter, top-aligned with the title. Below
-	   this width the TOC is a collapsed "Contents" row above the title
-	   (breakpoint kept in sync with Toc.svelte). */
-	@media (min-width: 74rem) {
+	/* Sidebar TOC from laptop widths up; below, a collapsed "Contents" row
+	   (breakpoint kept in sync with Toc.svelte). The article is centered where
+	   there's room and shifts right on laptops; the gap clears the wide-figure
+	   breakout in article.css. Media-query rem is 16px, not the root's 19px:
+	   80rem = 1280px is the narrowest that fits with a classic scrollbar. */
+	@media (min-width: 80rem) {
 		.post-layout.has-toc {
 			display: grid;
-			grid-template-columns: 1fr minmax(0, var(--measure)) 1fr;
+			grid-template-columns: 1fr auto 1fr;
 		}
 		.post-aside {
 			grid-column: 1;
 			justify-self: end;
-			width: 13rem;
-			margin-right: 2.5rem;
+			width: 12rem;
+			margin-left: 1rem;
+			margin-right: 3.5rem;
 			padding-top: 3.4rem;
 		}
 		.post-layout.has-toc .article {

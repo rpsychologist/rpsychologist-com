@@ -106,7 +106,7 @@
 
 <style>
 	/* Narrow screens (default): one quiet row aligned with the article's
-	   reading column; the list expands below it. Wide screens (≥74rem — keep in
+	   reading column; the list expands below it. Wide screens (≥80rem — keep in
 	   sync with the has-toc grid in [slug]/+page.svelte): a sticky sidebar. */
 	.toc {
 		font-size: 0.85rem;
@@ -201,7 +201,7 @@
 		color: var(--heading);
 	}
 
-	@media (min-width: 74rem) {
+	@media (min-width: 80rem) {
 		.toc {
 			position: sticky;
 			top: 1.5rem;
