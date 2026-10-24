@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html xmlns:fb="https://ogp.me/ns/fb#">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Understanding the t-distribution and its normal approximation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+          <meta property="og:title" content="Understanding the Student's t distribution"/>
+         <meta property="og:site_name" content="R Psychologist"/>
+                  <meta property="fb:admins" content="667756492"/>
+    <meta property="og:image" content="https://rpsychologist.com/d3/tdist/img/t-dist-fb.jpg"/>
+    <meta property="og:url" content="https://rpsychologist.com/d3/tdist/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="Interactive visualization of differences between normal and t-distribution" />
+		    <link type="text/css" href="css/bootstrap.min.css" rel="stylesheet" />
+        <link href="css/styles.css" rel="stylesheet">
+        <link href="css/vis.css" rel="stylesheet">
+       <link rel="stylesheet" type="text/css" href="fonts/MyFontsWebfontsKit.css">
+
+          <!-- Analytics -->
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-47065595-1', 'rpsychologist.com');
+    ga('send', 'pageview');
+
+   </script>
+    </head>
+    <body>
+      <div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/sv_SE/all.js#xfbml=1&appId=201498803219042";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+
+
+
+
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+    <div class="container">
+      <div class="navbar-header">
+        <a href="https://rpsychologist.com" class="navbar-brand"><img src="img/rpsychologist-logo.svg" class="logo"></a>
+      </div>
+    </div>
+  </div>
+		<div class="container">
+			<div class="row">
+			<div class="col-sm-12">
+       <div class="page-header">
+			<h1 class="text-center heading">Understanding the <em>t</em>-distribution and its normal approximation</h1>
+      <h3 class="title-sub text-center">an interactive visualization</h3>
+      <p>Created by <a href="https://rpsychologist.com">Kristoffer Magnusson</a></p>
+          <ul class="list-inline">
+          <li><a href="https://twitter.com/krstoffr" class="twitter-follow-button" data-show-count="false">Follow @krstoffr</a> </li>
+               <li>
+              <a href="https://se.linkedin.com/pub/kristoffer-magnusson/b5/133/1b6" style="text-decoration:none;"><span style="font-size:80%; color: black; vertical-align:top;"><img src="https://static.licdn.com/scds/common/u/img/webpromo/btn_in_20x15.png" width="20" height="15" alt="View my profile on LinkedIn" style="vertical-align:top;" border="0">Kristoffer's LinkedIn profile</a>
+          </li>
+        </ul>
+            </div>
+              <!-- SOCIAL LINKS -->
+      <ul class="list-inline">
+      <li><a href="https://twitter.com/share" class="twitter-share-button" data-via="krstoffr" data-lang="en">Tweet</a>
+        </li>
+
+      <li class="fb-like"><fb:like href="https://rpsychologist.com/d3/tdist/" layout="button_count" action="like" show_faces="true" share="true"></fb:like></li>
+      </ul> 
+
+        <div class="row">
+    <div class="col-md-12"> 
+    <p class="exp">Most students are told that the <em>t</em>-distribution approaches the normal distribution as the sample size increase, and that the difference is negligible even for moderately large sample sizes (> 30). However, for small samples the difference is important. You might recall that the <em>t</em>-distribution is used when the population variance is unknown. Simply put, estimating the variance from the sample leads to greater uncertainty and a more spread out distribution, as can be seen by the <em>t</em>-distributions heavier tails. This interactive visualization lets you explore how the <em>t</em>-distribution approaches the normal distribution as the degrees of freedom increase. It also shows the absolute and relative error when the normal approximation is used.</p>
+      <div class="div_settings">
+      <h4>Slide to change degrees of freedom</h4>
+      </div>
+      <div class="row">
+        <div class="col-md-12" id="test"></div>
+        </div>
+        <div id="slider" class="ui-slider"></div>
+  
+        <div class="row">
+        <div class="col-md-10 col-xs-12 col-md-offset-1" id="vvs">
+          <div id="viz"></div>
+          <div class="row" id="rowplots">
+          <div class="col-md-4 col-xs-4 colplots">
+              <h4 class="text-center">Q-Q Plot</h4>
+              <div id="qqplot"></div>
+            </div>
+            <div class="col-md-4 col-xs-4">
+              <h4 class="text-center">Absolute Error</h4>
+              <div id="absplot"></div>
+            </div>
+            <div class="col-md-4 col-xs-4">
+              <h4 class="text-center">Relative Error</h4>
+              <div id="relplot"></div>
+            </div>
+          </div>
+
+        </div>
+          </div>
+          </div>
+        </div>
+    
+      <div class="row">
+      <div class="container">
+            <h2>Explanation</h2>
+<p>
+The Q-Q plot shows the <em>t</em>-distribution in relation to the normal distribution. The error plots shows the absolute and relative error when we use the normal distribution as an approximation for the <em>t</em>-distribution. It shows that the maximum absolute error is quite small, whereas the relative error grows larger and larger in the tails. The visualization also shows the probability of obtaining a value smaller than -1.64, which you might recognize as the critical Z value for a one tailed test. You can change this value by clicking on the distributions. If you increase the degrees of freedom you will see that probabilities quickly become similar. With the classical 30 degrees of freedom the visualization shows that <em>p</em>-value from the normal approximation (0.05) is really close to the <em>p</em>-value from the <em>t</em>-distribution (0.055). 
+</p>
+      
+      <ul class="list-inline">
+      <li><a href="https://twitter.com/share" class="twitter-share-button" data-via="krstoffr" data-lang="en">Tweet</a>
+        </li>
+      <li class="fb-like"><fb:like href="https://rpsychologist.com/d3/tdist/" layout="button_count" action="like" show_faces="true" share="true"></fb:like></li>
+      </ul> 
+      </div>
+
+            <!-- SOCIAL LINKS -->
+
+      </div>
+      <div class="row more-space">
+        <div class="col-sm-6 text-center" id="more-viz">
+         <h3>More visualizations</h3>
+
+         <div class="row">
+          <div class="col-md-6 viz-item"> 
+            <a href="https://rpsychologist.com/d3/cohend/">
+              <div>
+               <img src="img/cohend.png" class="img-circle img-responsive">
+             </div>
+
+             <h4>Cohen's d</h4>
+             <p>Interactive visualization of Cohen's d effect size</p>
+           </a>
+         </div>
+
+         <div class="col-md-6 viz-item">
+          <a href="https://rpsychologist.com/d3/NHST/">
+            <div> 
+             <img src="img/nhst.png" class="img-circle img-responsive">
+
+           </div>
+
+           <h4>NHST</h4>
+           <p>Interactive visualization of statistical power and significance testing</p>
+         </a>
+       </div>
+
+     </div>
+  <div class="row">
+          <div class="col-md-6 viz-item"> 
+            <a href="https://rpsychologist.com/d3/correlation/">
+              <div>
+               <img src="img/correlations.jpg" class="img-circle img-responsive">
+             </div>
+
+             <h4>Correlations</h4>
+             <p>Interactive visualization of correlation</p>
+           </a>
+         </div>
+                <div class="col-md-6 viz-item"> 
+             <a href="https://rpsychologist.com/viz">
+              <div>
+               <img src="img/more.png" class="img-circle img-responsive">
+             </div>
+
+             <h4>Even more ...</h4>
+           </a>
+         </div>
+         <div class="col-md-6">
+          
+         </div>
+  </div>
+
+   </div>
+              <div class="col-md-6">
+          <h3>Support my work</h3>
+          <p>The content on this blog is shared for free under a CC-BY license. If you like my work and want to support it you can:</p>
+					<p> <style>.bmc-button img{width: 35px !important;margin-bottom: 1px !important;box-shadow: none !important;border: none !important;vertical-align: middle !important;}.bmc-button{padding: 7px 5px 7px 10px !important;line-height: 35px !important;height:51px !important;min-width:217px !important;text-decoration: none !important;display:inline-flex !important;color:#ffffff !important;background-color:#000000 !important;border-radius: 5px !important;border: 1px solid transparent !important;padding: 7px 5px 7px 10px !important;font-size: 22px !important;letter-spacing: 0.6px !important;box-shadow: 0px 1px 2px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 1px 2px 2px rgba(190, 190, 190, 0.5) !important;margin: 0 auto !important;font-family:'Cookie', cursive !important;-webkit-box-sizing: border-box !important;box-sizing: border-box !important;-o-transition: 0.3s all linear !important;-webkit-transition: 0.3s all linear !important;-moz-transition: 0.3s all linear !important;-ms-transition: 0.3s all linear !important;transition: 0.3s all linear !important;}.bmc-button:hover, .bmc-button:active, .bmc-button:focus {-webkit-box-shadow: 0px 1px 2px 2px rgba(190, 190, 190, 0.5) !important;text-decoration: none !important;box-shadow: 0px 1px 2px 2px rgba(190, 190, 190, 0.5) !important;opacity: 0.85 !important;color:#ffffff !important;}</style><link href="https://fonts.googleapis.com/css?family=Cookie" rel="stylesheet"><a class="bmc-button" target="_blank" href="https://www.buymeacoffee.com/krstoffr"><img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="Buy me a coffee"><span style="margin-left:15px;font-size:28px !important;">Buy me a coffee</span></a> (or use <strong><a href="https://www.paypal.me/krstoffr">PayPal</a></strong>)</p>
+
+					<p> You can also sponsor my open source work using <a href="https://github.com/sponsors/rpsychologist">GitHub Sponsors</a></p> 
+       </div>
+        <div id="sugg" class="col-md-6">
+            <h3>Suggestions</h3>
+            <p>Have any suggestion? Send them to me, my contact info can be found <a href="https://rpsychologist.com/about">here</a>.</p>
+        </div>
+      </div>
+			</div>
+			
+			</div>
+		</div>
+    <div id="footer" class="more-space">
+  <div class="container">
+    <div class="col-md-5">
+      <h3>About Site</h3>
+      <p>Designed and built by <a href="https://rpsychologist.com">Kristoffer Magnusson</a>. Built with <a href="https://d3js.org/">D3.js</a>, <a href="https://jstat.org/">jStat</a> and <a href="https://getbootstrap.com/">Bootstrap</a>.</p>
+    </div>
+    <div class="col-md-5">
+
+  
+    </div>
+    <div class="col-md-2">
+      <h3>Connect</h3>
+      <ul class="list-unstyled">
+            <li><a href="https://twitter.com/krstoffr">Twitter</a></li>
+            <li><a href="https://github.com/rpsychologist">GitHub</a></li>
+            <li><a href="https://se.linkedin.com/pub/kristoffer-magnusson/b5/133/1b6">LinkedIn</a></li>
+        </ul>   
+      </div>
+  </div>
+     </div>
+        <!-- Add your site or application content here -->
+
+      <script src="js/jquery-1.8.3.min.js"></script>
+   <script src="js/jquery-ui-1.10.3.custom.min.js"></script> 
+   <script src="js/jquery.ui.touch-punch.min.js"></script>
+   <script src="js/bootstrap.min.js"></script>
+   <script type="text/javascript" src="js/jstat.js"></script>
+ <script src="js/d3.v3.min.js"></script>
+    <script src="js/textures.min.js"></script>
+   <script type="text/javascript" src="js/vis.js"></script>
+
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+
+    </body>
+</html>

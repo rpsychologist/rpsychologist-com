@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html xmlns:fb="https://ogp.me/ns/fb#" class="no-js">
+<!--<![endif]-->
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Bayesian Inference - an Interactive Visualization</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- twitter card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@krstoffr">
+  <meta name="twitter:title" content="Bayesian inference - an interactive visualization">
+  <meta name="twitter:description"
+    content="Interactive visualization illustrating Bayesian estimation and hypothesis testing">
+  <meta name="twitter:image" content="https://rpsychologist.com/d3/bayes/img/bayes-fb.jpg">
+
+  <!-- facebook -->
+  <meta property="og:title" content="Bayesian inference - an interactive visualization" />
+  <meta property="og:site_name" content="R Psychologist" />
+  <meta property="fb:admins" content="667756492" />
+  <meta property="og:image" content="https://rpsychologist.com/d3/bayes/img/bayes-fb.jpg" />
+  <meta property="og:url" content="https://rpsychologist.com/d3/bayes/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:description" content="Interactive visualization of Bayesian estimation and hypothesis testing." />
+
+  <link type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet" />
+
+  <link href="css/bootstrap-slider.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="fonts/MyFontsWebfontsKit.css">
+  <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+</head>
+
+<body>
+
+  <script src="js/d3.min.js"></script>
+
+  <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+  <div class="navbar navbar-default navbar-static-top" role="navigation">
+    <div class="container">
+      <div class="navbar-header">
+        <a href="https://rpsychologist.com" class="navbar-brand"><img src="img/rpsychologist-logo.svg" class="logo"></a>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="page-header">
+          <h1 class="text-center heading">Bayesian Inference</h1>
+          <h3 class="title-sub text-center">an interactive visualization</h3>
+          <p>Created by <a href="https://rpsychologist.com">Kristoffer Magnusson</a></p>
+          <ul class="list-inline">
+            <li><a href="https://twitter.com/krstoffr" class="twitter-follow-button" data-show-count="true">Follow
+                @krstoffr</a> </li>
+            <li>
+              <a href="https://se.linkedin.com/pub/kristoffer-magnusson/b5/133/1b6" style="text-decoration:none;"><span
+                  style="font-size:80%; color: black; vertical-align:top;">Kristoffer's LinkedIn
+                  profile</a>
+            </li>
+          </ul>
+        </div>
+        <!-- SOCIAL LINKS -->
+        <ul class="list-inline">
+          <li><a href="https://twitter.com/share" class="twitter-share-button" data-via="krstoffr"
+              data-lang="en">Tweet</a>
+          </li>
+          <li class="fb-like">
+            <fb:like href="https://rpsychologist.com/d3/bayes/" layout="button_count" action="like" show_faces="true"
+              share="true"></fb:like>
+          </li>
+        </ul>
+        <p>The visualization shows a Bayesian two-sample <em>t</em> test, for simplicity the variance is assumed to be
+          known. It illustrates both Bayesian estimation via the posterior distribution for the effect, and Bayesian
+          hypothesis testing via Bayes factor. The frequentist p-value is also shown. The null hypothesis, H<sub>0</sub>
+          is that the effect δ = 0, and the alternative H<sub>1</sub>: δ ≠ 0, just like a two-tailed <em>t</em> test.
+          You can use the sliders to vary the observed effect (Cohen's d), sample size (<em>n</em> per group) and the
+          prior on δ.</p>
+      </div>
+
+      <div class="col-md-12">
+        <h3>Settings</h3>
+
+        <div class="row">
+
+
+
+          <div class="col-sm-12">
+            <div class="row slider_d">
+              <div class="col-sm-3"><span class="pull-left">Observed effect (d = <span id="span_d">1</span>)</span>
+              </div>
+              <div class="col-sm-9"><input id="slider-m" /></div>
+            </div>
+            <div class="row slider_n">
+              <div class="col-sm-3"><span class="pull-left">Sample size (n = <span id="span_n">10</span>)</span></div>
+              <div class="col-sm-9"><input id="slider-n" /></div>
+            </div>
+
+            <div class="row slider_sd">
+              <div class="col-sm-3"><span class="pull-left">SD of prior (σ<sub>δ</sub> = <span
+                    id="span_sd">0.3</span>)</span></div>
+              <div class="col-sm-9"><input id="slider-sd" /></div>
+            </div>
+
+            <div class="row">
+
+
+              <div class="col-md-9">
+
+                <div id="viz"></div>
+              </div>
+              <div class="col-md-3 donuts">
+
+
+                <div class="col-xs-4 col-md-12" id="donutBf01"></div>
+                <div class="col-xs-4 col-md-12" id="donutBf10"></div>
+                <div class="col-xs-4 col-md-12" id="donutPval"></div>
+                <div id="CI"></div>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <h3>About the visualization</h3>
+            <p>The <strong>prior </strong>on the effect is a scaled unit-information prior. The black, and red circle on
+              the curves represents the likelihood of 0 under the prior and posterior. Their likelihood ratio is the
+              Savage-Dickey density ratio, which I use here to compute the Bayes factor. The
+              <strong><em>p</em>-value</strong> is the traditional <em>p</em>-value for a two-sample <em>t</em> test
+              with known variance (i.e. a <em>Z</em> test).
+
+              <strong>HDI</strong> is the posterior highest density interval, which in this case is analogous a credible
+              interval. And <strong>CI</strong> is the traditional frequentist confidence interval.
+            </p>
+          </div>
+
+        </div>
+        <div class="row more-space">
+
+          <div class="col-md-6 text-center" id="more-viz">
+            <h3>More visualizations</h3>
+
+            <div class="row">
+              <div class="col-sm-6 viz-item">
+                <a href="https://rpsychologist.com/d3/cohend/">
+                  <div>
+                    <img src="img/cohend.png" class="img-circle img-responsive">
+                  </div>
+
+                  <h4>Cohen's d</h4>
+                  <p>Interactive visualization of Cohen's d effect size</p>
+                </a>
+              </div>
+
+              <div class="col-sm-6 viz-item">
+                <a href="https://rpsychologist.com/d3/NHST/">
+                  <div>
+                    <img src="img/nhst.png" class="img-circle img-responsive">
+
+                  </div>
+
+                  <h4>NHST</h4>
+                  <p>Interactive visualization of statistical power and significance testing</p>
+                </a>
+              </div>
+              <div class="row">
+                <div class="col-sm-6 viz-item">
+                  <a href="https://rpsychologist.com/d3/CI/">
+                    <div>
+                      <img src="img/CI.png" class="img-circle img-responsive">
+
+                    </div>
+
+                    <h4>Interpret Confidence Intervals</h4>
+                    <p>Interactive visualization of Confidence Intervals</p>
+                  </a>
+                </div>
+                <div class="col-md-6 viz-item">
+                  <a href="https://rpsychologist.com/viz">
+                    <div>
+                      <img src="img/more.png" class="img-circle img-responsive">
+                    </div>
+
+                    <h4>Even more ...</h4>
+                  </a>
+                </div>
+              </div>
+
+
+            </div>
+
+
+          </div>
+
+          <div class="col-md-6">
+            <h3>Suggestions, errors, and bugs</h3>
+            <p>Have any suggestion? Or found any bugs? Send them to me, my contact info can be found <a
+                href="https://rpsychologist.com/about">here</a>.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div id="footer" class="more-space">
+    <div class="container">
+      <div class="col-md-5">
+        <h3>About Site</h3>
+        <p>Designed and built by <a href="https://rpsychologist.com">Kristoffer Magnusson</a>. Built with <a
+            href="https://d3js.org/">D3.js</a>, <a href="https://jstat.org/">jStat</a> and <a
+            href="https://getbootstrap.com/">Bootstrap</a>.</p>
+      </div>
+      <div class="col-md-5">
+
+
+      </div>
+      <div class="col-md-2">
+        <h3>Connect</h3>
+        <ul class="list-unstyled">
+          <li><a href="https://twitter.com/krstoffr">Twitter</a></li>
+          <li><a href="https://github.com/rpsychologist">GitHub</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <!-- js -->
+
+  <script src="js/jquery-2.1.1.min.js"></script>
+  <script src="js/bootstrap-slider.min.js"></script>
+  <!--     <script src="js/jquery-ui-1.10.3.custom.min.js"></script> 
+   <script src="js/jquery.ui.touch-punch.min.js"></script> -->
+
+  <script type="text/javascript" src="js/bootstrap.min.js"></script>
+  <script src="js/jstat.js"></script>
+  <script src="js/script.js"></script>
+
+
+</body>
+
+</html>

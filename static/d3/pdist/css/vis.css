@@ -1,0 +1,123 @@
+.grid .tick {
+    stroke: #000;
+    stroke-dasharray: 3,3;
+    
+}
+.grid {
+  shape-rendering: crispEdges;
+   stroke-width: 1px;
+   opacity: 0.3;
+}
+svg {
+  shape-rendering: geometricPrecision;
+}
+
+#viz {
+  background-color: #FFF;
+  border-radius: 10px;
+  padding-top: 10px;
+}
+
+.axis {
+  font: 12px helvetica;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+  stroke-width: 1px;
+
+}
+path#dist1 {
+	fill: none;
+	stroke: #3498DB;
+	stroke-width: 5px;
+}
+path.dist1-tmp {
+  fill: none;
+  stroke: #c0392b;
+  stroke-width: 3px;
+}
+path#shade {
+  fill: #22313F;
+  stroke: none;
+  stroke-width: 0px;
+  opacity: 1;
+}
+path#section {
+	fill: #343434;
+	stroke: none;
+	stroke-width: 0px;
+  opacity: 1;
+
+}
+.bg {
+  fill: none;
+}
+#alpha {
+  stroke: red;
+  stroke-width:3px;
+  stroke-dasharray: 4,4;
+
+}
+#lLwr {
+  stroke: black;
+  stroke-width:1px;
+
+}
+
+#bLab {
+  font-size: 10px;
+}
+.brush {
+  /*fill: #89C4F4;*/
+  fill:none;
+}
+#brush-vis {
+    fill: #EFC1C1;
+}
+
+
+li.list-group-item {
+  border: 0;
+}
+
+svg .perc {
+  font-size: 25px;
+  font-family: "museo_slab500";
+  fill: #000;
+}
+
+.donut0 {
+  fill: #E74C3C;
+}
+.donut1 {
+  fill: #1B1B1A;
+}
+
+/* mobile */
+
+@media (max-width: 992px) { 
+svg .perc {
+  font-family: "museo_slab500";
+  fill: #000;
+  font-size: 10px;
+}
+div.donuts h4 {
+  font-size: 10px;
+}
+#yLab, #xLab {
+  font-size:10px;
+}
+.dlab {
+  margin-top: 0;
+}
+
+/*#power {
+  padding: 10px 0 10px 0px;
+}*/
+
+}
+

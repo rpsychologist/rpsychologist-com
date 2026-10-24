@@ -1,0 +1,15 @@
+{
+	"note": "Version 1.0.0 was published on 2026-06-25 as a standalone page at the same address, before this changelog.",
+	"releases": [
+		{
+			"version": "1.0.1",
+			"date": "2026-10-24",
+			"changed": [
+				"Published as a post on the main site, at the same address. Every figure and number is unchanged."
+			],
+			"fixed": [
+				"The cell-splitting figure's caption read \"Adjusting for 0 covariates … within these 1 cells\" with no covariates selected; it now describes the unadjusted case."
+			]
+		}
+	]
+}

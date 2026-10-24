@@ -1,0 +1,146 @@
+/* Fonts */
+@import url(https://fonts.googleapis.com/css?family=Lato);
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,600,700);
+@import url(https://fonts.googleapis.com/css?family=Noto+Serif:400,700);
+@import url(FiraCode/fira_code.css);
+@import url(twemoji-awesome.css);
+
+body { 
+  font-family: 'Lato', 'Noto Serif', serif;
+}
+
+h1, h2, h3 {
+  font-family: 'Open Sans';
+  font-weight: 400;
+  color: #000;
+}
+
+.remark-code { 
+  font-family: 'Fira Code', 'Lucida Console', Monaco, monospace;
+}
+
+.remark-inline-code { 
+  font-family: 'Fira Code', 'Lucida Console', Monaco, monospace; 
+}
+
+/* emoticons */
+@import url(twemoji-awesome.css);
+
+/* Inverse slides */
+.inverse {
+  background-color: #3498DB;
+  color: #fff;
+  text-shadow: 0 0 40px #00213e;
+}
+
+.inverse h1, .inverse h2, .inverse h3 {
+  font-family: 'Noto Serif';
+  color: #fff;
+  line-height: 1.0em;
+}
+
+.inverse a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.inverse .remark-inline-code { 
+  color: #fff;
+}
+
+/* Title slide 
+   NB must come after .inverse block
+*/
+.title-slide {
+  background-image: url(logga_cpf.png);
+  background-position: 95% 95%;
+  background-size: 380px;
+  background-color: #fff !important;
+}
+
+.title-slide h1 {
+  color: #3498DB;
+  padding-top: 70px;
+  font-size: 50px;
+  line-height: 1.2;
+  text-align: left;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  text-shadow: none;
+  word-wrap: break-word;
+  font-family: 'Noto Serif';
+  font-weight: 700;
+
+}
+
+.title-slide h2 {
+  color: #000;
+  font-size: 35px;
+  text-align: left;
+  padding-top: 0px;
+  margin-top: 0px;
+  text-shadow: none;
+  font-family: 'Open Sans';
+}
+
+.title-slide h3 {
+  font-size: 25px;
+  color: #000;
+  text-align: left;
+  text-shadow: none;
+  padding: 0px;
+  margin: 0px;
+  line-height: 1.1;
+  font-family: 'Lato';
+}
+
+.title-slide .remark-slide-number {
+  display: none;
+}
+.title-slide a {
+  color: #000;
+}
+
+/* Code */
+.remark-code {
+  color: #194359;
+  font-size: 16px;
+}
+
+.remark-inline-code { 
+  color: #3498CC;
+  font-weight: 500;
+}
+
+h3 .remark-inline-code, h2 .remark-inline-code { 
+  color: #34495e;
+  font-weight: 500;
+}
+
+.remark-code-line-highlighted { 
+  background-color: #B5CDE4;
+}
+
+/* Twitter logo */
+.twitter-logo {
+   background-image: url(twitter-logo.png);
+   padding: 15px;
+   margin-right: 5px;
+   background-size: contain;
+   background-repeat: no-repeat;
+   background-position-y: center;
+}
+
+.twitter-logo-bw {
+  background-image: url(twitter-logo-black.png);
+  padding: 15px;
+  margin-right: 5px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position-y: center;
+}
+
+/* Custom img width */
+.img60 img {
+  max-width: 60%;
+}

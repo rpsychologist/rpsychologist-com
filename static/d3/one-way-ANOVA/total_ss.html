@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript" src="d3/d3.v2.js"></script>
+	<style>
+	body {
+		width: 700px;
+		margin: 0;
+	}
+	#heading {
+		width: 400px;
+		margin-left: 35px;
+	}
+	h1{
+		color:black;
+		font-family: helvetica;
+	}
+	h2{
+		color:black;
+		font-family: helvetica;
+		font-size: 14px;
+		margin-top: 0;
+	}
+	#charts {
+		width:900px;
+	}
+	#line-chart {
+		height: 100%;
+		float: left;
+		width: 450px;
+		margin:0px;
+		padding:0px;
+	}
+	#circle-chart {
+		height: 100%;
+		float: left;
+		width: 200px;
+
+	}
+	p {
+		font-family: helvetica;	
+		font-size: 16px;
+	}
+	p .highlight {
+		color: red;
+		font-weight:bold;
+	}
+	p #SS {
+		line-height:16px;
+	}
+	.plus {
+		color: black !important;
+		font-weight: normal !important;
+	}
+	line {
+	    stroke: white;
+		fill: none;
+	}
+	.y-grid-major {
+		stroke-width:1.5;
+	}
+	.y-grid-minor {
+		stroke-width:1;
+	}
+	.y-ticks-minor {
+		stroke: black;
+		stroke-width:1;
+	}
+	.y-ticks-major {
+		stroke: black;
+		stroke-width:1;
+	}
+	.x-ticks {
+		stroke: black;
+		stroke-width:1;
+	}
+	.x-grid {
+		stroke-width:1.5;
+	}
+
+	.data-point-grp1 {
+		stroke: steelblue;
+		fill: steelblue;
+		fill-opacity: 0.5;
+		stroke-width: 2;
+
+	}
+	.data-point-grp2 {
+		stroke: green;
+		fill: green;
+		fill-opacity: 0.5;
+		stroke-width: 2;
+
+	}
+	.data-point-grp3 {
+		stroke: red;
+		fill: red;
+		fill-opacity: 0.5;
+		stroke-width: 2;
+
+	}
+	.grand-mean {
+		stroke: black;
+		stroke-dasharray: 6,3;
+		stroke-width: 3;
+	}
+
+	.current {
+	    stroke: #000 !important;
+	    stroke-width: 3 !important;
+	}
+	.residual-line {
+		stroke:red;
+	}
+	.residual-text {
+		fill:white;
+	}
+	.residual-box {
+		fill: black;
+		stroke: black;
+		stroke-opacity:0.8;
+		fill-opacity:0.8
+	}
+
+	text {
+	    font-family: Arial;
+	    font-size: 9pt;
+	}
+
+	</style>
+</head>
+<body>
+<div id="top">
+		<h1>One-way ANOVA</h1>
+		<h2>Total Sums of squares</h2>
+		<p>The total sums of squares in an ANOVA is the squared distance from the grand mean.</p>
+</div>
+<div id="charts">
+	<div id="line-chart"></div>
+	<div id="circle-chart">
+		<h2>Partitioning the total sums of squares</h2>
+		<div id="circle-chart2"></div>
+		<div id="circle-text">
+		<p id="SS">Total sums of squares = </p>
+		</div>
+</div>
+<script type="text/javascript"> 
+var x_axis = ["Group 1", "Group 2", "Group 3"],
+grp1 = [1,2,3,4],
+grp2 = [5,6,7,8],
+grp3 = [9,10,11,12],
+w = 500,
+h = 400,
+margin = 40,
+y = d3.scale.linear().domain([0, 15]).range([h - margin * 2, 0]),
+x = d3.scale.ordinal().domain(x_axis).rangeBands([0+margin, w]);
+
+// Plot theme -----------------------------
+function base_layer(div, class_name) {
+	vis = d3.select(div)
+			.append("svg:svg")
+				.attr("width", 550)
+				.attr("height", h)
+				.attr("class", class_name)
+			.append("svg:g")
+				.attr("transform", "translate(" + 40 + "," + 10 + ")");
+
+	// plot bg
+	vis.append("svg:rect")
+	 .attr("x", 0)
+	 .attr("y", -10)
+	 .attr("width", x("Group 3")+margin)
+	 .attr("height", h - margin*2 + 20)
+	 .attr("fill", "#E5E5E5");	
+
+	// x axis grid		
+	vis.selectAll(".xTicks")
+	   .data(x_axis)
+	   .enter().append("svg:line")
+	   .attr("class", "x-grid")
+	   .attr("x1", function(d) { return x(d); })
+	   .attr("y1", y(15)-10)
+	   .attr("x2", function(d) { return x(d); })
+	   .attr("y2", y(0)+10)
+
+	// x axis ticks
+	vis.selectAll(".xTicks")
+	    .data(x_axis)
+	    .enter().append("svg:line")
+	    .attr("class", "x-ticks")
+	    .attr("x1", function(d) { return x(d); })
+	    .attr("y1", h-margin*2+10)
+	    .attr("x2", function(d) { return x(d); })
+	    .attr("y2", h-margin*2+15)
+
+	// x axis label
+	vis.selectAll(".xLabel")
+	  .data(x_axis)
+	  .enter().append("svg:text")
+	  .attr("class", "xLabel")
+	  .text(String)
+	  .attr("x", function(d) { return x(d) })
+	  .attr("y", h-50)
+	  .attr("text-anchor", "middle")
+
+	// y axis major grid lines
+	vis.selectAll(".yTicks")
+		.data(y.ticks(3))
+		.enter().append("svg:line")
+		.attr("class", "y-grid-major")
+		.attr("y1", function(d) { return y(d); })
+		.attr("x1", x(0)-margin)
+		.attr("y2", function(d) { return y(d); })
+		.attr("x2", x("Group 3")+margin)
+
+	// y axis minor gridlines
+	vis.selectAll(".yTicks-minor")
+		.data([2.5,7.2,12.5])
+		.enter().append("svg:line")
+		.attr("class", "y-grid-minor")
+		.attr("y1", function(d) { return y(d); })
+		.attr("x1", x(0)-margin)
+		.attr("y2", function(d) { return y(d); })
+		.attr("x2", x("Group 3")+margin)
+
+	// y axis major ticks
+	vis.selectAll(".yTicks-minor")
+	.data(y.ticks(3))
+	.enter().append("svg:line")
+	.attr("class", "y-ticks-minor")
+	.attr("y1", function(d) { return y(d); })
+	.attr("x1", x(0)-margin)
+	.attr("y2", function(d) { return y(d); })
+	.attr("x2", x(0)-margin-5)
+
+	// y axis minor ticks
+	vis.selectAll(".yTicks-minor")
+	.data([2.5,7.5,12.5])
+	.enter().append("svg:line")
+	.attr("class", "y-ticks-minor")
+	.attr("y1", function(d) { return y(d); })
+	.attr("x1", x(0)-margin)
+	.attr("y2", function(d) { return y(d); })
+	.attr("x2", x(0)-margin-3)
+
+	// y-axis label
+	vis.selectAll(".yLabel")	
+	   .data(y.ticks(4))
+	   .enter().append("svg:text")
+	   .attr("class", "yLabel")
+	   .text(String)
+	.attr("x", -25)
+	.attr("y", function(d) { return y(d) })
+	.attr("text-anchor", "right")
+	.attr("dy", 3)
+	// END Plot theme -----------------------------
+	 g = vis.append("svg:g");	
+}
+
+
+function create_circles(data,id,i) {
+	g.selectAll(".data-point-"+id)
+			.data(data)
+			.enter().append('svg:circle')
+			.attr("class", "data-point-"+id)
+			.attr("id", function(d,i) { return "data-point-"+id+"-"+i; } )
+			.attr('cx', x(i))
+			.attr('cy', function(d) { return y(d); })
+			.attr('r', 5)
+			.on("mouseover", onmouseover)
+			.on("mouseout", onmouseout);
+}
+function convert_group(name) {
+	if(name == "grp1") { return "Group 1"; } 
+	else if(name == "grp2") { return "Group 2"; }
+	else { return "Group 3"; } 
+}
+base_layer("#line-chart", "vis");	
+create_circles(grp1, "grp1", "Group 1");
+create_circles(grp2, "grp2", "Group 2");
+create_circles(grp3, "grp3", "Group 3");
+
+var grand_mean = d3.mean(grp1.concat(grp2, grp3));
+
+// Grand Mean Line
+g.append("svg:line")
+	.attr("x1", x("Group 1"))
+    .attr("y1", y(grand_mean))
+    .attr("x2", x("Group 3"))
+    .attr("y2", y(grand_mean))
+    .attr("class", "grand-mean")
+	.on("mouseover", onmouseover_grand)
+	.on("mouseout", onmouseout_grand);
+
+
+transition_duration = 500;
+opacity_value = 0.1;
+
+function onmouseover() {
+	function fade(d) {
+				if(d==position) {
+					return 1;
+				} else {
+					return opacity_value;
+				}	
+	}
+	current_class = d3.select(this).attr("class");
+	n = d3.select(this).attr("id").slice(16,17);
+	current_group = current_class.substring(11,15);
+	var	position = d3.select(this).data()[0],		
+	resid = position - grand_mean;
+	
+	// highlight current circle
+
+	d3.select(this)
+        .attr("class", current_class + " current");
+
+
+	// fade circles
+	d3.selectAll("circle")
+		.transition()
+		.duration(transition_duration)
+		.style("stroke-opacity", function(d) { return fade(d); })
+		.style("fill-opacity", function(d) { return fade(d); });
+	
+	
+	var text_id = current_group.slice(3,4) * n;
+	// highlight formula text
+		SS_id = (current_group.slice(3,4)-1) * 4 + parseFloat(n);
+	d3.select("#SS"+SS_id).attr("class", "highlight");	
+			
+//------- residuals		
+    // residual line
+	
+	if(position > grand_mean) {
+		resid2 = y(position) + 5;
+	} else { 
+		resid2 = y(position) - 5;
+		 }
+			
+	g.append("svg:line")
+				.attr("class", "residual-line")
+				.attr("x1", x(convert_group(current_group)) )
+			    .attr("y1", resid2)
+			    .attr("x2", x(convert_group(current_group)) )
+			    .attr("y2", resid2)
+			.transition()
+			 	.attr("y1", y(grand_mean));
+
+				
+   var y_pos = y(position),
+   x_pos = x(convert_group(current_group))+10;
+   box_height = 50,
+   box_width = 130;
+	g.append("path")
+	 .attr("class", "residual-box")
+	 .attr("d", function(d) { 
+	   return "M " + (x_pos-5) +" "+ (y_pos) + " l 5 5 l 0 -10 z";
+	 });
+					
+	g.append("svg:rect")
+	  .attr("class", "residual-box")
+	  .attr("x", x_pos)
+	  .attr("y", y_pos-box_height/2)
+	  .attr("rx", 5)
+	  .attr("ry", 5)
+	  .attr("width", 0)
+	  .attr("height", box_height)
+	  .attr("fill", "black")
+	.transition()
+	  .ease("elastic")
+      .attr("width", box_width );
+				
+	// residual text
+	g.append("svg:text")
+	    .attr("class", "residual-text")
+	    .text(convert_group(current_group)+", subject: "+(parseFloat(n)+1))
+	    .attr("x", x_pos + 5)
+	    .attr("y", y(position) -5)
+	    .attr("text-anchor", "left");		
+	g.append("svg:text")
+	    .attr("class", "residual-text")
+	    .text("Residual: " + d3.round(resid,2))
+	    .attr("x", x_pos + 5)
+	    .attr("y", y(position)+10 )
+	    .attr("text-anchor", "left");
+	
+	}
+
+function onmouseout() {	
+	var prev_class = current_class.substring(0, 7);
+	d3.select(this).attr("class", current_class);
+
+	d3.selectAll("circle")
+		.transition()
+		.duration(transition_duration)
+		.style("stroke-opacity", 1)
+		.style("fill-opacity", 0.5);
+		
+	d3.selectAll("#SS").select(".highlight").attr("class", "SS_test")
+		
+	g.selectAll(".residual-line").remove();
+	g.selectAll(".residual-text").remove();	
+	g.selectAll(".residual-box").remove();	
+	}
+
+function onmouseover_grand() {
+	var y_pos = y(grand_mean),
+	 x_pos = x("Group 3")+10;
+	 box_height = 30,
+	 box_width = 140;
+	
+	g.selectAll(".grand-mean")
+		.transition()
+		.style("stroke-width", 4);
+	
+		g.append("path")
+		 .attr("class", "residual-box")
+		 .attr("d", function(d) { 
+		   return "M " + (x_pos-5) +" "+ (y_pos) + " l 5 5 l 0 -10 z";
+		 });
+		
+		g.append("svg:rect")
+		  .attr("class", "residual-box")
+		  .attr("x", x_pos)
+		  .attr("y", y_pos-box_height/2)
+		  .attr("rx", 5)
+		  .attr("ry", 5)
+		  .attr("width", 0)
+		  .attr("height", box_height)
+		  .attr("fill", "black")
+		.transition()
+		  .ease("elastic")
+	      .attr("width", box_width );
+
+		// residual text
+		g.append("svg:text")
+		    .attr("class", "residual-text")
+		    .text("The Grand Mean (= 6.5)")
+		    .attr("x", x_pos + 5)
+		    .attr("y", y_pos )
+		    .attr("text-anchor", "left");
+
+	}
+				
+function onmouseout_grand() {
+	g.selectAll(".grand-mean")
+		.transition()
+		.style("stroke-width", 3);
+	g.selectAll(".residual-text").remove();	
+	g.selectAll(".residual-box").remove();
+	//d3.selectAll("div.residual-text2").remove();
+}
+
+
+// Chart 2 -------------------------
+// Formula ---------------
+function get_resid(d) {
+	var resids = [];		
+	var ss = function(value, index, array1) {
+	   resids = resids.concat(value - d3.mean(grp1.concat(grp2, grp3)));
+	}
+	d.forEach(ss);
+	return resids;
+}		
+
+var resids = get_resid(grp1.concat(grp2, grp3));
+
+var grp1_var = 0;
+get_resid(grp1).forEach(function(value) { 
+	grp1_var += value*value } )
+var grp2_var = 0;
+	get_resid(grp2).forEach(function(value) { 
+		grp2_var += value*value } )
+var grp3_var = 0;
+	get_resid(grp3).forEach(function(value) { 
+	grp3_var += value*value } )		
+var data = [
+  [grp1_var,  grp2_var, grp3_var],
+];
+var total_SS = (grp1_var+grp2_var+grp3_var);
+
+d3.select("#SS").selectAll("span")
+	.data(resids)
+	.enter()
+	.append("span")
+	.attr("id", function(d,i) { return "SS"+i; })
+	.attr("class", "SS_test")
+	.html(function(d) { return d + "<sup>2</sup>";});
+	
+d3.selectAll(".SS_test")
+	.append("span")
+	.text(function(d,i) { if(i!=11) return " + "; })
+	.attr("class", "plus");
+
+d3.select("#SS11")	
+	.append("span")
+	.text(" = " + total_SS)
+	.attr("class", "sum");	
+	
+
+
+
+var m = 30,
+    r = 60,
+    z = d3.scale.category20c(),
+	arc = d3.svg.arc().innerRadius(r * 0.5).outerRadius(r);
+
+var vis = d3.select("#circle-chart2")
+  .append("svg:svg")
+    .data(data)
+    .attr("width", 300)
+    .attr("height", 150);
+
+var arcs = vis.selectAll("arc")
+    .data(d3.layout.pie())
+  .enter().append("svg:g")
+    .attr("class", "arc")
+    .attr("transform", "translate(" + 130 + "," + 80 + ")");
+
+arcs.append("svg:path")
+    .style("fill", function(d, i) { return z(i); })
+	.attr("id", function(d, i) { return "arc"+i; })
+    .attr("d", arc)
+	.on("mouseover", mouseover_circle)
+	.on("mouseout", mouseout_circle);
+
+
+function mouseover_circle() {
+		current_id=d3.select(this).attr("id");
+		if(current_id=="arc0") {
+			current_group = "Group 1";
+			current_SS = data[0][0];
+			d3.select("#SS0").attr("class", "highlight");
+			d3.select("#SS1").attr("class", "highlight");
+			d3.select("#SS2").attr("class", "highlight");
+			d3.select("#SS3").attr("class", "highlight");
+		} else if(current_id=="arc1")
+		{
+			current_group = "Group 2";
+			current_SS = data[0][1];
+			d3.select("#SS4").attr("class", "highlight");
+			d3.select("#SS5").attr("class", "highlight");
+			d3.select("#SS6").attr("class", "highlight");
+			d3.select("#SS7").attr("class", "highlight");
+		} else {
+				current_group = "Group 3";
+				current_SS = data[0][2];
+				d3.select("#SS8").attr("class", "highlight");
+				d3.select("#SS9").attr("class", "highlight");
+				d3.select("#SS10").attr("class", "highlight");
+				d3.select("#SS11").attr("class", "highlight");
+		}
+		
+		var d = d3.select("#"+current_id).data()[0],
+		    c = arc.centroid(d),
+            x = c[0],
+            y = c[1];
+			h = Math.sqrt(x*x + y*y),
+			box_width = 60;
+			
+		test = (d.endAngle + d.startAngle)/2 > Math.PI ? "end" : "start";
+			
+		arcs.append("path")
+		 .attr("class", "residual-box")
+		.attr("d", function() {
+			sign = test == "end" ? "-":"+";
+	        return "M " + (x/h * r) +" "+  (y/h * r) + " l "+sign+"5 5 l 0 -10 z";
+	    });
+		arcs.append("svg:rect")
+		  .attr("class", "residual-box")
+		  .attr("x", function() {
+			if(test == "end") {
+				return (x/h * r)-(box_width+5);
+			} else {
+			 return	(x/h * r)+5;
+			} 
+			})
+		  .attr("y", (y/h * r)-30/2)
+		  .attr("rx", 5)
+		  .attr("ry", 5)
+		  .attr("width", 0)
+		  .attr("height", 30)
+		  .attr("fill", "black")
+		.transition()
+		  .ease("elastic")
+	      .attr("width", box_width );
+		
+		arcs.append("svg:text")
+		    .attr("class", "residual-text")
+		    .text(current_group)
+			.attr("x", function() {
+				if(test == "end") {
+					return (x/h * r)-15;
+				} else {
+				 return	(x/h * r)+10;
+				} 
+				})
+		    .attr("y", (y/h * r) -5)
+		    .attr("text-anchor", test);
+		
+			arcs.append("svg:text")
+			    .attr("class", "residual-text")
+			    .text("SS = "+current_SS)
+			    	.attr("x", function() {
+						if(test == "end") {
+							return (x/h * r)-15;
+						} else {
+						 return	(x/h * r)+10;
+						} 
+						})
+			    .attr("y", (y/h * r) +10)
+			    .attr("text-anchor", test);
+		
+		
+	
+	
+}
+
+function mouseout_circle() {
+	// de-highlight pie piece
+		d3.select(this).transition().attr("d", d3.svg.arc()
+	    .innerRadius(r / 2)
+	    .outerRadius(r));
+	
+	d3.selectAll("#SS").selectAll(".highlight").attr("class", "SS_test")
+
+		d3.selectAll(".residual-box").remove();
+		d3.selectAll(".residual-text").remove();
+}
+
+
+
+
+</script>
+</body>
+</html>		

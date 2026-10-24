@@ -1,0 +1,71 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+
+# Viz embed routes are <iframe> targets, so they must be frameable cross-origin.
+# They're distinct paths, so scope framing to them: drop the global
+# X-Frame-Options DENY and allow any framer via CSP frame-ancestors.
+# VERIFY AT CUTOVER on Cloudflare Pages with a real cross-origin iframe on a
+# deploy preview — per-path header override/unset semantics differ by host
+# (Cloudflare Pages supports `! Header` to unset a value set by a broader rule;
+# if that doesn't take effect, restructure so `/*` doesn't set X-Frame-Options
+# and instead deny framing per-path, or enforce anti-framing at the edge).
+/cohend/embed
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/es/cohend/embed
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/fr/cohend/embed
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/no/cohend/embed
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/sv/cohend/embed
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/tr/cohend/embed
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/uz/cohend/embed
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+
+# Permanent: legacy embeds frame the main page as /cohend?embed=1, and
+# X-Frame-Options would block that document before its client-side redirect
+# (to /cohend/embed, in src/routes/cohend/+page.svelte) could run. The page
+# has no auth/cookies/actions, so frameability costs ~nothing, and the
+# changelog promises old links are never dropped — don't "harden" this back
+# to DENY. Exact-path match: /cohend/changelog is not affected. The translated
+# pages (/sv/cohend, …) had the same legacy embeds; listed one by one, not with
+# a placeholder, so the match stays exact.
+/cohend
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/es/cohend
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/fr/cohend
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/no/cohend
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/sv/cohend
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/tr/cohend
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+/uz/cohend
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+
+# Kill switch for the old Gatsby service worker (see static/sw.js): browsers
+# must revalidate it, or returning visitors keep the old worker longer.
+/sw.js
+  Cache-Control: no-cache

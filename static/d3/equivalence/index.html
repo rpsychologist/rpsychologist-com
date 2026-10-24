@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html xmlns:fb="http://ogp.me/ns/fb#" class="no-js"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Understanding equivalence, non-inferiority and superiority testing - an Interactive Visualization</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- twitter card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@krstoffr">
+  <meta name="twitter:title" content="Equivalence, non-inferiority and superiority testing - an interactive visualization">
+  <meta name="twitter:description" content="How to test if two treatments are equally effective">
+  <meta name="twitter:image" content="http://rpsychologist.com/d3/equivalence/img/equivalence-fb.jpg">
+  <!-- facebook -->
+  <meta property="og:title" content="Equivalence, non-inferiority and superiority testing - an interactive visualization"/>
+  <meta property="og:site_name" content="R Psychologist"/>
+  <meta property="fb:admins" content="667756492"/>
+  <meta property="og:image" content="http://rpsychologist.com/d3/equivalence/img/equivalence-fb.jpg"/>
+  <meta property="og:url" content="http://rpsychologist.com/d3/equivalence/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:description" content="Interactive visualization of equivalence, non-inferiority and superiority testing."/>
+  <link type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.5.1/css/bootstrap-slider.min.css" />
+  <link href="css/style.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="fonts/MyFontsWebfontsKit.css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,700" rel="stylesheet">
+  <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+</head>
+<body>
+   <script src="js/d3.min.js"></script>
+  <!--[if lt IE 7]>
+  <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+  <![endif]-->
+  <div class="navbar navbar-default navbar-static-top" role="navigation">
+    <div class="container">
+      <div class="navbar-header">
+        <a href="http://rpsychologist.com" class="navbar-brand"><img src="img/rpsychologist-logo.svg" class="logo"></a>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h1 class="text-center heading">Equivalence, non-inferiority and superiority testing</h1>
+        <h3 class="title-sub text-center">an interactive visualization</h3>
+        <p>Created by <a href="http://rpsychologist.com">Kristoffer Magnusson</a></p>
+        <ul class="list-inline">
+          <li><a href="https://twitter.com/krstoffr" class="twitter-follow-button" data-show-count="true">Follow @krstoffr</a> </li>
+          <li>
+            <a href="https://se.linkedin.com/pub/kristoffer-magnusson/b5/133/1b6" style="text-decoration:none;"><span style="font-size:80%; color: black; vertical-align:top;">Kristoffer's LinkedIn profile</a>
+          </li>
+        </ul>
+        <!-- SOCIAL LINKS -->
+        <ul class="list-inline">
+          <li><a href="https://twitter.com/share" class="twitter-share-button" data-via="krstoffr" data-lang="en">Tweet</a>
+        </li>
+        <li class="fb-like"><fb:like href="http://rpsychologist.com/d3/equivalence/" layout="button_count" action="like" show_faces="true" share="true"></fb:like></li>
+      </ul>
+      <p>It is not uncommon to see researchers conclude that two treatments are equally effective, based on an insignificant test of the null hypothesis. Or that reducing the length of a treatment yields treatment effects that are no worse than the standard (longer) treatment, based on p > 0.05. Clearly, both conclusions are wrong. Much has been written about this, and in medicine the appropriate types of tests for these kinds of hypotheses are equivalence and non-inferiority tests. When testing for equivalence, we test whether a treatment effect is inside a prespecified equivalence margin [-Δ, Δ]. Similarly, when testing if a treatment is at least not worse than another treatment, we test if the effect is above a prespecified non-inferiority margin -Δ. My aim with this visualization is to show the decision rules associated with these different types of hypotheses. This visualization also shows how power relates to the different tests and different values of Δ, d and n. </p>
+      <p>Below I use a 95 % confidence interval to demonstrate the different hypotheses. You can move the CI around using the <strong>sliders</strong> or by <strong>clicking and dragging</strong>. Results of the test of treatment differences will automatically be highlighted.</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <h3>Settings</h3>
+      
+      <div class="row slider_d">
+        <div class="col-lg-3"><span class="pull-left">Observed effect (d = <span id="span_d">1</span>)</span> </div>
+        <div class="col-lg-9"><input id="slider-m" type="text"/></div>
+      </div>
+      <div class="row slider_n">
+        <div class="col-lg-3"><span class="pull-left">Sample size (n = <span id="span_n">10</span>)</span></div>
+        <div class="col-lg-9"><input id="slider-n"/></div>
+      </div>
+      <div class="row slider_margin">
+        <div class="col-lg-3"><span class="pull-left">Margin (Δ = <span id="span_margin">0.3</span>)</span></div>
+        <div class="col-lg-9"><input id="slider-margin"/></div>
+      </div>
+      <div class="row">
+        <h3 class="text-center" id ="vis_verdict">Effect of new treatment is <span id="span_verdict">superior</span></h3>
+        <div class="col-md-12">
+          <div id="viz"></div>
+          <h6 id ="vis-caption" class="text-right"><img src="img/ci.svg">95 % CI </h5>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1 row-no-padding">
+          <h4 class="power-heading text-center">Power</h4>
+          <div class="col-xs-4">
+            <h4 class = "power-subheadings text-center">Superiority</h4>
+          </div>
+          <div class="col-xs-4">
+            <h4 class = "power-subheadings text-center">Non-inferiority</h4>
+          </div>
+          <div class="col-xs-4">
+            <h4 class = "power-subheadings text-center">Equivalence</h4>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1 row-no-padding lineplots">
+          <div class="col-xs-4" id ="linePlot_su"></div>
+          <div class="col-xs-4" id ="linePlot_ni"></div>
+          <div class="col-xs-4" id ="linePlot_eq"></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1 row-no-padding">
+          <div class="col-xs-4">
+            <h6 class = "text-center">H<sub>0</sub>: d = 0</h6>
+            <h6 class = "text-center">H<sub>a</sub>: d > 0</h6>
+          </div>
+          
+          <div class="col-xs-4">
+            <h6 class = "text-center">H<sub>0</sub>: d ≤ -Δ</h6>
+            <h6 class = "text-center">H<sub>a</sub>: d > -Δ</h6>
+          </div>
+          <div class="col-xs-4">
+            <h6 class = "text-center">H<sub>0</sub>: d ≤ -Δ or d ≥ Δ</h6>
+            <h6 class = "text-center">H<sub>a</sub>: -Δ < d < Δ</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-md-12">
+      <h3>Technical notes</h3>
+      Power is calculated using the following power functions. Note that <strong>α is 0.025</strong> for all tests, since a 95 % CI is used. Also note that normal approximations are used. So power will be slightly off for really small sample sizes.  
+      <h4>Power of equivalence test</h4>
+      <p>
+      $$ 1 - \beta = \Phi \left( \frac{|d - \Delta|}{\sqrt{2/n}} - Z_{1-\alpha}\right) + \Phi \left( \frac{|d + \Delta|}{\sqrt{2/n}} - Z_{1-\alpha}\right) - 1$$
+      </p>
+      <h4>Power of non-inferiority test</h4>
+      $$ 1 - \beta =\Phi \left( \frac{d + \Delta}{\sqrt{2/n}} - Z_{1-\alpha}\right)$$
+      <h4>Power of superiority test</h4>
+      $$ 1 - \beta =\Phi \left( \frac{d}{\sqrt{2/n}} - Z_{1-\alpha}\right)$$
+
+      <p>where \(\Phi\) is the cumulative distribution function of the standard normal distribution. \(d\) is Cohen's d, \(\Delta\) is non-inferiority or equivalence margin, \(n\) is the sample size per group, and is the \(Z_{1-\alpha}\) is the 100(\(1-\alpha\))th percentile of a standard normal distribution.</p>
+      <p>Formulas are adapted from Julious, Steven A. "Sample sizes for clinical trials with normal data." <em>Statistics in medicine</em> 23.12 (2004): 1921-1986.</p>
+      <h3>Type I error</h3>
+      Non-inferiority is shown if the lower side of a two-sided (1–2α)×100% CI is above -Δ. In this case that means a 95 % CI, so the significance level is 0.025.
+      Using the two one-sided test (TOST) procedure, equivalence is tested using a (1–2α)×100% CI. In this case this significance level is also 0.025.
+      In the visualization superiority testing is also performed as a one tailed test, also with a significance level of 0.025. So if we wanted to use a 0.05 significance level we would use 90 % CIs. 
+    </div>
+  </div>
+  <div class="row more-space">
+    <div class="col-md-6 text-center" id="more-viz">
+      <h3>More visualizations</h3>
+      <div class="row">
+        <div class="col-sm-6 viz-item">
+          <a href="http://rpsychologist.com/d3/cohend/">
+            <div>
+              <img src="img/cohend.png" class="img-circle img-responsive">
+            </div>
+            <h4>Cohen's d</h4>
+            <p>Interactive visualization of Cohen's d effect size</p>
+          </a>
+        </div>
+        <div class="col-sm-6 viz-item">
+          <a href="http://rpsychologist.com/d3/NHST/">
+            <div>
+              <img src="img/nhst.png" class="img-circle img-responsive">
+            </div>
+            <h4>NHST</h4>
+            <p>Interactive visualization of statistical power and significance testing</p>
+          </a>
+        </div>
+        
+        <div class="col-sm-6 viz-item">
+          <a href="http://rpsychologist.com/d3/CI/">
+            <div>
+              <img src="img/CI.png" class="img-circle img-responsive">
+            </div>
+            <h4>Interpret Confidence Intervals</h4>
+            <p>Interactive visualization of Confidence Intervals</p>
+          </a>
+        </div>
+        <div class="col-sm-6 viz-item">
+          <a href="https://rpsychologist.com/viz">
+            <div>
+              <img src="img/more.png" class="img-circle img-responsive">
+            </div>
+            <h4>Even more ...</h4>
+          </a>
+        </div>
+        
+      </div>
+    </div>
+           <div class="col-md-6">
+          <h3>Support my work</h3>
+          <p>The content on this blog is shared for free under a CC-BY license. If you like my work and want to support it you can:</p>
+					<p> <style>.bmc-button img{width: 35px !important;margin-bottom: 1px !important;box-shadow: none !important;border: none !important;vertical-align: middle !important;}.bmc-button{padding: 7px 5px 7px 10px !important;line-height: 35px !important;height:51px !important;min-width:217px !important;text-decoration: none !important;display:inline-flex !important;color:#ffffff !important;background-color:#000000 !important;border-radius: 5px !important;border: 1px solid transparent !important;padding: 7px 5px 7px 10px !important;font-size: 22px !important;letter-spacing: 0.6px !important;box-shadow: 0px 1px 2px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 1px 2px 2px rgba(190, 190, 190, 0.5) !important;margin: 0 auto !important;font-family:'Cookie', cursive !important;-webkit-box-sizing: border-box !important;box-sizing: border-box !important;-o-transition: 0.3s all linear !important;-webkit-transition: 0.3s all linear !important;-moz-transition: 0.3s all linear !important;-ms-transition: 0.3s all linear !important;transition: 0.3s all linear !important;}.bmc-button:hover, .bmc-button:active, .bmc-button:focus {-webkit-box-shadow: 0px 1px 2px 2px rgba(190, 190, 190, 0.5) !important;text-decoration: none !important;box-shadow: 0px 1px 2px 2px rgba(190, 190, 190, 0.5) !important;opacity: 0.85 !important;color:#ffffff !important;}</style><link href="https://fonts.googleapis.com/css?family=Cookie" rel="stylesheet"><a class="bmc-button" target="_blank" href="https://www.buymeacoffee.com/krstoffr"><img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="Buy me a coffee"><span style="margin-left:15px;font-size:28px !important;">Buy me a coffee</span></a> (or use <strong><a href="https://www.paypal.me/krstoffr">PayPal</a></strong>)</p>
+
+					<p> You can also sponsor my open source work using <a href="https://github.com/sponsors/rpsychologist">GitHub Sponsors</a></p> 
+       </div>
+    <div class="col-md-6">
+      <h3>Suggestions, errors, and bugs</h3>
+      <p>Have any suggestion? Or found any bugs? Send them to me, my contact info can be found <a href="http://rpsychologist.com/about">here</a>.</p>
+    </div>
+  </div>
+</div>
+<div id="footer" class="more-space">
+  <div class="container">
+    <div class="col-md-5">
+      <h3>About Site</h3>
+      <p>Designed and built by <a href="http://rpsychologist.com">Kristoffer Magnusson</a>. Built with <a href="http://d3js.org/">D3.js</a>, <a href="http://jstat.org/">jStat</a> and <a href="http://getbootstrap.com/">Bootstrap</a>.</p>
+    </div>
+    <div class="col-md-5">
+    </div>
+    <div class="col-md-2">
+      <h3>Connect</h3>
+      <ul class="list-unstyled">
+        <li><a href="http://twitter.com/krstoffr">Twitter</a></li>
+        <li><a href="https://github.com/rpsychologist">GitHub</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+<!-- js -->
+<script src="js/jquery-2.1.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.5.1/bootstrap-slider.min.js"></script>
+<!--     <script src="js/jquery-ui-1.10.3.custom.min.js"></script>
+<script src="js/jquery.ui.touch-punch.min.js"></script> -->
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script src="js/jstat.js"></script>
+<script src="js/script.js"></script>
+<script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  CommonHTML: { linebreaks: { automatic: true },scale: 80 },
+  "HTML-CSS": { linebreaks: { automatic: true },scale: 80 },
+         SVG: { linebreaks: { automatic: true },scale: 80 }
+});
+</script>
+</body>
+</html>

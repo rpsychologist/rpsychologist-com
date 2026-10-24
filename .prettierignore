@@ -1,0 +1,18 @@
+# Package Managers
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+bun.lock
+bun.lockb
+
+# Generated / build output
+/.svelte-kit/
+/build/
+
+# Blog post sources: R Markdown exports with mdsvex infostrings
+# (`r:collapsed=true`), KaTeX, and inline components that prettier's
+# markdown formatter would mangle. Owned by the mdsvex pipeline, not prettier.
+/content/
+
+# Miscellaneous
+/static/

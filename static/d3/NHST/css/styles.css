@@ -1,0 +1,230 @@
+@font-face {
+      font-family: 'museo_slab500';
+      src: url('fonts/Museo_Slab_500_2-webfont.eot');
+      src: url('fonts/Museo_Slab_500_2-webfont.eot?#iefix') format('embedded-opentype'),
+      url('fonts/Museo_Slab_500_2-webfont.woff') format('woff'),
+      url('fonts/Museo_Slab_500_2-webfont.ttf') format('truetype'),
+      url('fonts/Museo_Slab_500_2-webfont.svg#museo_slab500') format('svg');
+      font-weight: normal;
+      font-style: normal;
+}
+
+a {
+  color: #3C3658;
+  font-weight: bold;
+}
+a:hover {
+  color:#e93a30;
+
+}
+.logo {
+  width: 250px;
+  height: auto;
+}
+
+html,
+body {
+  height: 100%;
+  background-color: #FFF; 
+}
+/* Wrapper for page content to push down footer */
+#wrap {
+  min-height: 100%;
+  height: auto;
+  /* Negative indent footer by its height */
+  margin: 0 auto -60px;
+  /* Pad bottom by footer height */
+  padding: 0 0 60px;
+}
+
+#footer {
+  color:white;
+  height: auto;
+  background-color: #373737;
+}
+#footer a {
+  color: #6aceeb;
+}
+#wrap > .container {
+  padding: 60px 15px 0;
+}
+.container .text-footer {
+  margin: 20px 0;
+}
+
+#footer > .container {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.page-header .title {
+  font-family: "museo_slab500";
+}
+.page-header .title-sub {
+  font-family: "museo_slab500";
+  padding-bottom: 40px;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: "museo_slab500";
+}
+
+@media only screen and (min-width: 768px) {
+  .page-header .title {
+    font-size: 60px;
+  }
+}
+@media only screen and (max-width: 767px) {
+  .radio-inline,   .list-inline>li  {
+    padding-left:0px;
+  }
+
+
+}
+code {
+  font-size: 80%;
+}
+.navbar-default {
+  background-color: #373737;
+}
+
+p.footnotes {
+  font-size: 90%;
+}
+p.lead {
+   font-family: "museo_slab500";
+}
+blockquote {
+  border: none;
+}
+li.fb-like {
+  vertical-align: top;
+}
+#more-viz img {
+  margin-left:auto;
+margin-right: auto;
+border: 1px solid #4F7396;
+padding: 0px;
+  transition-duration: 0.2s;
+transition-property: border-color, color;
+transition-timing-function: ease-in-out;
+}
+#more-viz a {
+  text-decoration: none;
+  color: #000;
+    transition-duration: 0.2s;
+transition-property: border-color, color;
+transition-timing-function: ease-in-out;
+}
+#more-viz .viz-item:hover > *, #more-viz .viz-item:hover img {
+  color: #6ACEEB;
+  border-color: #6ACEEB;
+}
+
+/**
+ UI Slider
+*/
+
+.ui-slider {
+  background: #ebedef;
+  border-radius: 32px;
+  height: 12px;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  margin-bottom: 10px;
+  position: relative;
+}
+.ui-slider-handle {
+  background-color: #30394F;
+  border-radius: 50%;
+  cursor: pointer;
+  height: 18px;
+  margin-left: -9px;
+  position: absolute;
+  top: -3px;
+  width: 18px;
+  z-index: 2;
+  -webkit-transition: background 0.25s;
+  transition: background 0.25s;
+}
+.ui-slider-handle[style*='100'] {
+  margin-left: -15px;
+}
+.ui-slider-handle:hover,
+.ui-slider-handle:focus {
+  background-color: #30394F;
+  outline: none;
+}
+.ui-slider-handle:active {
+  background-color: #30394F;
+}
+.ui-slider-range {
+  background-color: #6ACEEB;
+  border-radius: 30px 0 0 30px;
+  display: block;
+  height: 100%;
+  position: absolute;
+  z-index: 1;
+}
+
+
+.ui-slider-value {
+  float: right;
+  font-size: 13px;
+  margin-top: 12px;
+}
+.ui-slider-value.first {
+  clear: left;
+  float: left;
+}
+
+
+#slider_alpha .ui-slider-range  {
+  background-color: #c0392b;
+  border-radius: 30px 0 0 30px;
+  display: block;
+  height: 100%;
+  position: absolute;
+  z-index: 1;
+}
+#slider_d .ui-slider-range  {
+  background-color: #7f8c8d;
+  border-radius: 30px 0 0 30px;
+  display: block;
+  height: 100%;
+  position: absolute;
+  z-index: 1;
+}
+#slider_n .ui-slider-range  {
+  background-color: #16a085;
+  border-radius: 30px 0 0 30px;
+  display: block;
+  height: 100%;
+  position: absolute;
+  z-index: 1;
+}
+/* buttons */
+
+.btn-primary {
+color: #fff;
+background-color: #2980b9;
+border-color: #2980b9;
+}
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active {
+color: #fff;
+background-color: #3498db;
+border-color: #3498db;
+}
+.btn:active, .btn.active {
+-webkit-box-shadow: none;
+box-shadow: none;
+}
+.radio {
+  position: relative;
+  padding-left: 32px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-transition: color .25s linear;
+          transition: color .25s linear;
+  }

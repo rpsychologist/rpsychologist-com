@@ -1,0 +1,179 @@
+/* Large desktop */
+@media (min-width: 1200px) { 
+  line#mu1, line#mu2 {
+  stroke-width: 2px;
+  }
+      .axis text {
+  fill: #C8D5DA;
+  font-size: 13px;
+}
+}
+
+/* Portrait tablet to landscape and desktop */
+@media (min-width: 768px) and (max-width: 979px) { 
+  line#mu1, line#mu2 {
+  stroke-width: 2px;
+   
+    .axis text {
+  fill: #C8D5DA;
+  font-size: 13px;
+}
+
+
+  }
+}
+
+/* Landscape phone to portrait tablet */
+@media (max-width: 767px) { 
+    line#mu1, line#mu2 {
+  stroke-width: 1px;
+  }
+}
+
+@media (min-width: 768px) {
+  .plotLab {
+  font-size: 12px;
+  font-family: "Helvetica";
+}
+}
+
+/* Landscape phones and down */
+@media (max-width: 480px) { 
+line#mu1, line#mu2 {
+  stroke-width: 1px;
+}
+    .axis text {
+  fill: #C8D5DA;
+  font-size: 8px;
+}
+  .legend  {
+    font-size: 8px;
+  }
+  #rowplots h4 {
+    font-size: 10px;
+  }
+  text.pnorm {
+    font-size: 8px;
+  }
+  .plotLab {
+  font-size: 8px;
+  font-family: "Helvetica";
+}
+} 
+
+#vvs {
+
+}
+#viz {
+
+  padding-top:10px;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+  stroke-width: 1px;
+
+}
+path#dist1, .dist1 {
+	fill: none;
+	stroke: #30394F;
+	stroke-width: 3px;
+  stroke-dasharray: 5 5;
+}
+path#dist2, .dist2{
+	fill: none;
+  fill-opacity: 0.5;
+	stroke: #6ACEEB;
+	stroke-width: 4px;
+}
+path#qq-line {
+  fill: none;
+  stroke: #6ACEEB;
+  stroke-width: 4px;
+}
+line#qq-lineZ {
+  fill: none;
+  stroke: #30394F;
+  stroke-width: 4px;
+}
+path#rel-line {
+  fill: none;
+  stroke: #6ACEEB;;
+  stroke-width: 4px;
+}
+path#abs-line {
+  fill: none;
+  stroke: #6ACEEB;;
+  stroke-width: 4px;
+}
+
+#labQ {
+ font-family: "museo_slab500";
+}
+.pnorm {
+  fill:  #30394F;
+  stroke: none;
+}
+.pnormBg {
+  fill: #C8D5DA;
+  stroke: none;
+}
+.poly {
+	stroke: none;
+
+}
+#qqplot {
+ 
+   border-radius:6px;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #C8D5DA;
+
+}
+
+.grid line  {
+   stroke: #C8D5DA;
+   stroke-dasharray: 1 1;
+}
+.axis .tick line {
+
+}
+
+
+#drag {
+  stroke: black;
+  stroke-width: 3px;
+}
+
+
+
+li.list-group-item {
+  border: 0;
+}
+
+@media (min-width: 993px) { 
+
+
+.interpret {
+	background-color: #16A085;
+	color: white;
+	border-radius: 6px;
+	padding: 14px;
+}
+
+.cohen_float {
+   font-family: "museo_slab500";
+   font-size:20px;
+}
+
+

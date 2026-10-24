@@ -1,0 +1,17 @@
+{
+	"note": "Versions through 2.6.0 predate this changelog; their history was not recorded.",
+	"releases": [
+		{
+			"version": "2.7.0",
+			"date": "2026-10-24",
+			"added": [
+				"Invalid values in a shared link or in saved settings are flagged with a notice instead of silently falling back to the defaults."
+			],
+			"changed": [
+				"Complete rewrite in Svelte (previously React). Every displayed statistic is unchanged.",
+				"Embedding moved to its own page, /cohend/embed, which accepts the same parameters. Existing iframes that point at /cohend?embed=1 redirect there permanently — nothing breaks, though new embeds should use the new URL. Share links and every displayed statistic are unaffected.",
+				"New visual design, as part of the site-wide redesign."
+			]
+		}
+	]
+}

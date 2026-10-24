@@ -1,0 +1,771 @@
+/* Reading typography and the shared palette used by the figures.
+   Neutral paper + near-black ink; blue is reserved for *interactive* things
+   (figure controls, live readouts), so the reading column never competes with
+   the figures. Plex Mono is functional-only — code and aligned numeric columns,
+   where monospacing earns its place; labels/metadata/captions stay Plex Sans (an
+   earlier "decorative mono" pass was pulled back as reading generic).
+   Components read these variables, so the palette cascades. */
+
+:root {
+	--bg: #fcfcfc; /* neutral paper */
+	--panel: #ffffff; /* figure cards */
+	--inset: #f5f5f5; /* inset boxes (lm() box, tiles, readouts) */
+	--ink: #1d1d1d; /* body / labels */
+	--heading: #0f0f0f; /* headings */
+	--muted: #6e6e6e;
+	--rule: #e6e6e6; /* hairline borders */
+	/* Brand teal — the interactive signal (controls, hover, focus, figure chrome),
+	   drawn from the site's own viz/poster palette instead of a generic blue so
+	   chrome and content read as one family. Body-text links stay ink+underline
+	   (keeps the reading column calm); this colours the *chrome* affordances. */
+	--accent: #0e7490;
+	--accent-hover: #0b5b72;
+	--accent-soft: #dcebef;
+	/* Graphics-only signal: a brighter cyan for affordances that aren't text —
+	   icon hovers, hover underlines, focus rings, tile borders. These need only
+	   ~3:1 (graphics), so it can be more vivid than --accent, which must stay AA
+	   (4.5:1) because it also colours text. Teal at text-legible contrast is
+	   inherently muted; this is where the interactive "pop" lives. */
+	--accent-signal: #0891b2;
+	/* Text links: ink text over a teal underline. The underline is the link's
+	   only at-rest cue, so it needs ≥3:1 against the page (the old --rule
+	   underline was ~1.2:1, i.e. invisible, and touch has no hover). */
+	--link-underline: var(--accent-signal);
+	--link-thickness: max(1.5px, 0.08em);
+	--link-offset: 0.2em;
+	/* Links where the layout already says "link" (label/value lists, bylines,
+	   pagination): a 1px hairline in the text colour, so prose links stay the
+	   loud ones. */
+	--link-underline-quiet: color-mix(in srgb, currentColor 35%, transparent);
+	/* Viz-family accent: a mid-teal in the cohend overlap family (the chart's
+	   "where the two distributions mix" colour is the deeper #234651). Used for a
+	   figure's chrome — slider, gauge arcs, in-tool buttons — so the tool reads in
+	   one family instead of competing blues. Lifted off the true overlap fill so it
+	   doesn't read as heavy/dim as chrome; comfortably AA on white for button text. */
+	--viz-accent: #2a6678;
+	--on-accent: #fff; /* text/icon color on an --accent fill */
+	--track: #d4d4d4; /* unfilled slider groove */
+	--marginal: #d97706; /* amber-600 — the pinned reference, distinct from accent */
+	--flip-pos: #2563eb;
+	--flip-neg: #dc2626; /* red-600 */
+	--navy: #1a1a1a; /* footer */
+	--navy-ink: #f5f5f5; /* footer headings */
+	--navy-muted: #c8c8c8; /* footer text / links */
+
+	--radius: 8px;
+	--radius-sm: 6px;
+	/* Hairline-first: a 1px ring carries the card edge; the shadow is barely
+     there. Keeps figures flat/precise without adding borders to each component. */
+	--shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.04);
+	--shadow-md: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.06);
+
+	--measure: 42rem; /* reading column width */
+	--container: 72rem; /* full-bleed chrome width (header, footer) */
+	/* Type scale — one source of truth for every font-size. Anchored at the 19px
+	   base; ratio ≈ 1.28 through the in-flow steps, with a high-contrast display
+	   step for hero titles (the page's "presence"). h1 + display are fluid, so
+	   they scale with the viewport instead of jumping at one breakpoint. */
+	--text-2xs: 0.74rem; /* 14px — footnotes, fine print */
+	--text-xs: 0.84rem; /* 16px — eyebrows, captions, fig-hint */
+	--text-sm: 0.94rem; /* 18px — references, secondary UI */
+	--text-base: 1rem; /* 19px — body */
+	--text-lg: 1.2rem; /* 23px — lead / deck / h4 */
+	--text-xl: 1.5rem; /* 28px — h3 */
+	--text-2xl: 1.95rem; /* 37px — h2 */
+	--text-3xl: clamp(2.2rem, 1.5rem + 3vw, 2.9rem); /* 42→55px — h1 */
+	/* 51→74px — hero title. Below ~427px the 12vw cap takes over and keeps
+	   shrinking, so the longest single words in titles ("Heterogeneous",
+	   "effektstørrelse") fit on a 320px screen without breaking. */
+	--text-display: min(clamp(2.7rem, 1.6rem + 5vw, 3.9rem), 12vw);
+	--font-sans:
+		system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+		sans-serif;
+	--font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+	/* Headings are the one "designed" type — Plex Sans, the engineered companion
+     to Plex Mono; running body stays on the system stack. */
+	--font-heading:
+		'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+:root[data-theme='dark'] {
+	--bg: #161616;
+	--panel: #1e1e1e;
+	--inset: #262626;
+	--ink: #e6e6e6;
+	--heading: #fafafa;
+	--muted: #9a9a9a;
+	--rule: #2c2c2c;
+	--accent: #5aa7bd; /* teal lifted for contrast on the dark bg */
+	--accent-hover: #7dc0d2;
+	--accent-soft: rgba(90, 167, 189, 0.16);
+	--accent-signal: #45c0dc; /* brighter cyan signal, lifted for the dark bg */
+	--link-underline: var(--accent); /* the signal cyan reads neon under body text */
+	--viz-accent: #4f8ba0; /* overlap teal lifted off the dark bg for contrast */
+	--on-accent: #0b1220; /* dark ink reads clearly on the light dark-mode accent */
+	--track: #3a3a3a;
+	--marginal: #fbbf24;
+	--flip-pos: #5b91f5;
+	--flip-neg: #f87171;
+	--navy: #0d0d0d;
+	--navy-ink: #f5f5f5;
+	--navy-muted: #c8c8c8;
+	--shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 1px 2px rgba(0, 0, 0, 0.4);
+	--shadow-md: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+html {
+	background: var(--bg);
+	color: var(--ink);
+	font-family: var(--font-sans);
+	/* Whole type scale keys off this — everything else is in rem, so this is the
+	   single knob for overall text size (the px-locked figure layouts don't move). */
+	font-size: 19px;
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+	-webkit-tap-highlight-color: transparent;
+	/* Stop iOS from inflating body text in landscape. */
+	-webkit-text-size-adjust: 100%;
+	text-size-adjust: 100%;
+}
+
+/* Kill the gray/blue rectangular flash on tap for interactive elements (mobile). */
+:where(a, button, summary, label, [role='button'], input) {
+	-webkit-tap-highlight-color: transparent;
+}
+
+/* Tap targets shouldn't trip the double-tap-zoom delay or flash a text
+   selection on repeated taps (the toggle pills get tapped a lot). Scoped to
+   button-like controls so prose links stay selectable. */
+:where(button, summary, label, [role='button']) {
+	touch-action: manipulation;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+body {
+	margin: 0;
+}
+
+/* ── Type system: headings ──────────────────────────────────────────────────
+   Identity (size, weight, tracking, colour) is global, so every page shares one
+   voice regardless of wrapper; only *spacing* is contextual (e.g. .article adds
+   bigger section margins). Tracking tightens and line-height shrinks as size
+   grows — the precise, engineered register Plex Sans is built for. Utility
+   headings (.eyebrow, the Settings/Footer section heads) set their own size and
+   win on specificity, so this only governs "real" headings. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: var(--font-heading);
+	color: var(--heading);
+	font-weight: 600;
+}
+h1 {
+	font-size: var(--text-3xl);
+	line-height: 1.05;
+	letter-spacing: -0.03em;
+	font-weight: 700;
+	margin: 0 0 0.5rem;
+}
+h2 {
+	font-size: var(--text-2xl);
+	line-height: 1.15;
+	letter-spacing: -0.02em;
+	margin: 2rem 0 0.75rem;
+}
+h3 {
+	font-size: var(--text-xl);
+	line-height: 1.25;
+	letter-spacing: -0.01em;
+	margin: 1.5rem 0 0.5rem;
+}
+h4 {
+	font-size: var(--text-lg);
+	line-height: 1.3;
+	margin: 1.25rem 0 0.4rem;
+}
+
+/* Hero title: the display step, applied to a page's lead <h1>. Bigger and
+   tighter than an in-flow h1 — the one place the type gets loud. */
+.display {
+	font-size: var(--text-display);
+	line-height: 1;
+	letter-spacing: -0.03em;
+}
+
+/* Signature: a mathematical variable / emphasis inside a heading is set in true
+   italic, the way notation typesets symbols (Cohen's *d*, *p*-values). Weight
+   inherits so the italic carries the heading's heft. */
+:is(h1, h2, h3, h4) em,
+.display em {
+	font-style: italic;
+	font-weight: inherit;
+}
+
+.article {
+	font-family: var(--font-sans);
+	line-height: 1.7;
+	max-width: var(--measure);
+	margin: 0 auto;
+	padding: 3rem 1.25rem 5rem;
+	/* Bare URLs (DOIs in R Markdown reference lists) have no break points and ran
+	   off phone screens; break-word only splits a word wider than the line. */
+	overflow-wrap: break-word;
+}
+
+/* Raw <pre> in older posts (R console output pasted as HTML) skips the Shiki
+   code-block wrapper; without this it widens the whole page on phones. */
+.article pre {
+	overflow-x: auto;
+}
+
+/* Headings keep the global identity; .article only widens the section rhythm
+   for long-form flow. The subtitle/deck is the muted standfirst under an h1. */
+.article h2 {
+	margin: 3rem 0 0.75rem;
+}
+
+.article h3 {
+	margin: 2rem 0 0.5rem;
+}
+
+.article .subtitle {
+	font-size: var(--text-lg);
+	color: var(--muted);
+	margin: 0 0 2rem;
+	font-weight: 400;
+	letter-spacing: normal;
+}
+
+.article p {
+	margin: 0 0 1.1rem;
+}
+
+/* Prose links stay ink so link-dense paragraphs read calm; the teal underline
+   (--link-underline) marks them. Pages outside `.article` copy this rule. */
+.article a {
+	color: var(--ink);
+	text-decoration: underline;
+	text-decoration-color: var(--link-underline);
+	text-decoration-thickness: var(--link-thickness);
+	text-underline-offset: var(--link-offset);
+	transition:
+		text-decoration-color 0.15s,
+		color 0.15s;
+}
+
+.article a:hover {
+	color: var(--accent);
+	text-decoration-color: var(--accent);
+}
+
+.article strong {
+	font-weight: 600;
+	color: var(--heading);
+}
+
+.article blockquote {
+	margin: 1.5rem 0;
+	padding: 0.5rem 0 0.5rem 1.25rem;
+	border-left: 3px solid var(--rule);
+	color: var(--muted);
+}
+
+.article .lead {
+	font-size: var(--text-lg);
+	line-height: 1.65;
+}
+
+/* ── Figure prose: three tiers shared by every figure ───────────────────────
+   The essay spine (18px body) owns the argument. Inside each figure card the
+   prose collapses to three subordinate roles, identical across all figures:
+
+     .fig-hint     quiet interaction micro-copy, sits under the controls
+     .fig-readout  the one live payoff line (the only place colored numbers live)
+     figcaption    static orientation, the smallest + most muted register
+
+   Components keep only SVG/layout styling local; these cascade like .fig-pill. */
+
+.fig-hint {
+	margin: 0.15rem 0 0.8rem;
+	font-size: 0.85rem;
+	line-height: 1.55;
+	color: var(--muted);
+}
+.fig-hint strong {
+	color: var(--ink);
+	font-weight: 600;
+}
+
+.fig-readout {
+	margin: 0.75rem 0 0.25rem;
+	font-size: 0.98rem;
+	line-height: 1.6;
+}
+/* A secondary readout (a distinct sub-point, not a repeat) reads quieter. */
+.fig-readout.sub {
+	margin-top: 0.45rem;
+	font-size: 0.9rem;
+	color: var(--muted);
+}
+.fig-readout strong.pos,
+.fig-readout .pos {
+	color: var(--flip-pos);
+}
+.fig-readout strong.neg,
+.fig-readout .neg {
+	color: var(--flip-neg);
+}
+
+.article figure figcaption {
+	font-size: 0.82rem;
+	line-height: 1.5;
+	color: var(--muted);
+	border-top: 1px solid var(--rule);
+	padding-top: 0.6rem;
+	margin-top: 0.6rem;
+}
+
+/* ── Structural primitives: one frame, one kicker, one icon button ──────────
+   Surfaces and chrome that recur across the project. Components add these
+   classes and keep only their own padding/layout local, so the frame, the
+   section kicker, and the icon buttons can't drift token-by-token. */
+
+/* The figure/surface card: hairline frame on the panel colour. `.card-sm` is the
+   tighter radius used by small framed controls (toggles, inputs, swatches). */
+.card {
+	background: var(--panel);
+	border: 1px solid var(--rule);
+	border-radius: var(--radius);
+}
+.card-sm {
+	background: var(--panel);
+	border: 1px solid var(--rule);
+	border-radius: var(--radius-sm);
+}
+
+/* Section kicker over a heading: Plex Sans, uppercase, letterspaced, muted.
+   Pages override only the margin to fit their local spacing. */
+.eyebrow {
+	margin: 0 0 0.4rem;
+	font-family: var(--font-heading);
+	font-size: var(--text-xs);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var(--muted);
+}
+
+/* Bare icon link (social glyphs): inherits the surrounding size, warms to accent
+   on hover. The boxed variant `.icon-btn` adds a square hit area + radius for
+   toolbar/close buttons; both read --accent at the use site, so a retinted tool
+   (e.g. cohend's --viz-accent) gets the right colour automatically. */
+.icon-link {
+	display: inline-flex;
+	color: var(--muted);
+	transition: color 0.15s;
+}
+.icon-link:hover {
+	color: var(--accent-signal);
+}
+.icon-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	padding: 0;
+	border: none;
+	background: none;
+	color: color-mix(in srgb, var(--ink), var(--muted));
+	border-radius: var(--radius-sm);
+	cursor: pointer;
+	transition:
+		color 0.15s,
+		border-color 0.15s;
+}
+.icon-btn:hover,
+.icon-btn.on {
+	color: var(--accent);
+}
+
+/* ── Figure controls: one design language for every interactive figure ──────
+   Pills, steppers, and sliders all draw from these shared classes, so the
+   controls stay visually identical across the essay. Components keep only their
+   SVG/layout-specific styling local. */
+
+/* Visible keyboard focus for every interactive control. :where() keeps the
+   specificity at 0 so a component can still override it locally if needed. */
+:where(a, button, summary):focus-visible {
+	outline: 2px solid var(--accent-signal);
+	outline-offset: 2px;
+}
+
+/* Toggle pills and steppers. */
+.fig-pill {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.4rem;
+	padding: 0.4rem 0.85rem;
+	border: 1.5px solid var(--accent);
+	border-radius: 999px;
+	background: transparent;
+	color: var(--accent);
+	font: inherit;
+	font-size: 0.85rem;
+	font-weight: 500;
+	line-height: 1.2;
+	cursor: pointer;
+	transition:
+		background 0.15s,
+		border-color 0.15s,
+		color 0.15s;
+}
+.fig-pill .katex {
+	color: var(--accent);
+}
+.fig-pill:hover:not(:disabled):not(.on) {
+	background: var(--accent-soft);
+}
+.fig-pill.on {
+	background: var(--accent);
+	border-color: var(--accent);
+	color: var(--on-accent);
+}
+.fig-pill.on .katex {
+	color: var(--on-accent);
+}
+.fig-pill:disabled {
+	opacity: 0.4;
+	cursor: default;
+}
+.fig-pill-text {
+	font-size: 0.82rem;
+}
+
+/* Range slider: a flat pill track with an accent-filled portion driven by the
+   --pct custom property, and a circular accent thumb. Cross-browser via the
+   webkit/moz pseudo-elements. */
+.fig-range {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 100%;
+	height: 22px; /* generous hit area for touch */
+	margin: 0;
+	background: transparent;
+	cursor: pointer;
+}
+.fig-range:focus {
+	outline: none;
+}
+.fig-range::-webkit-slider-runnable-track {
+	height: 6px;
+	border-radius: 999px;
+	background: linear-gradient(
+		to right,
+		var(--accent) 0 var(--pct, 0%),
+		var(--track) var(--pct, 0%) 100%
+	);
+}
+.fig-range::-moz-range-track {
+	height: 6px;
+	border-radius: 999px;
+	background: var(--track);
+}
+.fig-range::-moz-range-progress {
+	height: 6px;
+	border-radius: 999px;
+	background: var(--accent);
+}
+.fig-range::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 20px;
+	height: 20px;
+	margin-top: -7px; /* center the thumb on the 6px track */
+	border-radius: 50%;
+	background: var(--accent);
+	border: none;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+	transition:
+		transform 0.12s ease,
+		box-shadow 0.12s ease;
+}
+.fig-range::-moz-range-thumb {
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background: var(--accent);
+	border: none;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+	transition:
+		transform 0.12s ease,
+		box-shadow 0.12s ease;
+}
+.fig-range:hover::-webkit-slider-thumb,
+.fig-range:active::-webkit-slider-thumb {
+	transform: scale(1.12);
+}
+.fig-range:hover::-moz-range-thumb,
+.fig-range:active::-moz-range-thumb {
+	transform: scale(1.12);
+}
+.fig-range:focus-visible::-webkit-slider-thumb {
+	box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+.fig-range:focus-visible::-moz-range-thumb {
+	box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+/* The interactive figures may break out wider than the text measure. */
+.article figure {
+	margin-inline: 0;
+}
+
+@media (min-width: 56rem) {
+	.article figure.flip,
+	.article figure.fwl,
+	.article figure.dist,
+	.article figure.cond,
+	.article figure.cells,
+	.article figure.resid {
+		width: calc(var(--measure) + 8rem);
+		margin-inline: -4rem;
+	}
+}
+
+/* Below the desktop breakout, figures span the full content column instead of
+   shrinking with the narrow text measure. Negative margins cancel the .article
+   side padding (scrollbar-safe — no 100vw, which would overflow by the vertical
+   scrollbar width); each figure card keeps its own padding as the gutter. */
+@media (max-width: 55.99rem) {
+	.article figure.forest,
+	.article figure.cond,
+	.article figure.cells,
+	.article figure.leader,
+	.article figure.explorer,
+	.article figure.dist,
+	.article figure.resid {
+		margin-inline: -1.25rem;
+	}
+}
+
+.article hr {
+	border: none;
+	border-top: 1px solid var(--rule);
+	margin: 2.5rem 0;
+}
+
+.references {
+	font-size: 0.85rem;
+	color: var(--muted);
+	line-height: 1.5;
+}
+
+.references a {
+	overflow-wrap: anywhere;
+}
+
+.references p {
+	margin: 0 0 0.6rem;
+	padding-left: 1.5rem;
+	text-indent: -1.5rem;
+}
+
+.references ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.references li {
+	margin: 0;
+}
+
+.references li::marker {
+	content: none;
+}
+
+.katex {
+	font-size: 1.02em;
+}
+
+/* Long display equations scroll within their own box rather than overflowing the
+   page width. overflow-y stays hidden so descenders don't trigger a vertical bar. */
+.katex-display {
+	overflow-x: auto;
+	overflow-y: hidden;
+	padding-block: 0.25rem;
+}
+
+.footnote {
+	font-size: 0.8rem;
+	color: var(--muted);
+}
+
+@media (max-width: 48rem) {
+	.article {
+		padding-top: 2.25rem;
+	}
+
+	.article .subtitle {
+		font-size: 1.05rem;
+	}
+
+	.fig-hint {
+		font-size: 0.82rem;
+	}
+}
+
+/* ---- Code ---------------------------------------------------------------- */
+/* Shiki is configured with defaultColor:false, so it emits per-token CSS
+   variables (--shiki-light/--shiki-dark) instead of `color`. These rules pick
+   the variable for the active theme. */
+.shiki {
+	color: var(--shiki-light);
+	background-color: var(--shiki-light-bg);
+	margin: 1.5rem 0;
+	padding: 1rem 1.15rem;
+	border: 1px solid var(--rule);
+	border-radius: var(--radius, 8px);
+	overflow-x: auto;
+	font-size: 0.85rem;
+	line-height: 1.6;
+	-webkit-overflow-scrolling: touch;
+}
+.shiki span {
+	color: var(--shiki-light);
+}
+.shiki code {
+	font-family: var(--font-mono);
+	background: none;
+	border: none;
+	padding: 0;
+	font-size: inherit;
+}
+
+:root[data-theme='dark'] .shiki {
+	color: var(--shiki-dark);
+	background-color: var(--shiki-dark-bg);
+}
+:root[data-theme='dark'] .shiki span {
+	color: var(--shiki-dark);
+}
+
+/* Autolinked heading anchors (rehype-autolink-headings, behavior: append). */
+.article :is(h1, h2, h3, h4, h5, h6) {
+	scroll-margin-top: 1.5rem;
+}
+.article .heading-anchor {
+	margin-left: 0.35em;
+	color: var(--muted);
+	text-decoration: none;
+	font-weight: 400;
+	opacity: 0;
+	transition: opacity 0.15s;
+}
+.heading-anchor::after {
+	content: '#';
+}
+.article :is(h1, h2, h3, h4, h5, h6):hover .heading-anchor {
+	opacity: 1;
+}
+
+/* Code-block chrome (bar, buttons, collapsed state), prerendered by the
+   build-time highlighter in svelte.config.js; enhanceCode only wires the
+   buttons. */
+.code-block {
+	margin: 1.5rem 0;
+	border: 1px solid var(--rule);
+	border-radius: var(--radius, 8px);
+	overflow: hidden;
+}
+.code-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	padding: 0.35rem 0.6rem;
+	background: var(--panel);
+	border-bottom: 1px solid var(--rule);
+}
+.code-lang {
+	font-size: 0.7rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--muted);
+}
+.code-actions {
+	display: flex;
+	gap: 0.4rem;
+	margin-left: auto;
+}
+.code-fold,
+.code-copy {
+	font-size: 0.72rem;
+	padding: 0.1rem 0.5rem;
+	color: var(--muted);
+	background: var(--bg);
+	border: 1px solid var(--rule);
+	border-radius: 4px;
+	cursor: pointer;
+}
+.code-fold:hover,
+.code-copy:hover {
+	color: var(--accent);
+	border-color: var(--accent);
+}
+/* Inside the wrapper the <pre> drops its own frame (wrapper provides it). */
+.code-block .shiki {
+	margin: 0;
+	border: 0;
+	border-radius: 0;
+}
+/* Both rules gate on .js (set pre-paint in app.html): without JS the buttons
+   are dead, so hide them and show collapsed blocks expanded. */
+:root.js .code-block.collapsed .shiki {
+	display: none;
+}
+:root:not(.js) .code-actions {
+	display: none;
+}
+
+/* Markdown tables. A wide table scrolls inside .table-wrap (added by the
+   rehype-wrap-tables plugin) instead of forcing the whole page wider. */
+.article .table-wrap {
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+	margin: 1.5rem 0;
+}
+.article table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 1.5rem 0;
+	font-size: 0.9rem;
+}
+.article .table-wrap > table {
+	margin: 0;
+}
+.article th,
+.article td {
+	padding: 0.5rem 0.75rem;
+	border-bottom: 1px solid var(--rule);
+	text-align: left;
+}
+.article thead th {
+	border-bottom: 2px solid var(--rule);
+	color: var(--heading);
+}
+
+/* Inline code (anything not inside a highlighted block). */
+:not(pre) > code {
+	font-family: var(--font-mono);
+	font-size: 0.88em;
+	background: var(--panel);
+	border: 1px solid var(--rule);
+	border-radius: 4px;
+	padding: 0.1em 0.35em;
+}

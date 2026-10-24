@@ -1,0 +1,512 @@
+body {
+    font-family: "MuseoSans-300";
+    font-size: 18px;
+    text-rendering: optimizeLegibility;
+     -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: "MuseoSlab-300";
+}
+h1.heading {
+  font-size: 60px;
+}
+.navbar {
+  height: 55px;
+  background-color: #fff;
+  border: none;
+}
+.navbar-brand {
+      height: 35px;
+      margin: 10px 0 0 0;
+      padding: 0;
+}
+.logo {
+    transition: opacity .25s ease;
+      height: 35px;
+      width: auto;
+}
+.logo:hover {
+  opacity: 0.75;
+
+}
+li.fb-like {
+  vertical-align: top;
+  margin-top: -5px;
+}
+.more-space {
+  padding-top: 50px;
+}
+
+svg {
+    shape-rendering: geometricPrecision;
+}
+
+#viz {
+
+}
+#viz svg {
+ background: #F5F5F5;
+ border-radius:6px;
+}
+line {
+	fill: none;
+	stroke: #fff;
+}
+
+.mu-line {
+	stroke: #e67e22;
+	stroke-width:2px;
+	stroke-dasharray: 10 10
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #34495e;
+
+}
+
+.axis .tick line {
+  display: none;
+}
+.axis text {
+  fill: #34495e;
+  font-size: 13px;
+}
+
+.dot {
+  fill: #6ACEEB;
+  stroke: none;
+  opacity:0.9;
+}
+
+.circle1 {
+  fill: #30394F;
+  stroke: #30394F;
+
+
+}
+.circle2 {
+  fill: #6ACEEB;
+  stroke:#6ACEEB;
+
+}
+.CI {
+  stroke: #000;
+    shape-rendering: crispEdges;
+}
+.CI-reds {
+  stroke: red;
+    shape-rendering: crispEdges;
+}
+
+.labs {
+  font-size: 15px;
+}
+.lab-text {
+  fill: #2c3e50;
+  font-family: 'MuseoSans-300'
+}
+
+
+/* Site style */
+.btn-default {
+color: #FFF;
+background-color: #000;
+border:none;
+transition-delay: 0s;
+transition-duration: 0.2s;
+transition-property: background-color, color;
+transition-timing-function: ease-in-out;
+}
+
+.btn-speed {
+  color:#000;
+  background-color: #fff;
+  font-weight: 900;
+  font-size: 20px;
+}
+.btn-speed:hover {
+  background-color: #fff;
+  color: #e74c3c;
+}
+
+.form-control {
+  box-shadow: none;
+}
+
+.form-control:focus {
+  border-color: #66afe9;
+  box-shadow: none;
+}
+.list-group-item {
+  transition-delay: 0s;
+transition-duration: 0.2s;
+transition-property: background-color, color;
+transition-timing-function: ease-in-out;
+}
+
+a.list-group-item:hover {
+
+  background-color: #f2f2f2;
+}
+
+
+.label-text {
+    alignment-baseline: middle;
+    font-size: 12px;
+    font-family: arial,helvetica,"sans-serif";
+    fill: #393939;
+}
+.label-line {
+    stroke-width: 1;
+    stroke: #393939;
+}
+.label-circle {
+    fill: #393939;
+}
+.second-tick {
+  stroke: #000;
+}
+
+
+p.donuts {
+ text-align: center; 
+ font-weight: bold;
+}
+
+#speed {
+  /*padding-left: 117px;*/
+}
+.control-label {
+  font-size: 16px;
+}
+
+
+
+#random-walk svg,
+#dci svg,
+#coverage svg {
+  background-color: #2c3e50;
+  border-radius:6px;
+}
+
+{
+  stroke: #2980b9;
+}
+
+#random-walk .line, 
+#dci .line {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+#random-walk .rw-line {
+  fill: blue;
+
+}
+
+#random-walk .axis path,
+#random-walk .axis line,
+#random-walk .grid line ,
+#dci .axis path,
+#dci .axis line,
+#dci .grid line  {
+  fill: none;
+  stroke: #34495e;
+  shape-rendering: crispEdges;
+}
+#random-walk .axis text,
+#dci .axis text {
+  fill: #bdc3c7;
+}
+#random-walk .mu-line {
+  stroke: #6ACEEB;
+}
+#random-walk .rlabel,
+#dci .dcilabel {
+  fill: #fff;
+    font-family: "MuseoSlab-300";
+    font-size: 16px;
+}
+#random-walk .rlabel_bottom, 
+#dci .dcilabel_bottom{
+  fill: #fff;
+    font-family: "MuseoSans-300";
+    font-size: 12px;
+}
+#dci .mu-line {
+  stroke: #6ACEEB;
+  stroke-dasharray: 3 3;
+}
+#dci .ci-dist {
+  stroke: #fff;
+  fill: url(#gradient);
+}
+.gauge-ticks {
+  stroke: #34495e;
+
+    stroke-dasharray: 2 2
+}
+#coverage {
+  fill: #fff;
+}
+#coverage .pointer {
+  stroke: #000;
+  stroke-width:2px;
+}
+#marker-start {
+  fill: #000;
+}
+#coverage .tick-text {
+  fill: #FFF;
+  opacity: 0.5;
+   font-family: "MuseoSans-300";
+}
+.hitCaption {
+      font-family: "MuseoSans-300";
+    font-size: 20px;
+
+}
+.hitn {
+    fill: #6ACEEB;
+    font-family: "MuseoSlab-300";
+    font-size: 30px;
+    font-weight: 900;
+}
+.percHit {
+    fill: #fff;
+    font-family: "MuseoSlab-300";
+    font-size: 20px;
+}
+.hitLab {
+    fill: #fff;
+    font-family: "MuseoSans-300";
+    font-size: 20px;
+}
+
+@media only screen and (max-width : 480px) {
+    #coverage .tick-text {
+        font-size: 8px;
+    }
+    .hitCaption {
+        font-size: 15px;
+
+    }
+    .hitn {
+        font-size: 20px;
+        font-weight: 300;
+    }
+    .percHit {
+        font-size: 10px;
+    }
+    .hitLab {
+        font-size: 15px;
+    }
+  }
+  /* Small Devices, Tablets */
+  @media only screen and (max-width: 767px) {
+    #coverage .tick-text {
+        font-size: 8px;
+    }
+    .hitCaption {
+        font-size: 15px;
+
+    }
+    .hitn {
+        font-size: 20px;
+        font-weight: 300;
+    }
+    .percHit {
+        font-size: 10px;
+    }
+    .hitLab {
+        font-size: 15px;
+    }
+  }
+  /* Medium Devices, Desktops */
+  @media (min-width: 768px) and (max-width: 991px) {
+        #coverage .tick-text {
+        font-size: 8px;
+    }
+    .hitCaption {
+        font-size: 15px;
+
+    }
+    .hitn {
+        font-size: 20px;
+        font-weight: 300;
+    }
+    .percHit {
+        font-size: 10px;
+    }
+    .hitLab {
+        font-size: 15px;
+    }
+  }
+  /* Portrait tablets and medium desktops */
+ @media (min-width: 992px) and (max-width: 1199px) {
+            #coverage .tick-text {
+        font-size: 10px;
+    }
+    .hitCaption {
+        font-size: 15px;
+
+    }
+    .hitn {
+        font-size: 25px;
+        font-weight: 300;
+    }
+    .percHit {
+        font-size: 13px;
+    }
+    .hitLab {
+        font-size: 20px;
+    }
+      #random-walk .rlabel {
+  font-size: 13px;
+}
+
+  }
+
+/**
+ UI Slider
+*/
+
+.ui-slider {
+  background: #ebedef;
+  border-radius: 32px;
+  height: 12px;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  margin-bottom: 20px;
+  position: relative;
+}
+.ui-slider-handle {
+  background-color: #30394F;
+  border-radius: 50%;
+  cursor: pointer;
+  height: 18px;
+  margin-left: -9px;
+  position: absolute;
+  top: -3px;
+  width: 18px;
+  z-index: 2;
+  -webkit-transition: background 0.25s;
+  transition: background 0.25s;
+}
+.ui-slider-handle[style*='100'] {
+  margin-left: -15px;
+}
+.ui-slider-handle:hover,
+.ui-slider-handle:focus {
+  background-color: #30394F;
+  outline: none;
+}
+.ui-slider-handle:active {
+  background-color: #30394F;
+}
+.ui-slider-range {
+  background-color: #6ACEEB;
+  border-radius: 30px 0 0 30px;
+  display: block;
+  height: 100%;
+  position: absolute;
+  z-index: 1;
+}
+
+
+.ui-slider-value {
+  float: right;
+  font-size: 13px;
+  margin-top: 12px;
+}
+.ui-slider-value.first {
+  clear: left;
+  float: left;
+}
+
+#set-n .form-control {
+  background-color: #000;
+  text-align: center;
+  color: #fff;
+}
+#set-n .form-control::-webkit-input-placeholder { /* WebKit browsers */
+    color:    #fff;
+}
+#set-n .form-control:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+   color:    #fff;
+   opacity:  1;
+}
+#set-n .form-control::-moz-placeholder { /* Mozilla Firefox 19+ */
+   color:    #fff;
+   opacity:  1;
+}
+#set-n .form-control:-ms-input-placeholder { /* Internet Explorer 10+ */
+   color:    #fff;
+}
+
+
+#more-viz img {
+  margin-left:auto;
+margin-right: auto;
+border: 1px solid #4F7396;
+padding: 0px;
+  transition-duration: 0.2s;
+transition-property: border-color, color;
+transition-timing-function: ease-in-out;
+}
+#more-viz a {
+  text-decoration: none;
+  color: #000;
+    transition-duration: 0.2s;
+transition-property: border-color, color;
+transition-timing-function: ease-in-out;
+}
+#more-viz .viz-item:hover > *, #more-viz .viz-item:hover img {
+  color: #6ACEEB;
+  border-color: #6ACEEB;
+}
+
+#footer {
+  background-color: #30394F;
+  color: #fff;
+  font-size: 14px;
+}
+#footer a {
+  color: #6ACEEB;
+}
+#footer.more-space {
+  margin-top: 50px;
+  padding-top: 30px;
+  padding-bottom: 50px;
+}
+
+@media (max-width: 767px) { 
+
+h1.heading {
+  font-size: 36px;
+}
+.navbar-brand {
+  margin-left: 10px;
+}
+.more-space {
+  padding-top: 0px;
+}
+#random-walk .rlabel {
+  font-size: 10px;
+}
+#random-walk .axis text {
+  font-size: 10px;
+}
+}
+@media (max-width: 1024px) { 
+  #random-walk .rlabel {
+  font-size: 11px;
+}
+#random-walk .axis text {
+  font-size: 10px;
+}  
+
+}  
+

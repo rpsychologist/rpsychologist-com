@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="%lang%">
+	<head>
+		<meta charset="utf-8" />
+		<!-- sizes="32x32" stops Chrome preferring the ICO over the SVG (scripts/favicons.mjs). -->
+		<link rel="icon" href="/favicon.ico" sizes="32x32" />
+		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<script>
+			// Set the theme before first paint to avoid a flash of the wrong palette.
+			// The .js class gates JS-only CSS (e.g. collapsed code blocks) so no-JS
+			// readers aren't left with content they can't reveal.
+			(function () {
+				document.documentElement.classList.add('js');
+				try {
+					var stored = localStorage.getItem('theme');
+					var dark =
+						stored === 'dark' ||
+						(stored === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+					if (dark) document.documentElement.dataset.theme = 'dark';
+					else document.documentElement.dataset.theme = 'light';
+				} catch (e) {
+					document.documentElement.dataset.theme = 'light';
+				}
+			})();
+		</script>
+		<!-- Webfonts (Plex Sans headings, Plex Mono code) are self-hosted via
+         Fontsource imports in +layout.svelte; KaTeX CSS is imported where math
+         renders (PostLayout, Tex). No third-party origins. -->
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>

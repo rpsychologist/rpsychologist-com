@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html xmlns:fb="https://ogp.me/ns/fb#">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta property="fb:admins" content="667756492" />
+	<meta property="og:url" content="https://rpsychologist.com/d3/cohend/" />
+	<title>Understanding Statistical Power and Significance Testing — an Interactive Visualization</title>
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="css/styles.css" rel="stylesheet">
+	<link href="css/vis.css" rel="stylesheet">
+	<link href="css/flat/blue.css" rel="stylesheet">
+  </head>
+  <body>
+  	<div class="navbar navbar-default navbar-static-top" role="navigation">
+		<div class="container">
+			<div class="navbar-header">
+				<a href="https://rpsychologist.com"><img src="img/rpsychologist-logo.png" class="navbar-brand logo"></a>
+			</div>
+		</div>
+	</div>
+	<div id="wrap">
+	  	<div class="container">
+	  	 	 <div class="page-header">
+			 
+				<h1 class="title text-center">Understanding Statistical Power and Significance Testing </h1>
+				<h3 class="title-sub text-center">an interactive visualization</h3>
+				<p>Created by <a href="https://rpsychologist.com">Kristoffer Magnusson</a></p>
+				          <ul class="list-inline">
+          <li><a href="https://twitter.com/krstoffr" class="twitter-follow-button" data-show-count="true">Follow @krstoffr</a> </li>
+               <li>
+              <a href="https://se.linkedin.com/pub/kristoffer-magnusson/b5/133/1b6" style="text-decoration:none;"><span style="font-size:80%; color: black; vertical-align:top;">Kristoffer's LinkedIn profile</a>
+          </li>
+        </ul>
+			</div>
+			<!-- SOCIAL LINKS -->
+			<ul class="list-inline">
+			<li><a href="https://twitter.com/share" class="twitter-share-button" data-via="krstoffr" data-lang="en">Tweet</a>
+				</li>
+			<li class="fb-like"><fb:like href="http://rpsychologist.com/d3/NHST/" layout="button_count" action="like" show_faces="true" share="true"></fb:like></li>
+			</ul>	
+				<p class="lead">Type I and Type II errors, β, α, <em>p</em>-values, power and effect sizes – the ritual of null hypothesis significance testing contains many strange concepts.  </p>
+				<p>Much has been said about significance testing – most of it negative. 
+Methodologists constantly point out that researchers misinterpret <em>p</em>-values. Some say that it is at best a meaningless exercise and at worst an impediment to scientific discoveries. Consequently, I believe it is extremely important that students and researchers correctly interpret statistical tests. This visualization is meant as an aid for students when they are learning about statistical hypothesis testing. The visualization is based on a one-sample Z-test. You can vary the sample size, power, significance level and the effect size using the sliders to see how the sampling distributions change.</p>
+		<div class="row">
+		<div class="col-md-12">	
+			<h3>Settings</h3>
+				<div class="row">
+				<div class="col-md-12" id="test"></div>
+				</div>
+		<ul class="list-inline">
+			<li>Solve for?</li>
+			<li>				<label class="radio-inline">
+  <input type="radio" name="inlineRadioOptions" id="radioPower" value="option1"> Power
+</label>
+<label class="radio-inline">
+  <input type="radio" name="inlineRadioOptions" id="radioAlpha" value="option2"> Alpha
+</label>
+<label class="radio-inline">
+  <input type="radio" name="inlineRadioOptions" id="radioN" value="option3"> n
+</label>
+<label class="radio-inline">
+  <input type="radio" name="inlineRadioOptions" id="radioD" value="option3" checked> d
+</label></li>
+		</ul>
+			
+
+
+	
+		
+
+				<div id="power_container">
+					<h4 id="power"></h4>
+					<div id="slider_power" class="ui-slider"></div>
+				</div>
+				<div id="alpha_container">
+					<h4 id="alpha"></h4>
+					<div id="slider_alpha" class="ui-slider"></div>
+				</div>
+
+				<div id="n_container">
+					<h4 id="n">Sample size</h4>
+					<div id="slider_n" class="ui-slider"></div>
+				</div>
+				<div id="d_container">
+					<h4 id="d">Effect size</h4>
+					<div id="slider_d" class="ui-slider"></div>
+				</div>
+
+	
+					<div class="btn-group" data-toggle="buttons">
+					  <label class="btn btn-primary">
+					    <input type="radio" name="options" id="one-tailed"> One-tailed
+					  </label>
+					  <label class="btn btn-primary active">
+					    <input type="radio" name="options" id="two-tailed"> Two-tailed
+					  </label>
+					
+		
+				</div>
+		<button type="button btn-primary" id="zoom-reset" class="btn btn-default pull-right">Reset zoom</button>
+				<div>  
+				</div>
+				<div id="viz"></div>
+		</div>		
+		</div>
+			<div class="row">
+
+			<div class="col-md-12">
+				<div class="col-xs-3 donuts" id="alpha_donut"></div>
+				<div class="col-xs-3 donuts" id="beta_donut"></div>
+				<div class="col-xs-3 donuts" id="power_donut"></div>
+				<div class="col-xs-3 donuts" id="n_donut"></div>
+		
+			</div>	
+		</div>	
+		<h4>Clarification on power ("-") when the effect is 0</h4>
+		<p>The visualization will show that "power" and "Type II error" is "-" when <em>d</em> is set to zero. However, the Type I error rate implies that a certain amount of tests will reject H<sub>0</sub>. It is tempting to also say that this ratio is the test's "power", and frequently textbooks and software do just that. Some sources also say that power is zero when H<sub>0</sub> is equal to H<sub>a</sub>. My view is that power is not defined when the assumed effect is an element of H<sub>0</sub>'s parameter space. When this is the case, the power function returns α, and therefore "power" is undefined. So even though the power function says 5 % of the tests will reject the null, it does not make sense to talk about "power" here. This also implies that as H<sub>a</sub> approaches H<sub>0</sub> power will approach α for small values of <em>d</em>. As a result the slider for "power" isn't allowed to be equal to or less than α.</p>
+		<div class="row">
+			       <div class="col-md-12">
+					<h3>Donate</h3>
+					<p>The content on this blog is shared for free under a CC-BY license. If you like my work and want to support it you can:</p>
+					<p> <style>.bmc-button img{width: 35px !important;margin-bottom: 1px !important;box-shadow: none !important;border: none !important;vertical-align: middle !important;}.bmc-button{padding: 7px 5px 7px 10px !important;line-height: 35px !important;height:51px !important;min-width:217px !important;text-decoration: none !important;display:inline-flex !important;color:#ffffff !important;background-color:#000000 !important;border-radius: 5px !important;border: 1px solid transparent !important;padding: 7px 5px 7px 10px !important;font-size: 22px !important;letter-spacing: 0.6px !important;box-shadow: 0px 1px 2px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 1px 2px 2px rgba(190, 190, 190, 0.5) !important;margin: 0 auto !important;font-family:'Cookie', cursive !important;-webkit-box-sizing: border-box !important;box-sizing: border-box !important;-o-transition: 0.3s all linear !important;-webkit-transition: 0.3s all linear !important;-moz-transition: 0.3s all linear !important;-ms-transition: 0.3s all linear !important;transition: 0.3s all linear !important;}.bmc-button:hover, .bmc-button:active, .bmc-button:focus {-webkit-box-shadow: 0px 1px 2px 2px rgba(190, 190, 190, 0.5) !important;text-decoration: none !important;box-shadow: 0px 1px 2px 2px rgba(190, 190, 190, 0.5) !important;opacity: 0.85 !important;color:#ffffff !important;}</style><link href="https://fonts.googleapis.com/css?family=Cookie" rel="stylesheet"><a class="bmc-button" target="_blank" href="https://www.buymeacoffee.com/krstoffr"><img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="Buy me a coffee"><span style="margin-left:15px;font-size:28px !important;">Buy me a coffee</span></a> (or use <strong><a href="https://www.paypal.me/krstoffr">PayPal</a></strong>)</p>
+
+					<p> You can also sponsor my open source work using <a href="https://github.com/sponsors/rpsychologist">GitHub Sponsors</a></p> 
+
+       </div>
+
+			<div class="col-md-12">
+
+		<div class="text-center" id="more-viz">
+           <h2 class="text-left">More visualizations</h2>
+      
+		      <div class="row">
+		      <div class="col-md-4 viz-item"> 
+		      <a href="https://rpsychologist.com/d3/correlation/">
+		      <div>
+		             <img src="img/correlations.jpg" class="img-circle img-responsive">
+		      </div>
+		  
+		        <h4>Interpreting Correlations</h4>
+		        <p>Interactive visualization of correlations</p>
+		       </a>
+		      </div>
+		              
+		              <div class="col-md-4 viz-item">
+		                    <a href="http://rpsychologist.com/d3/cohend/">
+		                        <div> 
+		       <img src="img/cohend.png" class="img-circle img-responsive">
+
+		      </div>
+		       
+		          <h4>Cohen's d</h4>
+		          <p>Interactive visualization of Cohen's d effect size</p>
+		</a>
+		              </div>
+		              <div class="col-md-4 viz-item">
+		                    <a href="https://rpsychologist.com/d3/CI/">
+		                        <div> 
+		       <img src="img/CI.png" class="img-circle img-responsive">
+
+		      </div>
+		       
+		          <h4>Confidence Intervals</h4>
+		          <p>Interactive visualization of Confidence Intervals</p>
+		</a>
+		              </div>
+		     
+		     
+		      </div>
+
+		  
+		</div>
+
+				</div>
+			</div>
+
+				<div class="row">
+				<div class="col-md-12">
+				
+		<h3>Some NHST Testimonials</h3>
+		<p>
+		The following quotes might spark your interest in the controversies surrounding NHST. 
+				<center>
+				<blockquote>
+				  <p>"What's wrong with [null hypothesis significance testing]? Well, among many other things, it does not tell us what we want to know, and we so much want to know what we want to know that, out of desperation, we nevertheless believe that it does!"</p>
+  				<footer>– Cohen (1994)</footer>
+				</blockquote>
+				<blockquote>
+				  <p>“… surely the most bone-headedly misguided procedure ever institutionalized in the rote training of science students"</p>
+  				<footer>– Rozeboom (1997)</footer>
+				</blockquote>
+				<blockquote>
+				  <p>“… despite the awesome pre-eminence this method has attained in our journals and textbooks of applied statistics, it is based upon a fundamental misunderstanding of the nature of rational inference, and is seldom if ever appropriate to the aims of scientific research”</p>
+  				<footer>– Rozeboom (1960)</footer>
+				</blockquote>
+				<blockquote>
+				  <p>“… an instance of a kind of essential mindlessness in the conduct of research" – Bakan (1966)</p>
+  				<footer>– Bakan (1966)</footer>
+				</blockquote>
+				<blockquote>
+				  <p>“Statistical significance testing retards the growth of scientific knowledge; it never makes a positive contribution” </p>
+  				<footer>– Schmidt and Hunter (1997)</footer>
+				</blockquote>	
+				<blockquote>
+				  <p>“The textbooks are wrong. The teaching is wrong. The seminar you just attended is wrong. The most prestigious journal in your scientific field is wrong."</p>
+  				<footer>– Ziliak and McCloskey (2008)</footer>
+				</blockquote>	
+				</center>
+				These quotes were mostly taken from Nickerson’s (2000) excellent review <em>“Null Hypothesis Significance Testing: A Review of an Old and Continuing Controversy”</em>. 
+
+
+				</p>
+			
+		<h3>Suggestions</h3>
+		If you have any suggestions send me a message on <a href="https://twitter.com/krstoffr">Twitter</a> or use the <a href="https://rpsychologist.com/about/">contact form</a> on my site. 
+		<p></p>
+
+		</div>
+		</div>	
+		</div>	
+	</div> <!-- /container -->
+  </div>
+  <div id="footer">
+			<div class="container">
+				<p class="text-footer">Created by <a href="https://rpsychologist.com">Kristoffer Magnusson</a>, built with <a href="https://d3js.org/">D3.js</a>, <a href="https://jstat.org/">jStat</a> and <a href="https://getbootstrap.com/">Bootstrap</a>.</p>
+			</div>
+	</div>
+   <!-- Load JS here for greater good =============================-->
+   <script src="js/jquery-1.8.3.min.js"></script>
+   <script src="js/jquery-ui-1.10.3.custom.min.js"></script> 
+   <script src="js/jquery.ui.touch-punch.min.js"></script>
+   <script src="js/bootstrap.min.js"></script>
+   <script type="text/javascript" src="js/jstat.js"></script>
+   <script type="text/javascript" src="d3/d3.v3.min.js"></script>
+   	<script src="js/icheck.min.js"></script>
+   <script type="text/javascript" src="js/vis.js"></script>
+   	<script>
+$(document).ready(function(){
+  $('.radio-inline input').iCheck({
+    radioClass: 'iradio_flat-blue'
+  });
+});
+</script>
+
+  </body>
+</html>

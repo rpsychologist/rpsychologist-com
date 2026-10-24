@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+# Superseded PR runs are cancelled; pushes never are, since a main run may tag.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  ci:
+    # Pinned: `playwright install --with-deps` installs per-distro system
+    # packages, so a new Ubuntu should be adopted deliberately, not by label drift.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+
+      # Reads the pinned version from the packageManager field.
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # svelte-check + prettier --check
+      - run: pnpm check
+
+      - run: pnpm run lint
+
+      # Vitest (lib/stats + viz model code)
+      - run: pnpm test
+
+      # Full prerender (adapter strict mode fails on missing pages) + Pagefind index.
+      - run: pnpm build
+
+      # Playwright smoke (e2e/): hydration + state wiring of the viz apps against
+      # the build above (in CI the webServer only runs `pnpm preview`).
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
+
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # Auto-tag viz-app releases: each version recorded in a
+  # src/lib/viz/*/changelog.json gets its <app>-v<x.y.z> tag on the commit that
+  # landed it on main (see scripts/check-release-tags.mjs, RELEASING.md).
+  # Tags are permanent citation anchors, so only a commit that passed CI gets
+  # one. Idempotent and runs on every main push, so a missed tag self-heals.
+  tag:
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    concurrency:
+      group: tag-releases
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # Full clone: the script reads existing tags and main's history.
+          fetch-depth: 0
+
+      # Dependency-free script; the runner's default Node is fine.
+      - run: node scripts/check-release-tags.mjs --create
+
+      - run: git push origin --tags
