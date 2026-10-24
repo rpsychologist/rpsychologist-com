@@ -58,7 +58,6 @@
 	class="share-card"
 	class:has-image={card.image}
 	class:site={isSite}
-	class:likelihood={card.key === 'likelihood'}
 	class:type-only={!card.image && !isSite}
 	lang={card.lang}
 	style:width="{SHARE_SIZE.width}px"
@@ -176,10 +175,6 @@
 		align-self: center;
 		aspect-ratio: 4 / 3;
 		max-height: 100%;
-	}
-	.likelihood .figure img {
-		/* Strengthen the fine mesh only in the reduced share crop. */
-		filter: contrast(1.25);
 	}
 	.strip {
 		display: grid;
