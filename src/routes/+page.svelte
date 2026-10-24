@@ -45,9 +45,12 @@
 	<section class="block">
 		<div class="block-head">
 			<h2 class="eyebrow">Interactive visualizations</h2>
-			<a class="more" href={resolve('/viz')}>All visualizations →</a>
+			<a class="more wide-only" href={resolve('/viz')}>All visualizations →</a>
 		</div>
 		<VizGallery items={featured} />
+		<div class="block-foot narrow-only">
+			<a class="more" href={resolve('/viz')}>All visualizations →</a>
+		</div>
 	</section>
 
 	<section class="block">
@@ -156,6 +159,19 @@
 	/* On a narrow phone the link wraps under the heading; keep it right-aligned. */
 	.block-head .more {
 		margin-left: auto;
+	}
+	/* The gallery's long kicker leaves no room for its link on any phone, so
+	   there the link moves to the foot instead of wrapping under the heading. */
+	.block-foot.narrow-only {
+		display: none;
+	}
+	@media (max-width: 32rem) {
+		.wide-only {
+			display: none;
+		}
+		.block-foot.narrow-only {
+			display: flex;
+		}
 	}
 	/* Mirror the header link at the foot so a scroll-to-end reader isn't dead-ended. */
 	.block-foot {
