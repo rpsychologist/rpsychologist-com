@@ -43,7 +43,12 @@ const apps = {
 	likelihood: {
 		url: '/likelihood',
 		chart: 'canvas[aria-label^="Rotatable 3D surface"]',
-		crop: { x: 0.02, y: 0.09, w: 0.92 }
+		crop: { x: 0.02, y: 0.04, w: 0.96 },
+		// Hairlines are 1 CSS px at any canvas size: a canvas near the size the
+		// crop is shown at (the 520px share-card panel) keeps the mesh legible.
+		viewport: { width: 640, height: 900 },
+		// The view dock and the drag hint overlay the canvas, inside the crop.
+		setup: (page) => page.addStyleTag({ content: '.views-dock, .hint { visibility: hidden }' })
 	},
 	pvalue: {
 		url: '/pvalue/',
