@@ -39,11 +39,10 @@
 
 <p>Cite this page according to your favorite style guide.</p>
 <p>
-	The current version is {changelog.version} — the
+	The current version is {changelog.version}
 	<!-- changelogHref is the app's changelog route, passed as a plain string. -->
 	<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-	<a href={changelogHref}>changelog</a> records what changed in each release, and what the version numbers
-	mean.
+	(<a href={changelogHref}>changelog</a>).
 </p>
 <p><strong>APA 7</strong></p>
 <p class="apa">
@@ -59,15 +58,15 @@
 	a {
 		color: var(--ink);
 		text-decoration: underline;
-		text-decoration-color: var(--rule);
-		text-decoration-thickness: 1px;
-		text-underline-offset: 0.15em;
+		text-decoration-color: var(--link-underline);
+		text-decoration-thickness: var(--link-thickness);
+		text-underline-offset: var(--link-offset);
 		transition:
 			text-decoration-color 0.15s,
 			color 0.15s;
 	}
 	a:hover {
-		color: var(--heading);
+		color: var(--accent);
 		text-decoration-color: var(--accent);
 	}
 	.apa {
