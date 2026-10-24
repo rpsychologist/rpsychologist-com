@@ -137,15 +137,15 @@
 	a {
 		color: var(--ink);
 		text-decoration: underline;
-		text-decoration-color: var(--rule);
-		text-decoration-thickness: 1px;
-		text-underline-offset: 0.15em;
+		text-decoration-color: var(--link-underline);
+		text-decoration-thickness: var(--link-thickness);
+		text-underline-offset: var(--link-offset);
 		transition:
 			text-decoration-color 0.15s,
 			color 0.15s;
 	}
 	a:hover {
-		color: var(--heading);
+		color: var(--accent);
 		text-decoration-color: var(--accent);
 	}
 	.subtitle a {

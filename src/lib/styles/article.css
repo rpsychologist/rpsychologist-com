@@ -27,6 +27,16 @@
 	   (4.5:1) because it also colours text. Teal at text-legible contrast is
 	   inherently muted; this is where the interactive "pop" lives. */
 	--accent-signal: #0891b2;
+	/* Text links: ink text over a teal underline. The underline is the link's
+	   only at-rest cue, so it needs ≥3:1 against the page (the old --rule
+	   underline was ~1.2:1, i.e. invisible, and touch has no hover). */
+	--link-underline: var(--accent-signal);
+	--link-thickness: max(1.5px, 0.08em);
+	--link-offset: 0.2em;
+	/* Links where the layout already says "link" (label/value lists, bylines,
+	   pagination): a 1px hairline in the text colour, so prose links stay the
+	   loud ones. */
+	--link-underline-quiet: color-mix(in srgb, currentColor 35%, transparent);
 	/* Viz-family accent: a mid-teal in the cohend overlap family (the chart's
 	   "where the two distributions mix" colour is the deeper #234651). Used for a
 	   figure's chrome — slider, gauge arcs, in-tool buttons — so the tool reads in
@@ -89,6 +99,7 @@
 	--accent-hover: #7dc0d2;
 	--accent-soft: rgba(90, 167, 189, 0.16);
 	--accent-signal: #45c0dc; /* brighter cyan signal, lifted for the dark bg */
+	--link-underline: var(--accent); /* the signal cyan reads neon under body text */
 	--viz-accent: #4f8ba0; /* overlap teal lifted off the dark bg for contrast */
 	--on-accent: #0b1220; /* dark ink reads clearly on the light dark-mode accent */
 	--track: #3a3a3a;
@@ -233,22 +244,21 @@ h4 {
 	margin: 0 0 1.1rem;
 }
 
-/* Prose links read as ink with a quiet underline; blue stays reserved for
-   interactive figure controls, so the reading column never competes with them.
-   The underline warms to accent on hover as the only hint of "clickable". */
+/* Prose links stay ink so link-dense paragraphs read calm; the teal underline
+   (--link-underline) marks them. Pages outside `.article` copy this rule. */
 .article a {
 	color: var(--ink);
 	text-decoration: underline;
-	text-decoration-color: var(--rule);
-	text-decoration-thickness: 1px;
-	text-underline-offset: 0.15em;
+	text-decoration-color: var(--link-underline);
+	text-decoration-thickness: var(--link-thickness);
+	text-underline-offset: var(--link-offset);
 	transition:
 		text-decoration-color 0.15s,
 		color 0.15s;
 }
 
 .article a:hover {
-	color: var(--heading);
+	color: var(--accent);
 	text-decoration-color: var(--accent);
 }
 

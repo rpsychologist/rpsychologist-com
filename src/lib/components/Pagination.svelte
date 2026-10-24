@@ -36,10 +36,12 @@
 	.page-link {
 		color: var(--ink);
 		text-decoration: underline;
-		text-decoration-color: var(--rule);
-		text-underline-offset: 0.15em;
+		text-decoration-color: var(--link-underline-quiet);
+		text-decoration-thickness: 1px;
+		text-underline-offset: var(--link-offset);
 	}
 	.page-link:hover {
+		color: var(--accent);
 		text-decoration-color: var(--accent);
 	}
 	.page-link.disabled {
