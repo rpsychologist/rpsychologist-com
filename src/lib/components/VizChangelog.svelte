@@ -1,8 +1,7 @@
 <script lang="ts">
 	// Release history page for a viz app. The audience is citing researchers
-	// and teachers with assignments built on the app: the version-number
-	// contract is stated up front, and entries follow the Keep a Changelog
-	// structure (Added/Changed/… headings) so the layout needs no decoding.
+	// and teachers with assignments built on the app; entries follow the Keep
+	// a Changelog structure (Added/Changed/… headings) so the layout needs no decoding.
 	import {
 		CATEGORIES,
 		CATEGORY_LABELS,
@@ -40,26 +39,6 @@
 		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 		<p class="subtitle"><a href={appHref}>{name}</a></p>
 	</header>
-
-	<section class="contract">
-		<p>
-			This page records every released version of this visualization, so that a version cited in a
-			paper — or baked into a course assignment — can be interpreted later.
-		</p>
-		<p>
-			<strong>The short version:</strong> if the first number of the version matches the one you
-			cited, everything you reported or handed out still holds. Any change that could invalidate
-			cited results, shared links, or assignment instructions is always listed under
-			<strong>Breaking changes</strong> — and always changes that first number. Old share links are migrated,
-			never dropped.
-		</p>
-		<p class="mechanics">
-			Versions follow <a href="https://semver.org">semantic versioning</a>, defined around what the
-			app shows rather than how it is built (major = breaking as above; minor = new capability with
-			existing outputs and links unchanged; patch = visual or usability changes only), and entries
-			follow the <a href="https://keepachangelog.com">Keep a Changelog</a> format.
-		</p>
-	</section>
 
 	{#each changelog.releases as release, i (release.version)}
 		{@const older = changelog.releases[i + 1]}
@@ -115,17 +94,6 @@
 		font-size: 1.15rem;
 		font-weight: 600;
 		margin: 0;
-	}
-	.contract {
-		border-bottom: 1px solid var(--rule);
-		padding-bottom: 1.25rem;
-		line-height: 1.6;
-	}
-	/* The dev-facing mechanics are a footnote; the reader-first paragraph above
-	   is the one that must be read. */
-	.contract .mechanics {
-		font-size: 0.9rem;
-		color: var(--muted);
 	}
 	.release {
 		margin-top: 2.25rem;

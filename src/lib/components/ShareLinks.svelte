@@ -2,7 +2,7 @@
 	import { site } from '$lib/config';
 	import Icon from './Icon.svelte';
 
-	let { slug, title }: { slug: string; title: string } = $props();
+	let { slug, title, label = 'Share' }: { slug: string; title: string; label?: string } = $props();
 
 	const enc = encodeURIComponent;
 	const url = $derived(`${site.url}/${slug}`);
@@ -26,7 +26,7 @@
 </script>
 
 <span class="share">
-	<span class="share-label">Share</span>
+	<span class="share-label">{label}</span>
 	{#each targets as t (t.name)}
 		<a href={t.href} aria-label={t.label} target="_blank" rel="noopener external">
 			<Icon name={t.name} size={17} />

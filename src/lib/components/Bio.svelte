@@ -14,9 +14,7 @@
 	<div class="avatar" aria-hidden="true"><Mark /></div>
 	<div class="bio-body">
 		<p class="bio-name">{site.author}</p>
-		<p class="bio-text">
-			Researcher in clinical psychology, working on statistics, causal inference, and study design.
-		</p>
+		<p class="bio-text">{site.bio}</p>
 		<div class="bio-follow">
 			<span class="bio-label">Follow</span>
 			{#each follow as f (f.name)}

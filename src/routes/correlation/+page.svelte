@@ -4,7 +4,8 @@
 	import Seo from '$lib/components/Seo.svelte';
 	import Tex from '$lib/components/Tex.svelte';
 	import Bio from '$lib/components/Bio.svelte';
-	import VizGallery from '$lib/components/VizGallery.svelte';
+	import MoreViz from '$lib/components/MoreViz.svelte';
+	import ShareLinks from '$lib/components/ShareLinks.svelte';
 	import { viz } from '$lib/viz';
 	import Toast from '$lib/viz/core/components/Toast.svelte';
 	import VizCitation from '$lib/components/VizCitation.svelte';
@@ -66,6 +67,9 @@
 	</header>
 
 	<div class="intro">
+		<div class="share-row">
+			<ShareLinks slug="correlation" title="Interpreting Correlations" />
+		</div>
 		<p>
 			Correlation is one of the most widely used tools in statistics. The correlation coefficient
 			summarizes the association between two variables. In this visualization I show a scatter plot
@@ -238,10 +242,7 @@
 		</details>
 	</section>
 
-	<section class="more">
-		<h2>More visualizations</h2>
-		<VizGallery items={more} />
-	</section>
+	<MoreViz items={more} />
 </div>
 
 <style>
@@ -375,7 +376,9 @@
 		overflow-x: auto;
 		font-size: 0.85rem;
 	}
-	.more {
-		margin-top: 2.5rem;
+	.share-row {
+		display: flex;
+		justify-content: flex-end;
+		margin-bottom: 0.75rem;
 	}
 </style>

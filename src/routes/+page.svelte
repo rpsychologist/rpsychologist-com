@@ -27,10 +27,7 @@
 		<HeroGaussianMesh class="hero-deco" />
 		<div class="intro-text">
 			<h1 class="display greeting">Hi, I'm<br />Kristoffer.</h1>
-			<p class="tagline">
-				I build interactive tools for understanding statistics, and write about applied methods,
-				causal inference, and study design.
-			</p>
+			<p class="tagline">{site.bio}</p>
 			<div class="meta">
 				<p class="cred">PhD · Lic. Psychologist</p>
 				<div class="socials">
@@ -84,17 +81,21 @@
 		width: min(30rem, 48%);
 		z-index: 0;
 	}
+	/* Type carries the hero; the colorful gallery below is the visual identity, so
+	   the headline block is kept to a readable measure and the rest stays open.
+	   Capped to the space left of the mesh (mirrors its width above) so it doesn't run under it. */
+	.intro-text {
+		position: relative;
+		z-index: 1;
+		max-width: calc(max(100% - 30rem, 52%) - 1.5rem);
+	}
 	@media (max-width: 52rem) {
 		.intro :global(.hero-deco) {
 			display: none;
 		}
-	}
-	/* Type carries the hero; the colorful gallery below is the visual identity, so
-	   the headline block is kept to a readable measure and the rest stays open. */
-	.intro-text {
-		position: relative;
-		z-index: 1;
-		max-width: 38rem;
+		.intro-text {
+			max-width: 38rem;
+		}
 	}
 	/* The greeting is the "loud" moment; the <br> sets the deliberate two-line
 	   rhythm ("Hi, I'm" / "Kristoffer.") so the name lands as its own beat. */

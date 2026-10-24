@@ -5,7 +5,8 @@
 	import Seo from '$lib/components/Seo.svelte';
 	import Tex from '$lib/components/Tex.svelte';
 	import Bio from '$lib/components/Bio.svelte';
-	import VizGallery from '$lib/components/VizGallery.svelte';
+	import MoreViz from '$lib/components/MoreViz.svelte';
+	import ShareLinks from '$lib/components/ShareLinks.svelte';
 	import { viz } from '$lib/viz';
 	import Toast from '$lib/viz/core/components/Toast.svelte';
 	import VizCitation from '$lib/components/VizCitation.svelte';
@@ -225,6 +226,9 @@
 	</header>
 
 	<div class="intro">
+		<div class="share-row">
+			<ShareLinks slug={cohendPath(locale).slice(1)} title={m.seo_title} label={m.share} />
+		</div>
 		<p><Msg text={m.intro_p1} /></p>
 		<p><Msg text={m.intro_p2} /></p>
 	</div>
@@ -353,10 +357,7 @@
 		</details>
 	</section>
 
-	<section class="more">
-		<h2>{m.more_heading}</h2>
-		<VizGallery items={more} />
-	</section>
+	<MoreViz items={more} heading={m.more_heading} allLabel={m.more_all} />
 </div>
 
 <style>
@@ -617,7 +618,9 @@
 		overflow-x: auto;
 		font-size: 0.85rem;
 	}
-	.more {
-		margin-top: 2.5rem;
+	.share-row {
+		display: flex;
+		justify-content: flex-end;
+		margin-bottom: 0.75rem;
 	}
 </style>

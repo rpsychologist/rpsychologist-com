@@ -37,6 +37,7 @@
 	"faq_license_a1": "Yes, go ahead! I did not invent plotting two overlapping Gaussian distributions. This visualization is dedicated to the <strong>public domain</strong> (<a1>CC0</a1>), so you can copy, modify, and distribute it, even commercially, without asking permission. Attribution is not required but always appreciated.",
 	"faq_license_a2": "The source code is licensed MIT, and the text on this page is CC-BY 4.0.",
 	"more_heading": "More visualizations",
+	"more_all": "All visualizations",
 
 	"d_label": "Cohen's <em>d</em>",
 	"d_aria": "Cohen's d",
