@@ -3,7 +3,7 @@
 	"releases": [
 		{
 			"version": "0.8.0",
-			"date": "2026-07-07",
+			"date": "2026-10-24",
 			"added": [
 				"Invalid saved settings are flagged with a notice instead of silently falling back to the defaults."
 			],

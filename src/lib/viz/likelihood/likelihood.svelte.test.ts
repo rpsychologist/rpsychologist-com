@@ -34,7 +34,9 @@ describe('derived sample statistics', () => {
 		const s = new LikelihoodState();
 		s.newSample();
 		expect(s.p.sample).toHaveLength(10);
-		expect(s.muHat).not.toBeCloseTo(MU_HAT, 6);
+		// Not μ̂: snapMean rounds every draw's mean, so ~6% of draws land on the
+		// default 104 too. σ̂² isn't snapped, so it differs on any new draw.
+		expect(s.sigma2Hat).not.toBeCloseTo(SIGMA2_HAT, 6);
 		// Sorted ascending (old drawSample sorted; SamplePlot relies on it).
 		const sorted = [...s.p.sample].sort((a, b) => a - b);
 		expect(s.p.sample).toEqual(sorted);

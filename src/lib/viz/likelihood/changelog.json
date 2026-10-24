@@ -3,7 +3,7 @@
 	"releases": [
 		{
 			"version": "1.0.0",
-			"date": "2026-07-08",
+			"date": "2026-10-24",
 			"added": [
 				"3D view of the joint likelihood: a rotatable surface (height is the log-likelihood, drawn down to a floor 50 below the peak, marked where the hill meets it, with the surface fading out as it keeps falling below) with the optimizer path and the ℓ(μ)/ℓ(σ²) slices drawn on it. It replaces the contour plot as the joint view; the contour remains only as the fallback where WebGL is unavailable.",
 				"The 95% profile likelihood and Wald intervals at the hypothetical n are reported beneath the inference figure.",
