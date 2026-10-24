@@ -12,7 +12,7 @@ export const site = {
 	/** Posts per page on the paginated index. */
 	postsPerPage: 5,
 	/** Cloudflare Web Analytics beacon token (set to enable; empty disables). */
-	cloudflareAnalyticsToken: '',
+	cloudflareAnalyticsToken: '8297908c62a6433bb704d6709a24efd2',
 	social: {
 		bluesky: 'https://bsky.app/profile/rpsychologist.com',
 		github: 'https://github.com/rpsychologist',
