@@ -3,7 +3,7 @@ title: "Introducing PowerLMM.js: Browser-based power analysis for longitudinal m
 date: 2024-12-11 18:00
 author: Kristoffer Magnusson
 output: md_document
-category: viz
+category: Statistics
 tags: 
   - Power analysis
   - powerlmm
