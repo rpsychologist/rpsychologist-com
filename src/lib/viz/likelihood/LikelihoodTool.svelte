@@ -14,7 +14,6 @@
 	import ExpandButton from './ExpandButton.svelte';
 	import ViewpointDock, { type ViewpointId } from './ViewpointDock.svelte';
 	import OptimizerControls from './OptimizerControls.svelte';
-	import CurvaturePlot from './CurvaturePlot.svelte';
 	import TestTabs from './TestTabs.svelte';
 	import Slider from '$lib/viz/core/components/Slider.svelte';
 	import { MU_NULL_MAX, MU_NULL_MIN, N_MAX, N_MIN } from './likelihood.svelte';
@@ -39,12 +38,11 @@
 	const show3d = $derived(!glFailed);
 	function onGlFail() {
 		glFailed = true;
-		infView = 'curves';
 	}
 	// Key for the 3D inference view: only what the active test draws.
 	let infEmphasis = $state<string[] | null>(null);
-	// Each test opens with its own geometry picked out, like the 2D figure's
-	// highlight: LR reads the null slice's peak against the profile wall; the
+	// Each test opens with its own geometry picked out:
+	// LR reads the null slice's peak against the profile wall; the
 	// score test reads the μ-slice at the null's best point, with the null
 	// slice showing it is flat in σ² there; Wald, the μ-slice through the MLE
 	// and its floor distance to the null line. LR and score also pick out the
@@ -98,15 +96,12 @@
 	let fullBarH = $state(0);
 	// 3D viewpoints, one per surface (the dock buttons drive them).
 	let mleView = $state<ViewpointId | null>('angled');
-	let infView3d = $state<ViewpointId | null>('angled');
+	let infView = $state<ViewpointId | null>('angled');
 	let infHeadH = $state(0);
 	// Full-window view per instrument (see ExpandButton).
 	let fullMle = $state(false);
 	let fullInf = $state(false);
-	// The inference figure opens on the surface, continuing the MLE view; 2D
-	// flattens it onto shared axes so the tests' readings can be compared.
-	let infView = $state<'curves' | 'surface'>('surface');
-	// 95% intervals at the slider n, read out under either view.
+	// 95% intervals at the slider n, read out under the figure.
 	const li = $derived(profileIntervalMu(model.muHat, model.sigma2Hat, model.p.n));
 	const wald = $derived(waldIntervalMu(model.muHat, model.sigma2Hat, model.p.n));
 	const f2 = format('.2f');
@@ -118,12 +113,11 @@
 	<section class="tool-section">
 		<h2>Likelihood Calculation</h2>
 		<p class="section-intro">
-			Before any calculation we need data: a sample of 10 observations, drawn from a normal
-			distribution with unknown mean and variance. We also need to assume a model, and we'll go with
-			the one we know generated the data,
-			<Tex math={String.raw`y \sim \mathcal N(\mu, \sigma^2)`} />. The challenge is then to find the
-			combination of <Tex math={String.raw`\mu`} /> and <Tex math={String.raw`\sigma^2`} />
-			that makes these observations most likely under that model.
+			Before we can estimate anything, we need some data. Let's take 10 independent observations
+			from a normal distribution and pretend we don't know its mean or variance. We'll fit the model <Tex
+				math={String.raw`y \sim \mathcal N(\mu, \sigma^2)`}
+			/>. Try moving the sliders to find a combination of <Tex math={String.raw`\mu`} /> and
+			<Tex math={String.raw`\sigma^2`} /> that seems to fit the observations.
 		</p>
 	</section>
 
@@ -139,43 +133,47 @@
 				<SamplePlot {model} {highlight} onhighlight={setHighlight} />
 				<CalcLogLik {model} {highlight} onhighlight={setHighlight} />
 			</div>
-			<p class="hint">
-				Move the sliders to change the candidate parameters; hover a point or a row to link them.
-			</p>
-			<p class="section-intro after">
-				Because the observations are independent, their joint density is the product of the ten
-				densities. The likelihood reads that product the other way round: the observations are fixed
-				and the parameters vary. It does not integrate to 1 over the parameters, so it is not a
-				probability distribution over <Tex math={String.raw`\mu`} /> and
-				<Tex math={String.raw`\sigma^2`} />, and a likelihood value means nothing on its own; only
-				ratios between values do. In practice we work with the log-likelihood, the sum in the table.
-				A product of many small densities quickly shrinks toward zero, and a sum is much easier to
-				differentiate, since its derivative is just the sum of the per-observation derivatives.
-				Because the log is strictly increasing, the log-likelihood peaks at the same parameter
-				values as the likelihood.
+			<p class="section-intro">
+				We can calculate the likelihood for any combination you choose. Each observation has a
+				density given by the height of the normal curve at that point, and because the observations
+				are independent we can multiply these densities together. Notice that the data don't change
+				when you move the sliders. We're comparing different parameter values for the same
+				observations, not assigning probabilities to the parameters themselves.
 			</p>
 			<p class="section-intro">
-				The parameter values with the largest log-likelihood are the maximum likelihood estimates
-				(MLEs). The table's last row shows that best attainable value, so you can see how far below
-				it the current candidate falls.
+				In practice, multiplying lots of small densities can give us very small numbers. It's
+				usually more convenient to work with the <em>log-likelihood</em>, where we add the
+				log-densities instead. That's the calculation in the table. The logarithm is increasing, so
+				whichever parameter values give the largest likelihood also give the largest log-likelihood.
+			</p>
+			<p class="section-intro after">
+				Those parameter values are our <em>maximum likelihood estimates</em> (MLEs). The last row of the
+				table gives the answer, so you can compare it with the values you've chosen.
 			</p>
 		</section>
 
 		<section class="tool-section">
 			<h2>Finding the Maximum Likelihood Estimates</h2>
 			<p class="section-intro">
-				Repeat the calculation above for every combination of <Tex math={String.raw`\mu`} /> and
-				<Tex math={String.raw`\sigma^2`} /> and you get the surface below. Its height is the log-likelihood,
-				drawn down to 50 below the peak, and the peak is the pair of MLEs. The teal curves are slices
-				through the current point, each holding one parameter fixed. Their slopes at the point are the
-				partial derivatives <Tex math={String.raw`\partial\ell/\partial\mu`} /> and
-				<Tex math={String.raw`\partial\ell/\partial\sigma^2`} />, shown in the readout with the
-				figure. Together they make up the gradient of the log-likelihood, which statisticians call
-				the
-				<em>score</em>. At the peak the surface is level, so both are zero. For this model calculus
-				finds that point directly: set both to zero and solve. More complex models have no closed
-				form, so we let an <em>optimization algorithm</em> climb the hill instead, and the dashed arrow
-				shows where its next step would land.
+				If we repeat the calculation for a range of means and variances, we get the hill below. The
+				height is the log-likelihood, and the combination we're looking for is at the top.
+			</p>
+			<p class="section-intro">
+				For our simple normal model, we can find the MLEs using calculus. We take the partial
+				derivatives with respect to the mean and variance,
+				<Tex math={String.raw`\partial\ell/\partial\mu`} /> and
+				<Tex math={String.raw`\partial\ell/\partial\sigma^2`} />, which tell us the slope in each
+				direction. Together these make up the gradient, also called the <em>score</em>. At the
+				maximum both slopes are zero.
+			</p>
+			<p class="section-intro">
+				We can also let the computer search for the maximum. This is more work than we need for this
+				example, but for many models we can't solve the score equations directly. The algorithms
+				below start from your chosen values and try to climb the hill.
+				<em>Gradient ascent</em> follows the slope uphill, and you choose how far it steps. Try a
+				few step sizes: too small and it takes a long time to get anywhere; too large and it can
+				jump past the peak. <em>Fisher scoring</em> uses the expected curvature as well, which helps it
+				choose how far to step.
 			</p>
 
 			<!-- One instrument, one frame: run controls and the view toggle in its
@@ -207,21 +205,11 @@
 					<JointLogLik {model} {show3d} {glFailed} onglfail={onGlFail} bind:view={mleView} />
 				</div>
 			</div>
-			<p class="hint">
-				Drag the ring on the surface's floor to move both parameters, or pick an algorithm and press
-				play to watch the computer climb. With gradient ascent, try the step size: a tiny one
-				crawls, a large one overshoots and bounces across the peak. Fisher scoring uses the
-				curvature and needs just two steps here. The first puts <Tex math={String.raw`\mu`} /> exactly
-				at the peak but sets <Tex math={String.raw`\sigma^2`} /> to the best value for the old
-				<Tex math={String.raw`\mu`} />, and the second lands on the maximum.
-			</p>
 			<p class="section-intro after">
-				The amber curves on the back walls are <em>profile likelihoods</em>, explained under
-				Inference below; their peaks mark the two estimates. The dashed guides carry the current
-				point's height across to each wall, and the dashed rise from there up to the curve is how
-				much higher the log-likelihood would be at the best value of the other parameter. Move
-				<Tex math={String.raw`\sigma^2`} /> and watch the gap on the <Tex math={String.raw`\mu`} /> wall
-				close.
+				Try looking at the hill from one of the side views. Its outline follows the amber curve on
+				the wall: for each value of one parameter, we keep the highest log-likelihood we can get by
+				varying the other. This gives a <em>profile log-likelihood</em>, which we'll use below when
+				testing hypotheses about the mean.
 			</p>
 		</section>
 	</div>
@@ -229,37 +217,30 @@
 	<section class="tool-section">
 		<h2>Inference</h2>
 		<p class="section-intro">
-			After we've found the MLEs we usually want to make some inferences, so let's focus on three
-			common hypothesis tests of the mean.
+			Once we've estimated the mean, we usually want to say something about its uncertainty too.
+			Let's test the hypothesis that the population mean equals some value
+			<Tex math={String.raw`\mu_0`} />. There are several ways to do this; here we'll compare the
+			likelihood ratio, Wald, and score tests.
 		</p>
 		<p class="section-intro">
-			The null hypothesis fixes the mean but says nothing about the variance. The likelihood ratio
-			and score tests therefore give <Tex math={String.raw`\sigma^2`} /> its best value under the null,
-			<Tex math={String.raw`\hat\sigma_0^2 = \hat\sigma^2 + (\hat\mu - \mu_0)^2`} />. Doing that for
-			every <Tex math={String.raw`\mu`} /> and keeping the largest log-likelihood gives the
-			<em>profile likelihood</em>
-			<Tex math={String.raw`\ell_p(\mu)`} />; this is called profiling out <Tex
-				math={String.raw`\sigma^2`}
-			/>. In the figure below it is the amber curve on the back wall, the side view of the dotted
-			ridge that traces the best variance for each mean. Drag
-			<Tex math={String.raw`\mu_0`} /> and the null's best point slides along the ridge. Switch to 2D
-			to set the profile against the teal slice at <Tex math={String.raw`\hat\sigma^2`} />, which
-			treats the variance as known. The profile falls off more slowly, because a variance that is
-			free to grow absorbs part of the misfit of a wrong mean. The Wald test reads the slice, and
-			the likelihood ratio and score tests read the profile.
+			We still have to deal with the variance. Our null hypothesis specifies the mean, but it
+			doesn't tell us what the variance should be. For the likelihood ratio and score tests, we
+			therefore estimate it again, this time with the mean fixed at
+			<Tex math={String.raw`\mu_0`} />. Repeat this for every possible mean and we get the amber
+			profile log-likelihood, <Tex math={String.raw`\ell_p(\mu)`} />. You may see this described as
+			<em>profiling out</em> the variance. In the figure, the coral point is the best fit under the
+			null. Move <Tex math={String.raw`\mu_0`} /> and it slides along the dotted ridge, whose shadow on
+			the wall is the amber profile.
 		</p>
 		<p class="section-intro">
-			The sample-size slider asks a what-if question. The estimates
-			<Tex math={String.raw`\hat\mu`} /> and <Tex math={String.raw`\hat\sigma^2`} /> stay fixed at the
-			values from the 10 observations above, and the figure and tests show how the same estimates would
-			behave at sample size n; no new data are drawn. The <em>Fisher information</em> measures how
-			sharply the log-likelihood bends at its maximum. Increase n and it grows, so the peak narrows
-			around the MLE. In large samples the inverse of the information approximates the variance of
-			the MLE (for
-			<Tex math={String.raw`\hat\mu`} /> in this model it is exact), so a sharper peak means a more precise
-			estimate. Increase n and the whole surface sharpens, in
-			<Tex math={String.raw`\sigma^2`} /> as well as <Tex math={String.raw`\mu`} />; in 2D, the
-			dashed curve keeps the profile at n = 10 for comparison.
+			Away from the estimated mean, allowing the variance to change gives a better fit than keeping
+			it fixed at <Tex math={String.raw`\hat\sigma^2`} />. The Wald test uses a quadratic
+			approximation to the profile, which agrees near the maximum but falls faster farther away.
+		</p>
+		<p class="section-intro">
+			I've also included a sample-size slider so you can see how much the tests depend on
+			<Tex math="n" />. This doesn't generate any new observations. It shows what would happen at a
+			different sample size if we got exactly the same estimates of the mean and variance.
 		</p>
 
 		<div class="instrument inf-inst" class:expanded={fullInf} style:--head-h="{infHeadH}px">
@@ -292,76 +273,67 @@
 					/>
 				</div>
 				<div class="head-end">
-					{#if show3d}
-						<div class="view-toggle" role="group" aria-label="Inference figure view">
-							<button
-								class:on={infView === 'curves'}
-								aria-pressed={infView === 'curves'}
-								onclick={() => (infView = 'curves')}>2D</button
-							>
-							<button
-								class:on={infView === 'surface'}
-								aria-pressed={infView === 'surface'}
-								onclick={() => (infView = 'surface')}>3D</button
-							>
-						</div>
-					{/if}
 					<ExpandButton bind:expanded={fullInf} label="inference figure" />
 				</div>
 			</div>
 			<div class="inst-body inf-body">
 				<div class="inf-figure">
-					{#if infView === 'surface' && show3d}
-						<ViewpointDock bind:view={infView3d} />
+					{#if show3d}
+						<ViewpointDock bind:view={infView} />
 						<div class="inf-surface">
 							<SurfaceLogLik
 								{model}
 								mode="inference"
 								emphasis={infEmphasis}
 								onunavailable={onGlFail}
-								bind:view={infView3d}
+								bind:view={infView}
 							/>
 						</div>
 						<SurfaceKey items={infKey} focus={infFocus} onemphasis={(ids) => (infEmphasis = ids)} />
 						{#if model.sigma2Null > SIGMA2_MAX}
 							<p class="hint">
-								At this <Tex math={String.raw`\mu_0`} /> the constrained variance estimate
-								<Tex math={String.raw`\hat\sigma_0^2`} /> lies beyond the plotted range, so only its reading
-								on the profile wall is shown.
+								At this <Tex math={String.raw`\mu_0`} />, the variance estimate under the null,
+								<Tex math={String.raw`\hat\sigma_0^2`} />, is outside the plotted range. Its
+								log-likelihood is still shown on the amber profile curve.
 							</p>
 						{/if}
 					{:else}
-						<CurvaturePlot {model} />
+						<p class="hint" role="status">
+							The inference figure requires WebGL2, which isn't available in this browser. The test
+							results and intervals are still available.
+						</p>
 					{/if}
 					<p class="interval-readout" data-testid="intervals">
-						95% intervals at n = {model.p.n}: profile likelihood [{f2(li[0])}, {f2(li[1])}]; Wald [{f2(
-							wald[0]
-						)}, {f2(wald[1])}]. Each holds the values of μ₀ that its test does not reject at .05.
+						95% intervals at <em>n</em> = {model.p.n}: profile likelihood [{f2(li[0])}, {f2(
+							li[1]
+						)}]; Wald [{f2(wald[0])}, {f2(wald[1])}]
 					</p>
 				</div>
 				<TestTabs {model} />
 			</div>
 		</div>
-		<p class="hint">
-			Pick a test to highlight its geometry in the figure; in 3D, hover or tap a key entry to
-			highlight a different element. The 2D view flattens the same geometry onto one set of axes,
-			the profile against its quadratic approximation, so the tests' readings can be compared
-			directly.
-		</p>
 		<p class="section-intro after">
-			Inverting a test gives an interval: the 95% interval is the set of null values the test would
-			not reject at the .05 level. The readout under the figure lists two of them, the profile
-			likelihood interval (from the likelihood ratio test) and the Wald interval. Slide
-			<Tex math={String.raw`\mu_0`} /> past either end of the profile likelihood interval and the likelihood
-			ratio test's <em>p</em> drops below .05.
+			Increasing the sample size makes the peak narrower. The estimated mean hasn't moved, but
+			values around it now fit considerably worse. For the mean in this model, the curvature at the
+			peak is <Tex math={String.raw`n/\hat\sigma^2`} />, the estimated
+			<em>Fisher information</em>. Taking its inverse gives
+			<Tex math={String.raw`\hat\sigma^2/n`} />, our estimate of the variance of the sample mean. So
+			the narrower peak corresponds to a smaller standard error.
 		</p>
 		<p class="section-intro">
-			All three <em>p</em>-values rest on large-sample approximations, which is why they disagree in
-			small samples. For this model each statistic is a function of the one-sample <em>t</em>
-			statistic (the formulas are in the FAQ), so they always rank the same way. The Wald test gives the
-			smallest <em>p</em>, the score test the largest, and the <em>t</em>-test gives the exact
-			answer that all three approximate. The likelihood tests are for models where no exact test
-			exists.
+			The confidence intervals come from the tests themselves. To get a 95% interval, we keep all
+			the values of <Tex math={String.raw`\mu_0`} /> that a test wouldn't reject at the .05 level. You
+			can check this with the slider: move <Tex math={String.raw`\mu_0`} /> outside the profile likelihood
+			interval and the likelihood ratio test's <em>p</em>-value drops below .05. The Wald interval
+			works the same way, using the Wald test.
+		</p>
+		<p class="section-intro">
+			With only 10 observations, the tests can give rather different answers. They all use
+			large-sample approximations, as do the confidence intervals. In this normal model the Wald
+			test gives the smallest <em>p</em>-value and the score test the largest, with the likelihood
+			ratio test in between. We could instead use a one-sample <em>t</em>-test, which is exact under
+			the model. The reason for working through these likelihood-based tests is that we can also use
+			them for more complicated models, where an exact test may not be available.
 		</p>
 	</section>
 </div>
@@ -412,7 +384,7 @@
 	.interval-readout {
 		margin: 0.4rem 0 0;
 		font-size: 0.85rem;
-		color: var(--muted);
+		font-variant-numeric: tabular-nums;
 	}
 	/* One hairline frame per instrument; the header row carries its controls. */
 	/* --sticky-top: how far down the viewport the pinned bars above a figure
@@ -535,32 +507,6 @@
 	.instrument.expanded .inf-surface {
 		max-width: calc((100vh - 9rem) / 0.75);
 		margin-inline: auto;
-	}
-	.view-toggle {
-		display: inline-flex;
-		border: 1px solid var(--rule);
-		border-radius: var(--radius-sm);
-		overflow: hidden;
-	}
-	.view-toggle button {
-		padding: 0.3rem 0.8rem;
-		border: none;
-		background: transparent;
-		color: var(--muted);
-		font: inherit;
-		font-size: 0.82rem;
-		font-weight: 500;
-		cursor: pointer;
-		transition:
-			background 0.15s,
-			color 0.15s;
-	}
-	.view-toggle button + button {
-		border-left: 1px solid var(--rule);
-	}
-	.view-toggle button.on {
-		background: var(--viz-accent);
-		color: #fff;
 	}
 	/* The one two-column instrument (figure beside the test tabs) breaks out
 	   past the page's 1232px frame on wide screens. 100vw counts a classic

@@ -113,8 +113,8 @@ export function hessSigma2Expected(n: number, sigma2: number): number {
 	return -n / (2 * sigma2 ** 2);
 }
 
-/** Relative (estimated) log-likelihood −n(x − μ)²/(2σ²): the curvature-plot
- * curve, maximal at 0 when x = μ (old estimatedLogLik). */
+/** Relative log-likelihood −n(x − μ)²/(2σ²) with variance fixed, maximal at 0
+ * when x = μ. */
 export function relLogLik(n: number, mu: number, x: number, sigma2: number): number {
 	return (-n / 2) * ((x - mu) ** 2 / sigma2);
 }

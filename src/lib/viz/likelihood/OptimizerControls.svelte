@@ -60,14 +60,14 @@
 
 	const eqGrad = String.raw`
 		\begin{aligned}
-		\mu_{n+1} &= \mu_n + \gamma \frac{\partial}{\partial \mu_n}\ell \\
-		\sigma^2_{n+1} &= \sigma^2_n + \gamma \frac{\partial}{\partial \sigma^2_n}\ell
+		\mu_{t+1} &= \mu_t + \gamma \frac{\partial}{\partial \mu_t}\ell \\
+		\sigma^2_{t+1} &= \sigma^2_t + \gamma \frac{\partial}{\partial \sigma^2_t}\ell
 		\end{aligned}`;
 	// Fisher scoring: the inverse expected information scales each score.
 	const eqFisher = String.raw`
 		\begin{aligned}
-		\mu_{n+1} &= \mu_n + I(\mu_n)^{-1} \frac{\partial}{\partial \mu_n}\ell, & I(\mu) &= \frac{n}{\sigma^2} \\
-		\sigma^2_{n+1} &= \sigma^2_n + I(\sigma^2_n)^{-1} \frac{\partial}{\partial \sigma^2_n}\ell, & I(\sigma^2) &= \frac{n}{2\sigma^4}
+		\mu_{t+1} &= \mu_t + I(\mu_t)^{-1} \frac{\partial}{\partial \mu_t}\ell, & I(\mu) &= \frac{n}{\sigma^2} \\
+		\sigma^2_{t+1} &= \sigma^2_t + I(\sigma^2_t)^{-1} \frac{\partial}{\partial \sigma^2_t}\ell, & I(\sigma^2) &= \frac{n}{2\sigma^4}
 		\end{aligned}`;
 </script>
 
@@ -176,10 +176,8 @@
 			</p>
 			<Tex display math={eqGrad} />
 			<p class="note">
-				Note: the data are standardized internally to make the algorithm more efficient, and values
-				are back-transformed before they are plotted. The step size (<Tex
-					math={String.raw`\gamma`}
-				/>, sometimes called the "learning rate") is set with the slider; 0.05 is the default.
+				The data are standardized internally to make the algorithm more efficient, and values are
+				back-transformed before they are plotted.
 			</p>
 		</aside>
 	{:else if infoOpen && model.p.algo === 'fisherScoring'}
@@ -200,13 +198,12 @@
 				in the variance it peels away from the hill. The iteration is:
 			</p>
 			<Tex display math={eqFisher} />
-			<p class="note">
-				Both parameters update at once, so the first step computes the new
-				<Tex math={String.raw`\sigma^2`} /> at the old <Tex math={String.raw`\mu`} />: it lands on
-				<Tex math={String.raw`\hat\sigma^2 + (\mu_n - \hat\mu)^2`} />, the best variance for the
-				starting mean, which overshoots whenever that mean is off. The second step lands on the MLE.
-				The approximation is drawn along the two slices; over both parameters it is a paraboloid,
-				which rises well above the hill away from the peak.
+			<p>
+				Where the log-likelihood is exactly quadratic, one step is enough, so the mean lands on
+				<Tex math={String.raw`\hat\mu`} /> immediately. The variance takes two. Both parameters update
+				at once, so the first variance step uses the starting mean and lands on the best variance for
+				that mean, <Tex math={String.raw`\hat\sigma^2 + (\mu_t - \hat\mu)^2`} />. That overshoots
+				whenever the starting mean is off; the second step lands on the MLE.
 			</p>
 		</aside>
 	{/if}

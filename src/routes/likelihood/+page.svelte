@@ -3,7 +3,8 @@
 	import Seo from '$lib/components/Seo.svelte';
 	import Tex from '$lib/components/Tex.svelte';
 	import Bio from '$lib/components/Bio.svelte';
-	import VizGallery from '$lib/components/VizGallery.svelte';
+	import MoreViz from '$lib/components/MoreViz.svelte';
+	import ShareLinks from '$lib/components/ShareLinks.svelte';
 	import VizCitation from '$lib/components/VizCitation.svelte';
 	import { viz } from '$lib/viz';
 	import { changelog } from '$lib/viz/likelihood/changelog';
@@ -29,14 +30,14 @@
 		viaT: String.raw`\text{LR} = n \ln(1 + x), \qquad Z^2 = n x, \qquad S = \frac{n x}{1 + x}`,
 		li: String.raw`\left\{\mu : \ell_p(\mu) \ge \ell_p(\hat\mu) - \tfrac{1}{2}\chi^2_{1}(0.95)\right\}, \qquad \tfrac{1}{2}\chi^2_{1}(0.95) \approx 1.92`,
 		profile: String.raw`\hat\mu \pm \hat\sigma\sqrt{e^{\chi^2_1(0.95)/n} - 1}`,
-		ga: String.raw`\mu_{n+1} = \mu_n + \gamma\, U(\mu_n), \qquad \sigma^2_{n+1} = \sigma^2_n + \gamma\, U(\sigma^2_n)`,
-		nr: String.raw`\theta_{n+1} = \theta_n + I(\theta_n)^{-1} U(\theta_n)`
+		ga: String.raw`\mu_{t+1} = \mu_t + \gamma\, U(\mu_t), \qquad \sigma^2_{t+1} = \sigma^2_t + \gamma\, U(\sigma^2_t)`,
+		nr: String.raw`\theta_{t+1} = \theta_t + I(\theta_t)^{-1} U(\theta_t)`
 	};
 </script>
 
 <Seo
 	title="Understanding Maximum Likelihood Estimation"
-	description="An interactive visualization of maximum likelihood estimation: follow gradient ascent or Fisher scoring up the likelihood surface of a normal model, and see how the likelihood ratio, Wald, and score tests read the same log-likelihood in different ways."
+	description="Explore maximum likelihood estimation with an interactive normal model. Fit the mean and variance, follow an optimizer, and compare likelihood ratio, Wald, and score tests."
 	path="/likelihood"
 />
 
@@ -51,16 +52,19 @@
 	</header>
 
 	<div class="intro">
+		<div class="share-row">
+			<ShareLinks slug="likelihood" title="Understanding Maximum Likelihood Estimation" />
+		</div>
 		<p>
-			Maximum likelihood is used to fit many of the models we use in statistics. The likelihood
-			function scores how well candidate parameter values explain the data we observed, and the
-			maximum likelihood estimates (MLEs) are the values that score best. This page works through a
-			normal model with unknown mean and variance. We start with what the likelihood <em>is</em>,
-			then let an optimizer climb it to the maximum, and end with the likelihood ratio, Wald, and
-			score tests, which read their answers off the same likelihood in different ways. The mean is
-			the parameter of interest, and the variance is a nuisance parameter that is estimated along
-			the way but never tested. Everything is interactive, so feel free to poke at it and try to
-			break it.
+			The maximum likelihood method is used to fit many models in statistics. In this visualization
+			I want to give some intuition for how it works, and how it relates to three common hypothesis
+			tests: the likelihood ratio, Wald, and score tests.
+		</p>
+		<p>
+			We'll use a normal model with just two unknown parameters, the mean and variance, so we can
+			draw the whole log-likelihood as a surface. When we get to hypothesis testing, we'll focus on
+			the mean. The variance will be a <em>nuisance parameter</em>, meaning we still need to
+			estimate it even though it isn't what we want to test.
 		</p>
 	</div>
 
@@ -77,73 +81,55 @@
 			<summary>How do I use this visualization?</summary>
 			<div class="answer">
 				<p>
-					The sticky bar at the top sets the candidate parameters: drag the sliders, type exact
-					values, or press <strong>MLE</strong> to jump a parameter to its estimate.
+					Use the sliders in the top bar to choose the mean and variance. You can also type a value
+					or press <strong>MLE</strong> to set a parameter to its maximum likelihood estimate.
 					<strong>New Sample</strong> draws 10 fresh observations from
 					<Tex math={String.raw`\mathcal N(100, 225)`} />.
 				</p>
 				<h3>Explore the log-likelihood</h3>
 				<p>
-					The 3D surface is the log-likelihood over both parameters. Drag the ring on its floor to
-					move <Tex math={String.raw`\mu`} /> and <Tex math={String.raw`\sigma^2`} /> together, or use
-					the sliders (or type a value) to move one at a time. The teal curves are slices through the
-					current point, each holding one parameter fixed. The line beneath the view reads off
-					<Tex math={String.raw`\ell`} /> and its two slopes, the scores, which are both zero at the peak.
-					Hover or tap a score to draw its slope on the surface.
+					Drag the ring on the floor of the 3D figure to change both parameters at once. The teal
+					curves show what happens when you vary one parameter while holding the other fixed. Below
+					the figure you'll find the current log-likelihood and the two scores, the slopes in the
+					mean and variance directions. Hover or tap a score to show that slope on the surface.
 				</p>
 				<h3>Run an optimizer</h3>
 				<p>
-					Pick gradient ascent or Fisher scoring and press play, or step with +1/−1. For gradient
-					ascent, the step-size slider sets how far each step goes. The climb is drawn on the
-					surface. With an algorithm selected, a dashed arrow previews where its next step would
-					land, and for Fisher scoring, dotted curves show the quadratic approximation it climbs.
+					Choose gradient ascent or Fisher scoring and press play. Use +1 to take a single step and
+					−1 to undo it. A dashed arrow previews the next step, and the path shows the steps already
+					taken. Gradient ascent has an adjustable step size. For Fisher scoring, dotted parabolas
+					show the local approximations used to choose the next step.
 				</p>
 				<h3>Move around the 3D view</h3>
 				<p>
-					Drag anywhere on the surface except the ring to rotate it. The View buttons switch between
-					the angled view and two side views. In a side view you look edge-on along one axis, and
-					the surface's outline is exactly the profile likelihood on the wall. The amber curves on
-					the back walls are these <em>profile</em> likelihoods, the ridge cast onto each axis, which
-					the likelihood ratio test and the profile likelihood interval are built on. The full-view button
-					at the right of each figure's header expands the figure to fill the window; press it again or
-					Esc to return.
+					Drag the surface away from the ring to rotate it. The View buttons switch between an
+					angled view and two side views. From the side, the outline of the surface follows the
+					amber profile curve on the wall.
 				</p>
-				<h3>What the height shows</h3>
 				<p>
-					Height is the log-likelihood itself, measured down from the peak and drawn to a floor 50
-					below it. The dashed line marks where the hill meets the floor, and below it the surface
-					fades out as it keeps falling; a point dragged farther out shows only its floor ring.
-					Uncut,
-					<Tex math={String.raw`\ell`} /> over this frame would drop hundreds of units into the corner
-					where <Tex math={String.raw`\sigma^2 \to 0`} /> and flatten everything else, while the likelihood
-					<Tex math="L" /> itself is a narrow spike. Because the height is
-					<Tex math={String.raw`\ell`} />, rise over run on the surface is the score, the dotted
-					Fisher curve is a true parabola, and the <Tex math={String.raw`\tfrac{1}{2}\text{LR}`} /> bracket
-					in the inference view is drawn to scale.
+					The full-view button at the right of each figure's header expands it to fill the window.
+					Press it again, or press Esc, to return.
+				</p>
+				<h3>Why the surface is cut off</h3>
+				<p>
+					Near <Tex math={String.raw`\sigma^2 = 0`} />, the log-likelihood drops so far that showing
+					it all would make the peak look almost flat. I've cut the figure off 50 log-likelihood
+					units below the maximum so we can see what's happening near the top. The surface fades out
+					below that floor; if you drag a point there, only its floor ring is shown. Above the
+					cutoff, the vertical scale is still linear in log-likelihood.
 				</p>
 				<h3>Inference</h3>
 				<p>
-					The inference section computes the likelihood ratio, Wald, and score tests of
-					<Tex math={String.raw`H_0\!: \mu = \mu_0`} />. Selecting a test highlights its geometry in
-					the figure. The sample-size slider is hypothetical: it rescales the curvature and the
-					tests at the fixed estimates without drawing new data. The figure opens in 3D, which shows
-					the tests in both parameters. The dashed coral line is the null hypothesis, and the coral
-					point is the best the null can do, with the variance re-estimated as
-					<Tex math={String.raw`\hat\sigma_0^2`} />. As you move <Tex math={String.raw`\mu_0`} />,
-					the point slides along the dotted amber ridge, the best variance for each mean,
-					<Tex math={String.raw`\hat\sigma^2 + (\hat\mu - \mu_0)^2`} />, whose shadow is the amber
-					profile on the wall.
+					Choose a test tab and move the null mean <Tex math={String.raw`\mu_0`} />. The dashed
+					coral line marks the null mean, and the coral point shows the fitted model under that
+					null. Its variance is <Tex math={String.raw`\hat\sigma_0^2`} />. As you change
+					<Tex math={String.raw`\mu_0`} />, this point follows the dotted amber ridge.
 				</p>
 				<p>
-					In the likelihood ratio view, the bracket on the back wall is <Tex
-						math={String.raw`\tfrac{1}{2}\text{LR}`}
-					/>. In the score view, a slope triangle at the coral point shows the rise along <Tex
-						math={String.raw`\mu`}
-					/>, labeled with its value <Tex math="U" />; along <Tex math={String.raw`\sigma^2`} /> the slope
-					there is zero. In the Wald view, the floor bracket is
-					<Tex math={String.raw`\hat\mu - \mu_0`} />, under the slice through the summit. The 2D
-					figure shows the same geometry flattened: the amber curve is the profile, and the teal
-					curve is its quadratic approximation at the peak, which the Wald test reads.
+					The likelihood ratio tab highlights a vertical drop, the Wald tab a horizontal difference,
+					and the score tab a slope. The sample-size slider changes the tests and intervals while
+					keeping the estimated mean and variance fixed; it does not generate a larger sample. Hover
+					or tap a legend entry to highlight its curve.
 				</p>
 			</div>
 		</details>
@@ -151,12 +137,16 @@
 		<details>
 			<summary>What are the formulas?</summary>
 			<div class="answer">
-				<p>The log-likelihood of a sample of <Tex math="n" /> independent observations is</p>
+				<p>
+					For <Tex math="n" /> independent observations from a normal distribution, the log-likelihood
+					is
+				</p>
 				<Tex display math={tex.loglik} />
 				<p>and it is maximized by</p>
 				<Tex display math={tex.mles} />
 				<p>
-					Note that <Tex math={String.raw`\hat\sigma^2`} /> divides by <Tex math="n" />, not
+					The variance estimate <Tex math={String.raw`\hat\sigma^2`} /> divides by <Tex math="n" />,
+					not
 					<Tex math="n - 1" />, so the MLE of the variance is biased downward in small samples.
 				</p>
 				<p>The score functions (first derivatives) are</p>
@@ -165,16 +155,17 @@
 				<Tex display math={tex.info} />
 				<h3>The three tests</h3>
 				<p>
-					With <Tex math={String.raw`\hat\sigma_0^2`} /> denoting the MLE of the variance with the mean
-					pinned to <Tex math={String.raw`\mu_0`} />, the three tests of
-					<Tex math={String.raw`H_0\!: \mu = \mu_0`} /> are
+					Let <Tex math={String.raw`\hat\sigma_0^2`} /> be the variance estimate when the mean is fixed
+					at <Tex math={String.raw`\mu_0`} />. In this model,
+					<Tex math={String.raw`\hat\sigma_0^2 = \hat\sigma^2 + (\hat\mu - \mu_0)^2`} />. The three
+					test statistics are shown below with their large-sample null distributions:
 				</p>
 				<Tex display math={tex.lr} />
 				<Tex display math={tex.wald} />
 				<Tex display math={tex.score} />
 				<p>
-					The three are asymptotically equivalent but differ in small samples; Buse (1982) gives the
-					geometric interpretation the inference figure draws.
+					The tests are asymptotically equivalent but can differ in small samples. The figure's
+					geometric interpretation follows Buse (1982).
 				</p>
 				<p>
 					For the normal model all three are functions of the one-sample <em>t</em> statistic. With
@@ -184,11 +175,18 @@
 				<Tex display math={tex.viaT} />
 				<p>
 					Since <Tex math={String.raw`x / (1 + x) \le \ln(1 + x) \le x`} />, the statistics always
-					order as <Tex math={String.raw`Z^2 \ge \text{LR} \ge S`} />. Each is also a monotone
-					function of <Tex math={String.raw`T^2`} />, and <Tex math="T" /> follows a
-					<Tex math={String.raw`t_{n-1}`} /> distribution exactly under the null. Referred to its exact
-					null distribution, each statistic would reproduce the <em>t</em>-test. They disagree only
-					because all three are referred to <Tex math={String.raw`\chi^2_1`} /> instead.
+					satisfy <Tex math={String.raw`Z^2 \ge \text{LR} \ge S`} />. Their approximate
+					<em>p</em>-values therefore have the reverse order.
+				</p>
+				<p>
+					Each statistic is a monotone function of <Tex math={String.raw`T^2`} />, and <Tex
+						math="T"
+					/> follows a
+					<Tex math={String.raw`t_{n-1}`} /> distribution exactly under the null. If we used each statistic's
+					exact null distribution, all three tests would give the same
+					<em>p</em>-value as the two-sided <em>t</em>-test. The differences here come from using
+					the large-sample <Tex math={String.raw`\chi^2_1`} /> approximation for LR,
+					<Tex math={String.raw`Z^2`} />, and S.
 				</p>
 				<h3>The profile likelihood interval</h3>
 				<p>
@@ -197,28 +195,30 @@
 				</p>
 				<Tex display math={tex.li} />
 				<p>
-					The inference figure marks it on the profile curve, next to the Wald interval on the slice
-					at <Tex math={String.raw`\hat\sigma^2`} />, which the 1.92 drop reproduces exactly (since
-					<Tex math={String.raw`2 \times 1.92 = 1.96^2`} />). Profiling <Tex
-						math={String.raw`\sigma^2`}
-					/>
-					out gives the closed form
+					Applying the same cutoff to the quadratic approximation gives the Wald interval: a
+					distance of 1.96 standard errors corresponds to a drop of <Tex
+						math={String.raw`1.96^2/2 \approx 1.92`}
+					/>. For this model, the profile likelihood interval has the closed form
 				</p>
 				<Tex display math={tex.profile} />
 				<h3>The optimizers</h3>
 				<p>Gradient ascent updates each parameter proportionally to its score,</p>
 				<Tex display math={tex.ga} />
 				<p>
-					with step size <Tex math={String.raw`\gamma`} /> (0.05 by default) on internally standardized
-					data (values are back-transformed before plotting). Too small a step crawls; too large a step
-					overshoots the peak and bounces across it or leaves the frame. Fisher scoring, a version of
-					Newton-Raphson that uses the expected information instead of the observed Hessian, weights the
-					step by the inverse information,
+					where <Tex math={String.raw`\gamma`} /> is the step size (0.05 by default). The app runs this
+					calculation on standardized data, then converts back to the original units for plotting. A small
+					step size slows convergence; a large one can overshoot the maximum.
+				</p>
+				<p>
+					Fisher scoring is a variant of Newton-Raphson that uses expected information rather than
+					observed information. It scales the score by the inverse information:
 				</p>
 				<Tex display math={tex.nr} />
 				<p>
-					which lands on <Tex math={String.raw`\hat\mu`} /> in a single step because ℓ is quadratic in
-					<Tex math={String.raw`\mu`} />.
+					For this normal model, the first step puts the mean at <Tex math={String.raw`\hat\mu`} />
+					but updates the variance using the previous mean. The second step gives
+					<Tex math={String.raw`\hat\sigma^2`} /> as well. The app stops a run if a step leaves the plotted
+					range.
 				</p>
 			</div>
 		</details>
@@ -287,10 +287,7 @@
 		</details>
 	</section>
 
-	<section class="more">
-		<h2>More visualizations</h2>
-		<VizGallery items={more} />
-	</section>
+	<MoreViz items={more} />
 </div>
 
 <style>
@@ -380,7 +377,9 @@
 		font-size: 0.95rem;
 		margin: 1.1rem 0 0.3rem;
 	}
-	.more {
-		margin-top: 2.5rem;
+	.share-row {
+		display: flex;
+		justify-content: flex-end;
+		margin-bottom: 0.75rem;
 	}
 </style>

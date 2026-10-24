@@ -68,7 +68,6 @@
 		mode?: 'explore' | 'inference';
 		/** Key entries being emphasized (SurfaceKey ids); everything else dims. */
 		emphasis?: string[] | null;
-		/** WebGL2 unavailable or init failed — the parent falls back to 2D. */
 		onunavailable?: () => void;
 		/** Named viewpoint (buttons live in ViewpointDock): setting it swings
 		 * the camera there; rotating by hand clears it. */
@@ -102,6 +101,7 @@
 	// than cut off. Overlays stay on the floor plane.
 	const SINK = 0.9;
 	const LINE_EVERY = 4; // wireframe walks every 4th grid line
+	const MESH_STRIDE = 8; // floats per mesh vertex (see meshQuads)
 	const SLICE_N = 100; // vertices per highlighted slice / wall curve
 	const WALL_ALPHA = 0.85; // wall silhouettes read as real curves, a touch under the slices
 	const WALL_MU_OFF = 2 * SLICE_N + 2; // μ-wall first vertex in sliceData
@@ -156,7 +156,9 @@
 
 	// Named viewpoints. Edge-on looking along σ² (μ across the screen), the
 	// surface's outline above each μ is its maximum over σ², i.e. the profile
-	// ℓₚ(μ) — it lands exactly on the amber wall curve. Looking along μ, the outline is ℓ(μ̂, σ²), the other wall.
+	// ℓₚ(μ) — it lands exactly on the amber wall curve wherever σ̂²(μ) is inside
+	// the plotted σ² range (see buildWalls). Looking along μ, the outline is
+	// ℓ(μ̂, σ²), the other wall.
 	// Labels and the buttons are in ViewpointDock.
 	const VIEWS: Record<ViewpointId, { angle: number; tilt: number }> = {
 		angled: { angle: 0.7, tilt: TILT_DEFAULT },
@@ -302,6 +304,8 @@
 		return d;
 	}
 	let peakDots = $state<{ x: number; y: number }[]>([]);
+	// The μ-profile's dashed continuation past the plotted σ² range.
+	let offWall = $state('');
 	// The current point's foot on the z = 0 floor: the grab handle for moving
 	// (μ, σ²), and the visible base of the drop line.
 	let floorPos = $state<{ x: number; y: number } | null>(null);
@@ -356,6 +360,8 @@
 	let vaoSeg: WebGLVertexArrayObject;
 	let vaoMesh: WebGLVertexArrayObject;
 	let meshBuf: WebGLBuffer;
+	let heightTex: WebGLTexture;
+	let gridDims: [number, number] = [0, 0];
 	let meshIdxCount = 0;
 	let lineBuf: WebGLBuffer;
 	let sliceBuf: WebGLBuffer;
@@ -376,15 +382,28 @@
 	const glf = (n: number) => (Number.isInteger(n) ? n.toFixed(1) : String(n));
 
 	// Every line is drawn as screen-space quads, one per segment, widened to a
-	// stroke width in CSS px and feathered over one device px in FRAG. GL lines
-	// are 1 device px wide (lineWidth is clamped), so thickening them took
-	// offset passes whose weight and jaggedness varied with pixel density.
+	// stroke width in CSS px and feathered in FRAG. GL lines are 1 device px
+	// wide (lineWidth is clamped), so thickening them took offset passes whose
+	// weight and jaggedness varied with pixel density.
+	//
+	// Below DPR 1.5 the feather widens from 1 to FEATHER_LOW_DPR device px: a
+	// 1-px box ramp makes hairlines pulse between one dark pixel and two half
+	// pixels as they cross the grid, which reads as stepping. The wider ramp is
+	// the prefiltered-line fix (Chan & Durand, GPU Gems 2, ch. 22).
+	const FEATHER_LOW_DPR = 1.6;
+	// Wire lines bunching closer than DENSITY_PX device px (the ridge, seen
+	// side-on) beat against the pixel grid; fading them in proportion to their
+	// spacing keeps the band's tone without the moiré.
+	const DENSITY_PX = 1.5;
 	const VERT = `#version 300 es
 	precision highp float;
 	precision highp int;
-	layout(location = 0) in vec4 aA;      // segment start: xyz + alpha
+	// Curves: aA/aB are xyz + alpha. Mesh: they are grid indices (i, j), with
+	// heights fetched from uH, so a new sample or n uploads no geometry.
+	layout(location = 0) in vec4 aA;      // segment start
 	layout(location = 1) in vec4 aB;      // segment end
 	layout(location = 2) in vec2 aCorner; // x: 0 at A, 1 at B; y: side ±1
+	layout(location = 3) in vec2 aN;      // mesh: this end's point on the next wire line
 	uniform vec2 uRot;
 	uniform vec2 uTilt;
 	uniform float uFit;
@@ -395,12 +414,25 @@
 	uniform int uMode;      // 0 mesh (depth fade), 1 line (attr alpha)
 	uniform float uClip;
 	uniform float uHalf;    // half stroke width, CSS px
-	uniform float uFeather; // edge ramp, CSS px (1 device px)
+	uniform float uFeather; // edge ramp, CSS px
 	uniform float uCap;     // 1: extend the ends (square caps) for sharp corners
+	uniform float uDpr;
+	uniform highp sampler2D uH; // mesh: ℓ − ℓ̂ per grid point (R32F)
+	uniform vec2 uGrid;         // grid cols, rows
+	uniform float uZScale;
 	out float vAlpha;
 	out float vDist;
 	const float CX = ${glf(CX)};
 	const float EXT = ${glf(EXT)};
+	// Grid point → world, as zSink() on the CPU.
+	vec4 gridVert(vec2 ij) {
+		float h = texelFetch(uH, ivec2(ij), 0).r;
+		// Grid point i sits at muMin + i·muStep, i.e. i/cols of the range (as in
+		// the contour and waterline), not i/(cols − 1).
+		vec2 xy = -${glf(RANGE)} + 2.0 * ${glf(RANGE)} * ij / uGrid;
+		float z = max(-${glf(SINK)}, (1.0 + uZScale * h / ${glf(FLOOR_D)}) * ${glf(Z_HEIGHT)});
+		return vec4(xy, z, 1.0);
+	}
 	vec3 proj(vec3 p) {
 		float x1 = p.x * uRot.x - p.y * uRot.y;
 		float y1 = p.x * uRot.y + p.y * uRot.x;
@@ -415,8 +447,11 @@
 		return depthA * sink;
 	}
 	void main() {
-		vec3 a = proj(aA.xyz);
-		vec3 b = proj(aB.xyz);
+		bool mesh = uMode == 0;
+		vec4 vA = mesh ? gridVert(aA.xy) : aA;
+		vec4 vB = mesh ? gridVert(aB.xy) : aB;
+		vec3 a = proj(vA.xyz);
+		vec3 b = proj(vB.xyz);
 		vec2 d = b.xy - a.xy;
 		float len = length(d);
 		vec2 dir = len > 1e-4 ? d / len : vec2(1.0, 0.0);
@@ -425,7 +460,12 @@
 		vec2 p = mix(a.xy, b.xy, aCorner.x) + nrm * aCorner.y * w
 			+ dir * (aCorner.x * 2.0 - 1.0) * uCap * w;
 		vDist = aCorner.y * w;
-		vAlpha = aCorner.x < 0.5 ? alphaOf(aA, a.z) : alphaOf(aB, b.z);
+		vAlpha = aCorner.x < 0.5 ? alphaOf(vA, a.z) : alphaOf(vB, b.z);
+		if (mesh) {
+			vec2 e = aCorner.x < 0.5 ? a.xy : b.xy;
+			float gap = abs(dot(proj(gridVert(aN).xyz).xy - e, nrm)) * uDpr;
+			vAlpha *= min(1.0, gap / ${glf(DENSITY_PX)});
+		}
 		gl_Position = vec4(p.x / uCanvas.x * 2.0 - 1.0, 1.0 - p.y / uCanvas.y * 2.0, 0.0, 1.0);
 	}`;
 
@@ -500,14 +540,23 @@
 		wallS2Sign = s.s2;
 		const wallY = s.mu * RANGE; // μ-profile pinned to a σ² edge
 		const wallX = s.s2 * RANGE; // σ²-profile pinned to a μ edge
+		// Past |μ − μ̂| = muReach the profile's σ̂²(μ) = σ̂² + (μ − μ̂)² is above
+		// SIGMA2_MAX: its maximum is off the plotted surface, so the surface's
+		// outline drops below it. The GL curve stops there (the vertex nearest
+		// each crossing snapped onto it) and offWallPath() continues it dashed.
+		const muReach = Math.sqrt(Math.max(0, SIGMA2_MAX - model.sigma2Hat));
+		const muStep = (MU_MAX - MU_MIN) / (SLICE_N - 1);
 		let o = WALL_MU_OFF * 4;
 		for (let i = 0; i < SLICE_N; i++) {
-			const mu = MU_MIN + ((MU_MAX - MU_MIN) * i) / (SLICE_N - 1);
+			let mu = MU_MIN + muStep * i;
+			for (const c of [muHat - muReach, muHat + muReach])
+				if (Math.abs(mu - c) <= muStep / 2) mu = c;
 			sliceData[o++] = wx(mu);
 			sliceData[o++] = wallY;
 			const z = zOf(profileMu(sample, mu), g.max);
 			sliceData[o++] = z;
-			sliceData[o++] = onFloor(z) ? 0 : WALL_ALPHA;
+			const off = Math.abs(mu - muHat) > muReach + 1e-9;
+			sliceData[o++] = onFloor(z) || off ? 0 : WALL_ALPHA;
 		}
 		const sqrtMax = Math.sqrt(SIGMA2_MAX);
 		for (let i = 0; i < SLICE_N; i++) {
@@ -530,44 +579,45 @@
 	}
 
 	// The wireframe as plain (non-instanced) quads, 4 vertices per segment of
-	// A (xyz, 1), B (xyz, 1), corner: ~5k one-quad instances ran ~20× slower
-	// than this on SwiftShader, so the mesh is expanded once per sample and
-	// drawn with one indexed call. The curves stay instanced (≤ 1k segments).
-	function meshQuads(pos: Float32Array): Float32Array {
-		const { cols, rows } = model.grid;
-		const out: number[] = [];
-		const seg = (p: number, q: number) => {
-			for (const [t, side] of [
-				[0, -1],
-				[0, 1],
-				[1, -1],
-				[1, 1]
-			]) {
-				out.push(pos[p * 3], pos[p * 3 + 1], pos[p * 3 + 2], 1);
-				out.push(pos[q * 3], pos[q * 3 + 1], pos[q * 3 + 2], 1);
-				out.push(t, side);
+	// A (i, j), B (i, j), corner, and the near end's grid point on the next
+	// wire line (for the density fade). Static: heights live in the uH texture.
+	// ~5k one-quad instances ran ~20× slower than this on SwiftShader, so the
+	// mesh is drawn with one indexed call. The curves stay instanced (≤ 1k).
+	function meshQuads(cols: number, rows: number): Float32Array {
+		const rowLines = wireLines(rows);
+		const colLines = wireLines(cols);
+		const nSeg = rowLines.length * (cols - 1) + colLines.length * (rows - 1);
+		const out = new Float32Array(nSeg * 4 * MESH_STRIDE);
+		let o = 0;
+		// (i, j) → (i2, j2); (di, dj): offset to the neighbouring wire line.
+		const seg = (i: number, j: number, i2: number, j2: number, di: number, dj: number) => {
+			for (let c = 0; c < 4; c++) {
+				const t = c >> 1;
+				out.set([i, j, i2, j2, t, c & 1 ? 1 : -1, (t ? i2 : i) + di, (t ? j2 : j) + dj], o);
+				o += MESH_STRIDE;
 			}
 		};
-		for (const j of wireLines(rows))
-			for (let i = 1; i < cols; i++) seg(j * cols + i - 1, j * cols + i);
-		for (const i of wireLines(cols))
-			for (let j = 1; j < rows; j++) seg((j - 1) * cols + i, j * cols + i);
-		return new Float32Array(out);
+		const next = (k: number, limit: number) => (k + LINE_EVERY < limit ? LINE_EVERY : -LINE_EVERY);
+		for (const j of rowLines) {
+			const dj = next(j, rows);
+			for (let i = 1; i < cols; i++) seg(i - 1, j, i, j, 0, dj);
+		}
+		for (const i of colLines) {
+			const di = next(i, cols);
+			for (let j = 1; j < rows; j++) seg(i, j - 1, i, j, di, 0);
+		}
+		return out;
 	}
 
-	function surfacePositions(): Float32Array {
-		const g = model.grid;
-		const pos = new Float32Array(g.cols * g.rows * 3);
-		let o = 0;
-		for (let j = 0; j < g.rows; j++) {
-			const y = -RANGE + (2 * RANGE * j) / (g.rows - 1);
-			for (let i = 0; i < g.cols; i++) {
-				pos[o++] = -RANGE + (2 * RANGE * i) / (g.cols - 1);
-				pos[o++] = y;
-				pos[o++] = zSink(g.values[j * g.cols + i], g.max);
-			}
-		}
-		return pos;
+	// ℓ − ℓ̂ per grid point, for the uH height texture.
+	let heights = new Float32Array(0);
+	function uploadHeights(g: WebGL2RenderingContext) {
+		const grid = model.grid;
+		if (heights.length !== grid.values.length) heights = new Float32Array(grid.values.length);
+		for (let k = 0; k < heights.length; k++) heights[k] = grid.values[k] - grid.max;
+		g.bindTexture(g.TEXTURE_2D, heightTex);
+		g.texImage2D(g.TEXTURE_2D, 0, g.R32F, grid.cols, grid.rows, 0, g.RED, g.FLOAT, heights);
+		gridDims = [grid.cols, grid.rows];
 	}
 
 	function setupGL(g: WebGL2RenderingContext) {
@@ -637,6 +687,10 @@
 			'uHalf',
 			'uFeather',
 			'uCap',
+			'uDpr',
+			'uH',
+			'uGrid',
+			'uZScale',
 			'uColor',
 			'uFade',
 			'uWidthAlpha'
@@ -661,18 +715,25 @@
 		g.bindVertexArray(vaoMesh);
 		meshBuf = g.createBuffer()!;
 		glBuffers.push(meshBuf);
-		const quads = untrack(() => meshQuads(surfacePositions()));
+		heightTex = g.createTexture()!;
+		g.bindTexture(g.TEXTURE_2D, heightTex);
+		// R32F isn't filterable; texelFetch only, but the texture must be complete.
+		g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MIN_FILTER, g.NEAREST);
+		g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MAG_FILTER, g.NEAREST);
+		untrack(() => uploadHeights(g));
+		const quads = meshQuads(gridDims[0], gridDims[1]);
 		g.bindBuffer(g.ARRAY_BUFFER, meshBuf);
 		g.bufferData(g.ARRAY_BUFFER, quads, g.STATIC_DRAW);
 		for (const [loc, size, off] of [
-			[0, 4, 0],
-			[1, 4, 16],
-			[2, 2, 32]
+			[0, 2, 0],
+			[1, 2, 8],
+			[2, 2, 16],
+			[3, 2, 24]
 		]) {
 			g.enableVertexAttribArray(loc);
-			g.vertexAttribPointer(loc, size, g.FLOAT, false, 40, off);
+			g.vertexAttribPointer(loc, size, g.FLOAT, false, MESH_STRIDE * 4, off);
 		}
-		const nSeg = quads.length / 40;
+		const nSeg = quads.length / (4 * MESH_STRIDE);
 		const idx = new Uint32Array(nSeg * 6);
 		for (let k = 0; k < nSeg; k++)
 			idx.set([4 * k, 4 * k + 1, 4 * k + 2, 4 * k + 2, 4 * k + 1, 4 * k + 3], k * 6);
@@ -1020,6 +1081,30 @@
 
 	// Position the HTML axis labels at their world anchors and rebuild the SVG
 	// gnomon (both can't be GL, so they overlay the canvas in CSS px each frame).
+	// The μ-profile beyond the plotted σ² range (see buildWalls), world-dashed.
+	function offWallPath(): string {
+		const p = model.p;
+		const muHat = model.muHat;
+		const reach = Math.sqrt(Math.max(0, SIGMA2_MAX - model.sigma2Hat));
+		const wallY = wallMuSign * RANGE;
+		const lines: W[][] = [];
+		for (const [from, to] of [
+			[muHat - reach, MU_MIN],
+			[muHat + reach, MU_MAX]
+		]) {
+			if ((to - from) * (to === MU_MIN ? -1 : 1) <= 0) continue;
+			const pts: W[] = [];
+			for (let k = 0; k <= 40; k++) {
+				const mu = from + ((to - from) * k) / 40;
+				const z = zOf(profileMu(p.sample, mu), model.grid.max);
+				if (onFloor(z)) break;
+				pts.push([wx(mu), wallY, z]);
+			}
+			if (pts.length > 1) lines.push(pts);
+		}
+		return dashPath(lines, 5, 4);
+	}
+
 	function positionLabels() {
 		dashUnit = scl * view.scale;
 		const place = (el: HTMLElement | undefined, a: readonly [number, number, number]) => {
@@ -1063,6 +1148,7 @@
 		const s2Wall = wallS2Sign * RANGE;
 		// Only walls that aren't edge-on get their peak dot and track.
 		const wv = wallsVisible();
+		offWall = wv.mu ? offWallPath() : '';
 		peakDots = [
 			...(wv.mu ? [project(wx(model.muHat), muWall, zPk)] : []),
 			...(wv.s2 ? [project(s2Wall, wy(model.sigma2Hat), zPk)] : [])
@@ -1229,8 +1315,14 @@
 		g.uniform1f(u.uFit, scale);
 		g.uniform2f(u.uOff, ox, oy);
 		g.uniform2f(u.uCanvas, cw, ch);
-		g.uniform1f(u.uFeather, 1 / dpr);
+		g.uniform1f(u.uFeather, (dpr < 1.5 ? FEATHER_LOW_DPR : 1) / dpr);
 		g.uniform1f(u.uCap, 0);
+		g.uniform1f(u.uDpr, dpr);
+		g.uniform1i(u.uH, 0);
+		g.uniform2f(u.uGrid, gridDims[0], gridDims[1]);
+		g.uniform1f(u.uZScale, zScale);
+		g.activeTexture(g.TEXTURE0);
+		g.bindTexture(g.TEXTURE_2D, heightTex);
 
 		const mesh = isDark ? MESH_DARK : MESH_LIGHT;
 		// The surface itself never dims under key emphasis: it is the subject,
@@ -1346,9 +1438,19 @@
 		isDark = document.documentElement.getAttribute('data-theme') === 'dark';
 		accent = cssVarRgb('--viz-accent', accent);
 		marginalCol = cssVarRgb('--marginal', marginalCol);
+		// Moving the window to a screen with another DPR doesn't resize the
+		// canvas, so watch the DPR itself; the query matches one value, so it is
+		// re-armed after each change.
+		let dprQuery: MediaQueryList | null = null;
+		const onDprChange = () => {
+			dprQuery?.removeEventListener('change', onDprChange);
+			dprQuery = matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
+			dprQuery.addEventListener('change', onDprChange);
+			resize();
+		};
 		// Untracked: draw() reads reactive state, and any re-run of this effect
 		// rebuilds GL and its teardown cancels the viewpoint animation.
-		untrack(() => resize());
+		untrack(onDprChange);
 
 		const ro = new ResizeObserver(() => resize());
 		ro.observe(canvas);
@@ -1405,6 +1507,7 @@
 			raf = 0;
 			drawRaf = 0;
 			ro.disconnect();
+			dprQuery?.removeEventListener('change', onDprChange);
 			io.disconnect();
 			themeObs.disconnect();
 			canvas.removeEventListener('webglcontextlost', onLost);
@@ -1416,6 +1519,7 @@
 				glVaos = [];
 				glBuffers = [];
 				gl.deleteProgram(prog);
+				gl.deleteTexture(heightTex);
 				gl = null;
 			}
 		};
@@ -1437,12 +1541,11 @@
 		requestDraw();
 	});
 
-	// New sample → new surface: rebuild the wireframe quads.
+	// New sample → new surface: only the heights change (n is a uniform).
 	$effect(() => {
-		const quads = meshQuads(surfacePositions()); // tracks model.grid
+		void model.grid;
 		if (!gl) return;
-		gl.bindBuffer(gl.ARRAY_BUFFER, meshBuf);
-		gl.bufferData(gl.ARRAY_BUFFER, quads, gl.STATIC_DRAW);
+		uploadHeights(gl);
 		requestDraw();
 	});
 
@@ -1682,6 +1785,9 @@
 		{#if headPos && !headBelow}
 			<circle class="param-point" cx={headPos.x} cy={headPos.y} r="6" />
 		{/if}
+		{#if offWall}
+			<path class="off-wall" class:faded={fadeOf('profile') < 1} d={offWall} />
+		{/if}
 		{#each peakDots as pt, i (i)}
 			<circle class="wall-peak" class:faded={fadeOf('profile') < 1} cx={pt.x} cy={pt.y} r="3.5" />
 		{/each}
@@ -1782,7 +1888,7 @@
 			A wireframe surface of the log-likelihood over the mean and variance at the hypothetical
 			sample size. The null hypothesis is a line across the surface at the null mean; its highest
 			point is lower than the summit, and twice that difference in log-likelihood is the likelihood
-			ratio statistic. The same test is shown in the 2D figure.
+			ratio statistic. The selected test is described in the adjacent panel.
 		{:else}
 			A wireframe surface of the log-likelihood over the mean and variance. The surface rises to a
 			single peak at the maximum likelihood estimates; the highlighted path traces the optimizer's
@@ -1880,6 +1986,13 @@
 		stroke: var(--bg);
 		stroke-width: 3px;
 	}
+	/* Dashes cut in world space by dashPath, like the waterline. */
+	.gnomon .off-wall {
+		fill: none;
+		stroke: var(--marginal);
+		stroke-width: 2;
+		opacity: 0.75;
+	}
 	.gnomon .wall-peak {
 		fill: var(--marginal);
 		stroke: var(--bg);
@@ -1891,7 +2004,7 @@
 		stroke: var(--marginal);
 		stroke-width: 2;
 	}
-	/* Inference overlay: coral = the null hypothesis (as in the 2D figure). */
+	/* Inference overlay: coral = the null hypothesis. */
 	.gnomon .null-floor {
 		fill: none;
 		stroke: #e17055;

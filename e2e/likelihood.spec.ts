@@ -1,8 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 
 // End-to-end smoke for the likelihood app: the prerendered page hydrates and
-// the state wiring (sliders → readouts, optimizer run/step, test tabs, 2D⇄3D
-// toggle) works in a real browser. The *math* is pinned by vitest
+// the state wiring (sliders → readouts, optimizer run/step, test tabs and
+// surface annotations) works in a real browser. The *math* is pinned by vitest
 // (model.test.ts); these tests only assert values change in step.
 //
 // The default sample is deterministic, so the estimate readouts (μ̂ = 104)
@@ -65,19 +65,58 @@ test('fisher scoring previews and counts its steps', async ({ page }) => {
 test('test tabs drive the statistics and the figure highlight', async ({ page }) => {
 	await page.goto('/likelihood');
 	await ready(page);
-	// The figure opens in 3D; the annotations are the 2D figure's (and the
-	// toggle is absent when WebGL failed and 2D is all there is).
-	const to2d = page.getByRole('button', { name: '2D', exact: true });
-	if (await to2d.isVisible()) await to2d.click();
+	const figure = page.locator('.inf-inst');
+	await expect(figure.getByRole('group', { name: 'Inference figure view' })).toHaveCount(0);
+	await expect(figure.locator('canvas')).toBeVisible();
+	await figure.scrollIntoViewIfNeeded();
 
 	// Default null (μ₀ = 80): LRT panel visible with a p-value.
 	await expect(page.getByTestId('pval-LRT')).toBeVisible();
-	await expect(page.getByTestId('anno-LRT')).toHaveClass(/highlight/);
+	await expect(figure.locator('.lr .ridge')).toBeVisible();
+	await expect(figure.getByRole('button', { name: /on the wall/ })).toHaveAttribute(
+		'aria-pressed',
+		'true'
+	);
 
 	await page.getByRole('tab', { name: 'Wald' }).click();
 	await expect(page.getByTestId('pval-wald')).toBeVisible();
-	await expect(page.getByTestId('anno-wald')).toHaveClass(/highlight/);
-	await expect(page.getByTestId('anno-LRT')).not.toHaveClass(/highlight/);
+	await expect(page.getByTestId('pval-LRT')).not.toBeVisible();
+	await expect(figure.locator('.lr .ridge')).toHaveCount(0);
+	await expect(figure.getByRole('button', { name: /through the MLE/ })).toHaveAttribute(
+		'aria-pressed',
+		'true'
+	);
+
+	await page.locator('#likelihood-munull').fill('100');
+	await page.getByRole('tab', { name: 'Score', exact: true }).click();
+	await expect(page.getByTestId('pval-score')).toBeVisible();
+	await expect(figure.locator('.lr .slope-tri')).toBeVisible();
+	await expect(figure.locator('.lr .ridge')).toBeVisible();
+});
+
+test('inference reports unavailable WebGL without substituting a chart', async ({ page }) => {
+	await page.addInitScript(() => {
+		HTMLCanvasElement.prototype.getContext = new Proxy(HTMLCanvasElement.prototype.getContext, {
+			apply(target, canvas, args) {
+				if (args[0] === 'webgl2') return null;
+				return Reflect.apply(target, canvas, args);
+			}
+		});
+	});
+	await page.goto('/likelihood');
+	await ready(page);
+
+	const figure = page.locator('.inf-inst');
+	await expect(figure.getByRole('status')).toContainText('WebGL');
+	await expect(figure.locator('canvas, svg[role="img"]')).toHaveCount(0);
+	await expect(figure.getByRole('group', { name: 'Inference figure view' })).toHaveCount(0);
+	await expect(page.getByTestId('pval-LRT')).toBeVisible();
+
+	const intervals = await page.getByTestId('intervals').textContent();
+	await page.locator('#likelihood-n').fill('40');
+	await expect(page.getByTestId('intervals')).not.toHaveText(intervals!);
+	await page.getByRole('tab', { name: 'Wald' }).click();
+	await expect(page.getByTestId('pval-wald')).toBeVisible();
 });
 
 test('live equation numbers update in the visual and MathML output', async ({ page }) => {
@@ -103,11 +142,11 @@ test('the hypothetical n slider changes the score readout', async ({ page }) => 
 	await page.goto('/likelihood');
 	await ready(page);
 
-	const before = await page.getByTestId('score-info').textContent();
+	const before = await page.getByTestId('score-panel').textContent();
 	const n = page.getByRole('slider', { name: /sample size/i });
 	await n.focus();
 	for (let i = 0; i < 10; i++) await n.press('ArrowRight');
-	await expect(page.getByTestId('score-info')).not.toHaveText(before!);
+	await expect(page.getByTestId('score-panel')).not.toHaveText(before!);
 });
 
 test('new sample changes the estimates', async ({ page }) => {

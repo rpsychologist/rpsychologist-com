@@ -61,9 +61,17 @@ function instrument() {
 			return orig.apply(this, a);
 		};
 	}
+	for (const fn of ['texImage2D', 'texSubImage2D']) {
+		const orig = P[fn];
+		P[fn] = function (...a) {
+			const data = a.find((x) => ArrayBuffer.isView(x));
+			bump('uploadKB', tag(this.canvas), (data?.byteLength ?? 0) / 1024);
+			return orig.apply(this, a);
+		};
+	}
 }
 
-async function openPage(browser, profile, inf = '3D') {
+async function openPage(browser, profile) {
 	const context = await browser.newContext(profile.context);
 	await context.addInitScript(instrument);
 	const page = await context.newPage();
@@ -72,10 +80,7 @@ async function openPage(browser, profile, inf = '3D') {
 	if (profile.cpu > 1) await cdp.send('Emulation.setCPUThrottlingRate', { rate: profile.cpu });
 	await page.goto(`${BASE}/likelihood${QUERY}`);
 	await page.locator('.sample-point').first().waitFor();
-	// Set the inference view explicitly rather than trusting the default
-	// (3D, also the worst case).
-	await page.locator('.inf-inst .view-toggle button', { hasText: inf }).click();
-	if (inf === '3D') await page.locator('.inf-inst canvas').waitFor();
+	await page.locator('.inf-inst canvas').waitFor();
 	await page.waitForTimeout(500);
 	return { context, page, cdp };
 }
@@ -135,16 +140,21 @@ const SCENARIOS = {
 		at: '.inf-inst',
 		act: (page) => sweep(page, '#likelihood-munull', 'inf')
 	},
-	// The inference figure in 2D, where the live equations dominate.
-	'H 60× μ₀, inference 2D': {
+	// n rescales the inference surface's heights.
+	'J 60× n, inference 3D': {
 		at: '.inf-inst',
-		inf: '2D',
-		act: (page) => sweep(page, '#likelihood-munull', null)
+		act: (page) => sweep(page, '#likelihood-n', 'inf')
 	},
-	'I 60× n, inference 2D': {
-		at: '.inf-inst',
-		inf: '2D',
-		act: (page) => sweep(page, '#likelihood-n', null)
+	// A new sample is a new surface on both canvases.
+	'K 10× new sample, at MLE': {
+		at: '.mle-inst',
+		act: async (page) => {
+			const btn = page.getByRole('button', { name: 'New Sample' });
+			for (let i = 0; i < 10; i++) {
+				await btn.click();
+				await page.waitForTimeout(150);
+			}
+		}
 	},
 	'E optimizer 3s, at inference': {
 		at: '.inf-inst',
@@ -230,7 +240,7 @@ async function run(out) {
 			const reps = [];
 			// A fresh page per repetition: every run starts from the same state.
 			for (let r = 0; r < REPS; r++) {
-				const { context, page, cdp } = await openPage(browser, profile, sc.inf);
+				const { context, page, cdp } = await openPage(browser, profile);
 				await scrollToEl(page, sc.at);
 				const row = await measure(page, cdp, () => sc.act(page));
 				if (sc.after) {
