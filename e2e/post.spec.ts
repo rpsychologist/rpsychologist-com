@@ -69,7 +69,11 @@ test('the descriptive-adjustment essay hydrates its figures', async ({ page }) =
 	await page.goto('/descriptive-adjustment');
 	const toggle = page.locator('figure.forest button[aria-pressed]').first();
 	const before = await toggle.getAttribute('aria-pressed');
-	await toggle.click();
-	await expect(toggle).not.toHaveAttribute('aria-pressed', before ?? '');
+	// The figure is prerendered whole, so there is no hydration signal to wait
+	// on; a click before hydration does nothing, so retry until one registers.
+	await expect(async () => {
+		await toggle.click();
+		await expect(toggle).not.toHaveAttribute('aria-pressed', before ?? '', { timeout: 500 });
+	}).toPass();
 	expect(errors).toEqual([]);
 });

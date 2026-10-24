@@ -53,6 +53,8 @@ for (const [title, heading] of [
 
 test('p-values snapshot is interactive', async ({ page }) => {
 	await page.goto('/pvalue/');
+	// The button is prerendered; a click before React hydrates does nothing.
+	await page.waitForLoadState('networkidle');
 	await page.getByRole('button', { name: '+50', exact: true }).click();
 	await expect(page.getByText('# Draws: 50')).toBeVisible();
 });
