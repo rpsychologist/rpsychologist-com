@@ -101,7 +101,7 @@ const queue = [...paths].sort();
 const failures = [];
 await Promise.all(
 	Array.from({ length: 8 }, async () => {
-		for (let p; (p = queue.shift()) !== undefined; ) {
+		for (let p; (p = queue.shift()) !== undefined;) {
 			const f = await check(p);
 			if (f) failures.push(f);
 		}

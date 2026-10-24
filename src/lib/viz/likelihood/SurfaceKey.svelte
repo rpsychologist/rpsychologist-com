@@ -1,12 +1,6 @@
 <script lang="ts" module>
 	export type KeySwatch =
-		| 'slice'
-		| 'path'
-		| 'next'
-		| 'profile'
-		| 'ridge'
-		| 'null-line'
-		| 'null-slice';
+		'slice' | 'path' | 'next' | 'profile' | 'ridge' | 'null-line' | 'null-slice';
 	export interface KeyItem {
 		id: string;
 		swatch: KeySwatch;
