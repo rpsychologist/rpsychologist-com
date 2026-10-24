@@ -6,7 +6,8 @@
 	const follow = [
 		{ name: 'bluesky', href: site.social.bluesky, label: 'Bluesky' },
 		{ name: 'x', href: site.social.twitter, label: 'Twitter' },
-		{ name: 'github', href: site.social.github, label: 'GitHub' }
+		{ name: 'github', href: site.social.github, label: 'GitHub' },
+		{ name: 'linkedin', href: site.social.linkedin, label: 'LinkedIn' }
 	];
 </script>
 

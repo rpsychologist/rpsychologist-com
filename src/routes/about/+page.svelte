@@ -6,13 +6,7 @@
 	import Seo from '$lib/components/Seo.svelte';
 	import thesisCover from '$lib/assets/thesis_cover_front.png?enhanced';
 
-	const thesisUrl = 'https://openarchive.ki.se/xmlui/handle/10616/46909';
-	const elsewhere = [
-		{ name: 'bluesky', href: site.social.bluesky, label: 'Bluesky' },
-		{ name: 'github', href: site.social.github, label: 'GitHub' },
-		{ name: 'x', href: site.social.twitter, label: 'Twitter' },
-		{ name: 'linkedin', href: site.social.linkedin, label: 'LinkedIn' }
-	];
+	const thesisUrl = 'https://hdl.handle.net/10616/46909';
 </script>
 
 <Seo title="About" description="About Kristoffer Magnusson and R Psychologist." path="/about" />
@@ -22,11 +16,9 @@
 		<p class="eyebrow">About</p>
 		<h1>Kristoffer Magnusson, PhD</h1>
 		<p class="lede">
-			I'm a licensed psychologist and researcher in clinical psychology at the
-			<a href="https://ki.se/en/cns/centre-for-psychiatry-research" rel="external"
-				>Centre for Psychiatry Research, Karolinska Institutet</a
-			>, in Stockholm, Sweden. My interests are a mix of open science, gaming and gambling problems,
-			statistics, therapist effects, visualization, and psychotherapy.
+			I'm a licensed psychologist and researcher in clinical psychology at the Centre for Psychiatry
+			Research, Karolinska Institutet, in Stockholm, Sweden. My interests are a mix of open science,
+			gaming and gambling problems, statistics, therapist effects, visualization, and psychotherapy.
 		</p>
 		<p>
 			I also have a background in web development, and I still work part-time as a web developer
@@ -53,16 +45,6 @@
 					>
 					· <a href="https://orcid.org/0000-0003-0713-0556" rel="external">ORCID</a>
 				</p>
-			</div>
-			<div class="fact">
-				<p class="eyebrow">Elsewhere</p>
-				<div class="icons">
-					{#each elsewhere as e (e.name)}
-						<a href={e.href} aria-label={e.label} target="_blank" rel="noopener external">
-							<Icon name={e.name} size={18} />
-						</a>
-					{/each}
-				</div>
 			</div>
 		</div>
 
@@ -93,10 +75,30 @@
 		</p>
 
 		<h2 class="eyebrow">Contact</h2>
-		<p>
-			Email me at <span class="email">hello [at] rpsychologist.com</span>, or reach me on any of the
-			platforms listed under Elsewhere.
-		</p>
+		<dl class="contact">
+			<div>
+				<dt><Icon name="mail" size={16} />Email</dt>
+				<dd>
+					<a href="mailto:contact@mail.rpsychologist.com">contact@<wbr />mail.rpsychologist.com</a>
+				</dd>
+			</div>
+			<div>
+				<dt><Icon name="bluesky" size={16} />Bluesky</dt>
+				<dd><a href={site.social.bluesky} rel="external">@rpsychologist.com</a></dd>
+			</div>
+			<div>
+				<dt><Icon name="github" size={16} />GitHub</dt>
+				<dd><a href={site.social.github} rel="external">rpsychologist</a></dd>
+			</div>
+			<div>
+				<dt><Icon name="x" size={16} />Twitter</dt>
+				<dd><a href={site.social.twitter} rel="external">@krstoffr</a></dd>
+			</div>
+			<div>
+				<dt><Icon name="linkedin" size={16} />LinkedIn</dt>
+				<dd><a href={site.social.linkedin} rel="external">kristofferm</a></dd>
+			</div>
+		</dl>
 	</article>
 </Container>
 
@@ -110,14 +112,48 @@
 		font-size: 1.2rem;
 		line-height: 1.65;
 	}
-	.email {
-		white-space: nowrap;
+	/* Contact: label/value rows echoing the facts strip; subgrid keeps the
+	   label column aligned across rows while each row carries its own hairline. */
+	.contact {
+		display: grid;
+		grid-template-columns: max-content 1fr;
+		column-gap: 2rem;
+		margin: 0;
+		border-bottom: 1px solid var(--rule);
+	}
+	.contact div {
+		display: grid;
+		grid-template-columns: subgrid;
+		grid-column: 1 / -1;
+		padding: 0.6rem 0;
+		border-top: 1px solid var(--rule);
+	}
+	.contact dt {
+		display: flex;
+		align-items: center;
+		gap: 0.55rem;
+		color: var(--muted);
+	}
+	.contact dd {
+		margin: 0;
+		min-width: 0;
+		/* Break the address only at the <wbr> after "@", not mid-word. */
+		overflow-wrap: normal;
+	}
+	/* A label column leaves too little width on phones; stack label over value. */
+	@media (max-width: 34rem) {
+		.contact div {
+			grid-template-columns: 1fr;
+		}
+		.contact dt {
+			font-size: 0.85rem;
+		}
 	}
 
-	/* Facts strip: three hairline-separated cells, stacks on narrow screens. */
+	/* Facts strip: hairline-ruled cells, stacks on narrow screens. */
 	.facts {
 		display: grid;
-		grid-template-columns: 1.6fr 1fr 1fr;
+		grid-template-columns: 1.6fr 1fr;
 		gap: 1.5rem;
 		margin: 2.5rem 0;
 		padding: 1.25rem 0;
@@ -129,28 +165,14 @@
 		font-size: 0.92rem;
 		line-height: 1.5;
 	}
-	.fact p a {
-		color: var(--ink);
-		text-decoration: underline;
-		text-decoration-color: var(--rule);
+	.fact a,
+	.contact a {
+		text-decoration-color: var(--link-underline-quiet);
 		text-decoration-thickness: 1px;
-		text-underline-offset: 0.15em;
 	}
-	.fact p a:hover {
-		color: var(--heading);
+	.fact a:hover,
+	.contact a:hover {
 		text-decoration-color: var(--accent);
-	}
-	.icons {
-		display: flex;
-		gap: 0.9rem;
-	}
-	.icons a {
-		display: inline-flex;
-		color: var(--muted);
-		transition: color 0.15s;
-	}
-	.icons a:hover {
-		color: var(--accent);
 	}
 	@media (max-width: 34rem) {
 		.facts {
