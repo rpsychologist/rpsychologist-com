@@ -9,8 +9,6 @@ export const site = {
 	bio: "I'm a researcher in clinical psychology. I build interactive tools for understanding statistics, and write about quantitative methods and causal inference.",
 	twitter: '@krstoffr',
 	repo: 'https://github.com/rpsychologist/rpsychologist-com',
-	/** Posts per page on the paginated index. */
-	postsPerPage: 5,
 	/** Cloudflare Web Analytics beacon token (set to enable; empty disables). */
 	cloudflareAnalyticsToken: '8297908c62a6433bb704d6709a24efd2',
 	social: {

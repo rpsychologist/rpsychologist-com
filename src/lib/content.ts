@@ -1,18 +1,8 @@
 import { posts } from 'virtual:posts';
 import type { PostMeta } from 'virtual:posts';
-import { site } from '$lib/config';
 
 export type { PostMeta };
 export { posts };
-
-/** Total number of paginated index pages. */
-export const pageCount: number = Math.max(1, Math.ceil(posts.length / site.postsPerPage));
-
-/** Posts shown on index page `page` (1-based, newest first). */
-export function postsForPage(page: number): PostMeta[] {
-	const start = (page - 1) * site.postsPerPage;
-	return posts.slice(start, start + site.postsPerPage);
-}
 
 /** Posts matching a tag OR a category (newest first). */
 export function postsForTerm(term: string): PostMeta[] {

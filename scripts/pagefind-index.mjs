@@ -86,7 +86,7 @@ function decorate(url, content) {
 }
 
 // Navigation/duplicate pages that add noise instead of answers: taxonomy and
-// pagination listings, the search page itself, the chrome-free viz embeds
+// post listings, the search page itself, the chrome-free viz embeds
 // and changelogs (which repeat their parent viz's terms and would outrank or
 // crowd it), and the share-card screenshot targets. Keeping these out sharpens
 // results.
@@ -94,7 +94,6 @@ function isNoise(url) {
 	return (
 		url === '/tags' ||
 		url.startsWith('/tags/') ||
-		url.startsWith('/page/') ||
 		url === '/posts' ||
 		url === '/search' ||
 		url.endsWith('/embed') ||

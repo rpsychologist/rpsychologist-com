@@ -90,7 +90,6 @@ Everything is prerendered: `src/routes/+layout.ts` sets `prerender = true`,
 static adapter knows every path to emit:
 
 - `[slug]` — individual posts; `entries` from `posts`.
-- `page/[page]` — paginated index (`postsPerPage` in config).
 - `tags/[tag]` — one page per term, where a "term" is a tag **or** a category
   (unified in `content.ts`; `termSlug`/`termBySlug` map display ↔ URL).
 - `rss.xml`, `sitemap.xml` — `+server.ts` endpoints, also prerendered.

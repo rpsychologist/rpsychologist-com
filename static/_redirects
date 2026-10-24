@@ -1,12 +1,14 @@
-# Old Gatsby paginated index URLs (/2, /3, ...) -> /page/N
-/2   /page/2   301
-/3   /page/3   301
-/4   /page/4   301
-/5   /page/5   301
-/6   /page/6   301
-/7   /page/7   301
-/8   /page/8   301
-/9   /page/9   301
+# Paginated indexes, retired for the by-year list: Gatsby's /2 … /9 and the
+# /page/N that briefly replaced them.
+/2       /posts   301
+/3       /posts   301
+/4       /posts   301
+/5       /posts   301
+/6       /posts   301
+/7       /posts   301
+/8       /posts   301
+/9       /posts   301
+/page/*  /posts   301
 
 # Feed aliases
 /feed      /rss.xml   301
