@@ -6,7 +6,7 @@ First of the five Phase 6 viz apps ported from the Gatsby site, and the **templa
 other four copy** — the patterns here (state class, URL codecs, share/embed split) are
 the house style, not one-off choices.
 The general viz rules (per-component instantiation, `onMount` init, private stores) live
-in the root `CLAUDE.md` under `src/lib/viz`; this file documents what is specific to cohend.
+in `docs/architecture.md` under `src/lib/viz`; this file documents what is specific to cohend.
 
 ## File map
 
@@ -24,11 +24,11 @@ in the root `CLAUDE.md` under `src/lib/viz`; this file documents what is specifi
 | `Settings.svelte`         | Right drawer: numeric params, labels, colors, slider range, save/clear/reset with saved/dirty indicators.                                                   |
 | `ShareDialog.svelte`      | Link + embed `<iframe>` snippet with live preview; checkboxes pick which state slices ride along.                                                           |
 | `EmbedAttribution.svelte` | Source credit at the foot of the embed route.                                                                                                               |
-| `changelog.json` + `.ts`  | Release history (semver + dated, Keep a Changelog categories); the `.ts` wraps it in `defineChangelog`. See root `CLAUDE.md` § versioning.                  |
+| `changelog.json` + `.ts`  | Release history (semver + dated, Keep a Changelog categories); the `.ts` wraps it in `defineChangelog`. See `docs/architecture.md` § versioning.            |
 
 Routes: `src/routes/cohend/+page.svelte` (article page), `src/routes/cohend/embed/+page.svelte`
-(chrome-free iframe target — a real child route, not a `?embed=1` query; see root
-`CLAUDE.md`), their translated twins under `src/routes/[lang=cohendLocale]/cohend/`, and
+(chrome-free iframe target — a real child route, not a `?embed=1` query; see
+`docs/architecture.md`), their translated twins under `src/routes/[lang=cohendLocale]/cohend/`, and
 `src/routes/cohend/changelog/+page.svelte` (release history, English only; the cite FAQ
 links here).
 

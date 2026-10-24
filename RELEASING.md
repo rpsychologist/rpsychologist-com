@@ -1,7 +1,7 @@
 # Releasing a viz app version
 
 The interactive visualization apps (`/cohend`, `/correlation`, …) each carries its own semver line and a public changelog (`/<app>/changelog`). This is the maintainer's guide; the
-architecture is documented in `CLAUDE.md` and `src/lib/viz/core/changelog.ts`.
+architecture is documented in `docs/architecture.md` and `src/lib/viz/core/changelog.ts`.
 
 ## The one thing to remember
 
