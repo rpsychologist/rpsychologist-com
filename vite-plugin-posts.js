@@ -84,6 +84,44 @@ function extractToc(content) {
 	return sections;
 }
 
+/** The zone post dates are written in (the old site built them on a Stockholm Mac). */
+export const POST_TIME_ZONE = 'Europe/Stockholm';
+
+const zoneParts = new Intl.DateTimeFormat('en-US', {
+	timeZone: POST_TIME_ZONE,
+	hourCycle: 'h23',
+	year: 'numeric',
+	month: 'numeric',
+	day: 'numeric',
+	hour: 'numeric',
+	minute: 'numeric',
+	second: 'numeric'
+});
+
+/** @param {number} utcMs */
+function zoneOffsetMs(utcMs) {
+	const p = Object.fromEntries(
+		zoneParts.formatToParts(new Date(utcMs)).map((x) => [x.type, Number(x.value)])
+	);
+	return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - utcMs;
+}
+
+/**
+ * Frontmatter dates (`2022-10-29 09:37`) are Stockholm wall time. `new Date()`
+ * would read them in the build machine's zone, so a UTC CI build and a local
+ * build disagreed by an hour or two (and the RSS pubDates shifted at cutover).
+ * @param {string | Date} value
+ */
+export function parsePostDate(value) {
+	if (value instanceof Date) return value;
+	const m = /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?$/.exec(value.trim());
+	if (!m) return new Date(value);
+	const [y, mo, d, h = 0, mi = 0, s = 0] = m.slice(1).map((v) => Number(v ?? 0));
+	const wall = Date.UTC(y, mo - 1, d, h, mi, s);
+	// Second pass settles instants near a DST switch.
+	return new Date(wall - zoneOffsetMs(wall - zoneOffsetMs(wall)));
+}
+
 /** @param {string} root */
 function loadPosts(root) {
 	const blogDir = path.join(root, 'content', 'blog');
@@ -116,7 +154,7 @@ function loadPosts(root) {
 			throw new Error(`Missing thumbnail "${fm.thumbnail}" in ${file}`);
 		}
 
-		const date = new Date(fm.date);
+		const date = parsePostDate(fm.date);
 		if (Number.isNaN(date.getTime())) {
 			throw new Error(`Unparseable date "${fm.date}" in ${file}`);
 		}

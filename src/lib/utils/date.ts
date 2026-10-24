@@ -1,4 +1,8 @@
+// Pinned zone: without it the prerender (UTC) and the reader's browser could
+// show different days for the same post, and hydration would change the text.
+// Matches POST_TIME_ZONE in vite-plugin-posts.js.
 const formatter = new Intl.DateTimeFormat('en-US', {
+	timeZone: 'Europe/Stockholm',
 	year: 'numeric',
 	month: 'short',
 	day: 'numeric'
