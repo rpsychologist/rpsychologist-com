@@ -350,11 +350,7 @@
 			the slope at the null. The same steps work for logistic regression, mixed models, or
 			structural equation models, where exact tests usually don't exist. There the surface has more
 			dimensions than we can draw, and more nuisance parameters to profile out, but we handle them
-			just as we handled the variance here. What does need checking is the large-sample
-			approximation. It assumes, among other things, that the null value lies inside the parameter
-			space. Testing whether a mixed model's random-effect variance is zero breaks that, and the
-			likelihood ratio statistic then no longer follows a <Tex math={String.raw`\chi^2_1`} />
-			distribution (Self &amp; Liang, 1987).
+			just as we handled the variance here.
 		</p>
 	</section>
 </div>

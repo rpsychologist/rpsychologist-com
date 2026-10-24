@@ -296,15 +296,6 @@
 						>https://doi.org/10.1080/00031305.1982.10482817</a
 					>
 				</p>
-				<p>
-					Self, S. G., &amp; Liang, K.-Y. (1987). Asymptotic properties of maximum likelihood
-					estimators and likelihood ratio tests under nonstandard conditions. <em
-						>Journal of the American Statistical Association, 82</em
-					>(398), 605–610.
-					<a class="url" href="https://doi.org/10.1080/01621459.1987.10478472"
-						>https://doi.org/10.1080/01621459.1987.10478472</a
-					>
-				</p>
 			</div>
 		</details>
 	</section>
