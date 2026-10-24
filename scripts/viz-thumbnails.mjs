@@ -29,7 +29,9 @@ const apps = {
 	cohend: {
 		url: '/cohend',
 		chart: 'svg[aria-label^="Two overlapping normal"]',
-		crop: { x: 0.233, y: 0, w: 0.533 }
+		crop: { x: 0.233, y: 0, w: 0.533 },
+		// The slider handle's shadow bleeds over the chart's top edge.
+		setup: (page) => page.addStyleTag({ content: '.fig-range { visibility: hidden }' })
 	},
 	correlation: {
 		url: '/correlation',
