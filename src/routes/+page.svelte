@@ -16,7 +16,8 @@
 	const socials = [
 		{ name: 'bluesky', href: site.social.bluesky, label: 'Bluesky' },
 		{ name: 'github', href: site.social.github, label: 'GitHub' },
-		{ name: 'x', href: site.social.twitter, label: 'Twitter' }
+		{ name: 'x', href: site.social.twitter, label: 'Twitter' },
+		{ name: 'linkedin', href: site.social.linkedin, label: 'LinkedIn' }
 	];
 </script>
 
@@ -54,7 +55,7 @@
 			<h2 class="eyebrow">Writing</h2>
 			<a class="more" href={resolve('/posts')}>All posts →</a>
 		</div>
-		<PostList posts={recent} />
+		<PostList posts={recent} variant="index" headingLevel={3} />
 		<div class="block-foot">
 			<a class="more" href={resolve('/posts')}>All posts →</a>
 		</div>
@@ -69,10 +70,10 @@
 		margin-bottom: 1rem;
 		border-bottom: 1px solid var(--rule);
 	}
-	/* The Gaussian mesh sits in a contained "screen" on the right. Hidden from the
+	/* The Gaussian mesh sits on the right, frameless on the paper. Hidden from the
 	   a11y tree (decorative), dropped on narrow screens where it would crowd the
 	   text, but pointer-interactive: clicking launches a gradient-ascent climber.
-	   The panel surface, border, edge-fade, and climbers are owned by the component. */
+	   The edge fade and climbers are owned by the component. */
 	.intro :global(.hero-deco) {
 		position: absolute;
 		top: 1.25rem;
