@@ -84,13 +84,17 @@
 	}
 	/* Thumbnails are crops of the real charts. Apps with a dark mode have a dark
      crop too (scripts/viz-thumbnails.mjs); the rest are white-background
-     screenshots, dimmed in dark mode so they don't glare. */
+     screenshots, dimmed in dark mode so they don't glare. Each background
+     matches its crops' flat backdrop, so nothing flashes while they load. */
 	.screen {
 		aspect-ratio: 4 / 3;
 		overflow: hidden;
 		border-radius: 4px;
 		background: #fff;
 		border: 1px solid var(--rule);
+	}
+	.screen.has-dark {
+		background: var(--bg);
 	}
 	.screen :global(img) {
 		display: block;
