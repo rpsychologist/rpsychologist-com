@@ -50,6 +50,12 @@ SvelteKit (Svelte 5 runes) site, fully prerendered with `adapter-static`, deploy
 - Never hardcode a viz app version; it is read from the newest changelog entry.
 - When a change alters what `docs/architecture.md` describes, update it in the same change.
 
+## Svelte MCP
+
+- Before Svelte or SvelteKit work, call `list-sections`, then `get-documentation` for every section whose `use_cases` match the task.
+- Run `svelte-autofixer` on every `.svelte` and `.svelte.ts` file you write or edit until it returns no issues or suggestions.
+- The server fetches from `svelte.dev`; if its tools are missing, say so instead of working without them.
+
 ## Code Comments
 
 - Explain why, not what: keep a comment only if it stops someone from breaking the code.
