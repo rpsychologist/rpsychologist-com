@@ -65,9 +65,9 @@
 		</p>
 		<p>
 			We'll use a normal model with just two unknown parameters, the mean and variance, so we can
-			draw the whole log-likelihood as a surface. When we get to hypothesis testing, we'll focus on
-			the mean. The variance will be a <em>nuisance parameter</em>, meaning we still need to
-			estimate it even though it isn't what we want to test.
+			draw the whole log-likelihood as a 3D surface that you can rotate and explore. When we get to
+			hypothesis testing, we'll focus on the mean. The variance will be a <em>nuisance parameter</em
+			>, meaning we still need to estimate it even though it isn't what we want to test.
 		</p>
 	</div>
 
@@ -87,15 +87,16 @@
 					Use the sliders in the top bar to choose the mean and variance. You can also type a value
 					or press <strong>MLE</strong> to set a parameter to its maximum likelihood estimate.
 					<strong>New Sample</strong> draws 10 fresh observations from
-					<Tex math={String.raw`\mathcal N(100, 225)`} />.
+					<Tex math={String.raw`\mathcal N(100, 225)`} />, shifted by at most 0.5 so their mean is a
+					whole number.
 				</p>
 				<h3>Explore the log-likelihood</h3>
 				<p>
 					Drag the ring on the floor of the 3D figure to change both parameters at once. The two
 					curves through the point (the slices in the key) show what happens when you vary one
-					parameter while holding the other fixed. Below the figure you'll find the current
-					log-likelihood and the two scores, the slopes in the mean and variance directions. Hover
-					or tap a score to show that slope on the surface.
+					parameter while holding the other fixed. Beside the figure (below it on narrow screens)
+					you'll find the current log-likelihood and the two scores, the slopes in the mean and
+					variance directions. Hover or tap a score to show that slope on the surface.
 				</p>
 				<h3>Run an optimizer</h3>
 				<p>
@@ -108,7 +109,7 @@
 				<p>
 					Drag the surface away from the ring to rotate it. The View buttons switch between an
 					angled view and two side views. From the side, the outline of the surface follows the
-					profile curve on the back wall.
+					solid part of the profile curve on the back wall.
 				</p>
 				<p>
 					The full-view button at the right of each figure's header expands it to fill the window.
@@ -152,7 +153,8 @@
 				<p>
 					The variance estimate <Tex math={String.raw`\hat\sigma^2`} /> divides by <Tex math="n" />,
 					not
-					<Tex math="n - 1" />, so the MLE of the variance is biased downward in small samples.
+					<Tex math="n - 1" />, so the MLE of the variance is biased downward by a factor of
+					<Tex math="(n - 1)/n" />, which matters only in small samples.
 				</p>
 				<p>The score functions (first derivatives) are</p>
 				<Tex display math={tex.scores} />
@@ -220,7 +222,8 @@
 				<p>
 					where <Tex math={String.raw`\gamma`} /> is the step size (0.05 by default). The app runs this
 					calculation on standardized data, then converts back to the original units for plotting. A small
-					step size slows convergence; a large one can overshoot the maximum.
+					step size slows convergence; a large one can overshoot the maximum and even lower the log-likelihood.
+					A gradient-ascent run stops if a step leaves the plotted range.
 				</p>
 				<p>
 					Fisher scoring is a variant of Newton-Raphson that uses expected information rather than
@@ -230,8 +233,7 @@
 				<p>
 					For this normal model, the first step puts the mean at <Tex math={String.raw`\hat\mu`} />
 					but updates the variance using the previous mean. The second step gives
-					<Tex math={String.raw`\hat\sigma^2`} /> as well. The app stops a run if a step leaves the plotted
-					range.
+					<Tex math={String.raw`\hat\sigma^2`} /> as well.
 				</p>
 			</div>
 		</details>

@@ -40,7 +40,7 @@
 
 <div class="tests">
 	<p class="intro">
-		Each test tab picks out the part of the figure that test uses. Move
+		Choosing a test highlights the parts of the figure it uses. Move
 		<Tex math={String.raw`\mu_0`} /> and watch the three <em>p</em>-values in the tabs.
 	</p>
 	<div class="tablist" role="tablist" aria-label="Hypothesis test">

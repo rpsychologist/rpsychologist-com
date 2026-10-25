@@ -39,7 +39,7 @@ export const viz: Viz[] = [
 		image: 'likelihood',
 		href: '/likelihood',
 		featured: true,
-		description: 'Likelihood, probability, and maximum likelihood estimation.'
+		description: 'Maximum likelihood estimation and the likelihood ratio, Wald, and score tests.'
 	},
 	{
 		title: 'Adjusted coefficients',

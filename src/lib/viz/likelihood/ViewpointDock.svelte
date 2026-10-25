@@ -6,7 +6,7 @@
 		{
 			id: 'mu',
 			label: 'Side μ',
-			title: 'Look along σ²: the outline is the profile likelihood of μ'
+			title: 'Look along σ²: the outline follows the profile likelihood of μ'
 		},
 		{
 			id: 's2',
