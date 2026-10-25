@@ -55,6 +55,7 @@ SvelteKit (Svelte 5 runes) site, fully prerendered with `adapter-static`, deploy
 - Before Svelte or SvelteKit work, call `list-sections`, then `get-documentation` for every section whose `use_cases` match the task.
 - Run `svelte-autofixer` on every `.svelte` and `.svelte.ts` file you write or edit until it returns no issues or suggestions.
 - The server fetches from `svelte.dev`; if its tools are missing, say so instead of working without them.
+- Delegate multi-file Svelte edits to the `svelte-file-editor` subagent so doc lookups and autofixer rounds stay out of the main context.
 
 ## Code Comments
 
