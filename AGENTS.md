@@ -64,3 +64,9 @@ SvelteKit (Svelte 5 runes) site, fully prerendered with `adapter-static`, deploy
 - Keep comments to about 3 lines; derivations in `src/lib/stats/` may run longer.
 - State a fact in one place and point to it elsewhere.
 - Do not narrate the next line.
+
+## Commits
+
+- Subjects follow Conventional Commits: `type(scope): summary`, lowercase and imperative, e.g. `fix(likelihood): update the gallery description`.
+- Scope is the viz app (`likelihood`, `cohend`) or area (`agents`, `share`, `e2e`); omit it only when the change spans the repo.
+- Work lands on `main` through a PR branch named `<type>/<topic>`, e.g. `docs/cf-pages-toolchain`.
