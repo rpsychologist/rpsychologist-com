@@ -1670,7 +1670,7 @@
 	<canvas
 		bind:this={canvas}
 		aria-label={inference
-			? 'Rotatable 3D surface of the joint log-likelihood at the hypothetical sample size, marking the null hypothesis and the likelihood ratio'
+			? `Rotatable 3D surface of the joint log-likelihood at the hypothetical sample size, marking the null hypothesis and the ${model.p.test === 'LRT' ? 'likelihood ratio' : model.p.test === 'wald' ? 'Wald distance' : 'score'}`
 			: "Rotatable 3D surface of the joint log-likelihood; the highlighted path shows the optimizer's steps"}
 	></canvas>
 	<svg class="gnomon" aria-hidden="true">

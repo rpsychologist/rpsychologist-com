@@ -161,7 +161,7 @@
 				class="tooltip"
 				style="left: {Math.min(Math.max(tip.x, 70), cw - 70)}px; top: {tip.y - 12}px"
 			>
-				<Tex math={`\\ell_{${tip.i + 1}} =`} /> log({fL(tip.L)})
+				<Tex math={`\\ell_{${tip.i + 1}} =`} /> ln({fL(tip.L)})
 			</div>
 		{/if}
 	{/if}

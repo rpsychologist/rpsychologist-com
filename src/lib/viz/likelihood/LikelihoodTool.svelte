@@ -122,9 +122,8 @@
 			from a normal distribution and pretend we don't know its mean or variance. We'll fit the model <Tex
 				math={String.raw`y \sim \mathcal N(\mu, \sigma^2)`}
 			/>. Try moving the sliders to find a combination of <Tex math={String.raw`\mu`} /> and
-			<Tex math={String.raw`\sigma^2`} /> that seems to fit the observations. The table scores your choice:
-			it adds up how well the curve fits each observation, and the higher (less negative) the total, the
-			better the fit.
+			<Tex math={String.raw`\sigma^2`} /> that seems to fit the observations. The table below adds up
+			how well the curve fits each observation, so a higher total means a better fit.
 		</p>
 	</section>
 
@@ -148,17 +147,17 @@
 				observations, not assigning probabilities to the parameters themselves.
 			</p>
 			<p class="section-intro">
-				In practice, multiplying lots of small densities can give us very small numbers. It's
-				usually more convenient to work with the <em>log-likelihood</em>, where we add the
-				log-densities instead. We'll write it as <Tex math={String.raw`\ell(\mu, \sigma^2)`} />: for
-				a given mean and variance, the sum of the log-densities
+				In practice, multiplying lots of small densities can give a number too small for a computer
+				to store, so it gets rounded to zero (numerical underflow). We therefore work with the <em
+					>log-likelihood</em
+				>, where we add the log-densities instead. We'll write it as <Tex
+					math={String.raw`\ell(\mu, \sigma^2)`}
+				/>: for a given mean and variance, the sum of the log-densities
 				<Tex math={String.raw`\ln f(y_i \mid \mu, \sigma^2)`} /> over the observations. That's the calculation
 				in the table. The logarithm is increasing, so whichever parameter values give the largest likelihood
-				also give the largest log-likelihood.
-			</p>
-			<p class="section-intro after">
-				Those parameter values are our <em>maximum likelihood estimates</em> (MLEs). The last row of the
-				table gives the answer, so you can compare it with the values you've chosen.
+				also give the largest log-likelihood. Those values are the
+				<em>maximum likelihood estimates</em>
+				(MLEs).
 			</p>
 		</section>
 
@@ -179,8 +178,8 @@
 			<p class="section-intro">
 				We can also let the computer search for the maximum. This is more work than we need for this
 				example, but for many models we can't solve the score equations directly. The algorithms
-				below start from your chosen values and try to climb the hill. Take one step with the +1
-				button and check the readout: <Tex math={String.raw`\ell`} /> should have gone up.
+				below start from your chosen values and try to climb the hill. At the default step size,
+				each press of +1 takes one step and <Tex math={String.raw`\ell`} /> goes up.
 				<em>Gradient ascent</em> follows the slope uphill, and you choose how far it steps. Try a
 				few step sizes: too small and it takes a long time to get anywhere; too large and it can
 				jump past the peak. <em>Fisher scoring</em> uses the expected curvature as well, which helps it
@@ -217,11 +216,12 @@
 				</div>
 			</div>
 			<p class="section-intro after">
-				Try looking at the hill from one of the side views. Its outline matches the curve drawn on
-				the back wall: for each value of one parameter, it keeps the highest log-likelihood we can
-				get by varying the other. This is the <em>profile log-likelihood</em>. For the mean we write
-				it <Tex math={String.raw`\ell_p(\mu)`} />, and we'll use it below to test hypotheses about
-				the mean.
+				Try looking at the hill from one of the side views. Its outline matches the solid curve
+				drawn on the back wall: for each value of one parameter, it keeps the highest log-likelihood
+				we can get by varying the other. This is the <em>profile log-likelihood</em>. Where the
+				curve turns dashed, the best variance lies beyond the plotted range, so the outline drops
+				below it. For the mean we write it <Tex math={String.raw`\ell_p(\mu)`} />, and we'll use it
+				below to test hypotheses about the mean.
 			</p>
 		</section>
 	</div>
@@ -246,11 +246,6 @@
 				math={String.raw`\mu_0`}
 			/> and it slides along the dotted ridge, the best variance for each mean, whose shadow on the back
 			wall is <Tex math={String.raw`\ell_p(\mu)`} />.
-		</p>
-		<p class="section-intro">
-			Away from the estimated mean, allowing the variance to change gives a better fit than keeping
-			it fixed at <Tex math={String.raw`\hat\sigma^2`} />. The Wald test uses a quadratic
-			approximation to the profile, which agrees near the maximum but falls faster farther away.
 		</p>
 		<p class="section-intro">
 			I've also included a sample-size slider so you can see how much the tests depend on
@@ -279,7 +274,7 @@
 				<div class="inf-control">
 					<Slider
 						id="likelihood-n"
-						label="What if the sample size were…"
+						label="Sample size (n)"
 						min={N_MIN}
 						max={N_MAX}
 						step={1}
@@ -309,7 +304,8 @@
 							<p class="hint">
 								At this <Tex math={String.raw`\mu_0`} />, the variance estimate under the null,
 								<Tex math={String.raw`\hat\sigma_0^2`} />, is outside the plotted range. Its
-								log-likelihood is still shown on the profile curve on the back wall.
+								log-likelihood is still shown by the dashed part of the profile curve on the back
+								wall, unless it falls below the floor.
 							</p>
 						{/if}
 					{:else}
@@ -343,14 +339,12 @@
 			<em>t</em>-test is exact.
 		</p>
 		<p class="section-intro">
-			The reason to work through the likelihood-based tests anyway is that none of the steps
-			depended on the normal model. Whatever the model, we write down its log-likelihood, climb to
-			the peak, and read the tests off the same three features: the drop from the peak to the best
-			fit under the null, the distance to the null measured against the curvature at the peak, and
-			the slope at the null. The same steps work for logistic regression, mixed models, or
-			structural equation models, where exact tests usually don't exist. There the surface has more
-			dimensions than we can draw, and more nuisance parameters to profile out, but we handle them
-			just as we handled the variance here.
+			We worked through the likelihood tests anyway because none of the steps depended on the normal
+			model. Whatever the model, once we have its log-likelihood we can find the peak and carry out
+			the tests just as we did here. That is how parameters are tested in logistic regression, mixed
+			models, and structural equation models, where exact tests usually don't exist. Their surfaces
+			have too many dimensions to draw and more parameters to profile out, but the intuition is the
+			same.
 		</p>
 	</section>
 </div>

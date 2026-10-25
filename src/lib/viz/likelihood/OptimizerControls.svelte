@@ -200,11 +200,12 @@
 			</p>
 			<Tex display math={eqFisher} />
 			<p>
-				Where the log-likelihood is exactly quadratic, one step is enough, so the mean lands on
-				<Tex math={String.raw`\hat\mu`} /> immediately. The variance takes two. Both parameters update
-				at once, so the first variance step uses the starting mean and lands on the best variance for
-				that mean, <Tex math={String.raw`\hat\sigma^2 + (\mu_t - \hat\mu)^2`} />. That overshoots
-				whenever the starting mean is off; the second step lands on the MLE.
+				In the mean direction the log-likelihood is exactly quadratic, so one step puts the mean on
+				<Tex math={String.raw`\hat\mu`} />. The variance takes two. Both parameters update at once,
+				so the first variance step uses the starting mean and lands on the best variance for that
+				mean, <Tex math={String.raw`\hat\sigma^2 + (\mu_t - \hat\mu)^2`} />. That is too high
+				whenever the starting mean is off; the second step, with the mean now at
+				<Tex math={String.raw`\hat\mu`} />, lands on the MLE.
 			</p>
 		</aside>
 	{/if}
