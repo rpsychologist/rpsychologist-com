@@ -5,44 +5,29 @@
 			"version": "1.0.0",
 			"date": "2026-10-24",
 			"added": [
-				"3D view of the joint likelihood: a rotatable surface (height is the log-likelihood, drawn down to a floor 50 below the peak, marked where the hill meets it, with the surface fading out as it keeps falling below) with the optimizer path and the ℓ(μ)/ℓ(σ²) slices drawn on it. It replaces the contour plot as the joint view; the contour remains only as the fallback where WebGL is unavailable.",
-				"The 95% profile likelihood and Wald intervals at the hypothetical n are reported beneath the inference figure.",
-				"The inference plot annotates the geometry of the three tests (after Buse, 1982); the element for the selected test is highlighted.",
-				"Persistent readout of the estimates: μ̂, σ̂², and the log-likelihood at the maximum and at the current point (the iteration count and convergence sit with the optimizer controls).",
-				"Profile-likelihood silhouettes on the two far walls of the 3D view (ℓₚ(μ) = maxₛ₂ ℓ and ℓ(μ̂, σ²), the surface's ridge cast onto each axis, in amber). Dashed guides carry the current point's height across to each wall, where a dashed rise up to the curve shows how much higher ℓ would be at the best value of the other parameter; it closes as that value is reached, and at the MLE the guides meet the wall peaks.",
-				"The 3D surface is draggable: grab the floor handle under the point to move μ and σ² at once. Dragging elsewhere rotates.",
-				"A 3D view of the inference figure: the likelihood surface at the hypothetical n, with the null hypothesis μ = μ₀ drawn across it, its best point (μ₀, σ̂₀²) sliding along the ridge of best variances, and each test's geometry: the likelihood ratio as the drop of the profile likelihood from the summit level, the score as a slope triangle along μ at (μ₀, σ̂₀²), labeled with U (the slope along σ² is zero there), and the Wald distance μ̂ − μ₀ under the slice through the summit. The likelihood ratio and score views re-estimate the variance under the null, as the tests do. Moving the sample-size slider shows the whole surface sharpen.",
-				"Both 3D views have a key listing what is drawn for the current view; hovering or tapping an entry picks that element out on the surface, and in the inference view each test opens with its own elements picked out. The MLE and the best point under the null are labeled in place.",
-				"A full-view button on the plots and on the inference figure expands either to the whole browser window (Esc to return), for a larger 3D surface; the plots' full view keeps the parameter bar (and, on wider screens, the run controls) pinned above the surface.",
-				"The 3D views have three viewpoints: Angled, and two edge-on side views, in which the surface's outline is exactly the profile likelihood drawn on the wall.",
-				"Gradient ascent has a step-size slider (γ, log scale): a tiny step crawls, the default climbs, and a large step bounces across the peak or overshoots out of the frame, which ends the run with an \"overshot\" note. Changing γ restarts the run from its starting point.",
-				"With an algorithm selected, the joint views preview the next iteration as a faint dashed step from the point (on the 3D surface it runs along the hill), so dragging the point or the step size shows where the next step would land before you press play; for Fisher scoring, the 3D view also draws the quadratic approximation it climbs as dotted curves through the point."
+				"A rotatable 3D surface of the log-likelihood, with the optimizer's path and the ℓ(μ) and ℓ(σ²) slices drawn on it. Drag the handle under the point to move μ and σ² together, or turn to a side view to see the profile likelihood edge-on.",
+				"A 3D view of the three tests: the likelihood surface at the chosen n, with the null hypothesis μ = μ₀ drawn across it and the geometry of the likelihood-ratio, score, and Wald tests marked on it (after Buse, 1982).",
+				"95% profile-likelihood and Wald confidence intervals below the inference figure.",
+				"A step-size slider for gradient ascent. A large step overshoots the peak, and the run stops with a note.",
+				"Before you press play, each algorithm shows where its next step would land.",
+				"Both figures can be expanded to fill the browser window."
 			],
 			"changed": [
-				"Complete rewrite in Svelte (previously React).",
-				"The default sample is the old one shifted by −0.38, so μ̂ = 104 with σ̂² unchanged, and New Sample shifts each draw the same way (by at most 0.5) to a whole-number mean. The null-hypothesis slider moves in whole numbers, so it can now land exactly on μ̂, where every test statistic is zero. Statistics at a given μ₀ differ accordingly from earlier versions.",
-				"The inference figure uses only the 3D likelihood surface, with no 2D view or view switch. If WebGL is unavailable, a message replaces the figure; test results and numerical confidence intervals remain available.",
-				"The likelihood explanations have been revised, with figure instructions separated from the statistical discussion.",
-				"Numbers in the test formulas are formatted consistently: μ̂ and μ₀ on the data scale (previously μ̂ was rounded to three significant figures, so 104.38 read as 104), and the score reads the same in the formula and on the 3D surface. The score is written out as n(μ̂ − μ₀)/σ̂₀², which shows why it is zero only at μ₀ = μ̂.",
-				"Reduced-motion visitors get the 3D surface too: it never moves on its own, and for them the viewpoint changes are instant and a released drag doesn't coast.",
-				"The \"Finding the MLE\" section is one framed instrument: the optimizer controls are its header, and the 3D surface fills it. The two separate slice plots, ℓ(μ) and ℓ(σ²), are removed: their curves are drawn on the surface through the current point (and seen edge-on in the side views), the next-step preview replaces their step overlays, and a readout beneath the view gives ℓ and both scores; hovering or tapping a score draws its slope as a triangle along its slice on the surface.",
-				"The log-likelihood calculation is laid out as a table: each observation, its log-density, and a bar for its share of the total, summed beside the maximum attainable value at the MLEs.",
-				"The inference section is one framed figure with the null-hypothesis and sample-size sliders in its header; the score and Fisher information at the null moved into the Score tab. p-values are shown in APA style (p < .001 instead of 0.00).",
-				"The inference section's sample-size control is reworded to make clear the statistics treat the fixed estimates as if they came from a sample of size n; no new data are drawn.",
-				"Switching the optimization algorithm now clears the drawn path (previously the path could mix steps from both algorithms).",
-				"Moving the parameters by hand (sliders, inputs, MLE buttons, or dragging on a plot) now ends the optimizer run: the path, iteration count, and convergence flag reset, and the next run starts from the new point. Previously a converged run kept play disabled after the point was moved, and the next step drew a jump the optimizer never made.",
-				"The gradient-ascent step size was halved (γ = 0.05) so the early steps no longer overshoot the maximum, and autoplay is paced so the climb is watchable rather than instant.",
-				"The second optimizer is now labeled Fisher scoring, which is what it always computed (a Newton step with the expected information in place of the observed Hessian); its path is unchanged.",
-				"On narrow screens the pinned parameter bar runs edge to edge and is about half its former height: symbol labels, each slider at full width, and New Sample beside the μ input; the plots' full view carries it too.",
-				"The null hypothesis now starts at μ₀ = 96, where the three tests disagree at the .05 level (previously μ₀ = 80, where two of them showed p < .001). Each test's tab shows its p-value, so all three can be compared at once.",
-				"New visual design, as part of the site-wide redesign."
+				"Complete rewrite in Svelte (previously React), with a new visual design.",
+				"New defaults: the sample was shifted by −0.38 so that μ̂ = 104 exactly (σ̂² is unchanged), and the null hypothesis starts at μ₀ = 96, where the three tests disagree at the .05 level. The μ₀ slider moves in whole numbers. Test statistics at a given μ₀ therefore differ from earlier versions.",
+				"The default gradient-ascent step size was halved (γ = 0.05) so the first steps no longer overshoot.",
+				"The second optimizer is now labeled Fisher scoring, which is what it always computed. Its path is unchanged.",
+				"Moving the point by hand now resets the optimizer, so the next run starts from the new point.",
+				"p-values are shown in APA style (p < .001 rather than 0.00).",
+				"The explanations have been revised."
+			],
+			"removed": [
+				"The contour plot and the separate ℓ(μ) and ℓ(σ²) plots. Their content is now drawn on the 3D surface. Without WebGL, the contour plot is shown instead of the surface, and the inference figure is replaced by a message; the test results and intervals are still shown."
 			],
 			"fixed": [
-				"An internal second-derivative formula for σ² was incorrect (it was never displayed).",
-				"The sample plot's density curve is drawn exactly into the tails (it used to end in straight lines at small σ²), and a peak above the plot is marked rather than silently cut off. On phones the plot is taller.",
-				"The score test's explanation wrongly said the score keeps growing as μ₀ moves away from μ̂; with the variance re-estimated under the null it shrinks again far away, while the test statistic still grows.",
-				"Resetting the optimizer could leave its path in an inconsistent state until the next step.",
-				"The likelihood-ratio and score annotations now use the variance re-estimated under the null, rather than holding it at σ̂². The likelihood-ratio bracket therefore shows half the likelihood ratio, not half the squared Wald statistic."
+				"The likelihood-ratio and score annotations now use the variance re-estimated under the null, as the tests do, rather than σ̂².",
+				"The score test's explanation said the score keeps growing as μ₀ moves away from μ̂. With the variance re-estimated under the null, it shrinks again far from μ̂, while the test statistic keeps growing.",
+				"The density curve on the sample plot is now accurate in the tails when σ² is small."
 			]
 		}
 	]
