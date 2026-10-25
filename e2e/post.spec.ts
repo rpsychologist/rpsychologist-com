@@ -9,8 +9,11 @@ test('collapsed code folds on landing and after post → post navigation', async
 	await page.goto('/GLMM-part1-lognormal');
 	const fold = page.locator('.code-fold').first();
 	await expect(fold).toHaveText('Show code');
-	await fold.click();
-	await expect(fold).toHaveText('Hide code');
+	// Prerendered but dead until hydration; retry until a click lands.
+	await expect(async () => {
+		await fold.click();
+		await expect(fold).toHaveText('Hide code', { timeout: 500 });
+	}).toPass();
 
 	// SvelteKit reuses the page component across post → post navigations, so
 	// listeners attached to the landing post's buttons die with its DOM. The
@@ -33,8 +36,11 @@ test('TOC: narrow disclosure and wide-screen scroll spy', async ({ page }) => {
 	await page.goto('/GLMM-part1-lognormal');
 	const list = page.locator('.toc-list');
 	await expect(list).toBeHidden();
-	await page.locator('.toc-summary').click();
-	await expect(list).toBeVisible();
+	// Prerendered but dead until hydration; retry until a click lands.
+	await expect(async () => {
+		await page.locator('.toc-summary').click();
+		await expect(list).toBeVisible({ timeout: 500 });
+	}).toPass();
 	await page.locator('.toc-list a[href="#simulate-data"]').click();
 	await expect(list).toBeHidden();
 
