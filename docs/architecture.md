@@ -6,6 +6,11 @@ Commands and house rules are in `AGENTS.md`; releasing a viz app is in `RELEASIN
 SvelteKit rewrite of the site (migrated from Gatsby). Svelte 5 (runes), fully
 prerendered to static files via `adapter-static`, deployed on Cloudflare Pages.
 
+Cloudflare Pages does not read the repo's toolchain pins: its build uses the
+`NODE_VERSION` and `PNPM_VERSION` variables set in the Pages dashboard. CI reads
+`.nvmrc` and `packageManager` in `package.json`, so a Node or pnpm bump passes CI
+and can still deploy with the old version; bump the dashboard variable with it.
+
 SvelteKit 3 reads its configuration from the `sveltekit({...})` plugin in
 `vite.config.ts` (adapter, prerender, CSP); there is no `svelte.config.js`. The
 markdown pipeline lives in `mdsvex.config.js`, which exports the extensions and
