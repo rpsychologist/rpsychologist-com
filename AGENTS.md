@@ -42,6 +42,7 @@ SvelteKit (Svelte 5 runes) site, fully prerendered with `adapter-static`, deploy
 - Formulas whose numbers follow a control use `TexLive`, not `Tex`.
 - `src/lib/stats/scenarios.ts` values are engineered to be exact; do not make them realistic.
 - Embeddable views are `/<app>/embed` child routes, not query params.
+- Throwaway prototypes live in `src/routes/<app>/lab/` and `src/lib/viz/<app>/lab/`, listed in `.gitignore` and never committed; the route's `+page.ts` sets `prerender = false` and 404s unless `dev`.
 - `pnpm dev` 404s the legacy apps under `static/` and serves a stale search index; verify those with `pnpm build && pnpm preview`.
 - Never move `static/{d3,slides,thesis}/` or remove `static/sw.js`.
 - Porting a legacy Gatsby app: delete its snapshot files and remove its prefix from `src/routes/+layout.svelte`, `scripts/pagefind-index.mjs`, and `src/lib/viz.ts` in the same change.
