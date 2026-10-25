@@ -6,7 +6,7 @@
 	"engines": {
 		"node": ">=22.17"
 	},
-	"packageManager": "pnpm@11.28.8",
+	"packageManager": "pnpm@12.15.0",
 	"browserslist": [
 		"defaults"
 	],
