@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { postsForTerm, termSlug } from '$lib/content';
-	import Container from '$lib/components/Container.svelte';
-	import PostList from '$lib/components/PostList.svelte';
-	import Seo from '$lib/components/Seo.svelte';
+	import { postsForTerm, termSlug } from '#lib/content.js';
+	import Container from '#lib/components/Container.svelte';
+	import PostList from '#lib/components/PostList.svelte';
+	import Seo from '#lib/components/Seo.svelte';
 
 	let { data } = $props();
 	const posts = $derived(postsForTerm(data.term));

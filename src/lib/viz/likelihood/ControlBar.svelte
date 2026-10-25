@@ -2,9 +2,9 @@
 	// Sticky parameter bar: μ and σ² sliders with paired number inputs and
 	// snap-to-MLE buttons, plus New Sample. Sticks below the top of the
 	// viewport from the tool onward (old app's sticky slider block).
-	import Slider from '$lib/viz/core/components/Slider.svelte';
-	import Tex from '$lib/components/Tex.svelte';
-	import { typedSettle } from '$lib/viz/core/util/typedInput';
+	import Slider from '#lib/viz/core/components/Slider.svelte';
+	import Tex from '#lib/components/Tex.svelte';
+	import { typedSettle } from '#lib/viz/core/util/typedInput.js';
 	import { MU_MIN, MU_MAX, SIGMA2_MIN, SIGMA2_MAX } from './model';
 	import type { LikelihoodState } from './likelihood.svelte';
 

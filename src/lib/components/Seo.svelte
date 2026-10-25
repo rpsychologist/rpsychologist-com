@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { site } from '$lib/config';
-	import { SHARE_SIZE, SITE_CARD_ALT, shareImage } from '$lib/share';
+	import { site } from '#lib/config.js';
+	import { SHARE_SIZE, SITE_CARD_ALT, shareImage } from '#lib/share.js';
 
 	interface Props {
 		/** Page title (site name is appended automatically). */

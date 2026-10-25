@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import Container from '$lib/components/Container.svelte';
-	import Seo from '$lib/components/Seo.svelte';
-	import { loadPagefindUI, RESULT_TEMPLATE } from '$lib/search';
+	import Container from '#lib/components/Container.svelte';
+	import Seo from '#lib/components/Seo.svelte';
+	import { loadPagefindUI, RESULT_TEMPLATE } from '#lib/search.js';
 
 	// Inline Component UI building blocks — the deep-link/no-header-modal
 	// fallback. Own instance name so its state doesn't sync with the header

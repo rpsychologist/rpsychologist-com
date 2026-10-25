@@ -60,7 +60,7 @@
 		quadIndices,
 		stroke,
 		watchDpr
-	} from '$lib/viz/core/gl/lines';
+	} from '#lib/viz/core/gl/lines.js';
 	import {
 		hessSigma2Expected,
 		infoMu,

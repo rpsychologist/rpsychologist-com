@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { posts, type PostMeta } from '$lib/content';
-	import { formatDate } from '$lib/utils/date';
+	import { posts, type PostMeta } from '#lib/content.js';
+	import { formatDate } from '#lib/utils/date.js';
 	import { resolve } from '$app/paths';
-	import Container from '$lib/components/Container.svelte';
-	import Seo from '$lib/components/Seo.svelte';
+	import Container from '#lib/components/Container.svelte';
+	import Seo from '#lib/components/Seo.svelte';
 
 	const groups: [string, PostMeta[]][] = Object.entries(
 		posts.reduce<Record<string, PostMeta[]>>((acc, p) => {

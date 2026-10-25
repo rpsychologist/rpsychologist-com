@@ -8,7 +8,7 @@
 	import { scaleLinear } from 'd3-scale';
 	import { line } from 'd3-shape';
 	import { format } from 'd3-format';
-	import Tex from '$lib/components/Tex.svelte';
+	import Tex from '#lib/components/Tex.svelte';
 	import { normalPdf } from '../../stats/distributions';
 	import { MU_MIN, MU_MAX } from './model';
 	import type { LikelihoodState } from './likelihood.svelte';

@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { tags, categories, termSlug, postsForTerm } from '$lib/content';
+	import { tags, categories, termSlug, postsForTerm } from '#lib/content.js';
 	import { resolve } from '$app/paths';
-	import Container from '$lib/components/Container.svelte';
-	import Seo from '$lib/components/Seo.svelte';
+	import Container from '#lib/components/Container.svelte';
+	import Seo from '#lib/components/Seo.svelte';
 </script>
 
 <Seo title="Tags" description="Browse posts by topic." path="/tags" />

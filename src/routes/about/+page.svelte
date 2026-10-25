@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { site } from '$lib/config';
-	import Icon from '$lib/components/Icon.svelte';
-	import Seo from '$lib/components/Seo.svelte';
-	import thesisCover from '$lib/assets/thesis_cover_front.png?enhanced';
+	import { site } from '#lib/config.js';
+	import Icon from '#lib/components/Icon.svelte';
+	import Seo from '#lib/components/Seo.svelte';
+	import thesisCover from '#lib/assets/thesis_cover_front.png?enhanced';
 
 	const thesisUrl = 'https://hdl.handle.net/10616/46909';
 </script>

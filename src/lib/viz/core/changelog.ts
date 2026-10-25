@@ -1,4 +1,4 @@
-import { site } from '$lib/config';
+import { site } from '#lib/config.js';
 
 /**
  * Per-app release history for the interactive visualizations.

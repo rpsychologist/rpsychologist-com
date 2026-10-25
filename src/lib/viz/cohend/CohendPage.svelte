@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { browser } from '$app/environment';
+	import { browser } from '$app/env';
 	import { resolve } from '$app/paths';
-	import Seo from '$lib/components/Seo.svelte';
-	import Tex from '$lib/components/Tex.svelte';
-	import Bio from '$lib/components/Bio.svelte';
-	import MoreViz from '$lib/components/MoreViz.svelte';
-	import ShareLinks from '$lib/components/ShareLinks.svelte';
-	import { viz } from '$lib/viz';
-	import Toast from '$lib/viz/core/components/Toast.svelte';
-	import VizCitation from '$lib/components/VizCitation.svelte';
+	import Seo from '#lib/components/Seo.svelte';
+	import Tex from '#lib/components/Tex.svelte';
+	import Bio from '#lib/components/Bio.svelte';
+	import MoreViz from '#lib/components/MoreViz.svelte';
+	import ShareLinks from '#lib/components/ShareLinks.svelte';
+	import { viz } from '#lib/viz.js';
+	import Toast from '#lib/viz/core/components/Toast.svelte';
+	import VizCitation from '#lib/components/VizCitation.svelte';
 	import { changelog } from './changelog';
 	import CohendTool from './CohendTool.svelte';
 	import CommonLanguage from './CommonLanguage.svelte';

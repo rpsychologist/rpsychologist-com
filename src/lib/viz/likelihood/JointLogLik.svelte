@@ -6,8 +6,8 @@
 	import ContourLogLik from './ContourLogLik.svelte';
 	import SurfaceLogLik from './SurfaceLogLik.svelte';
 	import SurfaceKey, { type KeyItem } from './SurfaceKey.svelte';
-	import Tex from '$lib/components/Tex.svelte';
-	import TexLive from '$lib/components/TexLive.svelte';
+	import Tex from '#lib/components/Tex.svelte';
+	import TexLive from '#lib/components/TexLive.svelte';
 	import { format } from 'd3-format';
 	import { scoreMu, scoreSigma2 } from './model';
 	import type { LikelihoodState } from './likelihood.svelte';

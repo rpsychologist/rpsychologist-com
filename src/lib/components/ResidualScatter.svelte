@@ -12,7 +12,7 @@
 		residualSlope,
 		residualParamsValid,
 		type ResidualParams
-	} from '$lib/stats/residual';
+	} from '#lib/stats/residual.js';
 
 	// The Frisch-Waugh-Lovell identity, staged explicitly. Two auxiliary panels
 	// regress income and harm on a single comorbidity Z: the fitted line is the part

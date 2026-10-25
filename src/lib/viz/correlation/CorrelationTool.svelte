@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { format } from 'd3-format';
-	import Slider from '$lib/viz/core/components/Slider.svelte';
-	import { downloadSvg, downloadSvgAsPng } from '$lib/viz/core/util/svgExport';
+	import Slider from '#lib/viz/core/components/Slider.svelte';
+	import { downloadSvg, downloadSvgAsPng } from '#lib/viz/core/util/svgExport.js';
 	import ScatterPlot from './ScatterPlot.svelte';
 	import Venn from './Venn.svelte';
 	import PointEditControls from './PointEditControls.svelte';

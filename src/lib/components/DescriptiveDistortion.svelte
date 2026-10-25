@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { format } from 'd3-format';
-	import { computeDisparity, disparityDefaults, type DisparityParams } from '$lib/stats/scenarios';
+	import {
+		computeDisparity,
+		disparityDefaults,
+		type DisparityParams
+	} from '#lib/stats/scenarios.js';
 
 	let fracHighA = $state(disparityDefaults.fracHighA);
 	let fracHighB = $state(disparityDefaults.fracHighB);

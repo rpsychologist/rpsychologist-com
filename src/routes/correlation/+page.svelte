@@ -1,17 +1,17 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { resolve } from '$app/paths';
-	import Seo from '$lib/components/Seo.svelte';
-	import Tex from '$lib/components/Tex.svelte';
-	import Bio from '$lib/components/Bio.svelte';
-	import MoreViz from '$lib/components/MoreViz.svelte';
-	import ShareLinks from '$lib/components/ShareLinks.svelte';
-	import { viz } from '$lib/viz';
-	import Toast from '$lib/viz/core/components/Toast.svelte';
-	import VizCitation from '$lib/components/VizCitation.svelte';
-	import { changelog } from '$lib/viz/correlation/changelog';
-	import CorrelationTool from '$lib/viz/correlation/CorrelationTool.svelte';
-	import { CorrelationState } from '$lib/viz/correlation/correlation.svelte';
+	import Seo from '#lib/components/Seo.svelte';
+	import Tex from '#lib/components/Tex.svelte';
+	import Bio from '#lib/components/Bio.svelte';
+	import MoreViz from '#lib/components/MoreViz.svelte';
+	import ShareLinks from '#lib/components/ShareLinks.svelte';
+	import { viz } from '#lib/viz.js';
+	import Toast from '#lib/viz/core/components/Toast.svelte';
+	import VizCitation from '#lib/components/VizCitation.svelte';
+	import { changelog } from '#lib/viz/correlation/changelog.js';
+	import CorrelationTool from '#lib/viz/correlation/CorrelationTool.svelte';
+	import { CorrelationState } from '#lib/viz/correlation/correlation.svelte.js';
 
 	const model = new CorrelationState();
 	// Owned here (not in CorrelationTool) so the page can shift its layout when

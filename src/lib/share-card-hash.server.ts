@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
-import { site } from '$lib/config';
-import { siteCardImages, type ShareCard } from '$lib/share-cards';
+import { site } from '#lib/config.js';
+import { siteCardImages, type ShareCard } from '#lib/share-cards.js';
 
 // Keep this server-only: image and font bytes must never enter normal page bundles.
 // These are the common inputs that paint /share-card/[key] (including its

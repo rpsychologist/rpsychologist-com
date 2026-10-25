@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { termBySlug } from '$lib/content';
+import { termBySlug } from '#lib/content.js';
 import type { EntryGenerator, PageLoad } from './$types';
 
 export const prerender = true;

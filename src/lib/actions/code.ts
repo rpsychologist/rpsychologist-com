@@ -1,7 +1,7 @@
 /**
  * Wires the code-block chrome (copy button, fold toggle) that the build-time
  * highlighter emits around each Shiki block (see `highlight` in
- * svelte.config.js). The markup — including the collapsed state — is
+ * mdsvex.config.js). The markup — including the collapsed state — is
  * prerendered so hydration causes no layout shift; this action only attaches
  * behavior. Without JS, CSS gated on html.js hides the buttons and shows
  * collapsed blocks expanded.

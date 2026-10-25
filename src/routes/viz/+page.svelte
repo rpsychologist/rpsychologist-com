@@ -1,8 +1,8 @@
 <script lang="ts">
-	import Container from '$lib/components/Container.svelte';
-	import VizGallery from '$lib/components/VizGallery.svelte';
-	import Seo from '$lib/components/Seo.svelte';
-	import { viz } from '$lib/viz';
+	import Container from '#lib/components/Container.svelte';
+	import VizGallery from '#lib/components/VizGallery.svelte';
+	import Seo from '#lib/components/Seo.svelte';
+	import { viz } from '#lib/viz.js';
 </script>
 
 <Seo

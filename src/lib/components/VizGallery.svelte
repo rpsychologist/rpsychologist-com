@@ -15,7 +15,7 @@
 </script>
 
 <script lang="ts">
-	import type { Viz } from '$lib/viz';
+	import type { Viz } from '#lib/viz.js';
 
 	let { items }: { items: Viz[] } = $props();
 </script>

@@ -4,7 +4,7 @@ The blog and its interactive visualizations, built with SvelteKit and prerendere
 
 ## Development
 
-Requires Node ≥ 22.12 (see `.nvmrc`) and pnpm.
+Requires Node ≥ 22.17 (see `.nvmrc`) and pnpm.
 
 ```sh
 pnpm install

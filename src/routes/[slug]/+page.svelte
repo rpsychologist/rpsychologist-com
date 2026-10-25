@@ -1,13 +1,13 @@
 <script lang="ts">
-	import Seo from '$lib/components/Seo.svelte';
-	import Bio from '$lib/components/Bio.svelte';
-	import ShareLinks from '$lib/components/ShareLinks.svelte';
-	import Toc from '$lib/components/Toc.svelte';
-	import { enhanceCode } from '$lib/actions/code';
-	import { termSlug } from '$lib/content';
-	import { site } from '$lib/config';
+	import Seo from '#lib/components/Seo.svelte';
+	import Bio from '#lib/components/Bio.svelte';
+	import ShareLinks from '#lib/components/ShareLinks.svelte';
+	import Toc from '#lib/components/Toc.svelte';
+	import { enhanceCode } from '#lib/actions/code.js';
+	import { termSlug } from '#lib/content.js';
+	import { site } from '#lib/config.js';
 	import { resolve } from '$app/paths';
-	import { formatDate } from '$lib/utils/date';
+	import { formatDate } from '#lib/utils/date.js';
 
 	let { data } = $props();
 	const Content = $derived(data.component);

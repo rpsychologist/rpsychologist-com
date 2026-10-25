@@ -5,7 +5,7 @@
 	import { scaleLinear } from 'd3-scale';
 	import { area, line } from 'd3-shape';
 	import { format } from 'd3-format';
-	import { normalPdf } from '$lib/stats/distributions';
+	import { normalPdf } from '#lib/stats/distributions.js';
 	import { drag } from '../core/actions/drag';
 	import { defaults, type CohendState } from './cohend.svelte';
 	import { getCohendI18n, t } from './i18n';
