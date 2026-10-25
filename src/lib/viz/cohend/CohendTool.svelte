@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { format } from 'd3-format';
-	import Slider from '$lib/viz/core/components/Slider.svelte';
-	import { downloadSvg } from '$lib/viz/core/util/svgExport';
+	import Slider from '#lib/viz/core/components/Slider.svelte';
+	import { downloadSvg } from '#lib/viz/core/util/svgExport.js';
 	import Overlap from './Overlap.svelte';
 	import Donuts from './Donuts.svelte';
 	import Settings from './Settings.svelte';

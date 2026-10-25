@@ -3,8 +3,8 @@
 	// teaching sections (likelihood calculation → finding the MLEs →
 	// inference). The route page owns the prose around the tool; live values
 	// (the sample line, readouts) live in here because they need the model.
-	import Tex from '$lib/components/Tex.svelte';
-	import TexLive from '$lib/components/TexLive.svelte';
+	import Tex from '#lib/components/Tex.svelte';
+	import TexLive from '#lib/components/TexLive.svelte';
 	import ControlBar from './ControlBar.svelte';
 	import SamplePlot from './SamplePlot.svelte';
 	import CalcLogLik from './CalcLogLik.svelte';
@@ -15,7 +15,7 @@
 	import ViewpointDock, { type ViewpointId } from './ViewpointDock.svelte';
 	import OptimizerControls from './OptimizerControls.svelte';
 	import TestTabs from './TestTabs.svelte';
-	import Slider from '$lib/viz/core/components/Slider.svelte';
+	import Slider from '#lib/viz/core/components/Slider.svelte';
 	import { MU_NULL_MAX, MU_NULL_MIN, N_MAX, N_MIN } from './likelihood.svelte';
 	import type { LikelihoodState } from './likelihood.svelte';
 	import { format } from 'd3-format';

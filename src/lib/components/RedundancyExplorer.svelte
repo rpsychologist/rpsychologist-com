@@ -9,9 +9,9 @@
 		rankingSliderDefaults,
 		rankingSliderRanges,
 		buildRankingSigma
-	} from '$lib/stats/scenarios';
-	import { regressionCoefficients } from '$lib/stats/regression';
-	import { isPositiveDefinite } from '$lib/stats/linalg';
+	} from '#lib/stats/scenarios.js';
+	import { regressionCoefficients } from '#lib/stats/regression.js';
+	import { isPositiveDefinite } from '#lib/stats/linalg.js';
 	import LeaderboardPlot, { type Geom } from './LeaderboardPlot.svelte';
 
 	// The redundancy mechanism made manipulable. The reader changes the population's

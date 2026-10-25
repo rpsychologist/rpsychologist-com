@@ -4,8 +4,8 @@
 	// at a glance. Panels stay mounted and toggle with `hidden` so switching
 	// tabs never recreates DOM; selecting a tab also drives the surface's
 	// geometry highlight via model.p.test.
-	import Tex from '$lib/components/Tex.svelte';
-	import TexLive from '$lib/components/TexLive.svelte';
+	import Tex from '#lib/components/Tex.svelte';
+	import TexLive from '#lib/components/TexLive.svelte';
 	import type { LikelihoodState, TestKind } from './likelihood.svelte';
 	import { fData, fP as fmtP, fScore, fStat } from './format';
 

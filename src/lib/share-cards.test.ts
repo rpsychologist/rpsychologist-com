@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
-import { posts } from '$lib/content';
-import { viz } from '$lib/viz';
-import { shareCards } from '$lib/share-cards';
-import { createShareHasher } from '$lib/share-card-hash.server';
+import { posts } from '#lib/content.js';
+import { viz } from '#lib/viz.js';
+import { shareCards } from '#lib/share-cards.js';
+import { createShareHasher } from '#lib/share-card-hash.server.js';
 import manifest from './share-manifest.json';
 
 const RERUN = 'pnpm build && pnpm preview --port 4173, then node scripts/share-cards.mjs';

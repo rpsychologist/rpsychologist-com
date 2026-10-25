@@ -43,7 +43,7 @@
 		quadIndices,
 		stroke,
 		watchDpr
-	} from '$lib/viz/core/gl/lines';
+	} from '#lib/viz/core/gl/lines.js';
 
 	let { class: klass = '' }: { class?: string } = $props();
 

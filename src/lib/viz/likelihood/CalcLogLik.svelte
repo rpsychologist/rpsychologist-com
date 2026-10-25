@@ -5,7 +5,7 @@
 	// bars are scaled to the largest current term, so they show which
 	// observations cost the candidate the most.
 	import { format } from 'd3-format';
-	import Tex from '$lib/components/Tex.svelte';
+	import Tex from '#lib/components/Tex.svelte';
 	import { logLikPoint } from './model';
 	import type { LikelihoodState } from './likelihood.svelte';
 

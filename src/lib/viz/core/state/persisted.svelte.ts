@@ -1,4 +1,4 @@
-import { browser } from '$app/environment';
+import { browser } from '$app/env';
 
 /**
  * A rune-backed state object that can be saved to / restored from localStorage.

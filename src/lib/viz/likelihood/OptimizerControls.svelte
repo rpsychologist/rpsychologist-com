@@ -5,8 +5,8 @@
 	// a jump-cut); Fisher scoring steps once a second so its parabola
 	// animation can play out. The γ slider is log-scaled: the interesting
 	// range runs from a crawl (0.002) to a bounce or overshoot (≥ 0.3).
-	import Tex from '$lib/components/Tex.svelte';
-	import Slider from '$lib/viz/core/components/Slider.svelte';
+	import Tex from '#lib/components/Tex.svelte';
+	import Slider from '#lib/viz/core/components/Slider.svelte';
 	import { defaults, GAMMA_MAX, GAMMA_MIN, RUN_CAP } from './likelihood.svelte';
 	import type { LikelihoodState, Algo } from './likelihood.svelte';
 

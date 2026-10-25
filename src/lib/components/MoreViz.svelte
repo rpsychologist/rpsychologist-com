@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import VizGallery from '$lib/components/VizGallery.svelte';
-	import type { Viz } from '$lib/viz';
+	import VizGallery from '#lib/components/VizGallery.svelte';
+	import type { Viz } from '#lib/viz.js';
 
 	// Labels are props so the translated cohend pages can pass their own.
 	let {

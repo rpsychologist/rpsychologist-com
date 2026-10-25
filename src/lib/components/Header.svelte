@@ -4,7 +4,7 @@
 	import SearchModal from './SearchModal.svelte';
 	import ThemeToggle from './ThemeToggle.svelte';
 
-	import { site } from '$lib/config';
+	import { site } from '#lib/config.js';
 	import { resolve } from '$app/paths';
 
 	// Search is the icon + ⌘K modal in .actions (see SearchModal); the /search

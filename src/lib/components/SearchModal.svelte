@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onNavigate } from '$app/navigation';
-	import { loadPagefindUI, RESULT_TEMPLATE } from '$lib/search';
+	import { loadPagefindUI, RESULT_TEMPLATE } from '#lib/search.js';
 
 	// The trigger is our own prerendered button, not Pagefind's
 	// <pagefind-modal-trigger>: that element is empty until the module loads, so

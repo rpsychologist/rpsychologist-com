@@ -2,8 +2,8 @@
 	// Cite-this block for a viz app's FAQ. The version, year, and BibTeX all
 	// derive from the app's changelog (newest release), so the displayed
 	// citation can never drift from the recorded release history.
-	import { site } from '$lib/config';
-	import type { AppChangelog } from '$lib/viz/core/changelog';
+	import { site } from '#lib/config.js';
+	import type { AppChangelog } from '#lib/viz/core/changelog.js';
 
 	let {
 		changelog,

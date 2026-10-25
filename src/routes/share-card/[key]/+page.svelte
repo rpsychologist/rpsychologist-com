@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
-	import Logo from '$lib/components/Logo.svelte';
-	import Msg from '$lib/viz/cohend/i18n/Msg.svelte';
-	import { SHARE_SIZE } from '$lib/share';
-	import { siteCardImages } from '$lib/share-cards';
-	import { site } from '$lib/config';
+	import Logo from '#lib/components/Logo.svelte';
+	import Msg from '#lib/viz/cohend/i18n/Msg.svelte';
+	import { SHARE_SIZE } from '#lib/share.js';
+	import { siteCardImages } from '#lib/share-cards.js';
+	import { site } from '#lib/config.js';
 
 	let { data } = $props();
 	const card = $derived(data.card);

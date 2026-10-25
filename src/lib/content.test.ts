@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { posts, termBySlug, postsForTerm } from '$lib/content';
+import { posts, termBySlug, postsForTerm } from '#lib/content.js';
 
 // Eager glob is test-only (never bundled into the app): compiling every post
 // here doubles as a build-time smoke test that all posts compile.

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { termSlug, type PostMeta } from '$lib/content';
-	import { formatDate } from '$lib/utils/date';
+	import { termSlug, type PostMeta } from '#lib/content.js';
+	import { formatDate } from '#lib/utils/date.js';
 	import { resolve } from '$app/paths';
 
 	let {

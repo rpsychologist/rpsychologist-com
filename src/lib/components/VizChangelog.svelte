@@ -8,7 +8,7 @@
 		compareUrl,
 		tagUrl,
 		type AppChangelog
-	} from '$lib/viz/core/changelog';
+	} from '#lib/viz/core/changelog.js';
 
 	let {
 		changelog,

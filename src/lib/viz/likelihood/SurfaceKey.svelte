@@ -16,7 +16,7 @@
 	// pinned set, which is also the touch path. `focus` is the view's default
 	// pinned set (e.g. the active test's geometry) and resets the pins when it
 	// changes. Curves aren't labelled in place: labels on rotating lines collide.
-	import Tex from '$lib/components/Tex.svelte';
+	import Tex from '#lib/components/Tex.svelte';
 
 	interface Props {
 		items: KeyItem[];

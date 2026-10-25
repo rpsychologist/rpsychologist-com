@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { posts } from '$lib/content';
-	import { viz } from '$lib/viz';
-	import { site } from '$lib/config';
+	import { posts } from '#lib/content.js';
+	import { viz } from '#lib/viz.js';
+	import { site } from '#lib/config.js';
 	import { resolve } from '$app/paths';
-	import Container from '$lib/components/Container.svelte';
-	import PostList from '$lib/components/PostList.svelte';
-	import VizGallery from '$lib/components/VizGallery.svelte';
-	import HeroGaussianMesh from '$lib/components/HeroGaussianMesh.svelte';
-	import Icon from '$lib/components/Icon.svelte';
-	import Seo from '$lib/components/Seo.svelte';
+	import Container from '#lib/components/Container.svelte';
+	import PostList from '#lib/components/PostList.svelte';
+	import VizGallery from '#lib/components/VizGallery.svelte';
+	import HeroGaussianMesh from '#lib/components/HeroGaussianMesh.svelte';
+	import Icon from '#lib/components/Icon.svelte';
+	import Seo from '#lib/components/Seo.svelte';
 
 	const recent = posts.slice(0, 5);
 	// Hand-picked (`featured` in viz.ts); the full set lives on /viz.

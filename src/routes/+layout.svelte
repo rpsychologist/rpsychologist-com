@@ -11,12 +11,12 @@
 	import '@fontsource/ibm-plex-mono/latin-400.css';
 	import '@fontsource/ibm-plex-mono/latin-500.css';
 	import '@fontsource/ibm-plex-mono/latin-600.css';
-	import '$lib/styles/article.css';
+	import '#lib/styles/article.css';
 	import { page } from '$app/state';
 	import { beforeNavigate } from '$app/navigation';
-	import Header from '$lib/components/Header.svelte';
-	import Footer from '$lib/components/Footer.svelte';
-	import { site } from '$lib/config';
+	import Header from '#lib/components/Header.svelte';
+	import Footer from '#lib/components/Footer.svelte';
+	import { site } from '#lib/config.js';
 
 	let { children } = $props();
 

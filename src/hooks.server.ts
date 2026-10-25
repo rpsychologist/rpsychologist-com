@@ -1,5 +1,5 @@
-import type { Handle } from '@sveltejs/kit';
-import { hrefLang, isTranslated } from '$lib/viz/cohend/i18n/locales';
+import type { Handle } from '@sveltejs/kit/hooks';
+import { hrefLang, isTranslated } from '#lib/viz/cohend/i18n/locales.js';
 
 // <html lang> per page, filled in app.html's `%lang%` at prerender: English
 // except the translated Cohen's d pages (/sv/cohend, /sv/cohend/embed).

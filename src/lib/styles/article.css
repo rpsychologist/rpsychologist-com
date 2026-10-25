@@ -675,7 +675,7 @@ h4 {
 }
 
 /* Code-block chrome (bar, buttons, collapsed state), prerendered by the
-   build-time highlighter in svelte.config.js; enhanceCode only wires the
+   build-time highlighter in mdsvex.config.js; enhanceCode only wires the
    buttons. */
 .code-block {
 	margin: 1.5rem 0;

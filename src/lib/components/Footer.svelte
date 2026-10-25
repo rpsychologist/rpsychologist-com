@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Icon from './Icon.svelte';
 	import Logo from './Logo.svelte';
-	import { site } from '$lib/config';
+	import { site } from '#lib/config.js';
 	import { resolve } from '$app/paths';
 
 	const connect = [

@@ -1,8 +1,8 @@
-import { posts, termBySlug } from '$lib/content';
-import { site } from '$lib/config';
-import { viz } from '$lib/viz';
-import { PUBLISHED, cohendPath } from '$lib/viz/cohend/i18n/locales';
-import type { AppChangelog } from '$lib/viz/core/changelog';
+import { posts, termBySlug } from '#lib/content.js';
+import { site } from '#lib/config.js';
+import { viz } from '#lib/viz.js';
+import { PUBLISHED, cohendPath } from '#lib/viz/cohend/i18n/locales.js';
+import type { AppChangelog } from '#lib/viz/core/changelog.js';
 
 export const prerender = true;
 

@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { shareCard, shareCards } from '$lib/share-cards';
+import { shareCard, shareCards } from '#lib/share-cards.js';
 import type { EntryGenerator, PageLoad } from './$types';
 
 export const prerender = true;

@@ -12,7 +12,7 @@
 // the merge or push that landed the bump. Not HEAD, so a run that tags late
 // (a failed job, two bumps in one push) still tags the right commit.
 //
-// Reads the JSON directly (not via the TS module) so it needs no $lib alias
+// Reads the JSON directly (not via the TS module) so it needs no #lib alias
 // resolution — the reason the changelog data lives in .json files.
 import { execFileSync } from 'node:child_process';
 import { readFile, readdir } from 'node:fs/promises';

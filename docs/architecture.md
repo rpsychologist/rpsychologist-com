@@ -6,6 +6,14 @@ Commands and house rules are in `AGENTS.md`; releasing a viz app is in `RELEASIN
 SvelteKit rewrite of the site (migrated from Gatsby). Svelte 5 (runes), fully
 prerendered to static files via `adapter-static`, deployed on Cloudflare Pages.
 
+SvelteKit 3 reads its configuration from the `sveltekit({...})` plugin in
+`vite.config.ts` (adapter, prerender, CSP); there is no `svelte.config.js`. The
+markdown pipeline lives in `mdsvex.config.js`, which exports the extensions and
+preprocessor that plugin uses. `src/lib` is imported as `#lib/...` (a subpath
+import in `package.json`) with explicit extensions, `.js` for TypeScript modules.
+The exception is `src/params.ts` (route param matchers, e.g. `[lang=cohendLocale]`):
+SvelteKit loads it with Node, not Vite, so its imports name the real `.ts` file.
+
 ## Tests
 
 Tests live next to their source as `*.test.ts` (configured in `vite.config.ts`,
@@ -60,7 +68,7 @@ lose code-splitting. Keep metadata flowing through `virtual:posts`.
 
 `zod` is only used by this build-time plugin and lives in `devDependencies`.
 
-### Markdown → component (svelte.config.js)
+### Markdown → component (mdsvex.config.js)
 
 mdsvex (extensions `.svx`, `.md`) preprocesses posts. The pipeline:
 
@@ -97,7 +105,7 @@ static adapter knows every path to emit:
   build's pagefind step).
 
 `adapter-static` uses `fallback: "404.html"` (the rendered `+error.svelte`),
-which Cloudflare Pages serves for unmatched paths. CSP is configured in `svelte.config.js`
+which Cloudflare Pages serves for unmatched paths. CSP is configured in `vite.config.ts`
 in hash mode, which auto-hashes only the scripts SvelteKit itself renders (its
 hydration bootstrap). The inline pre-paint theme script in `app.html` is **not**
 auto-hashed — it's interpolated after the policy is built — so its sha256 hash is
@@ -139,7 +147,7 @@ What that implies:
   from all three.
 - `pnpm dev` 404s them (Vite doesn't serve directory indexes from `static/`);
   use `pnpm build && pnpm preview`. The prerender crawler has the same blind
-  spot, hence `prerender.handleHttpError` in `svelte.config.js`.
+  spot, hence `prerender.handleHttpError` in `vite.config.ts`.
 - The old site registered a service worker (`gatsby-plugin-offline`).
   `static/sw.js` is its kill switch (unregisters, clears caches, reloads tabs it
   controlled) and must stay deployed indefinitely; `_headers` marks it

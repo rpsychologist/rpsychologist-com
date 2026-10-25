@@ -1,7 +1,7 @@
-import { posts } from '$lib/content';
-import { viz } from '$lib/viz';
-import { PUBLISHED, messages } from '$lib/viz/cohend/i18n';
-import { SITE_CARD_ALT } from '$lib/share';
+import { posts } from '#lib/content.js';
+import { viz } from '#lib/viz.js';
+import { PUBLISHED, messages } from '#lib/viz/cohend/i18n/index.js';
+import { SITE_CARD_ALT } from '#lib/share.js';
 
 /**
  * Share cards: the 1200×630 `og:image` of every page. Each card is drawn by the

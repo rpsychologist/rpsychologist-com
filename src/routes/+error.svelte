@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
-	import Container from '$lib/components/Container.svelte';
-	import Seo from '$lib/components/Seo.svelte';
+	import Container from '#lib/components/Container.svelte';
+	import Seo from '#lib/components/Seo.svelte';
 </script>
 
 <Seo title={`${page.status}`} path="/404" noindex />

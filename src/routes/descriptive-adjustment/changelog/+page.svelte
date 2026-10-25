@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import Seo from '$lib/components/Seo.svelte';
-	import VizChangelog from '$lib/components/VizChangelog.svelte';
-	import { changelog } from '$lib/viz/descriptive-adjustment/changelog';
+	import Seo from '#lib/components/Seo.svelte';
+	import VizChangelog from '#lib/components/VizChangelog.svelte';
+	import { changelog } from '#lib/viz/descriptive-adjustment/changelog.js';
 
 	const name = 'Why Adjusted Regression Coefficients Are Less Descriptive Than They Look';
 </script>

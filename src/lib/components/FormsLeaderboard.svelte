@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { Tween } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
-	import { rankingScenario, rankIndex } from '$lib/stats/scenarios';
-	import { regressionCoefficients, marginalSlope } from '$lib/stats/regression';
+	import { rankingScenario, rankIndex } from '#lib/stats/scenarios.js';
+	import { regressionCoefficients, marginalSlope } from '#lib/stats/regression.js';
 	import LeaderboardPlot, { type Geom } from './LeaderboardPlot.svelte';
 
 	// The horse-race abuse: several co-equal exposures entered together, the largest

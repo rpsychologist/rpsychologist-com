@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import Seo from '$lib/components/Seo.svelte';
-	import Tex from '$lib/components/Tex.svelte';
-	import Bio from '$lib/components/Bio.svelte';
-	import MoreViz from '$lib/components/MoreViz.svelte';
-	import ShareLinks from '$lib/components/ShareLinks.svelte';
-	import VizCitation from '$lib/components/VizCitation.svelte';
-	import { viz } from '$lib/viz';
-	import { changelog } from '$lib/viz/likelihood/changelog';
-	import LikelihoodTool from '$lib/viz/likelihood/LikelihoodTool.svelte';
-	import { LikelihoodState } from '$lib/viz/likelihood/likelihood.svelte';
+	import Seo from '#lib/components/Seo.svelte';
+	import Tex from '#lib/components/Tex.svelte';
+	import Bio from '#lib/components/Bio.svelte';
+	import MoreViz from '#lib/components/MoreViz.svelte';
+	import ShareLinks from '#lib/components/ShareLinks.svelte';
+	import VizCitation from '#lib/components/VizCitation.svelte';
+	import { viz } from '#lib/viz.js';
+	import { changelog } from '#lib/viz/likelihood/changelog.js';
+	import LikelihoodTool from '#lib/viz/likelihood/LikelihoodTool.svelte';
+	import { LikelihoodState } from '#lib/viz/likelihood/likelihood.svelte.js';
 
 	// Per-component instance: the page is prerendered, so a module-level
 	// singleton would bleed state across requests.

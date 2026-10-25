@@ -1,5 +1,5 @@
-import { posts } from '$lib/content';
-import { site } from '$lib/config';
+import { posts } from '#lib/content.js';
+import { site } from '#lib/config.js';
 
 export const prerender = true;
 

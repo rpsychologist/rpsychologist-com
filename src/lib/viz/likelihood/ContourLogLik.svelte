@@ -10,7 +10,7 @@
 	import { contours } from 'd3-contour';
 	import { format } from 'd3-format';
 	import { Tween, prefersReducedMotion } from 'svelte/motion';
-	import { drag } from '$lib/viz/core/actions/drag';
+	import { drag } from '#lib/viz/core/actions/drag.js';
 	import { contourRingsToPath, MU_MAX, MU_MIN, SIGMA2_MAX, SIGMA2_MIN } from './model';
 	import { defaults, type LikelihoodState } from './likelihood.svelte';
 
