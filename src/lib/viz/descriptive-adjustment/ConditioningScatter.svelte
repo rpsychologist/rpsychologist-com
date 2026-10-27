@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { scaleLinear } from 'd3-scale';
 	import { format } from 'd3-format';
-	import { makeConditioningData, type Line } from '#lib/stats/conditioning.js';
+	import { makeConditioningData, type Line } from './conditioning';
 	import type { ScaleLinear } from 'd3-scale';
 
 	const data = makeConditioningData();

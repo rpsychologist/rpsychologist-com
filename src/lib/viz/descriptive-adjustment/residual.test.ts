@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { partialCoefficient } from './regression';
-import { isPositiveDefinite } from './linalg';
+import { partialCoefficient } from '../../stats/regression';
+import { isPositiveDefinite } from '../../stats/linalg';
 import {
 	buildResidualSigma,
 	makeResidualData,

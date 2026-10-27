@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { format } from 'd3-format';
-	import Tex from './Tex.svelte';
+	import Tex from '#lib/components/Tex.svelte';
 
 	interface Term {
 		/** snake_case name used in the lm() formula and equation. */

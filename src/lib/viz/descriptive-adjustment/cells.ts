@@ -18,9 +18,9 @@
 // choice that changes the number.
 
 import { coefficientScenario, coefIndex } from './scenarios';
-import { choleskyLower } from './linalg';
-import { standardNormalMatrix } from './sample';
-import { sampleSlope } from './regression';
+import { choleskyLower } from '../../stats/linalg';
+import { standardNormalMatrix } from '../../stats/sample';
+import { sampleSlope } from '../../stats/regression';
 
 export interface CellPoint {
 	x: number;

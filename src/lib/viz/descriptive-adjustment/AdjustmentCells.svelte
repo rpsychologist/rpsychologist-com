@@ -9,7 +9,7 @@
 		groupIntoCells,
 		pooledSlope,
 		withinCellSlope
-	} from '#lib/stats/cells.js';
+	} from './cells';
 
 	const mean = (vs: number[]) => vs.reduce((a, b) => a + b, 0) / vs.length;
 
