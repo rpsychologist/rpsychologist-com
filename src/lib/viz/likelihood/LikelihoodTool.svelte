@@ -180,10 +180,10 @@
 				example, but for many models we can't solve the score equations directly. The algorithms
 				below start from your chosen values and try to climb the hill. At the default step size,
 				each press of +1 takes one step and <Tex math={String.raw`\ell`} /> goes up.
-				<em>Gradient ascent</em> follows the slope uphill, and you choose how far it steps. Try a
-				few step sizes: too small and it takes a long time to get anywhere; too large and it can
-				jump past the peak. <em>Fisher scoring</em> uses the expected curvature as well, which helps it
-				choose how far to step.
+				<em>Gradient ascent</em> follows the slope uphill, and you choose the step size. Try a few
+				step sizes: too small and it takes a long time to get anywhere; too large and it can jump
+				past the peak. <em>Fisher scoring</em> uses the expected curvature as well, which helps it choose
+				how far to step.
 			</p>
 
 			<!-- One instrument, one frame: run controls and the view toggle in its
@@ -239,13 +239,13 @@
 			doesn't tell us what the variance should be. For the likelihood ratio and score tests, we
 			therefore estimate it again, this time with the mean fixed at
 			<Tex math={String.raw`\mu_0`} />. We call this estimate
-			<Tex math={String.raw`\hat\sigma_0^2`} />. Repeat it for every possible mean and we get the
-			profile log-likelihood <Tex math={String.raw`\ell_p(\mu)`} /> from the previous section. You may
-			see this described as <em>profiling out</em> the variance. In the figure, the point labeled
-			<em>best under <Tex math="H_0" /></em> is the fit under the null. Move <Tex
-				math={String.raw`\mu_0`}
-			/> and it slides along the dotted ridge, the best variance for each mean, whose shadow on the back
-			wall is <Tex math={String.raw`\ell_p(\mu)`} />.
+			<Tex math={String.raw`\hat\sigma_0^2`} />, and the log-likelihood it reaches is
+			<Tex math={String.raw`\ell_p(\mu_0)`} />, the profile log-likelihood from the previous
+			section. You may see this described as
+			<em>profiling out</em> the variance. In the figure, the point labeled
+			<em>best under <Tex math="H_0" /></em> is this fit. Move <Tex math={String.raw`\mu_0`} /> and it
+			slides along the dotted ridge, the best variance for each mean, whose shadow on the back wall is
+			<Tex math={String.raw`\ell_p(\mu)`} />.
 		</p>
 		<p class="section-intro">
 			I've also included a sample-size slider so you can see how much the tests depend on
@@ -333,13 +333,19 @@
 		</p>
 		<p class="section-intro">
 			With only 10 observations, the tests can give rather different answers, because each relies on
-			a large-sample approximation, and so do the intervals. In this normal model the Wald test
-			gives the smallest <em>p</em>-value and the score test the largest, with the likelihood ratio
-			test in between. For this model we don't actually need any of them: the one-sample
-			<em>t</em>-test is exact.
+			a large-sample approximation. The same holds for the two intervals. In this normal model the
+			Wald test gives the smallest <em>p</em>-value and the score test the largest, with the
+			likelihood ratio test in between.
 		</p>
 		<p class="section-intro">
-			We worked through the likelihood tests anyway because none of the steps depended on the normal
+			The tests also need different fits: the Wald test only the fit with both parameters free, the
+			score test only the fit with the mean fixed at <Tex math={String.raw`\mu_0`} />, and the
+			likelihood ratio test both. That is why the score test is useful when the model under the null
+			is easy to fit and the full model is not.
+		</p>
+		<p class="section-intro">
+			For this model we don't actually need any of them: the one-sample <em>t</em>-test is exact. We
+			worked through the likelihood tests anyway because the procedure doesn't depend on the normal
 			model. Whatever the model, once we have its log-likelihood we can find the peak and carry out
 			the tests just as we did here. That is how parameters are tested in logistic regression, mixed
 			models, and structural equation models, where exact tests usually don't exist. Their surfaces

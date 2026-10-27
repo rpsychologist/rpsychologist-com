@@ -59,9 +59,10 @@
 			<ShareLinks slug="likelihood" title="Understanding Maximum Likelihood Estimation" />
 		</div>
 		<p>
-			The maximum likelihood method is used to fit many models in statistics. In this visualization
-			I want to give some intuition for how it works, and how it relates to three common hypothesis
-			tests: the likelihood ratio, Wald, and score tests.
+			The maximum likelihood method is used to fit many models in statistics, from logistic
+			regression to mixed models. In this visualization I want to give some intuition for how it
+			works, and how it relates to three common hypothesis tests: the likelihood ratio, Wald, and
+			score tests.
 		</p>
 		<p>
 			We'll use a normal model with just two unknown parameters, the mean and variance, so we can

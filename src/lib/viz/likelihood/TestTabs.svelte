@@ -71,7 +71,8 @@
 			is the fit under the null, <em>best under <Tex math="H_0" /></em>, with the mean fixed at
 			<Tex math={String.raw`\mu_0`} /> and the variance at <Tex
 				math={String.raw`\hat\sigma_0^2`}
-			/>. Both points lie on the profile log-likelihood.
+			/>. Both points lie on the dotted ridge, so their heights also appear on the profile curve on
+			the back wall.
 		</p>
 		<p>
 			The null fit can never be higher than the MLE, because the MLE is the best fit over all means,
@@ -151,6 +152,8 @@
 			the mean at <Tex math={String.raw`\mu_0`} />, estimate the variance, and measure the slope of
 			the log-likelihood in the mean direction. That slope is the score, <em>U</em>, shown by the
 			triangle in the figure. It is zero when <Tex math={String.raw`\mu_0`} /> equals the estimated mean.
+		</p>
+		<p>
 			Move <Tex math={String.raw`\mu_0`} /> far away and the slope shrinks again: the null fit makes up
 			for the wrong mean with a larger variance, which flattens the hill. Like the distance in the Wald
 			test, then, a slope means little on its own. Under the null, the score varies from sample to sample
@@ -167,12 +170,6 @@
 			Under the null, <em>S</em> approximately follows a <Tex math={String.raw`\chi^2`} />
 			distribution with 1 degree of freedom in large samples, giving <em>p</em>
 			<span data-testid="pval-score">{fmtP(model.tests.score.pval)}</span>.
-		</p>
-		<p>
-			So the three tests need different fits: the Wald test only the fit with both parameters free,
-			the score test only the fit with the mean fixed at <Tex math={String.raw`\mu_0`} />, and the
-			likelihood ratio test both. That is why the score test is useful when the model under the null
-			is easy to fit and the full model is not.
 		</p>
 	</div>
 </div>
