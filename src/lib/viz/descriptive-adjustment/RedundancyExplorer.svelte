@@ -9,7 +9,7 @@
 		rankingSliderDefaults,
 		rankingSliderRanges,
 		buildRankingSigma
-	} from '#lib/stats/scenarios.js';
+	} from './scenarios';
 	import { regressionCoefficients } from '#lib/stats/regression.js';
 	import { isPositiveDefinite } from '#lib/stats/linalg.js';
 	import LeaderboardPlot, { type Geom } from './LeaderboardPlot.svelte';

@@ -16,9 +16,9 @@
 // change -- dragging a slider changes how the shadow Z relates to a fixed income
 // and harm, which is exactly the mental model the figure wants to convey.
 
-import { isPositiveDefinite, type Matrix } from './linalg';
-import { standardNormalMatrix } from './sample';
-import { sampleSlope } from './regression';
+import { isPositiveDefinite, type Matrix } from '../../stats/linalg';
+import { standardNormalMatrix } from '../../stats/sample';
+import { sampleSlope } from '../../stats/regression';
 import { coefficientScenario } from './scenarios';
 
 export interface ResidualParams {

@@ -14,8 +14,8 @@
 // consistent with the specification curve, which crosses zero to +0.18 under full
 // continuous adjustment; this is an idealized illustration of that same mechanism.
 
-import { standardNormalMatrix } from './sample';
-import { sampleSlope } from './regression';
+import { standardNormalMatrix } from '../../stats/sample';
+import { sampleSlope } from '../../stats/regression';
 
 export interface ConditioningPoint {
 	x: number;

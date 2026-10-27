@@ -2,7 +2,7 @@
 // sampled from real data, so that the marginal and every partial coefficient are
 // known exactly and the sign flip is deliberate rather than a sampling fluke.
 
-import type { Matrix } from './linalg';
+import type { Matrix } from '../../stats/linalg';
 
 export interface Variable {
 	/** Stable key used for toggle state. */
@@ -260,78 +260,4 @@ export function buildRankingSigma({ onlineCorr: q, horsesCorr: h }: RankingParam
 		[hHorses, h, h, 1, 0.1],
 		[hLottery, 0.1, 0.1, 0.1, 1]
 	];
-}
-
-// --- Descriptive-distortion scenario -------------------------------------
-//
-// Two communities differ in the real-world prevalence of gambling-related
-// financial harm. Income is distributed differently across them (one community
-// has more low-income residents) and low income carries higher harm. Adjusting
-// for income answers a counterfactual question -- "what would the gap be if the
-// communities had the same income distribution?" -- and shrinks the disparity,
-// even though the communities genuinely differ in the world as it is. Prevalence
-// depends on income stratum and, by a small amount, on community directly; the
-// within-stratum gap is what survives adjustment.
-
-export interface DisparityParams {
-	/** Outcome prevalence in the lower-risk covariate stratum. */
-	prevLow: number;
-	/** Outcome prevalence in the higher-risk covariate stratum. */
-	prevHigh: number;
-	/** Extra prevalence in group A within each stratum (direct group gap). */
-	groupGap: number;
-	/** Fraction of group A in the higher-risk stratum. */
-	fracHighA: number;
-	/** Fraction of group B in the higher-risk stratum. */
-	fracHighB: number;
-}
-
-export const disparityDefaults: DisparityParams = {
-	prevLow: 0.2,
-	prevHigh: 0.55,
-	groupGap: 0.05,
-	fracHighA: 0.7,
-	fracHighB: 0.3
-};
-
-export interface DisparityResult {
-	prevA: number;
-	prevB: number;
-	/** Standardized prevalences under the common covariate distribution. */
-	stdPrevA: number;
-	stdPrevB: number;
-	/** Observed (marginal) gap: the real-world disparity. */
-	crudeGap: number;
-	/**
-	 * Gap after standardizing both groups to a common covariate distribution
-	 * (here, the pooled fraction high-risk): the counterfactual disparity.
-	 */
-	adjustedGap: number;
-	refFracHigh: number;
-}
-
-export function computeDisparity(p: DisparityParams): DisparityResult {
-	const prevInStratum = (high: boolean, isGroupA: boolean): number =>
-		(high ? p.prevHigh : p.prevLow) + (isGroupA ? p.groupGap : 0);
-
-	const crudePrev = (fracHigh: number, isGroupA: boolean): number =>
-		fracHigh * prevInStratum(true, isGroupA) + (1 - fracHigh) * prevInStratum(false, isGroupA);
-
-	const prevA = crudePrev(p.fracHighA, true);
-	const prevB = crudePrev(p.fracHighB, false);
-
-	// Standardize both groups to the pooled covariate distribution.
-	const refFracHigh = (p.fracHighA + p.fracHighB) / 2;
-	const stdPrevA = crudePrev(refFracHigh, true);
-	const stdPrevB = crudePrev(refFracHigh, false);
-
-	return {
-		prevA,
-		prevB,
-		stdPrevA,
-		stdPrevB,
-		crudeGap: prevA - prevB,
-		adjustedGap: stdPrevA - stdPrevB,
-		refFracHigh
-	};
 }

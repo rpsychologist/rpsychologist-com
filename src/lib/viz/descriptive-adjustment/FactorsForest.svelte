@@ -3,9 +3,9 @@
 	import { format } from 'd3-format';
 	import { Tween } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
-	import { coefficientScenario, coefIndex } from '#lib/stats/scenarios.js';
+	import { coefficientScenario, coefIndex } from './scenarios';
 	import { regressionCoefficients, marginalSlope } from '#lib/stats/regression.js';
-	import Tex from './Tex.svelte';
+	import Tex from '#lib/components/Tex.svelte';
 	import ModelEquation from './ModelEquation.svelte';
 
 	// The "factors associated with" table itself: every variable entered into one

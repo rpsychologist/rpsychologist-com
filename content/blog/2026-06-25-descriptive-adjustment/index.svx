@@ -15,12 +15,12 @@ summary: An interactive article about how regression adjustment works and the pi
 ---
 
 <script lang="ts">
-  import FactorsForest from "#lib/components/FactorsForest.svelte";
-  import FormsLeaderboard from "#lib/components/FormsLeaderboard.svelte";
-  import RedundancyExplorer from "#lib/components/RedundancyExplorer.svelte";
-  import ConditioningScatter from "#lib/components/ConditioningScatter.svelte";
-  import AdjustmentCells from "#lib/components/AdjustmentCells.svelte";
-  import ResidualScatter from "#lib/components/ResidualScatter.svelte";
+  import FactorsForest from "#lib/viz/descriptive-adjustment/FactorsForest.svelte";
+  import FormsLeaderboard from "#lib/viz/descriptive-adjustment/FormsLeaderboard.svelte";
+  import RedundancyExplorer from "#lib/viz/descriptive-adjustment/RedundancyExplorer.svelte";
+  import ConditioningScatter from "#lib/viz/descriptive-adjustment/ConditioningScatter.svelte";
+  import AdjustmentCells from "#lib/viz/descriptive-adjustment/AdjustmentCells.svelte";
+  import ResidualScatter from "#lib/viz/descriptive-adjustment/ResidualScatter.svelte";
   import Tex from "#lib/components/Tex.svelte";
   import VizCitation from "#lib/components/VizCitation.svelte";
   import { changelog } from "#lib/viz/descriptive-adjustment/changelog.js";

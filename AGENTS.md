@@ -40,7 +40,8 @@ SvelteKit (Svelte 5 runes) site, fully prerendered with `adapter-static`, deploy
 - Viz app state is a class in `<name>.svelte.ts`, instantiated per component (never a module singleton), with URL/persisted state applied in `onMount`.
 - Charts reserve their space with CSS `aspect-ratio` and draw at the measured width; nothing may shift layout on hydration.
 - Formulas whose numbers follow a control use `TexLive`, not `Tex`.
-- `src/lib/stats/scenarios.ts` values are engineered to be exact; do not make them realistic.
+- A piece's figures, piece-only stats, scenarios, and changelog live in `src/lib/viz/<slug>/`; shared code moves to `src/lib/stats/` or `src/lib/viz/core/` only once a second piece imports it.
+- Scenario values (e.g. `src/lib/viz/descriptive-adjustment/scenarios.ts`) are engineered to be exact; do not make them realistic.
 - Embeddable views are `/<app>/embed` child routes, not query params.
 - Throwaway prototypes live in `src/routes/<app>/lab/` and `src/lib/viz/<app>/lab/`, listed in `.gitignore` and never committed; the route's `+page.ts` sets `prerender = false` and 404s unless `dev`.
 - `pnpm dev` 404s the legacy apps under `static/` and serves a stale search index; verify those with `pnpm build && pnpm preview`.

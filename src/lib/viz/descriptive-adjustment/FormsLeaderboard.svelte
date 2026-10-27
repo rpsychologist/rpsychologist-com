@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Tween } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
-	import { rankingScenario, rankIndex } from '#lib/stats/scenarios.js';
+	import { rankingScenario, rankIndex } from './scenarios';
 	import { regressionCoefficients, marginalSlope } from '#lib/stats/regression.js';
 	import LeaderboardPlot, { type Geom } from './LeaderboardPlot.svelte';
 
