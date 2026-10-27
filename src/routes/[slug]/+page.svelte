@@ -4,6 +4,7 @@
 	import ShareLinks from '#lib/components/ShareLinks.svelte';
 	import Toc from '#lib/components/Toc.svelte';
 	import { enhanceCode } from '#lib/actions/code.js';
+	import { enhanceCitations } from '#lib/actions/citations.js';
 	import { termSlug } from '#lib/content.js';
 	import { site } from '#lib/config.js';
 	import { resolve } from '$app/paths';
@@ -29,7 +30,7 @@
 		<aside class="post-aside"><Toc sections={data.meta.toc} /></aside>
 	{/if}
 
-	<article class="article" use:enhanceCode>
+	<article class="article" use:enhanceCode use:enhanceCitations>
 		<header class="post-header">
 			<h1 class="display">{data.meta.title}</h1>
 			{#if data.meta.summary}

@@ -1,0 +1,50 @@
+/* rehype-citation output (docs/architecture.md, Markdown pipeline). Its list
+   carries `.references`, so type and colour come from article.css; entries are
+   divs, so they repeat the `.references p` hanging indent. In-text cites drop
+   the prose underline, which would cover a cite-dense paragraph. */
+.article [id^='citation--'] a {
+	text-decoration: none;
+}
+
+.article [id^='citation--'] a:hover {
+	text-decoration: underline;
+}
+
+.article .csl-entry {
+	margin: 0 0 0.6rem;
+	padding-left: 1.5rem;
+	text-indent: -1.5rem;
+}
+
+.article .csl-entry:target {
+	background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+/* Popover built by enhanceCitations (src/lib/actions/citations.ts). It lives
+   on <body>, outside .article, so it restates the reference type and link style. */
+.cite-pop {
+	position: absolute;
+	z-index: 50;
+	box-sizing: border-box;
+	max-width: min(30rem, calc(100vw - 24px));
+	padding: 0.7rem 0.9rem;
+	background: var(--panel);
+	color: var(--ink);
+	border-radius: var(--radius-sm);
+	box-shadow: var(--shadow-md);
+	font-size: 0.85rem;
+	line-height: 1.5;
+	overflow-wrap: anywhere;
+}
+
+.cite-pop a {
+	color: inherit;
+	text-decoration: underline;
+	text-decoration-color: var(--link-underline);
+	text-decoration-thickness: var(--link-thickness);
+	text-underline-offset: var(--link-offset);
+}
+
+.cite-pop a:hover {
+	color: var(--accent);
+}

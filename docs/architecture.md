@@ -92,9 +92,28 @@ mdsvex (extensions `.svx`, `.md`) preprocesses posts. The pipeline:
   `?enhanced` glob; resolution must be build-time because only the plugin knows
   which post a relative path belongs to), `remark-math`, `remark-smartypants`.
 - **rehype**: `rehype-slug` → `rehype-autolink-headings` → `rehype-katex` →
-  custom `wrapTables` → custom `escapeSvelte`. Order matters:
+  custom `wrapTables` → citations (below) → custom `escapeSvelte`. Order matters:
   `escapeSvelte` must run **after** `rehype-katex` to escape braces KaTeX emits
   in its MathML annotations.
+- **Citations**: Quarto-style. A post sets `bibliography: references.bib`
+  (BibTeX, CSL-JSON or CFF, relative to the post folder) and optionally `csl:`
+  (a bundled style name or a `.csl` file; default APA) and `nocite:`, then cites
+  with pandoc syntax (`[@key, p. 3; @other]`, `@key`, `[-@key]`).
+  `rehype-citation` (citeproc-js) renders in-text citations linked to their
+  entries, and puts the list at a `[^ref]` paragraph or the end of the post. The
+  client action `src/lib/actions/citations.ts` (`enhanceCitations`) clones an
+  entry into a popover on hover, focus or first tap; no `title` tooltip is
+  emitted, since it would show alongside the popover. Two custom steps wrap it (`src/lib/rehype/post-bibliography.js`):
+  `rehypePostBibliography` copies the keys from mdsvex's `file.data.fm` to where
+  the plugin reads them, resolves paths from the post folder, and fails the build
+  on a missing file. It also works around a rehype-citation 2.3.2 bug where
+  `nocite` drops all but the last citation from the list. `rehypeLinkBibliography`
+  links the DOIs and URLs that citeproc prints as plain text. Global
+  `bibliography`/`csl` options are deliberately unset because they would override
+  the frontmatter. The list carries `.references` (styled in `article.css`);
+  `src/lib/styles/citations.css` adds the entry indent and in-text link style.
+  Older posts' references were rendered by pandoc in R and are static text.
+  `vite-plugin-posts.js` recompiles loaded posts when a `.bib` changes in dev.
 
 ## Routing & rendering model
 

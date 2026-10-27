@@ -9,6 +9,11 @@ import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import { rehypeEscapeSvelte } from './src/lib/rehype/escape-svelte.js';
 import { rehypeWrapTables } from './src/lib/rehype/wrap-tables.js';
+import {
+	rehypePostBibliography,
+	rehypeLinkBibliography
+} from './src/lib/rehype/post-bibliography.js';
+import rehypeCitation from 'rehype-citation';
 
 // Dual-theme Shiki highlighting. A single highlighter instance is reused across
 // every fenced block (creating one per block is the common performance trap).
@@ -104,6 +109,11 @@ const plugins = /** @type {any} */ ({
 		],
 		[rehypeKatex, { strict: false }],
 		rehypeWrapTables,
+		// No `bibliography` or `csl` here: either would override the post's frontmatter.
+		rehypePostBibliography,
+		// Popovers come from enhanceCitations; a `title` tooltip would double them.
+		[rehypeCitation, { linkCitations: true }],
+		rehypeLinkBibliography,
 		// Must run after rehype-katex to escape braces in its MathML annotation.
 		rehypeEscapeSvelte
 	]
