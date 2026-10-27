@@ -35,7 +35,7 @@ SvelteKit (Svelte 5 runes) site, fully prerendered with `adapter-static`, deploy
 
 - Posts live in `content/blog/<dated-slug>/`, not `src/`; `content/` and `static/` are skipped by Prettier and ESLint.
 - Post lists read metadata from `virtual:posts` (`vite-plugin-posts.js`); never resolve the post glob eagerly, or per-post code-splitting is lost.
-- In `mdsvex.config.js`, `escapeSvelte` must stay after `rehype-katex`.
+- In `mdsvex.config.js`, `escapeSvelte` must stay after `rehype-katex`, and `rehypePostBibliography` → `rehype-citation` → `rehypeLinkBibliography` must stay together, in that order.
 - Editing the inline script in `src/app.html`, or adding an inline script or origin, means updating the CSP in `vite.config.ts` (its sha256 is listed by hand).
 - Viz app state is a class in `<name>.svelte.ts`, instantiated per component (never a module singleton), with URL/persisted state applied in `onMount`.
 - Charts reserve their space with CSS `aspect-ratio` and draw at the measured width; nothing may shift layout on hydration.

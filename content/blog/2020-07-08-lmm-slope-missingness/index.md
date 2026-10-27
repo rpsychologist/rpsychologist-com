@@ -13,7 +13,6 @@ tags:
 - Simulation
 slug: lmm-slope-missingness
 summary: "Linear mixed-effects models are often used for their ability to handle missing data using maximum likelihood estimation. In this post I will present a simple example of when the LMM fails, and illustrate two MNAR sensitivity analyses: the pattern-mixture method and the joint model."
-bibliography: references.bib
 ---
 
 Linear mixed-effects models are often used for their ability to handle missing data using maximum likelihood estimation. In this post I will present a simple example of when the LMM fails, and illustrate two MNAR sensitivity analyses: the pattern-mixture method and the joint model (shared parameter model). This post is based on a small example from my [PhD thesis](https://hdl.handle.net/10616/46909).

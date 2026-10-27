@@ -207,6 +207,13 @@ export function postsData() {
 			if (ctx.file.includes(`${path.sep}content${path.sep}blog${path.sep}`)) {
 				const mod = ctx.server.moduleGraph.getModuleById(RESOLVED_ID);
 				if (mod) ctx.server.moduleGraph.invalidateModule(mod);
+				// Vite doesn't know a post depends on its .bib (rehype-citation reads it
+				// from disk), so recompile every loaded post.
+				if (ctx.file.endsWith('.bib')) {
+					for (const md of ctx.server.moduleGraph.idToModuleMap.values()) {
+						if (md.file?.endsWith('.md')) ctx.server.moduleGraph.invalidateModule(md);
+					}
+				}
 				ctx.server.ws.send({ type: 'full-reload' });
 			}
 		}

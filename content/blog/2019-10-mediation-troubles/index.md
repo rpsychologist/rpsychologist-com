@@ -14,7 +14,6 @@ tags:
 - brms
 - Stan
 slug: mediation-confounding-ME
-bibliography: biblio.bib
 summary: In this post, I give a brief simulation-based example of how confounding and measurement error impacts the estimation of direct and indirect effects in a mediation analysis.
 ---
 

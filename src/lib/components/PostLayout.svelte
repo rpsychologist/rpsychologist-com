@@ -10,6 +10,7 @@
 	// katex version that rendered the markup; scoped here so math-less routes
 	// (home, /viz) don't pay for it.
 	import 'katex/dist/katex.min.css';
+	import '#lib/styles/citations.css';
 
 	let { children } = $props();
 </script>
