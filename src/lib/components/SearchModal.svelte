@@ -180,23 +180,24 @@
 	/* Type badge rendered by the result template (see RESULT_TEMPLATE) from the
 	   `type` metadata stamped at index time. Not pf-prefixed, so Pagefind's
 	   [class^="pf-"] revert leaves it alone and no !important is needed — but
-	   template content isn't Svelte-scoped either, hence :global. Interactive
-	   tools wear the accent — the site's "blue = interactive" cue — so the tool
-	   stands out from the articles around it. */
+	   template content isn't Svelte-scoped either, hence :global. Same chip as
+	   KindLabel.svelte; the interactive kinds wear the accent so they stand out
+	   from the posts around them. */
 	:global(.type-badge) {
 		display: inline-block;
 		vertical-align: 1px;
 		margin-inline-end: 0.45rem;
-		padding: 0.05rem 0.4rem;
+		padding: 0 0.4rem;
 		border: 1px solid var(--rule);
-		border-radius: 999px;
-		font-size: 0.62rem;
+		border-radius: 4px;
+		font-family: var(--font-heading);
+		font-size: 0.72rem;
 		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
-		color: var(--muted);
+		line-height: 1.6;
+		white-space: nowrap;
+		color: var(--ink);
 	}
-	:global(.type-badge[data-type='Viz']) {
+	:global(.type-badge:is([data-type='Viz'], [data-type='Interactive article'])) {
 		color: var(--accent);
 		background: var(--accent-soft);
 		border-color: transparent;

@@ -179,16 +179,17 @@ What that implies:
 - `static/` is ignored by Prettier and ESLint. `e2e/legacy.spec.ts` is the only
   check that the vendored files still resolve.
 
-## `src/lib/stats` — interactive-visualization domain code
+## `src/lib/stats` — shared numerical code
 
-Pure, tested numerical code (linear algebra, regression, conditioning, residuals)
-backing the in-article interactive figures (e.g. `RedundancyExplorer`,
-`ConditioningScatter`, `AdjustmentCells`). `scenarios.ts` defines **synthetic**
-populations: correlation matrices engineered so every marginal and partial
-coefficient is known exactly and any sign flip is deliberate, not a sampling
-artifact. Don't "fix" these toward realism — the exact values are the point, and
-the comments flag this. This is the one area where longer derivation comments are
-expected.
+Pure, tested numerical code shared by more than one piece (linear algebra,
+regression, sampling, distributions, descriptive statistics). Code only one piece
+uses lives in that piece's folder instead (see the gallery section below), e.g.
+`descriptive-adjustment`'s conditioning, cells, and residual demonstrations. Its
+`scenarios.ts` defines **synthetic** populations: correlation matrices engineered
+so every marginal and partial coefficient is known exactly and any sign flip is
+deliberate, not a sampling artifact. Don't "fix" these toward realism — the exact
+values are the point, and the comments flag this. This numerical code is the one
+area where longer derivation comments are expected.
 
 ## `src/lib/viz` — interactive viz apps & their state
 
@@ -230,10 +231,37 @@ how that works is in the README's Translations section.
 
 The gallery (`/viz`, homepage, "more" on app pages) is data in `src/lib/viz.ts`
 rendered by `VizGallery.svelte`; the homepage shows the hand-picked `featured`
-entries. Interactive essays are posts **and** gallery entries (e.g.
-`descriptive-adjustment`, the one `.svx` post): they get a changelog and cite
-block like the apps, with the changelog in `src/lib/viz/<slug>/` and a
-`src/routes/<slug>/changelog/` route next to the `[slug]` post. Thumbnails are 4:3 crops of the real charts in
+entries. Every piece is in it, in one list: each is built around its
+visualizations, and how much guiding prose it carries is not a category. Pieces
+differ only in how they are built:
+
+- **One tool** (cohend, correlation, likelihood): a route with one state class.
+  It reaches RSS through an announcement post, linked from the entry's `posts`.
+- **Several tools** (`descriptive-adjustment`): an interactive article, a dated
+  `.svx` post whose figures each keep their own state, so it appears in RSS,
+  post lists, tags, and search like any post.
+
+Both kinds get a changelog and cite block. Everything specific to a piece lives
+in `src/lib/viz/<slug>/`: its figures, piece-only stats and scenarios, figure
+CSS, and changelog. An article's prose stays in `content/blog/` (which Prettier
+and ESLint skip, so no code goes there) and its changelog route is
+`src/routes/<slug>/changelog/`, next to the `[slug]` post. Code moves to
+`src/lib/stats/` or `src/lib/viz/core/` only once a second piece imports it;
+`src/lib/components/` is for site chrome and prose building blocks (`Tex`,
+`VizCitation`, …).
+
+`KindLabel.svelte` marks articles with one chip: "Interactive article" in post
+lists (from `post.interactive`, i.e. a `.svx` post) and "Article" on the gallery
+card's thumbnail, where it leaves the card's text aligned with its row. The
+gallery reads `interactiveSlugs` from its own virtual module,
+`virtual:posts/interactive`, because it also renders on app pages: a module is
+never split across chunks, so importing anything from `virtual:posts` there would
+preload every post's metadata. Tools and the legacy apps carry no label. Search
+uses the same words in its result badges (`typeFor` in
+`scripts/pagefind-index.mjs`, styled like the chip): Viz, Interactive article,
+Post, Page; "Article" is never used for an ordinary post.
+
+Thumbnails are 4:3 crops of the real charts in
 `src/lib/assets/viz/<image>.png`, plus `<image>-dark.png` for apps with a dark
 mode; both ship and CSS shows one (the theme isn't known at prerender).
 `scripts/viz-thumbnails.mjs [name]` regenerates them from the running build —

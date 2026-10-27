@@ -13,10 +13,17 @@ import GithubSlugger from 'github-slugger';
  * post components means list pages and prev/next navigation can import it
  * anywhere without bundling every post's component (per-route code-splitting is
  * preserved; the [slug] route lazy-imports just its own post).
+ *
+ * `virtual:posts/interactive` exports only the slugs of the `.svx` posts. It is
+ * its own module because the viz gallery also renders on app pages: a module is
+ * never split across chunks, so importing even one export of `virtual:posts`
+ * would preload every post's metadata there.
  */
 
 const VIRTUAL_ID = 'virtual:posts';
 const RESOLVED_ID = '\0' + VIRTUAL_ID;
+const INTERACTIVE_ID = 'virtual:posts/interactive';
+const RESOLVED_INTERACTIVE_ID = '\0' + INTERACTIVE_ID;
 const WORDS_PER_MINUTE = 200;
 
 const FrontmatterSchema = z.object({
@@ -190,6 +197,10 @@ function loadPosts(root) {
 /** @returns {import('vite').Plugin} */
 export function postsData() {
 	let root = process.cwd();
+	// Both virtual modules read the same posts; cleared when a post changes in dev.
+	/** @type {ReturnType<typeof loadPosts> | undefined} */
+	let cache;
+	const posts = () => (cache ??= loadPosts(root));
 	return {
 		name: 'virtual-posts',
 		configResolved(config) {
@@ -197,16 +208,26 @@ export function postsData() {
 		},
 		resolveId(id) {
 			if (id === VIRTUAL_ID) return RESOLVED_ID;
+			if (id === INTERACTIVE_ID) return RESOLVED_INTERACTIVE_ID;
 		},
 		load(id) {
 			if (id === RESOLVED_ID) {
-				return `export const posts = ${JSON.stringify(loadPosts(root))};`;
+				return `export const posts = ${JSON.stringify(posts())};`;
+			}
+			if (id === RESOLVED_INTERACTIVE_ID) {
+				const slugs = posts()
+					.filter((p) => p.interactive)
+					.map((p) => p.slug);
+				return `export const interactiveSlugs = ${JSON.stringify(slugs)};`;
 			}
 		},
 		handleHotUpdate(ctx) {
 			if (ctx.file.includes(`${path.sep}content${path.sep}blog${path.sep}`)) {
-				const mod = ctx.server.moduleGraph.getModuleById(RESOLVED_ID);
-				if (mod) ctx.server.moduleGraph.invalidateModule(mod);
+				cache = undefined;
+				for (const id of [RESOLVED_ID, RESOLVED_INTERACTIVE_ID]) {
+					const mod = ctx.server.moduleGraph.getModuleById(id);
+					if (mod) ctx.server.moduleGraph.invalidateModule(mod);
+				}
 				// Vite doesn't know a post depends on its .bib (rehype-citation reads it
 				// from disk), so recompile every loaded post.
 				if (ctx.file.endsWith('.bib')) {
