@@ -35,8 +35,9 @@ test('the "viz" alias ranks the apps first', async ({ page }) => {
 	// The alias only exists in the index-time boost block, so this exercises
 	// that the block survives body scoping and outranks posts tagged "viz".
 	await openModalAndSearch(page, 'viz');
-	await expect(page.locator('.pf-result .type-badge').nth(0)).toHaveText('Viz');
-	await expect(page.locator('.pf-result .type-badge').nth(1)).toHaveText('Viz');
+	const interactive = /^(Viz|Interactive article)$/;
+	await expect(page.locator('.pf-result .type-badge').nth(0)).toHaveText(interactive);
+	await expect(page.locator('.pf-result .type-badge').nth(1)).toHaveText(interactive);
 });
 
 test('excerpts prefer prose over code chunks', async ({ page }) => {

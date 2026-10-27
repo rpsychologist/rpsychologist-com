@@ -83,3 +83,19 @@ test('the descriptive-adjustment essay hydrates its figures', async ({ page }) =
 	}).toPass();
 	expect(errors).toEqual([]);
 });
+
+test('articles are labeled in the gallery and in post lists, and nothing else is', async ({
+	page
+}) => {
+	await page.goto('/viz');
+	const labeled = page.locator('.viz-grid a', { has: page.locator('.kind-label') });
+	await expect(labeled).toHaveCount(1);
+	await expect(labeled).toHaveAttribute('href', '/descriptive-adjustment');
+	await expect(labeled.locator('.kind-label')).toHaveText('Article');
+
+	await page.goto('/');
+	const post = page.locator('.post-card', { has: page.locator('.kind-label') });
+	await expect(post).toHaveCount(1);
+	await expect(post.locator('.post-title a')).toHaveAttribute('href', '/descriptive-adjustment');
+	await expect(post.locator('.kind-label')).toHaveText('Interactive article');
+});

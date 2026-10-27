@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { termSlug, type PostMeta } from '#lib/content.js';
+	import KindLabel from './KindLabel.svelte';
 	import { formatDate } from '#lib/utils/date.js';
 	import { resolve } from '$app/paths';
 
@@ -29,6 +30,7 @@
 				<a class="post-cat" href={resolve('/tags/[tag]', { tag: termSlug(post.category) })}
 					>{post.category}</a
 				>
+				{#if post.interactive}<KindLabel text="Interactive article" />{/if}
 			</p>
 			{#if post.summary}
 				<p class="post-summary">{post.summary}</p>

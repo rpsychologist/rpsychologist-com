@@ -10,6 +10,7 @@
 import * as pagefind from 'pagefind';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
+import matter from 'gray-matter';
 // Node ≥22.18 type-strips erasable TS, and viz.ts is pure data.
 import { viz } from '../src/lib/viz.ts';
 
@@ -18,6 +19,20 @@ const OUT = path.join(SITE, 'pagefind');
 
 const vizPaths = new Set(viz.map((v) => v.href).filter((h) => h.startsWith('/')));
 if (vizPaths.size === 0) throw new Error('[pagefind] no internal viz paths found in viz.ts');
+
+// Interactive articles are the `.svx` posts, as in vite-plugin-posts.js (whose
+// virtual module this Node script can't import).
+const blogDir = path.join('content', 'blog');
+const articlePaths = new Set();
+for (const dir of await readdir(blogDir, { withFileTypes: true })) {
+	if (!dir.isDirectory()) continue;
+	const file = path.join(blogDir, dir.name, 'index.svx');
+	const src = await readFile(file, 'utf8').catch(() => null);
+	if (src === null) continue;
+	const { data } = matter(src);
+	if (!data.draft) articlePaths.add('/' + data.slug);
+}
+if (articlePaths.size === 0) throw new Error('[pagefind] no interactive articles found');
 
 // foo.html -> /foo ; index.html -> / ; a/b.html -> /a/b
 function urlForFile(relPath) {
@@ -31,9 +46,10 @@ function urlForFile(relPath) {
 // the only place a page's kind is knowable at index time, so this is the one
 // canonical spot for the type logic.
 function typeFor(url) {
+	if (articlePaths.has(url)) return 'Interactive article';
 	if (vizPaths.has(url)) return 'Viz';
 	if (url === '/' || url === '/about' || url === '/viz') return 'Page';
-	return 'Article';
+	return 'Post';
 }
 
 // Rewrite the copy of each page handed to Pagefind — never the served page.
@@ -78,7 +94,8 @@ function decorate(url, content) {
 	if (vizPaths.has(url)) {
 		const desc = content.match(/<meta name="description" content="([^"]*)"/i)?.[1] || '';
 		out = out.replace(/<h1(\s|>)/i, '<h1 data-pagefind-weight="10"$1');
-		const block = `<p data-pagefind-weight="10">An interactive visualization (viz): ${url.slice(1)}. ${desc}</p>`;
+		const kind = articlePaths.has(url) ? 'An interactive article' : 'An interactive visualization';
+		const block = `<p data-pagefind-weight="10">${kind} (viz): ${url.slice(1)}. ${desc}</p>`;
 		if (!out.includes('</h1>')) throw new Error(`[pagefind] no </h1> in ${url}`);
 		out = out.replace('</h1>', `</h1>${block}`);
 	}

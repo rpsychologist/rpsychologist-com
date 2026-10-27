@@ -1,4 +1,6 @@
 <script lang="ts" module>
+	import { interactiveSlugs } from 'virtual:posts/interactive';
+
 	// Enhanced Picture objects keyed by basename; typed loosely as in PostImage.
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const thumbs = import.meta.glob<{ default: any }>('/src/lib/assets/viz/*.png', {
@@ -12,10 +14,13 @@
 		if (!t) throw new Error(`Missing gallery thumbnail src/lib/assets/viz/${name}.png`);
 		return t;
 	};
+	// Interactive articles are posts at /<slug>; tools and legacy apps are unlabeled.
+	const articles = new Set(interactiveSlugs.map((slug) => `/${slug}`));
 </script>
 
 <script lang="ts">
 	import type { Viz } from '#lib/viz.js';
+	import KindLabel from './KindLabel.svelte';
 
 	let { items }: { items: Viz[] } = $props();
 </script>
@@ -47,6 +52,7 @@
 							sizes="(max-width: 32rem) 45vw, 20rem"
 						/>
 					{/if}
+					{#if articles.has(v.href)}<span class="kind"><KindLabel text="Article" /></span>{/if}
 				</span>
 				<span class="name">{v.title}</span>
 				<span class="desc">{v.description}</span>
@@ -87,6 +93,7 @@
      screenshots, dimmed in dark mode so they don't glare. Each background
      matches its crops' flat backdrop, so nothing flashes while they load. */
 	.screen {
+		position: relative;
 		aspect-ratio: 4 / 3;
 		overflow: hidden;
 		border-radius: 4px;
@@ -113,6 +120,13 @@
 	}
 	:global([data-theme='dark']) .screen:not(.has-dark) {
 		filter: brightness(0.82);
+	}
+	/* On the thumbnail, so the card's text lines up with its neighbours'. */
+	.kind {
+		position: absolute;
+		top: 0.5rem;
+		left: 0.5rem;
+		line-height: 0;
 	}
 	.name {
 		font-family: var(--font-heading);

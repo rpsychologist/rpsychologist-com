@@ -32,3 +32,8 @@ declare module 'virtual:posts' {
 
 	export const posts: PostMeta[];
 }
+
+declare module 'virtual:posts/interactive' {
+	/** Slugs of the interactive (`.svx`) posts, without the rest of the metadata. */
+	export const interactiveSlugs: string[];
+}
