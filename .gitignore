@@ -34,7 +34,8 @@ pnpm-debug.log*
 /legacy
 
 # Local Claude Code config
-.claude/
+.claude/*
+!.claude/agents/
 
 # Local development
 TODO.md
@@ -42,3 +43,7 @@ TODO.md
 # Likelihood lab: dev-only prototype of other likelihood surfaces (decided not to ship)
 /src/lib/viz/likelihood/lab/
 /src/routes/likelihood/lab/
+
+# Variance-boundary lab: dev-only prototypes
+/src/lib/viz/variance-boundary/lab/
+/src/routes/variance-boundary/lab/
