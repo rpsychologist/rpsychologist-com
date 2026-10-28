@@ -40,10 +40,6 @@ pnpm-debug.log*
 # Local development
 TODO.md
 
-# Likelihood lab: dev-only prototype of other likelihood surfaces (decided not to ship)
-/src/lib/viz/likelihood/lab/
-/src/routes/likelihood/lab/
-
-# Variance-boundary lab: dev-only prototypes
-/src/lib/viz/variance-boundary/lab/
-/src/routes/variance-boundary/lab/
+# Viz app labs: dev-only throwaway prototypes, never committed
+/src/lib/viz/*/lab/
+/src/routes/*/lab/
