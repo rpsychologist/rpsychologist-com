@@ -15,6 +15,8 @@ declare module 'virtual:posts' {
 		/** Project-absolute path to the source file, e.g. /content/blog/x/index.md */
 		path: string;
 		title: string;
+		/** Shown under the H1 and as the share-card kicker; never part of the title. */
+		subtitle?: string;
 		/** ISO 8601 date string. */
 		date: string;
 		/** ISO 8601; set only when the post was substantively revised. */

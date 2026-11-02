@@ -62,6 +62,9 @@ they stay decoupled is the key architectural idea:
    term slugs, prev/next adjacency. List pages, RSS, and sitemap import from
    here and never touch a post's compiled component.
    An optional `updated` date, set by hand on a substantive revision, shows next to the post's date and becomes its JSON-LD `dateModified`, `article:modified_time`, and sitemap `lastmod`; RSS keeps the publish date, so a revision doesn't resurface a post in readers' feeds.
+   An optional `subtitle` (e.g. "An Interactive Explanation") plays the viz apps' subtitle role: it
+   shows under the post's H1 and becomes its share-card kicker, but never joins
+   the title in `<title>`, RSS, search, or the pager.
 
 2. **Components** — `src/routes/[slug]/+page.ts` keeps a _separate, non-eager_
    `import.meta.glob('/content/blog/*/index.{md,svx}')`. It looks up the one

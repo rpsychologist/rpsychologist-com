@@ -28,6 +28,7 @@ const WORDS_PER_MINUTE = 200;
 
 const FrontmatterSchema = z.object({
 	title: z.string(),
+	subtitle: z.string().optional(),
 	date: z.union([z.string(), z.date()]),
 	/** Set by hand on a substantive revision only (see CLAUDE.md). */
 	updated: z.union([z.string(), z.date()]).optional(),
@@ -179,6 +180,7 @@ function loadPosts(root) {
 			slug: fm.slug,
 			path: '/' + path.relative(root, file).split(path.sep).join('/'),
 			title: fm.title,
+			subtitle: fm.subtitle,
 			date: date.toISOString(),
 			updated: updated?.toISOString(),
 			author: fm.author,

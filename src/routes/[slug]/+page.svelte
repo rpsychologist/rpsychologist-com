@@ -34,6 +34,9 @@
 	<article class="article" use:enhanceCode use:enhanceCitations>
 		<header class="post-header">
 			<h1 class="display">{data.meta.title}</h1>
+			{#if data.meta.subtitle}
+				<p class="post-kicker">{data.meta.subtitle}</p>
+			{/if}
 			{#if data.meta.summary}
 				<p class="post-subtitle">{data.meta.summary}</p>
 			{/if}
@@ -113,6 +116,12 @@
 	}
 	.post-header h1 {
 		margin-bottom: 0.6rem;
+	}
+	.post-kicker {
+		margin: 0 0 0.6rem;
+		font-size: 1.2rem;
+		font-weight: 600;
+		color: var(--heading);
 	}
 	.post-subtitle {
 		margin: 0 0 1.1rem;
