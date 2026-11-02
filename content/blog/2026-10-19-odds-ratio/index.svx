@@ -41,7 +41,7 @@ nocite: '@danielMakingApplesOranges2021a'
 When the outcome is binary, the default analysis in many fields is logistic regression, and the default effect size is the odds ratio.
 These are generally not the most intuitive numerical summaries of a result.
 In this article I will explain odds ratios, risk ratios, and risk differences using interactive visualizations, including why an odds ratio of 2 does not mean "twice as likely".
-The visualizations also let you explore even less intuitive oddities of odds, such as why they change when adjusting for other variables (non-collapsibility).
+The visualizations also let you explore even less intuitive oddities of odds, such as why odds ratios change when adjusting for a prognostic variable, even in a randomized trial (non-collapsibility).
 The running example throughout will be a randomized trial of psychotherapy for depression, in which the outcome is whether a patient remits.
 
 </div>
