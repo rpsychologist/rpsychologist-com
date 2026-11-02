@@ -17,6 +17,8 @@ declare module 'virtual:posts' {
 		title: string;
 		/** ISO 8601 date string. */
 		date: string;
+		/** ISO 8601; set only when the post was substantively revised. */
+		updated?: string;
 		author: string;
 		category: string;
 		tags: string[];

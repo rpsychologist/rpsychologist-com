@@ -29,6 +29,8 @@ const WORDS_PER_MINUTE = 200;
 const FrontmatterSchema = z.object({
 	title: z.string(),
 	date: z.union([z.string(), z.date()]),
+	/** Set by hand on a substantive revision only (see CLAUDE.md). */
+	updated: z.union([z.string(), z.date()]).optional(),
 	author: z.string(),
 	category: z.string().transform((s) => s.trim()),
 	// Unique: tags key a client-side {#each}; a duplicate prerenders fine but
@@ -165,12 +167,20 @@ function loadPosts(root) {
 		if (Number.isNaN(date.getTime())) {
 			throw new Error(`Unparseable date "${fm.date}" in ${file}`);
 		}
+		const updated = fm.updated === undefined ? undefined : parsePostDate(fm.updated);
+		if (updated && Number.isNaN(updated.getTime())) {
+			throw new Error(`Unparseable updated date "${fm.updated}" in ${file}`);
+		}
+		if (updated && updated < date) {
+			throw new Error(`updated "${fm.updated}" is before date "${fm.date}" in ${file}`);
+		}
 
 		posts.push({
 			slug: fm.slug,
 			path: '/' + path.relative(root, file).split(path.sep).join('/'),
 			title: fm.title,
 			date: date.toISOString(),
+			updated: updated?.toISOString(),
 			author: fm.author,
 			category: fm.category,
 			tags: fm.tags,

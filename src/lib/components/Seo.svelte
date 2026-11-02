@@ -124,6 +124,7 @@
 	<meta property="og:image:alt" content={imageAlt} />
 	{#if type === 'article'}
 		{#if published}<meta property="article:published_time" content={published} />{/if}
+		{#if modified}<meta property="article:modified_time" content={modified} />{/if}
 		<meta property="article:author" content={`${site.url}/about`} />
 		{#each tags as tag (tag)}<meta property="article:tag" content={tag} />{/each}
 	{/if}
