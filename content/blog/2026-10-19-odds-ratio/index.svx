@@ -104,7 +104,7 @@ Trial analyses often add a prognostic covariate to the logistic regression, whic
 Let's assume half of each arm has mild and half severe depression at baseline, and that we adjust for this binary variable.
 The adjusted, or **conditional**, odds ratio compares patients within the same severity group; the unadjusted, or **marginal**, one compares the arms as a whole trial.
 What's the relationship between the subgroup effects and the whole-trial (unadjusted) effect?
-For the risk difference and the risk ratio, the whole-trial effect is a weighted average of the subgroup effects, i.e., it falls somewhere between them [@cummingsRelativeMeritsRisk2009].
+For the risk difference and the risk ratio, the whole-trial effect is a weighted average of the subgroup effects, i.e., it falls somewhere between them [@cummingsRelativeMeritsRisk2009; @greenlandConfoundingCollapsibilityCausal1999].
 This is not the case for the odds ratio, which is called **non-collapsibility** [@greenlandNoncollapsibilityConfoundingSparsedata2021].
 Move the slider to vary how strongly severity predicts remission.
 
@@ -142,7 +142,7 @@ The first is the measure:
 
 The second is the target, which applies to any of these measures: a marginal (population-averaged) effect or a conditional effect within patients who share the covariates [@morrisPlanningMethodCovariate2022].
 
-You do not have to pick one: to communicate how much a treatment helps, you can report the OR, the RR, and the risk difference together [@consort2025].
+You do not have to pick one: to communicate how much a treatment helps, you can report a relative effect (the OR or the RR) together with an absolute one (each arm's risk and the risk difference) [@consort2025].
 Likewise, you can adjust for prognostic covariates in the logistic regression and still report a marginal effect, using standardization (g-computation) [@morrisPlanningMethodCovariate2022].
 Getting into these details is beyond the scope of this post, but if you are interested I listed some practical resources under "Further reading" below.
 
