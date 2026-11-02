@@ -22,6 +22,7 @@
 	type="article"
 	card={data.meta.slug}
 	published={data.meta.date}
+	modified={data.meta.updated}
 	tags={data.meta.tags}
 />
 
@@ -39,6 +40,14 @@
 			<div class="meta-row">
 				<p class="post-meta">
 					<time datetime={data.meta.date}>{formatDate(new Date(data.meta.date))}</time>
+					{#if data.meta.updated}
+						<span aria-hidden="true">·</span>
+						<span
+							>Updated <time datetime={data.meta.updated}
+								>{formatDate(new Date(data.meta.updated))}</time
+							></span
+						>
+					{/if}
 					<span aria-hidden="true">·</span>
 					<span>{data.meta.readingTime} min read</span>
 					{#if data.meta.category}

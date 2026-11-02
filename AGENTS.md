@@ -49,6 +49,7 @@ SvelteKit (Svelte 5 runes) site, fully prerendered with `adapter-static`, deploy
 - Porting a legacy Gatsby app: delete its snapshot files and remove its prefix from `src/routes/+layout.svelte`, `scripts/pagefind-index.mjs`, and `src/lib/viz.ts` in the same change.
 - `data-pagefind-*` markup is injected only by `scripts/pagefind-index.mjs`, never in templates or content; `pagefind` stays pinned exactly.
 - A reader-visible change to a viz app needs a release entry in `src/lib/viz/<app>/changelog.json`; never reset version numbers or drop old URL params (migrate them).
+- A substantive revision to a published post (changed claims, numbers, figures, or sections; not typos or wording) sets `updated:` in its frontmatter.
 - Never hardcode a viz app version; it is read from the newest changelog entry.
 - When a change alters what `docs/architecture.md` describes, update it in the same change.
 

@@ -39,7 +39,7 @@ export function GET() {
 		...vizUrls,
 		...legacyUrls,
 		...tagPaths.map((p) => ({ loc: `${site.url}/${p}` })),
-		...posts.map((p) => ({ loc: `${site.url}/${p.slug}`, lastmod: p.date }))
+		...posts.map((p) => ({ loc: `${site.url}/${p.slug}`, lastmod: p.updated ?? p.date }))
 	];
 	// A viz app can live inside a post (descriptive-adjustment): one entry, and
 	// a release changes the post, so keep the later date. ISO strings sort by time.
