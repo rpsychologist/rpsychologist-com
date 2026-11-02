@@ -11,7 +11,7 @@
 	import JointLogLik from './JointLogLik.svelte';
 	import SurfaceLogLik from './SurfaceLogLik.svelte';
 	import SurfaceKey, { type KeyItem } from './SurfaceKey.svelte';
-	import ExpandButton from './ExpandButton.svelte';
+	import ExpandButton from '#lib/components/ExpandButton.svelte';
 	import ViewpointDock, { type ViewpointId } from './ViewpointDock.svelte';
 	import OptimizerControls from './OptimizerControls.svelte';
 	import TestTabs from './TestTabs.svelte';
@@ -189,8 +189,7 @@
 			<!-- One instrument, one frame: run controls and the view toggle in its
 			     header, the joint view (the surface; the contour only as fallback) as the body. -->
 			<div
-				class="instrument mle-inst"
-				class:expanded={fullMle}
+				class={['instrument mle-inst', { expanded: fullMle }]}
 				style:--head-h="{mleHeadH}px"
 				style:--full-bar-h="{fullBarH}px"
 			>
@@ -253,7 +252,7 @@
 			different sample size if we got exactly the same estimates of the mean and variance.
 		</p>
 
-		<div class="instrument inf-inst" class:expanded={fullInf} style:--head-h="{infHeadH}px">
+		<div class={['instrument inf-inst', { expanded: fullInf }]} style:--head-h="{infHeadH}px">
 			<div class="inst-head inf-head" bind:offsetHeight={infHeadH}>
 				<div class="inf-control">
 					<Slider

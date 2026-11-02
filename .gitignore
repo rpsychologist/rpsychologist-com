@@ -40,6 +40,5 @@ pnpm-debug.log*
 # Local development
 TODO.md
 
-# Viz app labs: dev-only throwaway prototypes, never committed
-/src/lib/viz/*/lab/
-/src/routes/*/lab/
+# Lab folders (design reviews, prototypes) are local only; see docs/architecture.md
+lab/

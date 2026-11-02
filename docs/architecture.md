@@ -149,6 +149,11 @@ policy is a `<meta>` after the script, so it runs regardless. Editing that
 script's bytes, or adding an inline script or external origin, means updating the
 CSP directives (recompute the hash).
 
+Any directory named `lab/` (design-review pages, prototypes, and their
+components) is gitignored and lives only in a local checkout, so tracked code
+must never import from one. Lab routes under `/lab/*` are also dev-only:
+served by `pnpm dev`, never prerendered, and a 404 in production.
+
 Viz apps that need a chrome-free embeddable view expose it as a **child route**
 (`/cohend/embed`) that is prerendered as the tool alone — not a `?embed=1` query
 on the main page. The root layout drops the header/footer for any `/…/embed` path
@@ -246,7 +251,7 @@ differ only in how they are built:
 
 - **One tool** (cohend, correlation, likelihood): a route with one state class.
   It reaches RSS through an announcement post, linked from the entry's `posts`.
-- **Several tools** (`descriptive-adjustment`): an interactive article, a dated
+- **Several tools** (`descriptive-adjustment`, `odds-ratio`): an interactive article, a dated
   `.svx` post whose figures each keep their own state, so it appears in RSS,
   post lists, tags, and search like any post.
 

@@ -49,6 +49,13 @@ export const viz: Viz[] = [
 		description: 'Why adjusted regression coefficients are less descriptive than they look.'
 	},
 	{
+		title: 'Odds ratios',
+		image: 'odds-ratio',
+		href: '/odds-ratio',
+		description:
+			'Odds ratios, risk ratios, and risk differences, and why the odds ratio changes when you adjust.'
+	},
+	{
 		title: 'PowerLMM.js',
 		image: 'powerlmmjs',
 		href: 'https://powerlmmjs.rpsychologist.com/',

@@ -2,7 +2,7 @@
 // figures reproducible across reloads and builds.
 
 /** Mulberry32: a tiny, fast, deterministic PRNG seeded by a 32-bit integer. */
-function mulberry32(seed: number): () => number {
+export function mulberry32(seed: number): () => number {
 	let a = seed >>> 0;
 	return () => {
 		a |= 0;

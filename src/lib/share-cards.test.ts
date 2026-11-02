@@ -29,6 +29,12 @@ describe('share cards', () => {
 		expect(post.title).toContain('Browser-based power analysis');
 	});
 
+	it("uses a post's subtitle as the kicker, else marks interactive posts", () => {
+		const kicker = (slug: string) => shareCards.find((c) => c.key === slug)!.kicker;
+		expect(kicker('odds-ratio')).toBe('An Interactive Explanation');
+		expect(kicker('descriptive-adjustment')).toBe('Interactive article');
+	});
+
 	it(`are captured and current (else: ${RERUN})`, () => {
 		const captured = manifest as Record<string, string>;
 		const hash = createShareHasher();

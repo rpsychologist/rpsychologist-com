@@ -307,3 +307,15 @@ test('the log-likelihood in the readout draws the point height', async ({ page }
 	await page.mouse.move(0, 0);
 	await expect(page.locator('.surface .height')).toHaveCount(0);
 });
+
+test('the inference figure opens a full view and Esc closes it', async ({ page }) => {
+	await page.goto('/likelihood');
+	await ready(page);
+	const inst = page.locator('.inf-inst');
+	const button = page.getByRole('button', { name: 'Full view of the inference figure' });
+	await button.click();
+	await expect(inst).toHaveClass(/\bexpanded\b/);
+	await page.keyboard.press('Escape');
+	await expect(inst).not.toHaveClass(/\bexpanded\b/);
+	await expect(button).toBeFocused();
+});
