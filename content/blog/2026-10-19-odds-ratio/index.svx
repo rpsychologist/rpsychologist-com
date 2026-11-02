@@ -103,16 +103,16 @@ The formula holds only for an unadjusted odds ratio; to convert an adjusted one,
 Trial analyses often add a prognostic covariate to the logistic regression, which increases statistical power [@robinsonSurprisingResultsCovariate1991; @kahan2014; @fda2023covariates].
 Let's assume half of each arm has mild and half severe depression at baseline, and that we adjust for this binary variable.
 The adjusted, or **conditional**, odds ratio compares patients within the same severity group; the unadjusted, or **marginal**, one compares the arms as a whole trial.
-What's the relationship between the subgroup effects and the whole-trial (unadjusted) effect?
-For the risk difference and the risk ratio, the whole-trial effect is a weighted average of the subgroup effects, i.e., it falls somewhere between them [@cummingsRelativeMeritsRisk2009; @greenlandConfoundingCollapsibilityCausal1999].
+What's the relationship between the subgroup estimates and the whole-trial (unadjusted) estimate?
+The whole-trial risk difference is a weighted average of the risk differences in the two severity groups, so it falls between them, and the same holds for the risk ratio [@cummingsRelativeMeritsRisk2009; @greenlandConfoundingCollapsibilityCausal1999].
 This is not the case for the odds ratio, which is called **non-collapsibility** [@greenlandNoncollapsibilityConfoundingSparsedata2021].
 Move the slider to vary how strongly severity predicts remission.
 
-<StrataCurve title="The whole-trial odds ratio is not an average of the subgroup odds ratios" />
+<StrataCurve title="The whole-trial odds ratio is not an average of the severity groups' odds ratios" />
 
 The marginal and conditional OR are two different estimands [@fda2023covariates; @morrisPlanningMethodCovariate2022].
 The marginal odds ratio differs from the conditional one even without confounding [@greenlandInterpretationChoiceEffect1987; @mood2010; @fda2023covariates].
-Risk differences and risk ratios, by contrast, are collapsible: their whole-trial values in the table fall between the subgroup values [@greenlandConfoundingCollapsibilityCausal1999].
+Risk differences and risk ratios, by contrast, are collapsible: their whole-trial values in the table fall between their values in the two severity groups [@greenlandConfoundingCollapsibilityCausal1999].
 The table also shows that the risk differences and risk ratios vary between the severity groups, even though the odds ratio is the same in both groups.
 This is an example of effect modification that depends on the scale: the effect varies on the risk-difference and risk-ratio scales, but not on the odds-ratio scale [@vanderweeleDistinctionInteractionEffect2009].
 
