@@ -128,14 +128,7 @@ The take-home message is simple: let the question determine the method, not the 
 
 ## How to cite
 
-<VizCitation
-  {changelog}
-  title="Why adjusted regression coefficients are less descriptive than they look"
-  changelogHref="/descriptive-adjustment/changelog"
-  path="/descriptive-adjustment"
-  medium="Interactive article"
-  entryType="online"
-/>
+<VizCitation {changelog} />
 
 <hr />
 

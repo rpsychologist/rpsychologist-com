@@ -76,7 +76,7 @@ test('all catalog cards have legible titles, loaded figures and no layout overfl
 	const cards = (await (await request.get('/share-card/manifest.json')).json()) as {
 		key: string;
 	}[];
-	expect(cards).toHaveLength(55);
+	expect(cards).toHaveLength(56);
 	for (const { key } of cards) {
 		await page.goto(`/share-card/${key}`);
 		await expect(page.locator('.share-card[data-ready]'), key).toBeVisible();

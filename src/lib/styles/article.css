@@ -531,7 +531,8 @@ h4 {
 	.article figure.dist,
 	.article figure.cond,
 	.article figure.cells,
-	.article figure.resid {
+	.article figure.resid,
+	.article figure.wide {
 		width: calc(var(--measure) + 8rem);
 		margin-inline: -4rem;
 	}
@@ -548,7 +549,8 @@ h4 {
 	.article figure.leader,
 	.article figure.explorer,
 	.article figure.dist,
-	.article figure.resid {
+	.article figure.resid,
+	.article figure.wide {
 		margin-inline: -1.25rem;
 	}
 }

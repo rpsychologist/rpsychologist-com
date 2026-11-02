@@ -62,6 +62,14 @@ they stay decoupled is the key architectural idea:
    term slugs, prev/next adjacency. List pages, RSS, and sitemap import from
    here and never touch a post's compiled component.
    An optional `updated` date, set by hand on a substantive revision, shows next to the post's date and becomes its JSON-LD `dateModified`, `article:modified_time`, and sitemap `lastmod`; RSS keeps the publish date, so a revision doesn't resurface a post in readers' feeds.
+   An optional `subtitle`
+   (e.g. "An Interactive Explanation") plays the viz apps' subtitle role: it
+   shows under the post's H1, becomes its share-card kicker and JSON-LD
+   `alternativeHeadline`, but never joins the title in `<title>`, RSS, search,
+   or the pager. The post page puts its metadata in context
+   (`src/lib/post-context.ts`), so a post's `<VizCitation {changelog} />` cites
+   "Title: Subtitle" in sentence case and can't drift from the frontmatter;
+   pass `title` only when sentence-casing would lowercase a proper noun.
 
 2. **Components** — `src/routes/[slug]/+page.ts` keeps a _separate, non-eager_
    `import.meta.glob('/content/blog/*/index.{md,svx}')`. It looks up the one
@@ -140,6 +148,11 @@ pre-paint script is blocked and its effect flashes); in the prerendered build th
 policy is a `<meta>` after the script, so it runs regardless. Editing that
 script's bytes, or adding an inline script or external origin, means updating the
 CSP directives (recompute the hash).
+
+Any directory named `lab/` (design-review pages, prototypes, and their
+components) is gitignored and lives only in a local checkout, so tracked code
+must never import from one. Lab routes under `/lab/*` are also dev-only:
+served by `pnpm dev`, never prerendered, and a 404 in production.
 
 Viz apps that need a chrome-free embeddable view expose it as a **child route**
 (`/cohend/embed`) that is prerendered as the tool alone — not a `?embed=1` query
@@ -238,7 +251,7 @@ differ only in how they are built:
 
 - **One tool** (cohend, correlation, likelihood): a route with one state class.
   It reaches RSS through an announcement post, linked from the entry's `posts`.
-- **Several tools** (`descriptive-adjustment`): an interactive article, a dated
+- **Several tools** (`descriptive-adjustment`, `odds-ratio`): an interactive article, a dated
   `.svx` post whose figures each keep their own state, so it appears in RSS,
   post lists, tags, and search like any post.
 

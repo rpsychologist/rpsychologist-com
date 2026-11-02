@@ -1,22 +1,28 @@
 <script lang="ts">
-	// Cite-this block for a viz app's FAQ. The version, year, and BibTeX all
-	// derive from the app's changelog (newest release), so the displayed
-	// citation can never drift from the recorded release history.
+	// Cite-this block for a viz app's FAQ or a post. The version, year, and BibTeX
+	// derive from the changelog (newest release); inside a post, the title and
+	// address derive from the post, so neither can drift from what they cite.
+	import { untrack } from 'svelte';
 	import { site } from '#lib/config.js';
+	import { citationTitle } from '#lib/citation.js';
+	import { getPostMeta } from '#lib/post-context.js';
 	import type { AppChangelog } from '#lib/viz/core/changelog.js';
 
 	let {
 		changelog,
-		title,
-		changelogHref,
-		path = `/${changelog.app}/`,
-		medium = 'Web App',
-		entryType = 'software'
+		title: titleProp,
+		changelogHref: changelogHrefProp,
+		path: pathProp,
+		medium: mediumProp,
+		entryType: entryTypeProp
 	}: {
 		changelog: AppChangelog;
-		title: string;
-		/** Pre-resolved by the route — `resolve()` needs a literal route id. */
-		changelogHref: string;
+		/** Required outside a post; a post passes it only when sentence case
+		 * would lowercase a proper noun ("Cohen's"). */
+		title?: string;
+		/** Required outside a post: pre-resolved by the route, as `resolve()`
+		 * needs a literal route id. */
+		changelogHref?: string;
 		/** The cited address; apps keep the trailing-slash form already in print. */
 		path?: string;
 		/** APA bracketed description, e.g. `Interactive article`. */
@@ -24,6 +30,19 @@
 		/** BibTeX entry type, e.g. `online` for an article. */
 		entryType?: string;
 	} = $props();
+
+	const post = getPostMeta();
+	const missing = untrack(() => titleProp === undefined || changelogHrefProp === undefined);
+	if (!post && missing) {
+		throw new Error('VizCitation: `title` and `changelogHref` are required outside a post.');
+	}
+	const meta = $derived(post?.());
+
+	const title = $derived(titleProp ?? (meta ? citationTitle(meta.title, meta.subtitle) : ''));
+	const changelogHref = $derived(changelogHrefProp ?? (meta ? `/${meta.slug}/changelog` : ''));
+	const path = $derived(pathProp ?? (meta ? `/${meta.slug}` : `/${changelog.app}/`));
+	const medium = $derived(mediumProp ?? (meta ? 'Interactive article' : 'Web App'));
+	const entryType = $derived(entryTypeProp ?? (meta ? 'online' : 'software'));
 
 	const url = $derived(`${site.url}${path}`);
 	const year = $derived(changelog.releases[0].date.slice(0, 4));

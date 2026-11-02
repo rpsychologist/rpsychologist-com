@@ -5,6 +5,8 @@
 	interface Props {
 		/** Page title (site name is appended automatically). */
 		title: string;
+		/** A post's subtitle, kept out of the title; schema.org `alternativeHeadline`. */
+		subtitle?: string;
 		description?: string;
 		/** Path beginning with "/" (canonical URL is built from it). */
 		path: string;
@@ -29,6 +31,7 @@
 
 	let {
 		title,
+		subtitle,
 		description = site.description,
 		path,
 		type = 'website',
@@ -57,6 +60,7 @@
 				? {
 						'@type': 'BlogPosting',
 						headline: title,
+						alternativeHeadline: subtitle,
 						description,
 						url: canonical,
 						datePublished: published,

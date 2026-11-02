@@ -77,6 +77,14 @@ const apps = {
 				.getByRole('button', { name: /Adjust for comorbidity/ })
 				.click()
 	},
+	'odds-ratio': {
+		url: '/odds-ratio',
+		// The default state shows the post's idea in one shape: the odds ratio as a
+		// horizontal step, the risk difference as a vertical bar. The crop drops
+		// the axis titles and the flat right tail.
+		chart: 'svg[aria-label^="Logistic curve mapping log-odds to risk"]',
+		crop: { x: 0.035, y: 0, w: 0.765 }
+	},
 	powerlmmjs: {
 		url: 'https://powerlmmjs.rpsychologist.com/',
 		chart: '.recharts-wrapper',

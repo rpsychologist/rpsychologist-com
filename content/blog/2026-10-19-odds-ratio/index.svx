@@ -1,0 +1,161 @@
+---
+title: Understanding Odds Ratios and Risk Ratios
+subtitle: An Interactive Explanation
+date: 2026-11-02 12:00
+author: Kristoffer Magnusson
+category: Statistics
+tags:
+  - Statistics
+  - Odds ratio
+  - Risk ratio
+  - Logistic regression
+  - Randomized trials
+  - Visualization
+slug: odds-ratio
+summary: An interactive article about odds ratios, risk ratios (relative risk), and risk differences, and why the interpretation of odds ratios is perhaps more odd than expected.
+include_toc: true
+bibliography: bibliography.bib
+nocite: '@danielMakingApplesOranges2021a'
+---
+
+<script lang="ts">
+  import TrialDots from "#lib/components/odds/TrialDots.svelte";
+  import RiskOddsDots from "#lib/components/odds/RiskOddsDots.svelte";
+  import LogisticCurve from "#lib/components/odds/LogisticCurve.svelte";
+  import StrataCurve from "#lib/components/odds/StrataCurve.svelte";
+  import CaseControlDots from "#lib/components/odds/CaseControlDots.svelte";
+  import Tex from "#lib/components/Tex.svelte";
+  import VizCitation from "#lib/components/VizCitation.svelte";
+  import { changelog } from "#lib/viz/odds-ratio/changelog.js";
+
+  const effectMeasures = String.raw`\begin{aligned}
+  \mathrm{RD} &= p_1 - p_0 \\
+  \mathrm{RR} &= \frac{p_1}{p_0} \\
+  \mathrm{OR} &= \frac{p_1/(1-p_1)}{p_0/(1-p_0)}
+  \end{aligned}`;
+  const riskRatioAtBaselineRisk = String.raw`\mathrm{RR} = \frac{\mathrm{OR}}{1 - p_0 + p_0\,\mathrm{OR}}`;
+</script>
+
+<div class="lead">
+
+When the outcome is binary, the default analysis in many fields is logistic regression, and the default effect size is the odds ratio.
+These are generally not the most intuitive numerical summaries of a result.
+In this article I will explain odds ratios, risk ratios, and risk differences using interactive visualizations, including why an odds ratio of 2 does not mean "twice as likely".
+The visualizations also let you explore even less intuitive oddities of odds, such as why odds ratios change when adjusting for a prognostic variable, even in a randomized trial (non-collapsibility).
+The running example throughout will be a randomized trial of psychotherapy for depression, in which the outcome is whether a patient remits.
+
+</div>
+
+## Risk and odds
+
+Let's start with 100 patients without considering treatment status: 30 remit and 70 do not.
+This can be expressed as either **risk** or **odds**.
+Drag the slider to change how many patients remit, and toggle the figure to see this visualized as risk or odds.
+
+<RiskOddsDots />
+
+The risk and odds above describe a single group; next, we will focus on treatment effects, that is, group comparisons.
+
+## Risk ratios, odds ratios, and risk differences
+
+Back in the RCT, we want to compare the control and treated arms, so we calculate the risk and odds for each arm, just as above.
+Drag the sliders to change the number of remissions, and toggle between risks and odds.
+
+<TrialDots />
+
+The figure gave us three ways to summarize the same RCT result.
+Let <Tex math="p_1" /> and <Tex math="p_0" /> be the remission risks in treated and control patients:
+
+<Tex display math={effectMeasures} />
+
+The **risk difference** (RD) and **risk ratio** (RR) compare probabilities; the **odds ratio** (OR) compares odds.
+Interpreting an odds ratio as "times as likely" applies a ratio of odds to risks, which works only when the outcome is rare and odds and risks nearly coincide [@daviesWhenCanOdds1998; @cummingsRelativeMeritsRisk2009].
+Suppose 30 of 100 control patients remit and the odds ratio is 2.33.
+"2.33 times as likely" would mean 70 treated patients remitting, but only 50 do.
+Set the figure above to 55 control remitters and an odds ratio of 4 in the odds view, and "4 times as likely" would mean 220 remitters among 100 treated patients, which would be great for power, though ontologically awkward.
+
+## Baseline risk matters
+
+Odds ratios, risk ratios, and risk differences do not translate into one another one-to-one: for a given OR, the risk difference and risk ratio depend on the **baseline risk**, that is, the proportion of patients who remit in the control group [@grantConvertingOddsRatio2014].
+
+The figure below places both arms on the logistic curve, whose X axis is the **log-odds**, or **logit**.
+Logistic regression is linear on this scale: the treatment coefficient is the distance between the two arms' log-odds, which is the logarithm of the odds ratio.
+A fixed OR is therefore a fixed horizontal gap between the arms.
+The risk difference is the vertical gap between the same two arms on the risk axis, and its size depends on the arms' position along the curve.
+
+The figure can hold the risk difference, risk ratio, or odds ratio fixed.
+Start with the odds ratio, drag the control-arm risk, and watch the risk difference annotated along the Y axis change.
+Switch the risk axis to log, and the vertical gap shows the risk ratio instead.
+Hold the risk ratio fixed, and that gap stays constant while the horizontal gap, the odds ratio, changes.
+
+<LogisticCurve title="The same odds ratio gives different risk differences and risk ratios at different baseline risks" />
+
+For a fixed odds ratio and control risk <Tex math="p_0" />, the risk ratio is [@zhang1998; @grantConvertingOddsRatio2014]:
+
+<Tex display math={riskRatioAtBaselineRisk} />
+
+You probably noticed that at low baseline risk, the risk ratio approaches the odds ratio; as baseline risk rises, it moves toward 1 [@daviesWhenCanOdds1998].
+The risk difference also varies with baseline risk, and is greatest near the middle of the logistic curve.
+The formula holds only for an unadjusted odds ratio; to convert an adjusted one, which we turn to next, average the model's predicted risks instead [@greenland2004].
+
+## Adjustment and non-collapsibility
+
+Trial analyses often add a prognostic covariate to the logistic regression, which increases statistical power [@robinsonSurprisingResultsCovariate1991; @kahan2014; @fda2023covariates].
+Let's assume half of each arm has mild and half severe depression at baseline, and that we adjust for this binary variable.
+The adjusted, or **conditional**, odds ratio compares patients within the same severity group; the unadjusted, or **marginal**, one compares the arms as a whole trial.
+What's the relationship between the subgroup effects and the whole-trial (unadjusted) effect?
+For the risk difference and the risk ratio, the whole-trial effect is a weighted average of the subgroup effects, i.e., it falls somewhere between them [@cummingsRelativeMeritsRisk2009; @greenlandConfoundingCollapsibilityCausal1999].
+This is not the case for the odds ratio, which is called **non-collapsibility** [@greenlandNoncollapsibilityConfoundingSparsedata2021].
+Move the slider to vary how strongly severity predicts remission.
+
+<StrataCurve title="The whole-trial odds ratio is not an average of the subgroup odds ratios" />
+
+The marginal and conditional OR are two different estimands [@fda2023covariates; @morrisPlanningMethodCovariate2022].
+The marginal odds ratio differs from the conditional one even without confounding [@greenlandInterpretationChoiceEffect1987; @mood2010; @fda2023covariates].
+Risk differences and risk ratios, by contrast, are collapsible: their whole-trial values in the table fall between the subgroup values [@greenlandConfoundingCollapsibilityCausal1999].
+The table also shows that the risk differences and risk ratios vary between the severity groups, even though the odds ratio is the same in both groups.
+This is an example of effect modification that depends on the scale: the effect varies on the risk-difference and risk-ratio scales, but not on the odds-ratio scale [@vanderweeleDistinctionInteractionEffect2009].
+
+## Case-control studies: when odds are all we have
+
+You will likely encounter odds ratios in **case-control studies**, which select patients by their outcome: those with it (**cases**) and, for comparison, a sample of those without it (**controls**).
+In these studies, the risks in the sample depend on how many controls the investigator sampled, so the sample cannot estimate the risk difference or the risk ratio, but it can estimate the odds ratio [@cornfield1951; @cummingsRelativeMeritsRisk2009].
+The visualization below lets you explore why sampling a proportion of the controls (non-remitters) still allows you to estimate the odds ratio.
+For simplicity, we assume a population of 200 patients, 100 treated and 100 untreated, of whom 50 and 30 remit, and we want to know the odds ratio of remission.
+Drag the slider to change how many controls we sample.
+
+<CaseControlDots title="Sampling fewer controls changes the risk ratio but leaves the odds ratio alone" />
+
+Treated and untreated patients keep the same share of their non-remitters (controls), so both groups' odds are multiplied by the same factor, which cancels in the odds ratio; the odds ratio is the same as if we had included all controls.
+The risks also count the remitters in their denominators, so the factor does not cancel, and the sample risk ratio moves toward 1 as the share of controls shrinks.
+When the outcome is rare, the case-control odds ratio also approximates the risk ratio [@cornfield1951]; remission is common, so here the odds ratio of 2.33 is far from the risk ratio of 1.67.
+
+## Which effect to report?
+
+The point of this post is not to claim there is anything wrong with odds ratios or logistic regression.
+The goal is to help you understand them, and to know that there are multiple options for how to communicate results _even_ if you fit a logistic regression.
+Broadly speaking, the options vary in two ways.
+The first is the measure:
+
+- Relative effects: odds ratios and risk ratios
+- Absolute effects: each group's risk, and their difference (risk difference)
+
+The second is the target, which applies to any of these measures: a marginal (population-averaged) effect or a conditional effect within patients who share the covariates [@morrisPlanningMethodCovariate2022].
+
+You do not have to pick one: to communicate how much a treatment helps, you can report a relative effect (the OR or the RR) together with an absolute one (each arm's risk and the risk difference) [@consort2025].
+Likewise, you can adjust for prognostic covariates in the logistic regression and still report a marginal effect, using standardization (g-computation) [@morrisPlanningMethodCovariate2022].
+Getting into these details is beyond the scope of this post, but if you are interested I listed some practical resources under "Further reading" below.
+
+## Further reading
+
+- @harrellAvoidingOneNumberSummaries2021 argues against summarizing a trial with a single effect, and shows how the risk difference varies with each patient's baseline risk.
+  The marginaleffects package has a [case study](https://marginaleffects.com/bonus/logit.html) that reproduces that analysis.
+- @morrisPlanningMethodCovariate2022 is a practical guide to choosing between direct adjustment, standardization, and inverse-probability weighting when adjusting for covariates in a trial.
+
+## How to cite
+
+<VizCitation {changelog} />
+
+## References
+
+[^ref]

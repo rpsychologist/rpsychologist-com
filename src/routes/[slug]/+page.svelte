@@ -9,14 +9,17 @@
 	import { site } from '#lib/config.js';
 	import { resolve } from '$app/paths';
 	import { formatDate } from '#lib/utils/date.js';
+	import { setPostMeta } from '#lib/post-context.js';
 
 	let { data } = $props();
+	setPostMeta(() => data.meta);
 	const Content = $derived(data.component);
 	const githubUrl = $derived(`${site.repo}/blob/main${data.meta.path}`);
 </script>
 
 <Seo
 	title={data.meta.title}
+	subtitle={data.meta.subtitle}
 	description={data.meta.summary}
 	path={`/${data.meta.slug}`}
 	type="article"
@@ -34,6 +37,9 @@
 	<article class="article" use:enhanceCode use:enhanceCitations>
 		<header class="post-header">
 			<h1 class="display">{data.meta.title}</h1>
+			{#if data.meta.subtitle}
+				<p class="post-kicker">{data.meta.subtitle}</p>
+			{/if}
 			{#if data.meta.summary}
 				<p class="post-subtitle">{data.meta.summary}</p>
 			{/if}
@@ -113,6 +119,12 @@
 	}
 	.post-header h1 {
 		margin-bottom: 0.6rem;
+	}
+	.post-kicker {
+		margin: 0 0 0.6rem;
+		font-size: 1.2rem;
+		font-weight: 600;
+		color: var(--heading);
 	}
 	.post-subtitle {
 		margin: 0 0 1.1rem;

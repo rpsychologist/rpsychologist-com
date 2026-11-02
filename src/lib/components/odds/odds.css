@@ -1,0 +1,385 @@
+/* Shared chrome for the odds-ratio essay's figures. Global (imported by each
+   figure) because the SVG labels are rendered through DotField's snippets. */
+
+/* Series colors, validated with the dataviz six checks (lightness band, chroma
+   floor, CVD and normal-vision separation, contrast) against --panel in both
+   modes. The site-wide --viz-accent teal is below the chroma floor, so on the
+   remitter dots it read as gray beside the gray non-remitters. */
+.odds-fig,
+.odds-colors {
+	--odds-accent: #0891b2;
+	--odds-ref: #d97706;
+	/* Patients left out of a sample: faint but still countable in both modes. */
+	--odds-faded: 0.28;
+}
+
+/* Spacing by grouping: sp-1 joins a label to what it labels, sp-2 separates
+   siblings within a block, sp-3 separates the blocks (title, controls, chart,
+   results, caption). */
+.odds-fig {
+	--odds-sp-1: 0.25rem;
+	--odds-sp-2: 0.75rem;
+	--odds-sp-3: 1.25rem;
+	position: relative;
+	margin: 2rem 0;
+	padding: 1.25rem;
+	box-shadow: var(--shadow);
+}
+
+/* Each block owns only the gap above it. At (0,3,0) these outrank the global
+   .fig-readout and `.article figure figcaption` margins and the components'
+   scoped ones (0,2,0); the exceptions must stay after the rule. */
+.odds-fig.card > :not(.expand) {
+	margin-block: 0;
+}
+.odds-fig.card > :not(.expand) + * {
+	margin-top: var(--odds-sp-3);
+}
+.odds-fig.card > .fig-title + *,
+.odds-fig.card > .legend ~ .fig-svg,
+.odds-fig.card > .equations + .fig-readout {
+	margin-top: var(--odds-sp-2);
+}
+.odds-fig.card > figcaption {
+	padding-top: 0.75rem;
+}
+
+/* Full view (ExpandButton): the same element pinned over the window, so no
+   state is lost. The top row keeps clear of the button. */
+.odds-fig > .expand {
+	position: absolute;
+	top: 0.75rem;
+	right: 0.75rem;
+	z-index: 1;
+}
+/* Only the controls' first row runs beside the button, so the sliders below
+   it still span the card. */
+.odds-fig > .expand + .odds-controls > :first-child {
+	padding-right: 2.75rem;
+}
+.odds-fig > .fig-title {
+	padding-right: 2.75rem;
+	font-size: 1.05rem;
+	font-weight: 600;
+	line-height: 1.35;
+	text-wrap: balance;
+	color: inherit;
+}
+/* .card raises specificity past `.article figure.wide`'s breakout width. */
+figure.card.odds-fig.expanded {
+	position: fixed;
+	inset: 0;
+	z-index: 100;
+	width: auto;
+	margin: 0;
+	padding: 1.5rem max(1.5rem, (100% - 90rem) / 2);
+	border: none;
+	border-radius: 0;
+	box-shadow: none;
+	overflow: auto;
+}
+.odds-fig.expanded > .expand {
+	top: 1rem;
+	right: 1rem;
+}
+/* --fs-chrome below doesn't count the title. */
+.odds-fig.expanded > .fig-title,
+.odds-fig.expanded figcaption {
+	display: none;
+}
+/* --fs-chrome: the height of the controls and readout each card keeps on
+   screen; ResponsiveSvg caps the chart at --fig-max-h. */
+/* The full view tightens the spacing scale to keep everything on screen. */
+.odds-fig.expanded {
+	--fig-max-h: calc(100dvh - var(--fs-chrome, 14rem));
+	--odds-sp-2: 0.5rem;
+	--odds-sp-3: 1rem;
+}
+/* Larger text for a projected screen; a phone keeps the article's sizes. */
+@media (min-width: 36rem) {
+	.odds-fig.expanded .fig-readout {
+		font-size: 1.2rem;
+	}
+	.odds-fig.expanded .fig-readout.sub {
+		font-size: 1.1rem;
+	}
+	.odds-fig.expanded .odds-label {
+		font-size: 1rem;
+	}
+	.odds-fig.expanded .legend {
+		font-size: 0.98rem;
+	}
+	.odds-fig.expanded .fig-pill {
+		font-size: 1rem;
+	}
+	.odds-fig.expanded .odds-slider output {
+		font-size: 1.05rem;
+	}
+	.odds-fig.expanded .odds-table {
+		font-size: 1rem;
+	}
+}
+
+.odds-controls {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--odds-sp-2) 1.5rem;
+}
+
+.odds-group {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.odds-label {
+	font-size: 0.82rem;
+	color: var(--muted);
+	margin-right: 0.2rem;
+}
+
+/* The track fills its row, as on the other viz pages. The number sits beside
+   its end (above it on a phone); its fixed column keeps the track's length
+   while the number changes width. */
+.odds-slider {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 3.5rem;
+	align-items: center;
+	gap: var(--odds-sp-1) 0.5rem;
+	flex: 1 1 16rem;
+}
+.odds-slider .odds-label {
+	grid-column: 1 / -1;
+}
+.odds-slider output {
+	font-size: 0.9rem;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+	text-align: right;
+}
+
+/* On a phone the track spans the card and the number moves up to the label's
+   row. The card already fills the screen, so the expand button goes; an open
+   full view keeps it, and its top row keeps clear of it, so it can be closed. */
+@media (max-width: 40rem) {
+	.odds-fig:not(.expanded) > .expand {
+		display: none;
+	}
+	.odds-fig > .fig-title {
+		padding-right: 0;
+	}
+	.odds-slider {
+		grid-template-columns: minmax(0, 1fr) auto;
+		align-items: end;
+		flex-basis: 100%;
+	}
+	.odds-slider .odds-label {
+		grid-column: 1;
+	}
+	.odds-slider output {
+		grid-column: 2;
+		grid-row: 1;
+	}
+	.odds-slider input {
+		grid-column: 1 / -1;
+	}
+	.odds-fig:not(.expanded) > .expand + .odds-controls > :first-child {
+		padding-right: 0;
+	}
+	.odds-fig.expanded > .odds-controls > :first-child {
+		padding-right: 2.75rem;
+	}
+	/* Its own row, so the pills never split across lines. */
+	.odds-controls > .odds-group > .odds-label {
+		flex-basis: 100%;
+	}
+}
+
+/* A name that is spelled out on wider screens and abbreviated on a phone.
+   Visually hidden, not display: none, so screen readers keep the full name. */
+.odds-fig .short {
+	display: none;
+}
+@media (max-width: 40rem) {
+	.odds-fig .full {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+	.odds-fig .short {
+		display: inline;
+	}
+}
+
+.odds-fig svg text {
+	fill: var(--muted);
+	font-variant-numeric: tabular-nums;
+}
+.odds-fig svg text.head {
+	fill: var(--ink);
+	font-weight: 600;
+}
+.odds-fig svg text.fade-out {
+	opacity: 0;
+}
+.odds-fig svg text {
+	transition: opacity 0.4s ease;
+}
+.odds-fig svg .grid {
+	stroke: var(--rule);
+	stroke-width: 1;
+}
+.odds-fig svg .axis {
+	stroke: var(--rule);
+	stroke-width: 1;
+}
+.odds-fig svg .tick {
+	stroke: var(--muted);
+	stroke-width: 1;
+}
+
+/* Direct labels on the dots (TrialDots, RiskOddsDots): they move with the
+   dots, and the risk and odds sets cross-fade. Scoped to .stack-labels, since
+   CaseControlDots has an always-on "to". */
+.odds-fig .stack-labels :is(text.count, text.to, text.side, .bracket) {
+	text-anchor: middle;
+	opacity: 0;
+	transition:
+		transform 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+		opacity 0.35s ease;
+}
+.odds-fig .stack-labels text.side {
+	text-anchor: start;
+}
+.odds-fig .stack-labels text.side.end {
+	text-anchor: end;
+}
+.odds-fig .stack-labels .bracket {
+	fill: none;
+	stroke: var(--muted);
+	stroke-width: 1;
+}
+.odds-fig .stack-labels :is(text.count, text.to, text.side, .bracket).on {
+	opacity: 1;
+}
+/* These arrive once the dots have settled into their new layout. */
+.odds-fig .stack-labels :is(text.to, text.side, .bracket).on {
+	transition-delay: 0s, 0.6s;
+}
+.odds-fig .stack-labels text.to {
+	font-style: italic;
+}
+
+/* A readout that holds one height while the sliders move (TrialDots,
+   RiskOddsDots): its longest sentences lie invisibly under the live one. */
+.odds-fig .readout {
+	display: grid;
+	font-variant-numeric: tabular-nums;
+}
+.odds-fig .readout > span {
+	grid-area: 1 / 1;
+}
+.odds-fig .readout > .ghost {
+	visibility: hidden;
+	user-select: none;
+}
+
+/* Equations under the dots (TrialDots, RiskOddsDots, CaseControlDots). When
+   they wrap, the row gap keeps each label with its own result. */
+.odds-fig .equations {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: var(--odds-sp-3) 3rem;
+}
+.odds-fig .equation {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--odds-sp-1);
+	margin: 0;
+	transition: color 0.3s ease;
+}
+.odds-fig .eq-label {
+	font-size: 0.8rem;
+	color: var(--muted);
+}
+.odds-fig .eq-body {
+	font-size: 1.6rem;
+	line-height: 1.25;
+	font-variant-numeric: tabular-nums;
+}
+/* Centered equations slide whenever their width changes, so each side of "="
+   keeps the width of its widest value, drawn invisibly from data-widest. */
+.odds-fig .slot {
+	display: inline-grid;
+	justify-items: start;
+}
+.odds-fig .slot.lhs {
+	justify-items: end;
+}
+.odds-fig .slot > *,
+.odds-fig .slot::before {
+	grid-area: 1 / 1;
+}
+.odds-fig .slot::before {
+	content: attr(data-widest);
+	visibility: hidden;
+}
+/* Results are text, so ink: teal means remitters and the treated arm. */
+.odds-fig .eq-body strong {
+	font-weight: 700;
+	transition: color 0.3s ease;
+}
+/* The equation for the view not shown steps back but stays for comparison. */
+.odds-fig .equation.off,
+.odds-fig .equation.off .eq-body strong {
+	color: var(--muted);
+}
+@media (max-width: 40rem) {
+	.odds-fig .equations {
+		column-gap: 1.5rem;
+	}
+	.odds-fig .eq-body {
+		font-size: 1.3rem;
+	}
+}
+
+/* Reference numbers, set at the caption's size so they don't outrank the
+   chart. Under .odds-fig to outrank the essay's `.article table` rules. */
+.odds-fig .odds-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.82rem;
+	font-variant-numeric: tabular-nums;
+	margin: 0;
+}
+.odds-fig .odds-table :is(th, td) {
+	padding: 0.3rem 0.5rem;
+	text-align: right;
+	border-bottom: 1px solid var(--rule);
+}
+.odds-fig .odds-table th:first-child {
+	text-align: left;
+	font-weight: 500;
+}
+.odds-fig .odds-table thead th {
+	font-weight: 500;
+	color: var(--muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.odds-fig .stack-labels :is(text.count, text.to, text.side, .bracket) {
+		transition: opacity 0.2s;
+	}
+	.odds-fig svg text,
+	.odds-fig .equation,
+	.odds-fig .eq-body strong {
+		transition: none;
+	}
+}

@@ -93,7 +93,7 @@ export const shareCards: ShareCard[] = [
 			p.slug === 'introducing-powerlmmjs'
 				? 'PowerLMM.js: Longitudinal Power with Dropout'
 				: typeset(p.title),
-		kicker: p.interactive ? 'Interactive article' : undefined,
+		kicker: p.subtitle ?? (p.interactive ? 'Interactive article' : undefined),
 		image:
 			galleryImage(p.slug) ?? (p.title.length <= MAX_TITLE_BESIDE_FIGURE ? p.thumbnail : undefined),
 		lang: 'en'
