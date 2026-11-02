@@ -9,14 +9,17 @@
 	import { site } from '#lib/config.js';
 	import { resolve } from '$app/paths';
 	import { formatDate } from '#lib/utils/date.js';
+	import { setPostMeta } from '#lib/post-context.js';
 
 	let { data } = $props();
+	setPostMeta(() => data.meta);
 	const Content = $derived(data.component);
 	const githubUrl = $derived(`${site.repo}/blob/main${data.meta.path}`);
 </script>
 
 <Seo
 	title={data.meta.title}
+	subtitle={data.meta.subtitle}
 	description={data.meta.summary}
 	path={`/${data.meta.slug}`}
 	type="article"
