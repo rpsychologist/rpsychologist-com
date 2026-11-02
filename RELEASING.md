@@ -28,6 +28,7 @@ Semver, defined around what the app _shows_, not its code:
    non-dev reader checks. A release with `breaking` or `removed` entries
    must bump the major version — the validator enforces this, so the heading
    and the number cannot disagree.
+   If the app lives in a post and the release changes what the post shows, also set `updated:` in the post's frontmatter to the release date.
 2. Commit and merge to `main` as usual. The build validates the data
    (malformed entries fail `pnpm check`, the tests, and the build), and the
    displayed version in the cite FAQ and the changelog page update themselves.
