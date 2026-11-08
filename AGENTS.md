@@ -58,7 +58,10 @@ SvelteKit (Svelte 5 runes) site, fully prerendered with `adapter-static`, deploy
 - Before Svelte or SvelteKit work, call `list-sections`, then `get-documentation` for every section whose `use_cases` match the task.
 - Run `svelte-autofixer` on every `.svelte` and `.svelte.ts` file you write or edit until it returns no issues or suggestions.
 - The server fetches from `svelte.dev`; if its tools are missing, say so instead of working without them.
-- Delegate multi-file Svelte edits to the `svelte-file-editor` subagent so doc lookups and autofixer rounds stay out of the main context.
+- The main session designs and writes a per-file spec (state shape, props, which convention applies); a one-file edit it makes itself, running the autofixer.
+- Multi-file or large Svelte edits go to the `svelte-editor` subagent (sonnet), one per independent group of files; not the plugin's `svelte:svelte-file-editor`, which runs on the session model.
+- Afterwards, read `git diff`, run `checker`, and `viz-qa` when the change is visible.
+- Keep `src/lib/stats/`, state-class design, URL-param migrations, and the CSP in the main session.
 
 ## Code Comments
 
