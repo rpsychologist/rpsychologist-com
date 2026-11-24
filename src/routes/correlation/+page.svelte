@@ -57,6 +57,7 @@
 	type="app"
 	card="correlation"
 	version={changelog.version}
+	published={changelog.releases[0].date}
 />
 
 <div class="page" class:settings-open={settingsOpen}>

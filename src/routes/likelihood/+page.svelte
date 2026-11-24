@@ -42,6 +42,7 @@
 	type="app"
 	card="likelihood"
 	version={changelog.version}
+	published={changelog.releases[0].date}
 />
 
 <div class="page">

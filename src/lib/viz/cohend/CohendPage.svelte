@@ -160,6 +160,7 @@
 	type="app"
 	card={locale === 'en' ? 'cohend' : `cohend-${locale}`}
 	version={changelog.version}
+	published={changelog.releases[0].date}
 	{alternates}
 	locale={ogLocale(locale)}
 	localeAlternates={PUBLISHED.filter((l) => l.code !== locale).map((l) => l.ogLocale)}
@@ -318,6 +319,7 @@
 				<VizCitation
 					{changelog}
 					title="Interpreting Cohen's d effect size: An interactive visualization"
+					bibtexTitle={"Interpreting {Cohen}'s \\textit{d} effect size: An interactive visualization"}
 					changelogHref={resolve('/cohend/changelog')}
 				/>
 			</div>
