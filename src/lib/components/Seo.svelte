@@ -18,7 +18,8 @@
 		/** The app's displayed version (`type: 'app'`). */
 		version?: string;
 		noindex?: boolean;
-		/** Article metadata (ISO strings). */
+		/** Article metadata (ISO strings); for `type: 'app'`, `published` is the
+		 * newest release's date. */
 		published?: string;
 		modified?: string;
 		tags?: string[];
@@ -50,6 +51,13 @@
 	const fullTitle = $derived(title === site.title ? title : `${title} | ${site.title}`);
 	const canonical = $derived(new URL(path, site.url).href);
 	const ogImage = $derived(new URL(shareImage(card), site.url).href);
+	// The date a reference cites (APA): a post's last substantive revision, else its
+	// publication; an app's newest release. As VizCitation's.
+	const citationDate = $derived(
+		{ article: modified ?? published, app: published, website: undefined }[type]
+			?.slice(0, 10)
+			.replaceAll('-', '/')
+	);
 	const author = { '@type': 'Person', name: site.author, url: site.url };
 	const website = { '@type': 'WebSite', name: site.title, url: site.url };
 
@@ -100,6 +108,9 @@
 <svelte:head>
 	<title>{fullTitle}</title>
 	<meta name="description" content={description} />
+	<!-- Reference managers (Zotero) read the author here: they skip article:author
+	     because it holds a URL, and they don't parse JSON-LD. -->
+	<meta name="author" content={site.author} />
 	{#if noindex}<meta name="robots" content="noindex" />{/if}
 	<link rel="canonical" href={canonical} />
 	{#each alternates as alt (alt.hrefLang)}
@@ -130,8 +141,22 @@
 		{#if published}<meta property="article:published_time" content={published} />{/if}
 		{#if modified}<meta property="article:modified_time" content={modified} />{/if}
 		<meta property="article:author" content={`${site.url}/about`} />
+		<!-- Zotero's item-type override (`z` is a prefix its translator knows);
+		     without it, posts save as web pages. -->
+		<meta property="z:itemType" content="blogPost" />
 		{#each tags as tag (tag)}<meta property="article:tag" content={tag} />{/each}
 	{/if}
+	{#if type === 'app'}
+		<!-- Zotero: save viz apps as Software. Its RDF translator copies z:<field>
+		     tags into the item's fields (z is a prefix it knows). An app's title and
+		     description come from its Cite-this block (VizCitation). -->
+		<meta property="z:itemType" content="computerProgram" />
+		{#if version}<meta property="z:versionNumber" content={version} />{/if}
+		<meta property="z:company" content={site.title} />
+	{/if}
+	<!-- Date only: Zotero copies article:published_time's full timestamp into its
+	     Date field. No citation_title here: it would make posts journal articles. -->
+	{#if citationDate}<meta name="citation_publication_date" content={citationDate} />{/if}
 
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:site" content={site.twitter} />

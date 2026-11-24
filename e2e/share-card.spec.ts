@@ -127,3 +127,61 @@ test('static pages expose crawlable share metadata pointing to real PNGs', async
 	const card = await (await request.get('/share-card/likelihood')).text();
 	expect(card).toContain('name="robots" content="noindex"');
 });
+
+test('posts and apps carry the metadata Zotero reads', async ({ request }) => {
+	// The cited title and description come from the page's Cite-this block, if any.
+	for (const [path, itemType, citedTitle, description] of [
+		['/introducing-powerlmmjs', 'blogPost', null, null],
+		[
+			'/descriptive-adjustment',
+			'blogPost',
+			'Why adjusted regression coefficients are less descriptive than they look',
+			'z:websiteType" content="Interactive article'
+		],
+		[
+			'/likelihood',
+			'computerProgram',
+			'Understanding maximum likelihood estimation: An interactive visualization',
+			'z:system" content="Web app'
+		],
+		[
+			'/es/cohend',
+			'computerProgram',
+			"Interpreting Cohen's d effect size: An interactive visualization",
+			'z:system" content="Web app'
+		]
+	] as const) {
+		const html = await (await request.get(path)).text();
+		expect(html, path).toContain('name="author" content="Kristoffer Magnusson"');
+		expect(html, path).toContain(`property="z:itemType" content="${itemType}"`);
+		expect(html, path).toMatch(/name="citation_publication_date" content="\d{4}\/\d\d\/\d\d"/);
+		if (itemType === 'computerProgram') {
+			expect(html, path).toMatch(/property="z:versionNumber" content="\d+\.\d+\.\d+"/);
+			expect(html, path).toContain('property="z:company" content="R Psychologist"');
+		}
+		if (citedTitle) {
+			expect(html, path).toContain(`name="DC.title" content="${citedTitle}"`);
+			expect(html, path).toContain(`property="${description}"`);
+		} else {
+			expect(html, path).not.toContain('name="DC.title"');
+			expect(html, path).not.toContain('z:websiteType');
+		}
+	}
+	// Braces keep sentence-casing styles (biblatex-apa) from lowercasing "Cohen".
+	const cohend = await (await request.get('/cohend')).text();
+	expect(cohend).toContain("title = {Interpreting {Cohen}'s \\textit{d} effect size");
+	// biblatex-apa brackets entrysubtype, as APA does; an app is dated by its year.
+	expect(cohend).toMatch(
+		/entrysubtype = \{Web app\},\n {2}version = \{[\d.]+\},\n {2}publisher = \{R Psychologist\},/
+	);
+	expect(cohend).toMatch(/date = \{\d{4}\},\n\}/);
+	expect(cohend).toContain('[Web app]');
+	// A post is dated by its publication (no `updated:` set) and has no version.
+	const post = await (await request.get('/descriptive-adjustment')).text();
+	expect(post).toContain('name="citation_publication_date" content="2026/06/25"');
+	expect(post).toContain(
+		'type = {Interactive article},\n  entrysubtype = {Interactive article},\n  organization = {R Psychologist},'
+	);
+	expect(post).toContain('date = {2026-06-25},');
+	expect(post).not.toContain('version = {');
+});

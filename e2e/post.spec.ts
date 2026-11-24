@@ -243,10 +243,11 @@ test("a post's citation follows its frontmatter, also after post → post naviga
 }) => {
 	await page.goto('/odds-ratio');
 	const apa = page.locator('.apa');
-	await expect(apa.locator('em')).toHaveText(
-		'Understanding odds ratios and risk ratios: An interactive explanation'
+	// APA's blog-post form: full date, plain title, italic site name, no version.
+	await expect(apa).toContainText(
+		'(2026, November 2). Understanding odds ratios and risk ratios: An interactive explanation [Interactive article].'
 	);
-	await expect(apa).toContainText('[Interactive article]');
+	await expect(apa.locator('em')).toHaveText('R Psychologist');
 	await expect(apa).toContainText(/\/odds-ratio$/);
 
 	// The page component is reused, so the citation must read the new post's
@@ -264,8 +265,13 @@ test("a post's citation follows its frontmatter, also after post → post naviga
 	await page.locator('#to-other-post').click();
 	await expect(page).toHaveURL(/descriptive-adjustment$/);
 	expect(await page.evaluate(() => (window as { marker?: boolean }).marker)).toBe(true);
-	await expect(apa.locator('em')).toHaveText(
-		'Why adjusted regression coefficients are less descriptive than they look'
+	await expect(apa).toContainText(
+		'(2026, June 25). Why adjusted regression coefficients are less descriptive than they look'
 	);
 	await expect(apa).toContainText(/\/descriptive-adjustment$/);
+	// Zotero reads the head as it is now: one title, the new post's.
+	await expect(page.locator('meta[name="DC.title"]')).toHaveAttribute(
+		'content',
+		'Why adjusted regression coefficients are less descriptive than they look'
+	);
 });
